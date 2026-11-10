@@ -50,6 +50,7 @@
      44-rich-text.css
      45-colour-picker.css
      45-form-controls.css
+     46-form-check-list.css
      46-form-layout.css
      47-form-file.css
      47-form-signature.css
@@ -4839,7 +4840,7 @@ textarea.form-input::-webkit-resizer {
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .form-check input[type="checkbox"]:hover { border-color: var(--border-hover); }
-.form-check input[type="checkbox"]:checked {
+.form-check input[type="checkbox"]:is(:checked, :indeterminate, [aria-checked="mixed"]) {
     background: var(--control-on);
     border-color: var(--control-on);
 }
@@ -4852,6 +4853,29 @@ textarea.form-input::-webkit-resizer {
     border-inline-end: 2px solid var(--on-solid);
     border-bottom: 2px solid var(--on-solid);
     transform: translate(-50%, -60%) rotate(45deg);
+}
+/* ── Half ticked ────────────────────────────────────────────────────────────
+   A "select all" over a list some of whose rows are ticked: filled like a ticked box,
+   with a dash where the tick would be, so the three states differ in shape as well as
+   in fill. Two ways to say it, and both draw it:
+
+     input.indeterminate = true     the platform's own state, which a script sets — it
+                                    is a property, so no markup can
+     aria-checked="mixed"           written in the markup, by an app that renders the
+                                    state itself, as a Blazor page does
+
+   It wins over `checked`, as the platform's own box does: a box that is both shows the
+   dash. Every control in the library that draws its own checkbox draws this state too;
+   CheckboxMixedTests finds each one. */
+.form-check input[type="checkbox"]:is(:indeterminate, [aria-checked="mixed"])::after {
+    content: '';
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    width: 7px; height: 2px;
+    border: 0;
+    background: var(--on-solid);
+    transform: translate(-50%, -50%);
 }
 .form-check input[type="checkbox"]:focus-visible {
     outline: none;
@@ -7209,6 +7233,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    starts where the label starts with nothing to measure. */
 .choice-text { display: flex; flex-direction: column; gap: var(--space-1); }
 .choice-hint { font-size: var(--text-3); color: var(--muted); }
+/* What tells one option from another of the same name, on a line of its own under
+   the label: an agent's address, a group's member count. Data, where `.choice-hint`
+   is a sentence; set it in `.text-mono` where it is an address or a key. */
+.choice-meta {
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
 
 /* ── Colour ─────────────────────────────────────────────────────────────────
    `<input type="color" class="form-color">`. The native input IS the picker, so there
@@ -7266,6 +7299,222 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .swatch:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-glow); }
 .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg); }
 .swatch[aria-pressed="true"]:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-soft); }
+}
+
+/* ── 46-form-check-list.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── A field of checkboxes ──────────────────────────────────────────────────
+   An answer that is a SET of items picked from a known list — the agents a job runs
+   on, the teams told about an incident. The field is a `<fieldset class="form-field">`,
+   so its legend is announced with every box in it; the legend is the field's label,
+   and the items are a `.form-check-list`:
+
+     <fieldset class="form-field" aria-describedby="run-on-hint">
+       <legend class="form-label form-label--required">Run on</legend>
+       <p class="form-hint" id="run-on-hint">…</p>
+       <p class="form-error" id="run-on-error">…</p>        while rejected, before the items
+       <div class="form-check-list">
+         <label class="form-check">
+           <input type="checkbox" name="agents" value="build-runner-04">
+           <span class="choice-text">
+             <span>build-runner-04</span>
+             <span class="choice-meta">198.51.100.14</span>   what tells two items apart
+             <span class="choice-hint">…</span>               a sentence, when one is needed
+           </span>
+         </label>
+         …
+       </div>
+     </fieldset>
+
+   The parts around the list, each optional:
+
+     .form-check-list-head    a row over the list: a "select all" `.form-check` and the
+                              count, `.form-check-list-count` — "2 of 12 selected"
+     .form-check-group        a titled run of items inside the one field — agents, then
+                              groups — with `role="group"` named by its
+                              `.form-check-group-title`, and a `.form-hint` of its own
+     .form-check-or           the word between the list and an option that excludes it,
+                              GOV.UK's "or" before "None of these"
+     .form-check-skeleton     a row still loading: two `.skeleton`s, the box and the name
+     .form-check-list-empty   the line in the list's place when there is nothing to pick
+
+   And its shapes: `--scroll` holds a long list to `--check-list-max` and scrolls it,
+   `--inline` lays the items in a row that wraps, `--sm` and `--lg` are the sizes, and
+   `--cards` makes each item a bordered row the reader picks anywhere on.
+
+   Past about thirty items a list of boxes stops being read and starts being searched.
+   Use `.form-combo` with chips for a set picked from many, and `.transfer` where the
+   reader needs to see what is chosen beside what is not.
+
+   The behaviour — the "select all" following its items, the count, an exclusive
+   option — is `21-checks.js`, from `data-check-*` attributes; nothing here depends on
+   it. */
+
+/* A fieldset is a field like any other. The browser frames one — a border with its
+   legend set into a notch, padding inside, and a minimum width it will not shrink
+   below in a flex or grid parent — and none of that belongs to a field.
+
+   The legend stays the rendered legend, laid out above the field's column rather than
+   in it — engines differ on whether a legend can be made an ordinary child — so it
+   keeps the column's gap as a margin of its own, and the hint under it sits where it
+   sits under a label. */
+fieldset.form-field {
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+fieldset.form-field > legend {
+    inline-size: 100%;
+    margin: 0 0 var(--space-3);
+    padding: 0;
+}
+
+/* ── The list ───────────────────────────────────────────────────────────────
+   A column of `.form-check` labels, each as wide as its own text: a click beside an
+   item is not a pick. A row that carries a count at its end, and a card, take the
+   width. */
+.form-check-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    min-inline-size: 0;
+}
+.form-check-list > .form-check:has(> .form-check-count) { align-self: stretch; }
+/* An item of more than one line keeps its box on the first: the name's line, which is
+   the one the reader matches the box against, not the middle of a name, a hostname
+   and a hint. */
+.form-check-list > .form-check:has(> .choice-text) {
+    --row-line: 1lh;
+    align-items: flex-start;
+}
+.form-check-list > .form-check:has(> .choice-text) > input { margin-block-start: calc((var(--row-line) - 15px) / 2); }
+
+.form-check-list--inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-7);
+}
+/* The sizes: `--sm` a smaller name and a closer column, for a filter panel or a
+   popover; `--lg` a larger name with more room between, for a short list that is the
+   whole of a page's question. The box and the gap after it stay as they are, so a
+   `.choice-dependent` under an item still lines up with its label. */
+.form-check-list--sm { gap: var(--space-2); }
+.form-check-list--sm > .form-check { font-size: var(--text-3); }
+.form-check-list--lg { gap: var(--space-6); }
+.form-check-list--lg > .form-check { font-size: var(--text-5); }
+
+/* A long list held to a height, in a box of its own so the edge says there is more.
+   `--check-list-max` is the height, set on the list. */
+.form-check-list--scroll {
+    --check-list-max: 16rem;
+    max-block-size: var(--check-list-max);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+}
+
+/* Each item a row with an edge, picked anywhere on it — the label is the whole row,
+   so it needs no script. Ticked reads as a chosen `.choice-tile` does: the selected
+   edge and the brand tint. */
+.form-check-list--cards {
+    align-items: stretch;
+    gap: var(--space-3);
+}
+.form-check-list--cards > .form-check {
+    display: flex;
+    padding: var(--space-5);
+    background: var(--card-bg);
+    border: 1px solid var(--control-border);
+    border-radius: var(--radius-surface);
+    transition: border-color var(--motion-fast), background var(--motion-fast), box-shadow var(--motion-fast);
+}
+.form-check-list--cards > .form-check:hover { border-color: var(--border-hover); }
+.form-check-list--cards > .form-check:has(> input:checked) {
+    border-color: var(--selected);
+    background: var(--brand-tint);
+    box-shadow: inset 0 0 0 1px var(--selected);
+}
+.form-check-list--cards > .form-check:has(> input[aria-invalid="true"]) { border-color: var(--field-border-danger); }
+.form-check-list--cards > .form-check:has(> input:disabled) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+}
+.form-check-list--cards.form-check-list--sm > .form-check { padding: var(--space-3) var(--space-4); }
+
+/* ── Around the list ────────────────────────────────────────────────────────── */
+.form-check-list-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    padding-block-end: var(--space-4);
+    border-block-end: 1px solid var(--divider);
+}
+.form-check-list-count {
+    color: var(--muted);
+    font-size: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+
+.form-check-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-inline-size: 0;
+}
+.form-check-group + .form-check-group { margin-block-start: var(--space-5); }
+.form-check-group-title {
+    margin: 0;
+    color: var(--fg);
+    font-size: var(--text-3);
+    font-weight: 600;
+}
+
+.form-check-or {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+
+/* A row still loading, as tall as the row it stands in for so nothing moves when the
+   items land: the box, then the name at `--skeleton-width`. Put `aria-busy="true"` on
+   the list while they show. */
+.form-check-skeleton {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 1lh;
+    font-size: var(--text-4);
+}
+.form-check-skeleton > .skeleton:first-child {
+    flex-shrink: 0;
+    inline-size: 15px;
+    block-size: 15px;
+    border-radius: var(--radius-small);
+}
+.form-check-skeleton > .skeleton:not(:first-child) {
+    --skeleton-width: 10rem;
+    inline-size: var(--skeleton-width);
+    max-inline-size: 100%;
+    block-size: 12px;
+}
+
+.form-check-list-empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-3);
+}
+.form-check-list-empty > i { flex-shrink: 0; font-size: var(--text-5); }
 }
 
 /* ── 46-form-layout.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -7338,6 +7587,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-color: var(--field-border-danger);
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
+
+/* A rejected choice — "Choose at least one agent" — edges its box as a rejected field
+   is edged, on the box where a screen reader reads it: put `aria-invalid="true"` on
+   every checkbox or radio the message is about. Here rather than in 34, so the edge
+   holds over a hovered and a ticked box. */
+.form-check input:is([type="checkbox"], [type="radio"])[aria-invalid="true"] { border-color: var(--field-border-danger); }
 
 /* The message itself. Put it after the control and point at it with
    aria-describedby, so it is read as part of the field rather than found by
@@ -7760,17 +8015,21 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    A dependent inside a dependent indents again, measured from the edge it is already
    on.
 
-   Only the block IMMEDIATELY after the control is indented. A hint between the two
-   breaks the pairing and the block sits flush — put the hint in the control's own
-   `.choice-hint` instead, where it lines up with the label anyway. */
+   Only the block IMMEDIATELY after the control is indented — or after one message
+   about the control, a `.form-error` or a `.form-warning`, which a rejected option
+   puts there. Anything else between the two breaks the pairing and the block sits
+   flush: put a hint in the control's own `.choice-hint` instead, where it lines up
+   with the label anyway. */
 .choice-dependent {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
     min-width: 0;
 }
-.form-check + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
-.switch + .choice-dependent     { margin-inline-start: var(--choice-inset-switch); }
+.form-check + .choice-dependent,
+.form-check + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
+.switch + .choice-dependent,
+.switch + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-switch); }
 /* `display: flex` above outranks the browser's own `[hidden]`. */
 .choice-dependent[hidden] { display: none; }
 
@@ -7779,17 +8038,37 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    `:checked` state, so they need no round trip and work on a page with no
    interactivity at all; a radio is off while another in its set is chosen.
 
+   `--off` turns it round: the block applies while the option is OFF, and is hidden
+   or faded while it is on. For an option that makes the block moot — "Every agent,
+   including ones added later" above the list of agents, which is a different answer
+   from ticking every one of them.
+
    `--dim` is also inert: a block that looks unavailable and still takes focus and
    typing is the worse of both. It is not `disabled` — the values still submit with
    the form. */
-:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--hide { display: none; }
-:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim {
+:is(
+    :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+).choice-dependent--hide { display: none; }
+:is(
+    :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+).choice-dependent--dim {
     opacity: 0.45;
     interactivity: inert;
 }
 /* Opacity multiplies, so a faded block inside a faded one would drop to 0.2. The
    inner one keeps full opacity and is faded once, with its parent. */
-:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim .choice-dependent--dim { opacity: 1; }
+:is(
+    :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+).choice-dependent--dim .choice-dependent--dim { opacity: 1; }
 
 /* ── Transfer ───────────────────────────────────────────────────────────────
    Two list boxes with the buttons that move rows between them: pick on the left,
@@ -25144,6 +25423,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .editor-toolbar [aria-pressed="true"],
     .workflow-node[aria-pressed="true"],
     .choice-tile:has(> input:checked),
+    .form-check-list--cards > .form-check:has(> input:checked),
     .app-switcher-item[aria-current]:not([aria-current="false"]) { outline: 1px solid Highlight; }
     /* A selected table row is a tint and an inset bar, and neither is painted here. Each
        cell is outlined inside its own box, so the row reads as one marked band. */
@@ -25882,6 +26162,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .switch input[type="checkbox"]     { transition: none; }   /* 45 */
     .switch input[type="checkbox"]::after { transition: none; }
     .input-group      { transition: none; }   /* 46 */
+    .form-check-list--cards > .form-check { transition: none; }   /* 46 */
     .form-trigger::after { transition: none; }   /* 46 */
     .dropzone         { transition: none; }   /* 47 */
     dialog.modal      { animation: none; }    /* 36 */

@@ -1844,7 +1844,8 @@
       "family": "choice-dependent",
       "variants": [
         "choice-dependent--dim",
-        "choice-dependent--hide"
+        "choice-dependent--hide",
+        "choice-dependent--off"
       ],
       "attributes": [
         "[hidden]"
@@ -1856,8 +1857,14 @@
     "choice-dependent--hide": {
       "family": "choice-dependent"
     },
+    "choice-dependent--off": {
+      "family": "choice-dependent"
+    },
     "choice-hint": {
       "family": "choice-hint"
+    },
+    "choice-meta": {
+      "family": "choice-meta"
     },
     "choice-text": {
       "family": "choice-text"
@@ -2617,6 +2624,58 @@
     },
     "form-check-count": {
       "family": "form-check-count"
+    },
+    "form-check-group": {
+      "family": "form-check-group"
+    },
+    "form-check-group-title": {
+      "family": "form-check-group-title"
+    },
+    "form-check-list": {
+      "family": "form-check-list",
+      "variants": [
+        "form-check-list--cards",
+        "form-check-list--inline",
+        "form-check-list--lg",
+        "form-check-list--scroll",
+        "form-check-list--sm"
+      ]
+    },
+    "form-check-list--cards": {
+      "family": "form-check-list",
+      "combinedWith": [
+        "form-check-list--sm"
+      ]
+    },
+    "form-check-list--inline": {
+      "family": "form-check-list"
+    },
+    "form-check-list--lg": {
+      "family": "form-check-list"
+    },
+    "form-check-list--scroll": {
+      "family": "form-check-list"
+    },
+    "form-check-list--sm": {
+      "family": "form-check-list",
+      "combinedWith": [
+        "form-check-list--cards"
+      ]
+    },
+    "form-check-list-count": {
+      "family": "form-check-list-count"
+    },
+    "form-check-list-empty": {
+      "family": "form-check-list-empty"
+    },
+    "form-check-list-head": {
+      "family": "form-check-list-head"
+    },
+    "form-check-or": {
+      "family": "form-check-or"
+    },
+    "form-check-skeleton": {
+      "family": "form-check-skeleton"
     },
     "form-code": {
       "family": "form-code",

@@ -1,0 +1,126 @@
+@page "/form-check-list"
+
+<CatHead Title="Checkbox groups">
+    A field whose answer is a <strong>set</strong> picked from a known list &mdash; the agents a job runs on,
+    the teams told about an incident. The field is a <code>&lt;fieldset class="form-field"&gt;</code> with
+    its <code>&lt;legend class="form-label"&gt;</code>, and the items are a <code>.form-check-list</code> of
+    <code>.form-check</code>s. For one choice from a list use radios; for a set picked from more than about
+    thirty, a <a href="/form-combo">combo field</a> with chips or a <a href="/form-select">transfer</a>.
+</CatHead>
+
+<CatExample TExample="Examples.FormCheckList.Agents" Title="Agents, groups, or every agent" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> &ldquo;Every agent&rdquo; is a different answer from ticking all four: it also
+        covers agents registered later. So it is an option of its own, and the lists after it are a
+        <code>.choice-dependent--off</code>, which applies while the option is <em>off</em> and is faded
+        (<code>--dim</code>) or hidden (<code>--hide</code>) while it is on. With it off, at least one item is
+        required &mdash; the app checks that and renders the rejection.
+    </p>
+    <p>
+        The field's <code>.form-error</code> goes after the legend and hint, before the items, with
+        <code>aria-invalid="true"</code> on each box it is about. Each <code>.form-check-group</code> is a
+        <code>role="group"</code> named by its <code>.form-check-group-title</code>, with a hint of its own;
+        the second is still loading, so its list is <code>aria-busy="true"</code> and holds
+        <code>.form-check-skeleton</code> rows as tall as the rows coming.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.Basic" Title="Items with a second line" Demo="ex-demo--block">
+    <p>
+        An item is a <code>.form-check</code> whose <code>.choice-text</code> holds the name, then
+        <code>.choice-meta</code> &mdash; what tells two items apart, a member count or an address &mdash; and,
+        when one is needed, a <code>.choice-hint</code> sentence. The box stays on the name's line. Each item
+        is as wide as its own text, so a click beside it picks nothing.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.Long" Title="Select all, the count, and a long list" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> A <code>.form-check-list-head</code> holds the &ldquo;select all&rdquo; and the
+        <code>.form-check-list-count</code>. <code>data-check-all</code> names the items it governs by their
+        <code>name</code>: it ticks or clears them all, and is half ticked while some are.
+        <code>data-check-count</code> writes <code>data-check-format</code> with <code>{n}</code> and
+        <code>{m}</code> filled in, in your words. A Blazor page that keeps the state itself renders
+        <code>aria-checked="mixed"</code> on the &ldquo;select all&rdquo; instead, and leaves
+        <code>data-check-all</code> off.
+    </p>
+    <p>
+        <code>.form-check-list--scroll</code> holds the list to <code>--check-list-max</code>, 16rem unless you
+        set it, in an edge of its own so the reader sees there is more.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.Exclusive" Title="An option that excludes the rest" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> &ldquo;None of these&rdquo; after a <code>.form-check-or</code> carries the
+        items' <code>name</code> and <code>data-check-exclusive</code>: ticking it clears the others, and
+        ticking any of them clears it. A box the script changes gets a bubbling <code>change</code>, as a
+        click would give it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.Cards" Title="Card rows" Demo="ex-demo--block">
+    <p>
+        <code>.form-check-list--cards</code> gives each item an edge and makes the whole row the target. A
+        ticked row reads as a chosen <a href="/form-choice">choice tile</a> does. Use it where each item needs
+        a sentence; a picture to choose between is a <code>.choice-tiles</code> radio group.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.CompactInline" Title="Sizes, and a row" Demo="ex-demo--block">
+    <p>
+        <code>.form-check-list--sm</code> is the compact size, for a filter panel or a popover; a
+        <code>.form-check-count</code> at an item's end takes the list's width so the counts line up.
+        <code>.form-check-list--lg</code> suits a short list that is the whole of a page's question.
+        <code>.form-check-list--inline</code> lays short items in a row that wraps.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.States" Title="Rejected, read-only, disabled" Demo="ex-demo--block">
+    <p>
+        Rejected is <code>aria-invalid="true"</code> on the boxes, which edges each as a rejected field is
+        edged; required is <code>.form-label--required</code> on the legend. A read-only box takes
+        <code>aria-readonly="true"</code>. <code>disabled</code> on the fieldset disables every box in it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.LoadingEmpty" Title="Loading and empty" Demo="ex-demo--block">
+    <p>
+        <code>.form-check-skeleton</code> is two <code>.skeleton</code>s, the box and the name at
+        <code>--skeleton-width</code>. <code>.form-check-list-empty</code> takes the list's place when there
+        is nothing to pick, and says what would put something there.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.FormCheckList.MessageBetween" Title="A message between an option and its block" Demo="ex-demo--block">
+    <p>
+        A <code>.form-error</code> or <code>.form-warning</code> straight after a <code>.form-check</code> or
+        <code>.switch</code> keeps the pair: the <code>.choice-dependent</code> after the message still
+        indents to the label, and still hides or fades with the option.
+    </p>
+</CatExample>
+
+<h2 id="parts">Parts and states</h2>
+<div class="sedna-scroll-x">
+    <table class="table">
+        <thead>
+            <tr><th>Class or attribute</th><th>On</th><th>What it is</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>fieldset.form-field</code></td><td>the field</td><td>A fieldset with no browser frame, its legend in the field's column</td></tr>
+            <tr><td><code>.form-check-list</code></td><td>the items' parent</td><td>The column of items; <code>--scroll</code>, <code>--inline</code>, <code>--sm</code>, <code>--lg</code>, <code>--cards</code></td></tr>
+            <tr><td><code>--check-list-max</code></td><td><code>.form-check-list--scroll</code></td><td>The height a long list is held to</td></tr>
+            <tr><td><code>.choice-meta</code></td><td>in <code>.choice-text</code></td><td>The item's second line: an address, a count</td></tr>
+            <tr><td><code>.form-check-list-head</code></td><td>above the list</td><td>The &ldquo;select all&rdquo; and the count</td></tr>
+            <tr><td><code>.form-check-list-count</code></td><td>in the head</td><td>&ldquo;2 of 12 selected&rdquo;</td></tr>
+            <tr><td><code>.form-check-group</code>, <code>.form-check-group-title</code></td><td>in the field</td><td>A titled run of items, <code>role="group"</code></td></tr>
+            <tr><td><code>.form-check-or</code></td><td>before an exclusive item</td><td>The &ldquo;or&rdquo;</td></tr>
+            <tr><td><code>.form-check-skeleton</code></td><td>in a busy list</td><td>A row still loading</td></tr>
+            <tr><td><code>.form-check-list-empty</code></td><td>in the list's place</td><td>Nothing to pick</td></tr>
+            <tr><td><code>.choice-dependent--off</code></td><td>after the &ldquo;every&rdquo; option</td><td>Applies while the option is off</td></tr>
+            <tr><td><code>data-check-all</code>, <code>data-check-count</code>, <code>data-check-format</code>, <code>data-check-exclusive</code></td><td>boxes and the count</td><td>The behaviour, from <code>Sedna.UI.js</code></td></tr>
+            <tr><td><code>aria-invalid="true"</code>, <code>aria-readonly="true"</code>, <code>disabled</code></td><td>each box, or the fieldset</td><td>Rejected, read-only, disabled</td></tr>
+            <tr><td><code>indeterminate</code>, <code>aria-checked="mixed"</code></td><td>the &ldquo;select all&rdquo;</td><td>Half ticked</td></tr>
+        </tbody>
+    </table>
+</div>

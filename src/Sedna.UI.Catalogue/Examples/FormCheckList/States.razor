@@ -1,0 +1,24 @@
+<div class="sedna-col sedna-gap-3" style="max-width:480px">
+    <fieldset class="form-field" aria-describedby="st-error">
+        <legend class="form-label form-label--required">Send the report to</legend>
+        <p class="form-error" id="st-error"><i class="ri-error-warning-line"></i><span>Choose at least one recipient.</span></p>
+        <div class="form-check-list">
+            <label class="form-check"><input type="checkbox" name="st-to" value="ops" aria-invalid="true" /> <span>Operations</span></label>
+            <label class="form-check"><input type="checkbox" name="st-to" value="finance" aria-invalid="true" /> <span>Finance</span></label>
+        </div>
+    </fieldset>
+    <fieldset class="form-field">
+        <legend class="form-label">Regions you can see</legend>
+        <div class="form-check-list">
+            <label class="form-check"><input type="checkbox" name="st-regions" value="north" checked aria-readonly="true" /> <span>North</span></label>
+            <label class="form-check"><input type="checkbox" name="st-regions" value="south" aria-readonly="true" /> <span>South</span></label>
+        </div>
+    </fieldset>
+    <fieldset class="form-field" disabled>
+        <legend class="form-label">Channels</legend>
+        <div class="form-check-list">
+            <label class="form-check"><input type="checkbox" name="st-channels" value="email" checked /> <span>E-mail</span></label>
+            <label class="form-check"><input type="checkbox" name="st-channels" value="sms" /> <span>Text message</span></label>
+        </div>
+    </fieldset>
+</div>

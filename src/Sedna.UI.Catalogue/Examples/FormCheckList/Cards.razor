@@ -1,0 +1,28 @@
+<fieldset class="form-field" style="max-width:520px">
+    <legend class="form-label">Include in the export</legend>
+    <div class="form-check-list form-check-list--cards">
+        <label class="form-check">
+            <input type="checkbox" name="export-parts" value="orders" checked />
+            <span class="choice-text">
+                <span>Orders</span>
+                <span class="choice-meta">48,210 rows</span>
+                <span class="choice-hint">One row per order line, with its status at the end of the day.</span>
+            </span>
+        </label>
+        <label class="form-check">
+            <input type="checkbox" name="export-parts" value="returns" />
+            <span class="choice-text">
+                <span>Returns</span>
+                <span class="choice-meta">1,906 rows</span>
+                <span class="choice-hint">Each return with the order it belongs to.</span>
+            </span>
+        </label>
+        <label class="form-check">
+            <input type="checkbox" name="export-parts" value="audit" disabled />
+            <span class="choice-text">
+                <span>Audit trail</span>
+                <span class="choice-meta">Needs the auditor role</span>
+            </span>
+        </label>
+    </div>
+</fieldset>
