@@ -61,9 +61,10 @@ jobs:
     # run meant some seventy apt packages from the Ubuntu mirror, and one slow mirror held
     # a release for half an hour. BrowserFloorTests keeps the tag and the package in step.
     container: mcr.microsoft.com/playwright/dotnet:v1.64.1-noble
-    # The slowest slice takes about 15 minutes. A stall — a download, a hung browser —
-    # fails here instead of holding the release for the six hours GitHub allows.
-    timeout-minutes: 45
+    # The slowest slice, the catalogue in WebKit, takes about 46 minutes. A stall — a
+    # download, a hung browser — fails here instead of holding the release for the six
+    # hours GitHub allows; a single hung test fails sooner, by --blame-hang.
+    timeout-minutes: 75
     permissions:
       contents: read
     # Every slice runs to the end, so one red run names every failure instead of the
