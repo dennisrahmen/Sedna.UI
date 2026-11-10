@@ -5,9 +5,9 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// index and the MCP server all see it.
 /// </summary>
 /// <param name="Section">
-/// A labelled section inside the group's panel, for pages that belong in the group's
-/// area but not in its main list — the reference pages under Start. Null for the
-/// main list, which is every other page.
+/// A labelled section inside the group's panel, which splits a long group into the
+/// jobs its pages do. The sidebar and the landing page show a group's main list first
+/// and its sections after it, in first-seen order. Null for the main list.
 /// </param>
 internal sealed record CataloguePage(
     string Route,
