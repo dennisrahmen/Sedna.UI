@@ -15424,7 +15424,16 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     text-box: trim-both cap alphabetic;
     padding-block: var(--cap-gap);
 }
-.tree-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); font-variant-numeric: tabular-nums; }
+/* A smaller label than the row's, so it is trimmed to its own capitals and centred on the
+   row's line like the label beside it. */
+.tree-count {
+    margin-inline-start: auto;
+    color: var(--muted);
+    font-size: var(--text-2);
+    font-variant-numeric: tabular-nums;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
 
 /* ── The caret ──────────────────────────────────────────────────────────────
    Every row starts with one, so a leaf's label lines up with its branch siblings'; on a
