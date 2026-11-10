@@ -1,0 +1,48 @@
+<table class="table" @onsedna-popover-fill="Fill">
+    <thead><tr><th>Order</th><th>Customer</th><th>Due</th></tr></thead>
+    <tbody>
+        @foreach (var order in Orders)
+        {
+            <tr @key="order.Id">
+                <td><span class="text-mono" id="@($"order-{order.Id}")" data-popover="order-card" data-popover-hover
+                          tabindex="0" role="button">@order.Id</span></td>
+                <td>@order.Customer</td>
+                <td>@order.Due</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="popover" id="order-card" popover data-popover-for="@_cardFor">
+    @if (_card is { } card)
+    {
+        <strong class="popover-title">@card.Id</strong>
+        <div class="kv"><span class="k">Lines</span><span class="v">@card.Lines</span></div>
+        <div class="kv"><span class="k">Carrier</span><span class="v">@card.Carrier</span></div>
+        <div class="kv"><span class="k">Contact</span><span class="v">@card.Contact</span></div>
+    }
+</div>
+
+@code {
+    private sealed record Order(string Id, string Customer, string Due, int Lines, string Carrier, string Contact);
+
+    private static readonly Order[] Orders =
+    [
+        new("ORD-4182", "Northwind Retail", "Today", 12, "Road freight, bay 2", "alex.fischer@example.com"),
+        new("ORD-4183", "Northwind Retail", "Tomorrow", 3, "Parcel", "alex.fischer@example.com"),
+        new("ORD-4184", "Walk-in", "Fri", 1, "Collection at the desk", "desk@example.com"),
+        new("ORD-4185", "Northwind Retail", "Mon", 40, "Road freight, bay 4", "alex.fischer@example.com"),
+    ];
+
+    private Order? _card;
+    private string _cardFor = "";
+
+    // One card for every row. The card is rendered for the row that asked, and its
+    // data-popover-for names that row's trigger in the same render — which is what opens it.
+    // An app with hundreds of rows renders one card, not hundreds, and can load the detail here.
+    private void Fill(SednaPopoverEventArgs e)
+    {
+        _card = Orders.FirstOrDefault(o => $"order-{o.Id}" == e.Trigger);
+        _cardFor = _card is null ? "" : e.Trigger;
+    }
+}

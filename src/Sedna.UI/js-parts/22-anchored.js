@@ -133,6 +133,9 @@
             : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
         if (!trigger) return;
         ui._.layer.whenGone(trigger, function () {
+            // A panel shared by many triggers may have moved on to another since.
+            var now = ui.popover ? ui.popover.triggerOf(panel) : null;
+            if (now && now !== trigger) return;
             try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
         });
     }, true);

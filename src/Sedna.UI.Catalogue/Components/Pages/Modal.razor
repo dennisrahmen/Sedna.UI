@@ -177,8 +177,16 @@
         <code>closedby="any"</code> on the <code>&lt;dialog&gt;</code> closes it on a click on the
         backdrop, as <kbd>Escape</kbd> does — the platform's own light dismiss, in every browser
         this library supports, with nothing to script and no <code>target === dialog</code> test
-        to get wrong. Keep it for a dialog that holds nothing to lose; with
-        <code>data-close-guard</code> the click is refused like any other close request.
+        to get wrong: the press and the release both have to land on the backdrop, so a drag that
+        starts in a field and ends beside the dialog closes nothing. It works the same on a
+        <a href="/drawer">drawer or a sheet</a>, modal or not, and on a
+        <a href="/media">lightbox</a>, where the stage beside the picture stands in for the backdrop.
+    </p>
+    <p>
+        With <code>data-close-guard</code> the click is a close request like <kbd>Escape</kbd>: the
+        dialog stays open and raises <code>cancel</code>, every time, so your
+        <code>&#64;oncancel</code> decides &mdash; save a pending note and close, or route it to the
+        same outcome as the Cancel button.
     </p>
 </CatSnippet>
 

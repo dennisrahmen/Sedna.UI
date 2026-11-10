@@ -915,6 +915,8 @@ window.sednaUi = window.sednaUi || {};
             : (panel.id ? document.querySelector('[popovertarget="' + panel.id + '"]') : null);
         if (!trigger) return;
         ui._.layer.whenGone(trigger, function () {
+            var now = ui.popover ? ui.popover.triggerOf(panel) : null;
+            if (now && now !== trigger) return;
             try { if (panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* already closed */ }
         });
     }, true);
@@ -1599,6 +1601,29 @@ window.sednaUi = window.sednaUi || {};
         closeAll(null);
         try { open.focus(); } catch (err) { /* detached */ }
     });
+    function outermost(el) {
+        var menu = el.closest('.menu');
+        for (var up = menu && menu.parentElement ? menu.parentElement.closest('.menu') : null; up;
+            up = up.parentElement ? up.parentElement.closest('.menu') : null) menu = up;
+        return menu;
+    }
+    function closeMenu(menu) {
+        if (menu.hasAttribute('popover')) {
+            try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
+            return;
+        }
+        var anchor = menu.closest('.menu-anchor');
+        var toggle = anchor ? anchor.querySelector('[data-menu-toggle]') : null;
+        if (toggle && panelOf(toggle) === menu && toggle.getAttribute('aria-expanded') === 'true') setOpen(toggle, menu, false);
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || e.defaultPrevented) return;
+        var menu = e.target instanceof Element ? outermost(e.target) : null;
+        if (!menu) return;
+        setTimeout(function () {
+            if (!menu.contains(document.activeElement)) closeMenu(menu);
+        }, 0);
+    });
     function items(menu) {
         return Array.prototype.filter.call(menu.querySelectorAll('.menu-item'), function (el) {
             return el.closest('.menu') === menu && !el.disabled && el.getAttribute('aria-disabled') !== 'true'
@@ -1800,6 +1825,17 @@ window.sednaUi = window.sednaUi || {};
     var triggers = new WeakMap();
     var pinned = new WeakSet();   // hover cards a click has pinned open
     var count = 0;
+    function isOpen(panel) {
+        try { return panel.matches(':popover-open'); } catch (err) { return false; }
+    }
+    var takesSource = false;
+    try {
+        document.documentElement.showPopover({ get source() { takesSource = true; return null; } });
+    } catch (err) { /* not a popover: thrown after the argument was read */ }
+    function around(trigger) {
+        var host = trigger.parentElement ? trigger.parentElement.closest('[popover]') : null;
+        return host && isOpen(host) ? host : null;
+    }
     function anchor(panel, trigger) {
         var name = trigger.style.getPropertyValue('anchor-name');
         if (!name) {
@@ -1810,12 +1846,20 @@ window.sednaUi = window.sednaUi || {};
     }
     function show(panel, trigger) {
         if (!panel || typeof panel.showPopover !== 'function') return;
+        var was = triggers.get(panel);
         if (trigger) {
             triggers.set(panel, trigger);
             anchor(panel, trigger);
             if (panel.id) trigger.setAttribute('aria-controls', panel.id);
         }
-        try { panel.showPopover(); } catch (err) { /* already open, or not a popover */ }
+        if (trigger && was && was !== trigger && isOpen(panel)) {
+            if (was.hasAttribute('data-popover')) was.setAttribute('aria-expanded', 'false');
+            hide(panel);
+        }
+        try {
+            if (trigger && takesSource && around(trigger)) panel.showPopover({ source: trigger });
+            else panel.showPopover();
+        } catch (err) { /* already open, or not a popover */ }
     }
     function hide(panel) {
         try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); }
@@ -1839,13 +1883,65 @@ window.sednaUi = window.sednaUi || {};
         var id = trigger.getAttribute('data-popover');
         return id ? document.getElementById(id) : null;
     }
-    var wasOpen = null;
+    var pending = null;   // { panel, trigger, observer } while the app fills a panel
+    function cancelFill() {
+        if (pending) pending.observer.disconnect();
+        pending = null;
+    }
+    function request(panel, trigger, pin) {
+        cancelFill();
+        var go = function () {
+            if (pin) pinned.add(panel);
+            show(panel, trigger);
+        };
+        if (!panel.hasAttribute('data-popover-for')) { go(); return; }
+        var name = trigger.id;
+        if (!name) {
+            console.warn('sednaUi.popover: a trigger of #' + panel.id + ' has no id, so data-popover-for cannot name it; the panel opens as it is.');
+            go();
+            return;
+        }
+        trigger.dispatchEvent(new CustomEvent('sedna-popover-fill', {
+            bubbles: true,
+            detail: { trigger: name, popover: panel.id || null }
+        }));
+        if (panel.getAttribute('data-popover-for') === name) { go(); return; }
+        if (typeof MutationObserver !== 'function') { go(); return; }
+        var p = pending = { panel: panel, trigger: trigger };
+        p.observer = new MutationObserver(function () {
+            if (pending !== p || panel.getAttribute('data-popover-for') !== name) return;
+            cancelFill();
+            if (trigger.isConnected) go();
+        });
+        p.observer.observe(panel, { attributes: true, attributeFilter: ['data-popover-for'] });
+    }
+    function blocked(panel, trigger) {
+        var open;
+        try { open = document.querySelectorAll(':popover-open'); } catch (err) { return false; }
+        for (var i = 0; i < open.length; i++) {
+            var p = open[i];
+            if (p === panel || p.contains(panel)) continue;
+            if (takesSource && p.contains(trigger)) continue;
+            var kind = (p.getAttribute('popover') || '').toLowerCase();
+            if (kind !== '' && kind !== 'auto') continue;
+            var t = triggers.get(p);
+            if (t && t.hasAttribute('data-popover-hover') && !pinned.has(p)) continue;
+            return true;
+        }
+        return false;
+    }
+    var wasOpen = null, wasAt = null;
     document.addEventListener('pointerdown', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
         var panel = trigger ? target(trigger) : null;
-        wasOpen = null;
-        try { if (panel && panel.matches(':popover-open')) wasOpen = panel; } catch (err) { /* no :popover-open */ }
+        wasOpen = wasAt = null;
+        if (panel && isOpen(panel)) { wasOpen = panel; wasAt = triggers.get(panel) || null; }
     }, true);
+    function openAt(panel, trigger) {
+        var at = wasOpen === panel ? wasAt : (isOpen(panel) ? triggers.get(panel) : null);
+        wasOpen = wasAt = null;
+        return at === trigger;
+    }
     document.addEventListener('click', function (e) {
         var trigger = e.target instanceof Element ? e.target.closest('[data-popover]') : null;
         if (!trigger) return;
@@ -1853,28 +1949,26 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         if (hoverOnly(trigger)) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
+            cancelFill();
             hide(panel);
             return;
         }
         e.preventDefault();
         e.stopPropagation();
+        var here = openAt(panel, trigger);
         if (trigger.hasAttribute('data-popover-hover')) {
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            var open = false;
-            try { open = panel.matches(':popover-open'); } catch (err) { /* no :popover-open */ }
-            if (pinned.has(panel) && (open || wasOpen === panel)) {
-                wasOpen = null;
+            if (pinned.has(panel) && here) {
+                cancelFill();
                 pinned.delete(panel);
                 hide(panel);
                 return;
             }
-            wasOpen = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
             return;
         }
-        if (wasOpen === panel) { wasOpen = null; hide(panel); return; }
-        ui.popover.toggle(panel, trigger);
+        if (here) { cancelFill(); hide(panel); return; }
+        request(panel, trigger, false);
     });
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -1885,7 +1979,8 @@ window.sednaUi = window.sednaUi || {};
         var panel = target(trigger);
         if (!panel) return;
         e.preventDefault();
-        ui.popover.toggle(panel, trigger);
+        if (isOpen(panel) && triggers.get(panel) === trigger) { cancelFill(); hide(panel); }
+        else request(panel, trigger, false);
     });
     var hoverTimer = 0, leaveTimer = 0, hovered = null;
     function hoverOnly(trigger) { return trigger.getAttribute('data-popover-hover') === 'only'; }
@@ -1898,9 +1993,13 @@ window.sednaUi = window.sednaUi || {};
         if (!panel) return;
         clearTimeout(leaveTimer);
         clearTimeout(hoverTimer);
+        if (pinned.has(panel) && isOpen(panel)) return;   // pinned where the reader left it
         hovered = panel;
-        hoverTimer = setTimeout(function () { show(panel, trigger); }, delayOf(trigger));
+        hoverTimer = setTimeout(function () {
+            if (!blocked(panel, trigger)) request(panel, trigger, false);
+        }, delayOf(trigger));
     }
+    function engaged(el) { return !!el && (el.matches(':hover') || el === document.activeElement); }
     function leave() {
         clearTimeout(hoverTimer);
         var panel = hovered;
@@ -1908,9 +2007,10 @@ window.sednaUi = window.sednaUi || {};
         clearTimeout(leaveTimer);
         leaveTimer = setTimeout(function () {
             var trigger = triggers.get(panel);
+            var waiting = pending && pending.panel === panel ? pending.trigger : null;
             var stay = panel.matches(':hover') || panel.contains(document.activeElement)
-                || (trigger && (trigger.matches(':hover') || trigger === document.activeElement));
-            if (!stay) { hide(panel); hovered = null; }
+                || engaged(trigger) || engaged(waiting);
+            if (!stay) { cancelFill(); hide(panel); hovered = null; }
         }, 200);
     }
     document.addEventListener('pointerover', function (e) {
@@ -1956,8 +2056,7 @@ window.sednaUi = window.sednaUi || {};
             pressed = trigger;
             held = { trigger: trigger, panel: panel };
             clearTimeout(hoverTimer); clearTimeout(leaveTimer); hovered = null;
-            pinned.add(panel);
-            show(panel, trigger);
+            request(panel, trigger, true);
         }, LONG_PRESS);
     }, true);
     document.addEventListener('pointermove', function (e) {
@@ -1985,15 +2084,16 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
         if (!panel || !panel.matches || !panel.matches('[popover]')) return;
-        if (e.newState === 'closed') pinned.delete(panel);
-        if (e.newState === 'closed' && held && held.panel === panel && held.trigger.isConnected) {
+        var open = isOpen(panel);
+        if (!open) pinned.delete(panel);
+        if (!open && held && held.panel === panel && held.trigger.isConnected) {
             pinned.add(panel);
             show(panel, held.trigger);
             return;
         }
         var trigger = triggers.get(panel);
         if (!trigger || !trigger.hasAttribute('data-popover')) return;
-        trigger.setAttribute('aria-expanded', e.newState === 'open' ? 'true' : 'false');
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     }, true);
 })(window.sednaUi);
 (function (ui) {
@@ -7482,6 +7582,26 @@ window.sednaUi = window.sednaUi || {};
         if (!d || d.matches(':modal')) return;
         if (document.querySelector(':popover-open:not([popover="manual"])')) return;
         e.preventDefault();
+        if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
+    });
+    var besideDown = null;
+    function beside(e) {
+        var t = e.target instanceof Element ? e.target : null;
+        var d = t ? t.closest('dialog.lightbox[open]') : null;
+        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
+        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+    }
+    document.addEventListener('pointerdown', function (e) {
+        besideDown = e.button === 0 ? beside(e) : null;
+    }, true);
+    document.addEventListener('pointerup', function (e) {
+        if (besideDown && beside(e) !== besideDown) besideDown = null;
+    }, true);
+    document.addEventListener('click', function (e) {
+        var was = besideDown;
+        besideDown = null;
+        var d = e.button === 0 && !e.defaultPrevented ? beside(e) : null;
+        if (!d || d !== was) return;
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
     function syncToggles(d) {

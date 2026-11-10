@@ -95,6 +95,39 @@
         try { open.focus(); } catch (err) { /* detached */ }
     });
 
+    /* ── Tab leaves a menu ─────────────────────────────────────────────────
+       Each item is a Tab stop of its own, and the Tab or Shift+Tab that takes the focus out
+       of an open menu closes it, as the WAI-ARIA menu pattern does: a dropdown, a menu at the
+       pointer and a `.menu[popover]` a popovertarget button opened. The focus goes on where
+       the key sent it — nothing is held back and nothing moved. A menu held by the app — the
+       user widget's — is the app's to close. */
+    function outermost(el) {
+        var menu = el.closest('.menu');
+        for (var up = menu && menu.parentElement ? menu.parentElement.closest('.menu') : null; up;
+            up = up.parentElement ? up.parentElement.closest('.menu') : null) menu = up;
+        return menu;
+    }
+
+    function closeMenu(menu) {
+        if (menu.hasAttribute('popover')) {
+            try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
+            return;
+        }
+        var anchor = menu.closest('.menu-anchor');
+        var toggle = anchor ? anchor.querySelector('[data-menu-toggle]') : null;
+        if (toggle && panelOf(toggle) === menu && toggle.getAttribute('aria-expanded') === 'true') setOpen(toggle, menu, false);
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || e.defaultPrevented) return;
+        var menu = e.target instanceof Element ? outermost(e.target) : null;
+        if (!menu) return;
+        // The focus moves as the key's own default action, which has run by the next task.
+        setTimeout(function () {
+            if (!menu.contains(document.activeElement)) closeMenu(menu);
+        }, 0);
+    });
+
     /* ── Moving through a menu with the keyboard ───────────────────────────
        Up and Down move between the items of the open menu that has the focus, Home and
        End go to its ends; Right on a `[data-menu-sub]` item opens its submenu and enters
