@@ -86,6 +86,12 @@ public class BrowserFloorTests
         Assert.True(trust > 0 && trust < history,
             "release.yml's container test job does not mark the checkout safe before git reads it.");
 
+        // The image carries no Python, and the app tooling's tests start python3.
+        var python = Regex.Match(yaml, @"apt-get install[^\n]*\bpython3\b");
+        var test = yaml.IndexOf("dotnet test", image.Index, StringComparison.Ordinal);
+        Assert.True(python.Success && python.Index > image.Index && python.Index < test,
+            "release.yml's container test job does not install python3 before the tests, which start it.");
+
         foreach (var csproj in Directory.GetFiles(Path.Combine(Assets.RepoRoot, "src"), "*.Tests.csproj", SearchOption.AllDirectories))
         {
             var package = Regex.Match(File.ReadAllText(csproj), @"Include=""Microsoft\.Playwright"" Version=""(?<v>[\d.]+)""");
