@@ -91,6 +91,23 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Interop.DragCopy" Title="Copy onto slots" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <strong>Live &mdash; drag a template onto a shortcut key.</strong> <code>data-drag-effect="copy"</code>
+        on the zone a drag starts from &mdash; or on one item &mdash; makes it a copy: the template stays in
+        its list, outlined, and what travels under the pointer is its name. <code>Effect</code> is
+        <code>"copy"</code> in every event, so the handler adds it to <code>To</code> and leaves
+        <code>From</code> alone. The list it came from never takes it back, and
+        <code>data-drag-effect="move"</code> on an item inside a copying list moves that one.
+    </p>
+    <p>
+        A key holds one template, so a position means nothing there. A zone carries its own
+        <code>data-drag-move</code> and <code>data-drag-drop</code> sentences, read instead of the live
+        region's for that zone &mdash; here <code>{zone}</code> and <code>{item}</code> without a position.
+        From the keyboard, <kbd class="kbd">Page Down</kbd> from the list reaches the first key below it.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Interop.DragAutoScroll" Title="Scrolling while dragging" Demo="ex-demo--block ex-demo--pad">
     <p>
         <strong>Live &mdash; hold a row against the bottom edge.</strong> Near the edge of anything that
@@ -139,8 +156,10 @@
             <tr><td><code>data-drag-accept="a b"</code></td><td>a zone</td><td>The only types it takes. Empty takes nothing.</td></tr>
             <tr><td><code>data-drag-axis</code></td><td>a zone</td><td><code>y</code> by default, <code>x</code> for a row, <code>grid</code> for tiles, <code>slot</code> for a place an item is put rather than a list it joins — a <a href="/calendar-agenda">calendar</a>'s day or half hour.</td></tr>
             <tr><td><code>data-drag-label</code></td><td>an item or a zone</td><td>Its name in an announcement. An item falls back to its text, a zone to its <code>aria-label</code>.</td></tr>
+            <tr><td><code>data-drag-effect="copy"</code></td><td>a zone or an item</td><td>What is dropped is a copy: the original stays where it is and the zone it came from does not take it back. <code>"move"</code> on an item inside a copying zone moves that one.</td></tr>
             <tr><td><code>aria-disabled="true"</code></td><td>an item or a zone</td><td>Nothing lifts from it or lands in it.</td></tr>
             <tr><td><code>data-drag-live</code></td><td>a live region</td><td>Where a keyboard drag is announced, in the sentences below.</td></tr>
+            <tr><td><code>data-drag-pickup</code>, <code>-move</code>, <code>-drop</code>, <code>-cancel</code></td><td>the live region, or a zone</td><td>The sentence for that step. On a zone, it is read instead of the live region's for that zone.</td></tr>
         </tbody>
     </table>
 </div>
@@ -152,9 +171,9 @@
             <tr><th>Event</th><th>On</th><th>Detail</th></tr>
         </thead>
         <tbody>
-            <tr><td><code>sedna-dragstart</code></td><td>the item</td><td><code>item</code>, <code>type</code>, <code>zone</code>, <code>index</code>, <code>keyboard</code>. Cancelable.</td></tr>
-            <tr><td><code>sedna-drop</code></td><td>the zone it landed in</td><td><code>item</code>, <code>type</code>, <code>from</code>, <code>to</code>, <code>index</code>, <code>fromIndex</code>, <code>keyboard</code>, and <code>fromSlot</code> for a drop on a <a href="/calendar-agenda">slot</a>. Only when the item moved.</td></tr>
-            <tr><td><code>sedna-dragend</code></td><td>the item</td><td>As <code>sedna-dragstart</code>, plus <code>dropped</code>. Always, last.</td></tr>
+            <tr><td><code>sedna-dragstart</code></td><td>the item</td><td><code>item</code>, <code>items</code>, <code>type</code>, <code>zone</code>, <code>index</code>, <code>keyboard</code>, <code>effect</code>. Cancelable.</td></tr>
+            <tr><td><code>sedna-drop</code></td><td>the zone it landed in</td><td><code>item</code>, <code>items</code>, <code>type</code>, <code>from</code>, <code>to</code>, <code>index</code>, <code>fromIndex</code>, <code>keyboard</code>, <code>effect</code>, and <code>fromSlot</code> for a drop on a <a href="/calendar-agenda">slot</a>. Only when the item moved, or was copied.</td></tr>
+            <tr><td><code>sedna-dragend</code></td><td>the item</td><td>As <code>sedna-dragstart</code>, plus <code>dropped</code>. Always, last. After a copy, <code>zone</code> and <code>index</code> are still where the item started.</td></tr>
         </tbody>
     </table>
 </div>
@@ -174,7 +193,7 @@
             <tr><td><kbd class="kbd">↑</kbd> <kbd class="kbd">↓</kbd></td><td>Moves it along a list, or by a row in a grid.</td></tr>
             <tr><td><kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd></td><td>Moves it to the previous or next zone that takes it; along a row or a grid.</td></tr>
             <tr><td><kbd class="kbd">Home</kbd> <kbd class="kbd">End</kbd></td><td>To the first or last position.</td></tr>
-            <tr><td><kbd class="kbd">Page Up</kbd> <kbd class="kbd">Page Down</kbd></td><td>To the previous or next zone, in any layout.</td></tr>
+            <tr><td><kbd class="kbd">Page Up</kbd> <kbd class="kbd">Page Down</kbd></td><td>To the previous or next zone, in any layout &mdash; from a zone that takes nothing back, the nearest one before or after it.</td></tr>
             <tr><td><kbd class="kbd">Esc</kbd>, or leaving the item</td><td>Puts it back.</td></tr>
         </tbody>
     </table>
@@ -183,6 +202,7 @@
     Each step is read out through the app's own <code>[data-drag-live]</code> region, from the sentence in
     its <code>data-drag-pickup</code>, <code>data-drag-move</code>, <code>data-drag-drop</code> or
     <code>data-drag-cancel</code>, with <code>{item}</code>, <code>{zone}</code>, <code>{position}</code> and
-    <code>{count}</code> filled in. A step with no sentence says nothing. Once the app has moved the item,
-    focus returns to it.
+    <code>{count}</code> filled in. A zone may carry its own sentence for a step, read for that zone instead:
+    the zone the item moves into or lands in, and the zone it is picked up from or put back in. A step with
+    no sentence says nothing. Once the app has moved the item, focus returns to it.
 </p>

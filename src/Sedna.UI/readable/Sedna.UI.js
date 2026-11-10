@@ -7106,6 +7106,8 @@ window.sednaUi = window.sednaUi || {};
                                 `slot` is a place with no order of its own: see below
      data-drag-label="…"        what an announcement calls an item or a zone; an item
                                 falls back to its text, a zone to its aria-label
+     data-drag-effect="copy"    on a zone or an item: what is dropped is a copy, and the
+                                original stays where it is. See COPIES below
      aria-disabled="true"       on an item, it does not lift; on a zone, nothing lifts
                                 from it or lands in it
 
@@ -7114,9 +7116,9 @@ window.sednaUi = window.sednaUi || {};
    worse, diffed against the wrong sibling — on the next render. So a drag changes
    attributes only, and the move itself is an event the app handles:
 
-     sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard }
-     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard, fromSlot }
-     sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped }
+     sedna-dragstart   on the item, cancelable       { item, items, type, zone, index, keyboard, effect }
+     sedna-drop        on the zone it landed in      { item, items, type, from, to, index, fromIndex, keyboard, fromSlot, effect }
+     sedna-dragend     on the item, always, last     { item, items, type, zone, index, keyboard, dropped, effect }
 
    `index` in sedna-drop is where the item goes in `to` once it has left `from`, so
    the app's whole handler is a remove and an insert. A drop back where it started
@@ -7132,6 +7134,16 @@ window.sednaUi = window.sednaUi || {};
    distance between the two. Dropped back on `fromSlot` it sends no sedna-drop. From the
    keyboard the item starts on that slot, and the arrows move it to the nearest slot
    that way on screen. Every other drop has `fromSlot: null`.
+
+   COPIES. data-drag-effect="copy" on the zone an item is dragged from — a palette, a
+   list of templates — or on the item itself makes every drag from it a copy: `effect` is
+   "copy" in all three events, and the app adds the item to `to` and leaves `from` as it
+   is. The original stays where it is, outlined, under the pointer and from the keyboard
+   alike; what travels under a pointer is its name, read the way an announcement reads
+   it, in a box the item's size drawn by the stylesheet from --drag-name. Nothing leaves
+   the zone, so the zone it came from does not take it back, and sedna-dragend names the
+   original's own place. data-drag-effect="move" on an item inside a copying zone moves
+   that one. Every other drag has `effect: "move"`.
 
    SEVERAL AT ONCE. An item lifted while it is selected carries every other selected
    item of its zone with it. Selected is what the app already writes: aria-selected="true"
@@ -7156,9 +7168,12 @@ window.sednaUi = window.sednaUi || {};
      data-drag-slot="start|end|column"  the neighbour holding a raised item's slot open
      data-drag-carried                  the other selected items travelling with it
      data-drag-count="3"                on the dragged item, when it carries others
+     data-drag-copy                     on the dragged item and those it carries, for a copy
 
    The lifted item, the line and the zone states are all CSS on those attributes
-   (63-drag.css). Nothing is drawn: there is no ghost and no placeholder element.
+   (63-drag.css). Nothing is drawn: there is no ghost element and no placeholder — a
+   copy's travelling name is the stylesheet's ::before on the original, from the
+   --drag-name this writes on its style.
 
    Input, three ways:
 
@@ -7247,6 +7262,13 @@ window.sednaUi = window.sednaUi || {};
         return handle && !pointerOnly(handle) ? handle : item;
     }
 
+    /* "copy" when what is dropped is a copy and the original stays: the item's own
+       data-drag-effect, else its zone's. Anything else is a move. */
+    function effectOf(item, from) {
+        var own = item.getAttribute('data-drag-effect');
+        return (own || from.getAttribute('data-drag-effect')) === 'copy' ? 'copy' : 'move';
+    }
+
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
 
     function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
@@ -7295,9 +7317,11 @@ window.sednaUi = window.sednaUi || {};
             || zone.getAttribute('data-drag-zone');
     }
 
-    /* Could `item`, lifted from `from`, land in `zone`? */
-    function accepts(zone, item, from) {
+    /* Could `item`, lifted from `from`, land in `zone`? A copy never lands where it came
+       from: the original is still there. */
+    function accepts(zone, item, from, effect) {
         if (disabled(zone) || item.contains(zone)) return false;
+        if (effect === 'copy' && zone === from) return false;
         if (zone !== from) {
             var group = zone.getAttribute('data-drag-group');
             if (!group || group !== from.getAttribute('data-drag-group')) return false;
@@ -7331,7 +7355,16 @@ window.sednaUi = window.sednaUi || {};
 
        {items} is how many are being carried, for a sentence about a selection.
        A step with no sentence says nothing. Leave the element empty in the markup: this
-       writes its text. */
+       writes its text.
+
+       A zone may carry its own sentence for a step, in the same attribute, and then it is
+       the one read for that zone: the zone the item moves into or is dropped in, and the
+       zone it is picked up from or put back in. A place that takes one thing — a slot, a
+       button an item is dropped on — words it without a position:
+
+         <div class="drag-list" data-drag-zone="slot-3" data-drag-accept="sequence"
+              aria-label="Button 3" data-drag-move="{item} onto {zone}."
+              data-drag-drop="{item} put on {zone}."></div> */
     function liveFor(el) {
         for (var n = el; n && n.nodeType === 1; n = n.parentElement) {
             var live = n.matches('[data-drag-live]') ? n : n.querySelector('[data-drag-live]');
@@ -7343,11 +7376,12 @@ window.sednaUi = window.sednaUi || {};
     function announce(kind) {
         if (!drag || drag.mode !== 'keyboard') return;
         var live = liveFor(drag.item);
-        var sentence = live && live.getAttribute('data-drag-' + kind);
-        if (!sentence) return;
-
+        if (!live) return;
         var back = kind === 'cancel' || !drag.zone;
         var zone = back ? (drag.home || drag.from) : drag.zone;
+        var sentence = zone.getAttribute('data-drag-' + kind) || live.getAttribute('data-drag-' + kind);
+        if (!sentence) return;
+
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
         var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
@@ -7418,23 +7452,26 @@ window.sednaUi = window.sednaUi || {};
         var first = all.indexOf(carried[0]);
         var start = first - all.slice(0, first).filter(function (el) { return carried.indexOf(el) !== -1; }).length;
         var together = all.indexOf(carried[carried.length - 1]) - first === carried.length - 1;
+        var effect = effectOf(item, from);
         var detail = {
             item: item.getAttribute('data-drag-item'),
             items: carried.map(function (el) { return el.getAttribute('data-drag-item'); }),
             type: item.getAttribute('data-drag-type'),
             zone: from.getAttribute('data-drag-zone'),
             index: fromIndex,
-            keyboard: mode === 'keyboard'
+            keyboard: mode === 'keyboard',
+            effect: effect
         };
         if (!send(item, 'sedna-dragstart', detail, true)) return false;
 
         var rect = item.getBoundingClientRect();
         drag = {
             item: item, mode: mode, from: from, fromIndex: fromIndex, detail: detail,
-            carried: carried, start: start, together: together,
+            carried: carried, start: start, together: together, copy: effect === 'copy',
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
+            left0: rect.left, top0: rect.top, ref: null,
             zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0
         };
 
@@ -7443,7 +7480,7 @@ window.sednaUi = window.sednaUi || {};
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
-            var takes = carried.every(function (el) { return accepts(zone, el, from); });
+            var takes = carried.every(function (el) { return accepts(zone, el, from, effect); });
             zone.setAttribute('data-drop-state', takes ? 'valid' : 'invalid');
             drag.zones.push(zone);
         });
@@ -7463,6 +7500,11 @@ window.sednaUi = window.sednaUi || {};
             item.setAttribute('data-drag-count', String(carried.length));
             carried.forEach(function (el) { if (el !== item) el.setAttribute('data-drag-carried', ''); });
         }
+        if (drag.copy) {
+            carried.forEach(function (el) { el.setAttribute('data-drag-copy', ''); });
+            // The words the travelling copy shows: the app's, as a CSS string for `content`.
+            item.style.setProperty('--drag-name', '"' + drag.name.replace(/["\\]/g, '\\$&') + '"');
+        }
         if (mode === 'pointer') lift(item, rect);
         if (ui.tips && ui.tips.hide) ui.tips.hide();
         try { window.getSelection().removeAllRanges(); } catch (e) { /* nothing selected */ }
@@ -7478,7 +7520,7 @@ window.sednaUi = window.sednaUi || {};
         return true;
     }
 
-    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height'];
+    var BOX = ['--drag-x', '--drag-y', '--drag-left', '--drag-top', '--drag-width', '--drag-height', '--drag-name'];
 
     /* Raises the carried item into the top layer, as a manual popover, where it is the
        box the reader holds: nothing clips it — not a .card's overflow, not a scrolling
@@ -7534,7 +7576,7 @@ window.sednaUi = window.sednaUi || {};
             return;
         }
 
-        if (axis === 'grid') return;
+        if (axis === 'grid') { follow(next || prev); return; }
         var inline = axis === 'x';
         if (next) {
             var after = next.getBoundingClientRect();
@@ -7547,6 +7589,31 @@ window.sednaUi = window.sednaUi || {};
             var end = parseFloat(getComputedStyle(prev)[inline ? 'marginInlineEnd' : 'marginBlockEnd']) || 0;
             if (shrunk > 0) slot(prev, 'end', '--drag-slot-size', (shrunk + end) + 'px');
         }
+        follow(next || prev);
+    }
+
+    /* A copy's original is pinned in the top layer over the place it never left, so it
+       follows that place when anything scrolls: by how far a neighbour still in the flow
+       has moved — or the zone, less its own scrolling, when it has none. A move needs
+       none of this; its item is carried by the pointer. */
+    function follow(ref) {
+        drag.ref = null;
+        if (!drag.copy) return;
+        var el = ref || drag.from;
+        var r = el.getBoundingClientRect();
+        drag.ref = { el: el, own: !ref, left: r.left, top: r.top, sl: el.scrollLeft, st: el.scrollTop };
+    }
+
+    function shift() {
+        var ref = drag.ref;
+        if (!ref) return { x: 0, y: 0 };
+        var r = ref.el.getBoundingClientRect();
+        var x = r.left - ref.left, y = r.top - ref.top;
+        if (ref.own) {
+            x -= ref.el.scrollLeft - ref.sl;
+            y -= ref.el.scrollTop - ref.st;
+        }
+        return { x: x, y: y };
     }
 
     function slot(el, kind, prop, value) {
@@ -7574,6 +7641,7 @@ window.sednaUi = window.sednaUi || {};
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
         var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
+        var effect = d.detail.effect;
 
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
 
@@ -7587,7 +7655,10 @@ window.sednaUi = window.sednaUi || {};
         }
         d.item.removeAttribute('data-dragging');
         d.item.removeAttribute('data-drag-count');
-        d.carried.forEach(function (el) { el.removeAttribute('data-drag-carried'); });
+        d.carried.forEach(function (el) {
+            el.removeAttribute('data-drag-carried');
+            el.removeAttribute('data-drag-copy');
+        });
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
@@ -7603,20 +7674,25 @@ window.sednaUi = window.sednaUi || {};
                 index: d.index,
                 fromIndex: d.fromIndex,
                 keyboard: d.mode === 'keyboard',
-                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null
+                fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null,
+                effect: effect
             });
         }
 
+        // A copy's original never left: dragend names where it still is.
+        var went = moved && !d.copy;
         var end = {
             item: id, items: d.detail.items, type: d.detail.type,
-            zone: moved ? zone.getAttribute('data-drag-zone') : d.detail.zone,
-            index: moved ? d.index : d.fromIndex,
+            zone: went ? zone.getAttribute('data-drag-zone') : d.detail.zone,
+            index: went ? d.index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
-            dropped: !!moved
+            dropped: !!moved,
+            effect: effect
         };
         send(d.item.isConnected ? d.item : document, 'sedna-dragend', end);
 
-        if (moved && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
+        // A copy's original kept the focus; nothing the app renders moves it.
+        if (went && d.mode === 'keyboard') refocus(id, keyOwner(d.item) !== d.item);
     }
 
     /* The app's render moves the item it was told about, and moving a focused node drops
@@ -7756,10 +7832,22 @@ window.sednaUi = window.sednaUi || {};
        the slot under a pointer that is standing still. */
     function update() {
         var d = drag;
-        if (d.lifted) {
+        if (d.lifted && d.copy) {
+            // The original stays over its place, and the copy travels from there.
+            var by = shift();
+            d.item.style.setProperty('--drag-left', (d.left0 + by.x) + 'px');
+            d.item.style.setProperty('--drag-top', (d.top0 + by.y) + 'px');
+            d.tx = Math.round(d.x - d.x0 - by.x);
+            d.ty = Math.round(d.y - d.y0 - by.y);
+        } else if (d.lifted) {
             // Pinned to the viewport, so the distance the pointer has travelled is the offset.
             d.tx = Math.round(d.x - d.x0);
             d.ty = Math.round(d.y - d.y0);
+        } else if (d.copy) {
+            // Not raised, and not moved: the copy travels from the item's own box.
+            var box = d.item.getBoundingClientRect();
+            d.tx = Math.round(d.x - d.grabX - box.left);
+            d.ty = Math.round(d.y - d.grabY - box.top);
         } else {
             // Still in the flow: from the untransformed box, which moves when anything
             // around it scrolls.
@@ -7960,7 +8048,16 @@ window.sednaUi = window.sednaUi || {};
 
         if (hop) {
             var zones = reachable();
-            var next = zones[zones.indexOf(zone) + hop];
+            var at = zones.indexOf(zone);
+            // From a zone the item cannot land in — the one it was picked up from, when that
+            // takes nothing back — the nearest zone before or after it in the document.
+            if (at === -1) {
+                var before = zones.filter(function (z) {
+                    return !!(z.compareDocumentPosition(zone) & Node.DOCUMENT_POSITION_FOLLOWING);
+                }).length;
+                at = hop < 0 ? before : before - 1;
+            }
+            var next = zones[at + hop];
             if (!next) return;
             zone = next;
             index = Math.min(index, others(zone).length);
