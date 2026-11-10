@@ -180,14 +180,22 @@ public class GraphScreenTests : GraphTestBase
         </ul>
         """;
 
-    /// <summary>The names drawn, and every pair of them whose boxes cross, as "a/b".</summary>
+    /// <summary>
+    /// The names drawn, and every pair of them whose drawn text — outline included — crosses,
+    /// as "a/b". The engine's box for a name is wider than what it draws: it adds two units on
+    /// every side as a margin for redrawing, and rounds the name's width up to a whole unit.
+    /// The margin is taken off, and two names may share the unit the rounding adds.
+    /// </summary>
     private static Task<string[][]> Names(IPage page, string id) =>
         Eval<string[][]>(page, """
             id => {
                 const cy = cyOf(id);
                 const named = cy.nodes().filter(n => n.style('label') !== '' && !n.hasClass('unlabelled')).toArray();
-                const box = n => n.boundingBox({ includeNodes: false, includeEdges: false, includeLabels: true, includeOverlays: false });
-                const hit = (a, b) => a.x1 < b.x2 - 0.5 && b.x1 < a.x2 - 0.5 && a.y1 < b.y2 - 0.5 && b.y1 < a.y2 - 0.5;
+                const box = n => {
+                    const b = n.boundingBox({ includeNodes: false, includeEdges: false, includeLabels: true, includeOverlays: false });
+                    return { x1: b.x1 + 2, x2: b.x2 - 2, y1: b.y1 + 2, y2: b.y2 - 2 };
+                };
+                const hit = (a, b) => a.x1 < b.x2 - 1 && b.x1 < a.x2 - 1 && a.y1 < b.y2 - 1 && b.y1 < a.y2 - 1;
                 const crossed = [];
                 for (let i = 0; i < named.length; i++) for (let j = i + 1; j < named.length; j++) {
                     if (hit(box(named[i]), box(named[j]))) crossed.push(named[i].id() + '/' + named[j].id());
@@ -214,6 +222,57 @@ public class GraphScreenTests : GraphTestBase
         Assert.Empty(own[1]);
         Assert.NotEmpty(names[0]);
         Assert.True(names[0].Length < 12, "Every name was drawn, which a row this close cannot hold.");
+        AssertQuiet();
+    }
+
+    [Fact]
+    public async Task A_name_is_given_room_at_the_size_it_is_drawn_between_two_steps_of_the_zoom()
+    {
+        if (NoBrowser) return;
+        // Two records with long names, the second moved below once the names are measured in
+        // this browser's font.
+        const string Pair = """
+            <ul class="graph-data" data-graph-data>
+              <li data-node="a" data-x="0" data-y="0">orders-console-01 read replica</li>
+              <li data-node="b" data-x="400" data-y="0">orders-console-02 read replica</li>
+            </ul>
+            """;
+        var page = await OpenGraph(Graph(inside: Pair, attrs: Preset + " style=\"--graph-height: 30rem\""));
+        await Ready(page);
+
+        // A zoom of 1.19 rests 3.4% above its step, e^0.14: a name is styled at its size over
+        // the step, so it is drawn 3.4% larger than at the step. The records are set where the
+        // two names fit at the step's size and cross at the size they are drawn — outline
+        // included — so only a declutter that measures the drawn size hides one of them.
+        const double Zoom = 1.19;
+        var gap = await Eval<double>(page, """
+            zoom => {
+                const cy = cyOf('g');
+                const step = Math.exp(Math.round(Math.log(zoom) / 0.07) * 0.07);
+                const ctx = document.createElement('canvas').getContext('2d');
+                ctx.font = '400 11px ' + cy.getElementById('a').style('font-family');
+                // Half of each name, side by side: two names of one length can differ in width.
+                const at11 = ['a', 'b'].reduce((sum, id) => sum + ctx.measureText(cy.getElementById(id).data('label')).width, 0) / 2;
+                const drawnPx = 10.5 * zoom / step;
+                const room = at11 * 10.5 / 11 + 8;
+                const ink = at11 * drawnPx / 11 + 2 * 0.22 * drawnPx;
+                return room < ink && ink < 175 ? (room + ink) / 2 : -1;
+            }
+            """, Zoom);
+        Assert.True(gap > 0, "The names are too short, or too long, to fall between the two sizes.");
+        await Eval<bool>(page, """
+            ([gap, zoom]) => {
+                const cy = cyOf('g');
+                cy.getElementById('b').position({ x: gap / zoom, y: 0 });
+                cy.zoom({ level: zoom, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+                return true;
+            }
+            """, new object[] { gap, Zoom });
+        await page.WaitForFunctionAsync("() => cyOf('g').getElementById('a').data('zoom') < 1.16");
+
+        var names = await Names(page, "g");
+        Assert.Single(names[0]);
+        Assert.Empty(names[1]);
         AssertQuiet();
     }
 

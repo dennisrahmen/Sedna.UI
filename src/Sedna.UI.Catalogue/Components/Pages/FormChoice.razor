@@ -13,6 +13,17 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.FormChoice.HalfTicked" Title="Half ticked" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> A &ldquo;select all&rdquo; over a list some of whose rows are ticked is filled
+        with a dash. The platform's <code>indeterminate</code> property says so &mdash;
+        <code>data-check-all</code> keeps it in step with the rows, see
+        <a href="/form-check-list">checkbox groups</a> &mdash; and so does <code>aria-checked="mixed"</code>,
+        which an app that renders the state itself writes in the markup. Every checkbox the library draws
+        has the state: a table's row selection, a menu's choices, a tree's branches.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.FormChoice.RadioButtons" Title="Radio buttons" Demo="ex-demo--block">
     <p>
         The same wrapper &mdash; the <code>type</code> decides the shape. A radio is an unfilled circle

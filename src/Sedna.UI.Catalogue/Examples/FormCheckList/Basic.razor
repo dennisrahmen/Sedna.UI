@@ -1,0 +1,26 @@
+<fieldset class="form-field" aria-describedby="notify-hint" style="max-width:480px">
+    <legend class="form-label">Tell these teams about an incident</legend>
+    <p class="form-hint" id="notify-hint">Each team's on-call is paged; everyone else gets the e-mail.</p>
+    <div class="form-check-list">
+        <label class="form-check">
+            <input type="checkbox" name="notify-teams" value="fulfilment" checked />
+            <span class="choice-text"><span>Fulfilment</span><span class="choice-meta">12 members</span></span>
+        </label>
+        <label class="form-check">
+            <input type="checkbox" name="notify-teams" value="returns" />
+            <span class="choice-text"><span>Returns</span><span class="choice-meta">5 members</span></span>
+        </label>
+        <label class="form-check">
+            <input type="checkbox" name="notify-teams" value="customer-care" checked />
+            <span class="choice-text">
+                <span>Customer care</span>
+                <span class="choice-meta">31 members</span>
+                <span class="choice-hint">Pages the shift lead only, outside opening hours.</span>
+            </span>
+        </label>
+        <label class="form-check">
+            <input type="checkbox" name="notify-teams" value="finance" />
+            <span class="choice-text"><span>Finance</span><span class="choice-meta">4 members</span></span>
+        </label>
+    </div>
+</fieldset>

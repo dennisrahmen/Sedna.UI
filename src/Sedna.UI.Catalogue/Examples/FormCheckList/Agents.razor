@@ -1,0 +1,52 @@
+<fieldset class="form-field" aria-describedby="run-on-hint run-on-error" style="max-width:520px">
+    <legend class="form-label form-label--required">Run on</legend>
+    <p class="form-hint" id="run-on-hint">The job starts on every agent picked here, and on one free agent of each group.</p>
+    <p class="form-error" id="run-on-error"><i class="ri-error-warning-line"></i><span>Choose at least one agent or group, or run on every agent.</span></p>
+    <label class="form-check">
+        <input type="checkbox" name="run-on-every" value="every" aria-invalid="true" />
+        <span class="choice-text">
+            <span>Every agent</span>
+            <span class="choice-hint">Including agents registered after the job is saved.</span>
+        </span>
+    </label>
+    <div class="choice-dependent choice-dependent--off choice-dependent--dim">
+        <div class="form-check-group" role="group" aria-labelledby="run-on-agents">
+            <p class="form-check-group-title" id="run-on-agents">Agents</p>
+            <div class="form-check-list-head">
+                <label class="form-check"><input type="checkbox" data-check-all="run-on-agents" /> <span>All four</span></label>
+                <span class="form-check-list-count" data-check-count="run-on-agents" data-check-format="{n} of {m} selected">0 of 4 selected</span>
+            </div>
+            <div class="form-check-list">
+                <label class="form-check">
+                    <input type="checkbox" name="run-on-agents" value="build-runner-01" aria-invalid="true" />
+                    <span class="choice-text"><span>build-runner-01</span><span class="choice-meta text-mono">198.51.100.11</span></span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" name="run-on-agents" value="build-runner-02" aria-invalid="true" />
+                    <span class="choice-text"><span>build-runner-02</span><span class="choice-meta text-mono">198.51.100.12</span></span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" name="run-on-agents" value="build-runner-03" aria-invalid="true" />
+                    <span class="choice-text"><span>build-runner-03</span><span class="choice-meta text-mono">198.51.100.13</span></span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" name="run-on-agents" value="build-runner-04" disabled />
+                    <span class="choice-text">
+                        <span>build-runner-04</span>
+                        <span class="choice-meta text-mono">198.51.100.14</span>
+                        <span class="choice-hint">Offline since 06:40. It can be picked again once it reports in.</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+        <div class="form-check-group" role="group" aria-labelledby="run-on-groups" aria-describedby="run-on-groups-hint">
+            <p class="form-check-group-title" id="run-on-groups">Groups</p>
+            <p class="form-hint" id="run-on-groups-hint">A group runs the job on whichever of its agents is free first.</p>
+            <div class="form-check-list" aria-busy="true">
+                <div class="form-check-skeleton"><span class="skeleton"></span><span class="skeleton" style="--skeleton-width: 9rem"></span></div>
+                <div class="form-check-skeleton"><span class="skeleton"></span><span class="skeleton" style="--skeleton-width: 12rem"></span></div>
+                <div class="form-check-skeleton"><span class="skeleton"></span><span class="skeleton" style="--skeleton-width: 7rem"></span></div>
+            </div>
+        </div>
+    </div>
+</fieldset>

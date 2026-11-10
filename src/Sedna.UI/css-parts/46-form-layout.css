@@ -67,6 +67,12 @@
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
+/* A rejected choice — "Choose at least one agent" — edges its box as a rejected field
+   is edged, on the box where a screen reader reads it: put `aria-invalid="true"` on
+   every checkbox or radio the message is about. Here rather than in 34, so the edge
+   holds over a hovered and a ticked box. */
+.form-check input:is([type="checkbox"], [type="radio"])[aria-invalid="true"] { border-color: var(--field-border-danger); }
+
 /* The message itself. Put it after the control and point at it with
    aria-describedby, so it is read as part of the field rather than found by
    accident. */
@@ -488,17 +494,21 @@
    A dependent inside a dependent indents again, measured from the edge it is already
    on.
 
-   Only the block IMMEDIATELY after the control is indented. A hint between the two
-   breaks the pairing and the block sits flush — put the hint in the control's own
-   `.choice-hint` instead, where it lines up with the label anyway. */
+   Only the block IMMEDIATELY after the control is indented — or after one message
+   about the control, a `.form-error` or a `.form-warning`, which a rejected option
+   puts there. Anything else between the two breaks the pairing and the block sits
+   flush: put a hint in the control's own `.choice-hint` instead, where it lines up
+   with the label anyway. */
 .choice-dependent {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
     min-width: 0;
 }
-.form-check + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
-.switch + .choice-dependent     { margin-inline-start: var(--choice-inset-switch); }
+.form-check + .choice-dependent,
+.form-check + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
+.switch + .choice-dependent,
+.switch + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-switch); }
 /* `display: flex` above outranks the browser's own `[hidden]`. */
 .choice-dependent[hidden] { display: none; }
 
@@ -507,17 +517,37 @@
    `:checked` state, so they need no round trip and work on a page with no
    interactivity at all; a radio is off while another in its set is chosen.
 
+   `--off` turns it round: the block applies while the option is OFF, and is hidden
+   or faded while it is on. For an option that makes the block moot — "Every agent,
+   including ones added later" above the list of agents, which is a different answer
+   from ticking every one of them.
+
    `--dim` is also inert: a block that looks unavailable and still takes focus and
    typing is the worse of both. It is not `disabled` — the values still submit with
    the form. */
-:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--hide { display: none; }
-:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim {
+:is(
+    :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+).choice-dependent--hide { display: none; }
+:is(
+    :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+).choice-dependent--dim {
     opacity: 0.45;
     interactivity: inert;
 }
 /* Opacity multiplies, so a faded block inside a faded one would drop to 0.2. The
    inner one keeps full opacity and is faded once, with its parent. */
-:is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent--dim .choice-dependent--dim { opacity: 1; }
+:is(
+    :is(.form-check, .switch):has(> input:not(:checked)) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:not(:checked)) + :is(.form-error, .form-warning) + .choice-dependent:not(.choice-dependent--off),
+    :is(.form-check, .switch):has(> input:checked) + .choice-dependent--off,
+    :is(.form-check, .switch):has(> input:checked) + :is(.form-error, .form-warning) + .choice-dependent--off
+).choice-dependent--dim .choice-dependent--dim { opacity: 1; }
 
 /* ── Transfer ───────────────────────────────────────────────────────────────
    Two list boxes with the buttons that move rows between them: pick on the left,
