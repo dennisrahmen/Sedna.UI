@@ -1,128 +1,351 @@
 @page "/theme-builder"
 @using Sedna.UI.Catalogue.Theming
+@implements IDisposable
+@inject ThemeTokens Library
+@inject ISednaSettings Settings
 
 <CatHead Title="Theme builder">
-    Pick a brand colour and this page takes it on at once &mdash; the frame, the buttons, the tabs,
-    the focus rings, in both variants. The <code>brand.css</code> at the bottom is what does it, and
-    it is what your app pastes.
+    Every token an app may redefine, in dark and light, with this page taking each change on as you
+    make it. Start from a brand colour, change anything else one token at a time, and copy the
+    <code>brand.css</code> at the bottom: it holds only what you changed.
 </CatHead>
 
 @* The generated brand.css, applied to this page as it is. Rendered by Blazor from state, so
    nothing here writes to the DOM. *@
 <style>@result.Css</style>
 
-<h2 id="colours">Your colours <CatAnchor Id="colours" /></h2>
+<h2 id="quick-start">Quick start <CatAnchor Id="quick-start" /></h2>
+
+<p class="cat-lede">
+    Three colours generate whole ramps, the way the built-in themes are made: every brand role, tint,
+    ring and glow points at the brand ramp, links and the info family at the accent ramp, and every
+    surface, border and grey text at the base ramp, in both variants.
+</p>
 
 <div class="card">
-    <div class="card-body sedna-col sedna-gap-3">
-        <div class="form-field">
-            <label class="form-label" for="theme-brand">Brand colour</label>
-            <div class="sedna-row sedna-gap-2">
-                <input class="form-color" id="theme-brand" type="color"
-                       value="@brand" @oninput="BrandChanged" />
-                <input class="form-input" type="text" value="@brand" @onchange="BrandChanged"
-                       aria-label="Brand colour as hex" spellcheck="false" id="theme-brand-hex" />
+    <div class="card-body">
+        <div class="sedna-grid sedna-grid--fit">
+            <div class="form-field">
+                <label class="form-label" for="theme-brand">Brand colour</label>
+                <div class="sedna-row sedna-gap-2">
+                    <input class="form-color" id="theme-brand" type="color"
+                           value="@brand" @oninput="BrandChanged" />
+                    <input class="form-input" type="text" value="@brand" @onchange="BrandChanged"
+                           aria-label="Brand colour as hex" spellcheck="false" id="theme-brand-hex" />
+                </div>
+                <p class="form-hint">
+                    The colour your brand is seen in. The step buttons fill with is solved from it
+                    for white text.
+                </p>
             </div>
-            <p class="form-hint">
-                The colour your brand is seen in. The step buttons fill with is solved from it for
-                white text.
-            </p>
-        </div>
 
-        <label class="form-check">
-            <input type="checkbox" checked="@changeAccent" @onchange="AccentToggled" />
-            <span>Change the accent too</span>
-        </label>
-
-        <div class="form-field">
-            <label class="form-label" for="theme-accent">Accent colour</label>
-            <div class="sedna-row sedna-gap-2">
-                <input class="form-color" id="theme-accent" type="color" value="@accent"
-                       @oninput="AccentChanged" disabled="@(!changeAccent)" />
-                <input class="form-input" type="text" value="@accent" @onchange="AccentChanged"
-                       aria-label="Accent colour as hex" spellcheck="false" disabled="@(!changeAccent)" />
+            <div class="form-field">
+                <label class="form-check">
+                    <input type="checkbox" checked="@changeAccent" @onchange="AccentToggled" id="theme-accent-on" />
+                    <span>Change the accent</span>
+                </label>
+                <div class="sedna-row sedna-gap-2">
+                    <input class="form-color" id="theme-accent" type="color" value="@accent"
+                           @oninput="AccentChanged" disabled="@(!changeAccent)" aria-label="Accent colour" />
+                    <input class="form-input" type="text" value="@accent" @onchange="AccentChanged"
+                           aria-label="Accent colour as hex" spellcheck="false" disabled="@(!changeAccent)" />
+                </div>
+                <p class="form-hint">Links, and the info family.</p>
             </div>
-            <p class="form-hint">Links, and the info family.</p>
+
+            <div class="form-field">
+                <label class="form-check">
+                    <input type="checkbox" checked="@changeCanvas" @onchange="CanvasToggled" id="theme-canvas-on" />
+                    <span>Change the base</span>
+                </label>
+                <div class="sedna-row sedna-gap-2">
+                    <input class="form-color" id="theme-canvas" type="color" value="@canvas"
+                           @oninput="CanvasChanged" disabled="@(!changeCanvas)" aria-label="Canvas colour" />
+                    <input class="form-input" type="text" value="@canvas" @onchange="CanvasChanged"
+                           aria-label="Canvas colour as hex" spellcheck="false" disabled="@(!changeCanvas)" />
+                </div>
+                <p class="form-hint">
+                    The dark canvas. The cards, borders, grey text and the whole light variant
+                    follow from it.
+                </p>
+            </div>
         </div>
     </div>
 </div>
 
-@if (result.Problem is not null)
+@if (start.Problem is not null)
 {
     <div class="callout callout--warn" role="status">
         <i class="ri-alert-line"></i>
         <div class="callout-body">
             <span class="callout-title">That colour was not used</span>
-            @result.Problem
+            @start.Problem
         </div>
     </div>
 }
 
-<h2 id="preview">On the library's components <CatAnchor Id="preview" /></h2>
-
-<div class="card">
-    <div class="card-head"><h3>Orders</h3></div>
-    <div class="card-body sedna-col sedna-gap-3">
-        <div class="sedna-row sedna-gap-2 sedna-wrap">
-            <button class="btn btn--brand btn--solid" type="button">Save</button>
-            <button class="btn" type="button">Cancel</button>
-            <button class="btn btn--brand" type="button">Export</button>
-            <span class="badge badge--brand">New</span>
-            <span class="badge badge--info"><i class="ri-information-line"></i> <span>Scheduled</span></span>
-        </div>
-        <div class="tabs" role="tablist" aria-label="Order views">
-            <button class="tab" role="tab" aria-selected="true" type="button">Open</button>
-            <button class="tab" role="tab" aria-selected="false" type="button" tabindex="-1">Assigned to me</button>
-            <button class="tab" role="tab" aria-selected="false" type="button" tabindex="-1">Everything</button>
-        </div>
-        <div class="sedna-col sedna-gap-2">
-            <label class="switch"><input type="checkbox" checked /> <span>Auto-refresh the queue</span></label>
-            <label class="form-check"><input type="checkbox" checked /> <span>Notify me about new orders</span></label>
-        </div>
-        <div>
-            <div class="progress"><div class="progress-bar" style="width:64%"></div></div>
-            <p class="form-hint">Exporting: 64%</p>
-        </div>
-        <div class="alert alert--brand"><i class="ri-megaphone-line"></i><span>The new pick list is live.</span></div>
-        <div class="alert alert--info">
-            <i class="ri-information-line"></i>
-            <span>Links take the accent. <a href="/tokens">See every token a theme moves</a></span>
-        </div>
-    </div>
-</div>
-
-<h2 id="checks">Contrast and hue checks <CatAnchor Id="checks" /></h2>
+<h2 id="tokens">Every token <CatAnchor Id="tokens" /></h2>
 
 <p class="cat-lede">
-    The rules every theme is held to, measured on these colours. A failing check names what to change.
+    A value left empty keeps what is shown in grey: the library's own, or what the quick start
+    generated. A <strong>role</strong> is what the stylesheet paints with, and can differ between
+    dark and light; a <strong>palette</strong> step is one colour in both, and every role pointing at
+    it follows. Type any CSS value &mdash; a colour, <code>var(--coral-700)</code>, a
+    <code>color-mix()</code>, a length.
 </p>
 
-<div class="card">
-    <table class="table">
-        <thead><tr><th>Check</th><th class="col-num">Measured</th><th class="col-num">Needs</th><th>Result</th></tr></thead>
+<div class="sedna-row sedna-gap-3 sedna-wrap sedna-mb-4" id="theme-tools">
+    <div class="form-field">
+        <label class="form-label" for="theme-group">Group</label>
+        <select class="form-select" id="theme-group" value="@groupSlug" @onchange="GroupChanged"
+                disabled="@(Filtering)">
+            @foreach (var section in ThemeTokens.Sections)
+            {
+                <optgroup label="@section">
+                    @foreach (var group in Library.Groups.Where(g => g.Section == section))
+                    {
+                        <option value="@group.Slug" selected="@(group.Slug == groupSlug)">@GroupLabel(group)</option>
+                    }
+                </optgroup>
+            }
+        </select>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="theme-filter">Find a token</label>
+        <input class="form-input" id="theme-filter" type="search" value="@filter" @oninput="FilterChanged"
+               placeholder="brand, radius, shadow…" spellcheck="false" />
+    </div>
+    <fieldset class="form-field">
+        <legend class="form-label">Preview in</legend>
+        <div class="segmented">
+            <label class="segmented-option">
+                <input type="radio" name="theme-variant" checked="@IsDark" @onchange="SelectDark" />
+                <i class="ri-moon-line"></i> <span>Dark</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="theme-variant" checked="@IsLight" @onchange="SelectLight" />
+                <i class="ri-sun-line"></i> <span>Light</span>
+            </label>
+        </div>
+    </fieldset>
+</div>
+
+<div class="sedna-split sedna-split--lg">
+    <div class="card" id="theme-editor">
+        <div class="card-head">
+            <h3>@(Filtering ? $"Tokens matching “{filter.Trim()}”" : CurrentGroup.Name)</h3>
+            @if (!Filtering && ChangedIn(CurrentGroup.Tokens) > 0)
+            {
+                <button class="btn btn--sm" type="button" @onclick="ResetGroup">
+                    <i class="ri-arrow-go-back-line"></i> <span>Reset this group</span>
+                </button>
+            }
+        </div>
+        @if (!Filtering && CurrentGroup.Note is not null)
+        {
+            <div class="card-body"><p class="form-hint">@CurrentGroup.Note</p></div>
+        }
+        @if (VisibleTokens.Count == 0)
+        {
+            <div class="card-body"><p class="text-muted">No token an app may redefine has that in its name.</p></div>
+        }
+        else
+        {
+            <table class="table table--stack">
+                <thead>
+                    <tr><th>Token</th><th>Dark</th><th>Light</th><th><span class="visually-hidden">Reset</span></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var token in VisibleTokens)
+                    {
+                        var changed = changedNames.Contains(token.Name);
+                        <tr @key="token.Name">
+                            <td data-label="Token">
+                                <div class="text-mono">@token.Name</div>
+                                @if (changed)
+                                {
+                                    <span class="badge badge--brand">@(dark.ContainsKey(token.Name) || light.ContainsKey(token.Name) ? "Changed" : "From the quick start")</span>
+                                }
+                                @if (Filtering)
+                                {
+                                    <div class="text-muted text-sm">@GroupOf(token.Name)</div>
+                                }
+                            </td>
+                            <td data-label="@(token.Tier == TokenTier.Palette ? "Both variants" : "Dark")">
+                                @ValueEditor(token, false)
+                            </td>
+                            <td data-label="Light">
+                                @if (token.Tier == TokenTier.Palette)
+                                {
+                                    <span class="text-muted text-sm">A palette step is one colour in both variants.</span>
+                                }
+                                else
+                                {
+                                    @ValueEditor(token, true)
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn--ghost btn--sm btn--icon" type="button"
+                                        disabled="@(!dark.ContainsKey(token.Name) && !light.ContainsKey(token.Name))"
+                                        aria-label="@($"Reset {token.Name}")" @onclick="() => ResetToken(token.Name)">
+                                    <i class="ri-arrow-go-back-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <aside class="sedna-split-aside sedna-col sedna-gap-4" id="theme-preview" aria-label="Preview">
+        <div class="card">
+            <div class="card-head"><h3>Orders</h3><span class="badge badge--brand">New</span></div>
+            <div class="card-body sedna-col sedna-gap-3">
+                <p class="sedna-mb-0">Body text reads on the card. <span class="text-muted">Quiet text is the line under it.</span>
+                    <a href="/tokens">Links take the accent.</a></p>
+                <div class="sedna-row sedna-gap-2 sedna-wrap">
+                    <button class="btn btn--brand btn--solid" type="button">Save</button>
+                    <button class="btn" type="button">Cancel</button>
+                    <button class="btn btn--brand" type="button">Export</button>
+                    <button class="btn btn--ghost" type="button">More</button>
+                </div>
+                <div class="sedna-row sedna-gap-2 sedna-wrap">
+                    <button class="btn btn--go btn--solid btn--sm" type="button">Send</button>
+                    <button class="btn btn--warn btn--solid btn--sm" type="button">Change</button>
+                    <button class="btn btn--danger btn--solid btn--sm" type="button">Delete</button>
+                    <button class="btn btn--danger btn--sm" type="button">Remove</button>
+                    <button class="btn btn--sm" type="button" disabled>Disabled</button>
+                </div>
+                <div class="sedna-row sedna-gap-2 sedna-wrap">
+                    <span class="badge badge--go"><i class="ri-check-line"></i> <span>Shipped</span></span>
+                    <span class="badge badge--warn"><i class="ri-time-line"></i> <span>Waiting</span></span>
+                    <span class="badge badge--danger"><i class="ri-close-line"></i> <span>Failed</span></span>
+                    <span class="badge badge--info"><i class="ri-information-line"></i> <span>Scheduled</span></span>
+                    <span class="badge badge--secret"><i class="ri-lock-line"></i> <span>Private</span></span>
+                    <span class="badge">Draft</span>
+                </div>
+                <div class="tabs" role="tablist" aria-label="Order views">
+                    <button class="tab" role="tab" aria-selected="true" type="button">Open</button>
+                    <button class="tab" role="tab" aria-selected="false" type="button" tabindex="-1">Mine</button>
+                    <button class="tab" role="tab" aria-selected="false" type="button" tabindex="-1">All</button>
+                </div>
+                <div>
+                    <div class="progress"><div class="progress-bar" style="width:64%"></div></div>
+                    <p class="form-hint">Exporting: 64%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <table class="table">
+                <thead><tr><th>Order</th><th>Status</th><th class="col-num">Total</th></tr></thead>
+                <tbody>
+                    <tr><td>ORD-4209</td><td><span class="badge badge--go">Shipped</span></td><td class="col-num">412.00</td></tr>
+                    <tr class="tr--warn"><td>ORD-4204</td><td><span class="badge badge--warn">Waiting</span></td><td class="col-num">88.50</td></tr>
+                    <tr><td>ORD-4198</td><td><span class="badge badge--info">Scheduled</span></td><td class="col-num">1,020.00</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-body sedna-col sedna-gap-3">
+                <div class="form-field">
+                    <label class="form-label" for="preview-name">Customer</label>
+                    <input class="form-input" id="preview-name" type="text" placeholder="Search by name or e-mail" />
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="preview-mail">E-mail</label>
+                    <input class="form-input" id="preview-mail" type="email" value="alex.fischer@@example"
+                           aria-invalid="true" aria-describedby="preview-mail-err" />
+                    <p class="form-error" id="preview-mail-err">Add the part after the @@, like example.com.</p>
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="preview-site">Site</label>
+                    <select class="form-select" id="preview-site"><option>North</option><option>South</option></select>
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>Notify me about new orders</span></label>
+                <label class="form-check"><input type="radio" name="preview-ship" checked /> <span>Ship today</span></label>
+                <label class="switch"><input type="checkbox" checked /> <span>Auto-refresh the queue</span></label>
+            </div>
+        </div>
+
+        <div class="sedna-col sedna-gap-1">
+            <div class="alert alert--brand"><i class="ri-megaphone-line"></i><span>The new pick list is live.</span></div>
+            <div class="alert alert--go"><i class="ri-check-line"></i><span>All 42 orders were exported.</span></div>
+            <div class="alert alert--warn"><i class="ri-alert-line"></i><span>Two lines are waiting for stock.</span></div>
+            <div class="alert alert--danger"><i class="ri-error-warning-line"></i><span>The export failed: the file is locked.</span></div>
+            <div class="alert alert--info"><i class="ri-information-line"></i><span>Exports run every night at 02:00.</span></div>
+            <div class="alert alert--secret"><i class="ri-lock-line"></i><span>This key is shown once.</span></div>
+        </div>
+    </aside>
+</div>
+
+<h2 id="checks">Can everyone read it? <CatAnchor Id="checks" /></h2>
+
+<p class="cat-lede">
+    Each row is two colours the library draws one on top of the other, measured on the theme above.
+    The number is the WCAG contrast ratio: how far apart the two are in lightness, from 1:1 (the same
+    colour) to 21:1 (black on white). Text needs at least 4.5:1 to be readable by most people with low
+    vision (WCAG 2.1 AA); an edge or a focus ring, which is seen but not read, needs 3:1. Every row
+    passes with the library's own values, so a row that fails was broken by a change here, and says
+    what to change back.
+</p>
+
+<div class="card" id="theme-checks">
+    <table class="table table--stack">
+        <thead><tr><th>What is checked</th><th>Dark</th><th>Light</th></tr></thead>
         <tbody>
             @foreach (var check in result.Checks)
             {
-                <tr>
-                    <td>
-                        @check.Pair
+                <tr class="@(check.Passes ? null : "tr--danger")">
+                    <td data-label="Check">
+                        <strong>@check.Title</strong>
+                        <div class="form-hint">@check.Rule</div>
+                        <div class="text-mono text-sm text-muted">@check.Foreground on @check.Background &middot; needs @check.FloorText</div>
                         @if (!check.Passes)
                         {
-                            <span class="form-hint">@check.Fix</span>
+                            <div class="text-danger text-sm"><i class="ri-tools-line"></i> @check.Fix</div>
                         }
                     </td>
-                    <td class="col-num">@check.MeasuredText</td>
-                    <td class="col-num">@check.FloorText</td>
-                    <td>
-                        @if (check.Passes)
+                    <td data-label="Dark">@Reading(check, check.Dark)</td>
+                    <td data-label="Light">@Reading(check, check.Light)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h3 id="hue">Does the brand read as a status? <CatAnchor Id="hue" /></h3>
+
+<p class="cat-lede">
+    Colour says what a thing means before anyone reads it. A brand within 15&deg; of hue of a status
+    family reads as that status &mdash; a red brand beside a red danger button says &ldquo;danger&rdquo;
+    twice. The distance is measured in OKLCH hue, between <code>--brand</code> and each family's fill.
+</p>
+
+<div class="card" id="theme-hue">
+    <table class="table table--stack">
+        <thead><tr><th>Brand against</th><th>Colours</th><th class="col-num">Apart</th><th>Result</th></tr></thead>
+        <tbody>
+            @foreach (var check in result.HueChecks)
+            {
+                <tr class="@(check.Passes ? null : "tr--danger")">
+                    <td data-label="Brand against">
+                        @check.Family <span class="text-mono text-sm text-muted">@check.FamilyToken</span>
+                        @if (!check.Passes)
                         {
-                            <span class="badge badge--go"><i class="ri-check-line"></i> <span>Passes</span></span>
-                        }
-                        else
-                        {
-                            <span class="badge badge--danger"><i class="ri-close-line"></i> <span>Fails</span></span>
+                            <div class="text-danger text-sm"><i class="ri-tools-line"></i> @check.Fix</div>
                         }
                     </td>
+                    <td data-label="Colours">
+                        <span class="cat-pair">
+                            <span class="cat-pair-chip" style="background:@check.Brand.Hex" title="--brand @check.Brand.Hex"></span>
+                            <span class="cat-pair-chip" style="background:@check.Other.Hex" title="@check.FamilyToken @check.Other.Hex"></span>
+                        </span>
+                    </td>
+                    <td class="col-num" data-label="Apart">@check.DistanceText</td>
+                    <td data-label="Result">@Verdict(check.Passes, $"needs {ThemeChecks.HueFloor:0}°")</td>
                 </tr>
             }
         </tbody>
@@ -132,11 +355,21 @@
 <h2 id="brand-css">Your brand.css <CatAnchor Id="brand-css" /></h2>
 
 <p class="cat-lede">
-    Palette steps only: every brand role, tint, ring and glow points at them already, in dark and
-    light. Load the file after <code>Sedna.UI.css</code> &mdash; <a href="/getting-started">Getting
-    started</a> has the host page. To register it as a theme in C# instead, pass the same colour to
-    <code>SednaRamp.FromAnchor</code>; <a href="/branding">Branding</a> shows how.
+    Load it after <code>Sedna.UI.css</code> &mdash; <a href="/getting-started">Getting started</a> has
+    the host page. The palette steps carry every role that points at them; a role you set yourself is
+    written for each variant it differs in. To register the ramps as a selectable theme in C# instead,
+    pass the same colours to <code>SednaRamp.FromAnchor</code> and <code>SednaRamp.Surface</code>;
+    <a href="/branding">Branding</a> shows how.
 </p>
+
+<div class="sedna-row sedna-gap-3 sedna-wrap sedna-mb-4" id="theme-summary">
+    <span class="badge @(result.Changed > 0 ? "badge--brand" : null)" id="theme-changed">
+        @(result.Changed == 1 ? "1 token changed" : $"{result.Changed} tokens changed")
+    </span>
+    <button class="btn btn--sm" type="button" @onclick="ResetAll" disabled="@(result.Changed == 0)" id="theme-reset-all">
+        <i class="ri-arrow-go-back-line"></i> <span>Reset everything</span>
+    </button>
+</div>
 
 <div id="theme-css">
     <CatCode Source="@result.Css" Label="Generated brand.css" />
@@ -145,32 +378,235 @@
 @code {
     private string brand = BrandCssBuilder.SednaRed;
     private string accent = BrandCssBuilder.OrbitBlue;
+    private string canvas = BrandCssBuilder.DeepSpace;
     private bool changeAccent;
-    private ThemeResult result = BrandCssBuilder.Build(BrandCssBuilder.SednaRed, null);
+    private bool changeCanvas;
+
+    private readonly Dictionary<string, string> dark = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> light = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> problems = new(StringComparer.Ordinal);
+    private HashSet<string> changedNames = new(StringComparer.Ordinal);
+
+    private QuickStart start = BrandCssBuilder.Ramps(BrandCssBuilder.SednaRed);
+    private ThemeResult result = default!;
+    private string groupSlug = "";
+    private string filter = "";
+
+    private bool Filtering => filter.Trim().Length > 0;
+
+    private ThemeTokenGroup CurrentGroup =>
+        Library.Groups.FirstOrDefault(g => g.Slug == groupSlug) ?? Library.Groups[0];
+
+    private IReadOnlyList<ThemeToken> VisibleTokens => Filtering
+        ? Library.Groups.SelectMany(g => g.Tokens)
+            .Where(t => t.Name.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase)).ToList()
+        : CurrentGroup.Tokens;
+
+    private bool IsLight => Settings.Current.Variant == "light";
+    private bool IsDark => !IsLight;
+
+    protected override void OnInitialized()
+    {
+        // The brand group first: it is where most themes start.
+        groupSlug = (Library.Groups.FirstOrDefault(g => g.Tokens.Any(t => t.Name == "--brand")) ?? Library.Groups[0]).Slug;
+        Settings.Changed += Refresh;
+        Rebuild();
+    }
+
+    public void Dispose() => Settings.Changed -= Refresh;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Settings.StartAsync();
+    }
+
+    private void Refresh(SednaUiSettings applied) => InvokeAsync(StateHasChanged);
+
+    private Task SelectDark() => Settings.SetVariantAsync("dark");
+    private Task SelectLight() => Settings.SetVariantAsync("light");
+
+    /// <summary>One value's editor: a colour picker beside a text field for a colour, a text field otherwise.</summary>
+    private RenderFragment ValueEditor(ThemeToken token, bool isLight) => __builder =>
+    {
+        var key = Key(token.Name, isLight);
+        var own = (isLight ? light : dark).GetValueOrDefault(token.Name);
+        var shown = (isLight ? result.LightValues : result.Dark).GetValueOrDefault(token.Name) ?? "";
+        var colours = isLight ? result.LightColours : result.DarkColours;
+        var variant = isLight ? "light" : "dark";
+        <div class="sedna-row sedna-gap-2">
+            @if (token.Kind == TokenKind.Colour)
+            {
+                <input class="form-color form-input--sm" type="color"
+                       value="@(colours.TryGetValue(token.Name, out var c) ? c.Hex : "#000000")"
+                       aria-label="@($"{token.Name}, {variant}, pick a colour")"
+                       @oninput="e => Set(token.Name, isLight, e.Value?.ToString())" />
+            }
+            <input class="form-input form-input--sm sedna-fill" type="text" value="@own" placeholder="@shown"
+                   aria-label="@($"{token.Name}, {variant} value")" spellcheck="false"
+                   aria-invalid="@(problems.ContainsKey(key) ? "true" : null)"
+                   data-token="@token.Name" data-variant="@variant"
+                   @onchange="e => Set(token.Name, isLight, e.Value?.ToString())" />
+        </div>
+        @if (problems.TryGetValue(key, out var problem))
+        {
+            <p class="form-error">@problem</p>
+        }
+        else if (own is not null && !isLight && token.Dark != own)
+        {
+            <p class="form-hint">Library: <span class="text-mono">@token.Dark</span></p>
+        }
+        else if (own is not null && isLight && (token.Light ?? token.Dark) != own)
+        {
+            <p class="form-hint">Library: <span class="text-mono">@(token.Light ?? token.Dark)</span></p>
+        }
+    };
+
+    /// <summary>One variant's measurement: the pair as a sample, the ratio, and the verdict.</summary>
+    private RenderFragment Reading(ContrastCheck check, PairReading reading) => __builder =>
+    {
+        if (reading.Foreground is { } fg && reading.Background is { } bg)
+        {
+            <div class="sedna-row sedna-gap-2 sedna-wrap">
+                <span class="cat-pair" title="@($"{check.Foreground} {fg.Hex} on {check.Background} {bg.Hex}")">
+                    <span class="cat-pair-chip" style="background:@fg.Hex"></span>
+                    <span class="cat-pair-chip" style="background:@bg.Hex"></span>
+                    <span class="cat-pair-sample" style="background:@bg.Hex; color:@fg.Hex">Aa</span>
+                </span>
+                <span class="text-mono text-nums">@reading.RatioText</span>
+                @Verdict(check.PassesIn(reading), null)
+            </div>
+        }
+        else
+        {
+            <span class="text-muted text-sm">Not a colour the builder can read, so not measured.</span>
+        }
+    };
+
+    private static RenderFragment Verdict(bool passes, string? needs) => __builder =>
+    {
+        if (passes)
+        {
+            <span class="badge badge--go"><i class="ri-check-line"></i> <span>Passes</span></span>
+        }
+        else
+        {
+            <span class="badge badge--danger"><i class="ri-close-line"></i> <span>Fails@(needs is null ? "" : ", " + needs)</span></span>
+        }
+    };
+
+    private string GroupLabel(ThemeTokenGroup group)
+    {
+        var count = ChangedIn(group.Tokens);
+        return count == 0 ? group.Name : $"{group.Name} ({count} changed)";
+    }
+
+    private int ChangedIn(IEnumerable<ThemeToken> tokens) => tokens.Count(t => changedNames.Contains(t.Name));
+
+    private string GroupOf(string name) => Library.Groups.First(g => g.Tokens.Any(t => t.Name == name)).Name;
+
+    private static string Key(string name, bool isLight) => (isLight ? "light " : "dark ") + name;
+
+    private void GroupChanged(ChangeEventArgs e) => groupSlug = e.Value?.ToString() ?? groupSlug;
+
+    private void FilterChanged(ChangeEventArgs e) => filter = e.Value?.ToString() ?? "";
+
+    private void Set(string name, bool isLight, string? value)
+    {
+        var key = Key(name, isLight);
+        var target = isLight ? light : dark;
+        value = value?.Trim() ?? "";
+
+        if (value.Length == 0)
+        {
+            target.Remove(name);
+            problems.Remove(key);
+        }
+        else if (BrandCssBuilder.Refuse(value) is { } problem)
+        {
+            problems[key] = problem;
+            return;
+        }
+        else
+        {
+            problems.Remove(key);
+            target[name] = value;
+        }
+
+        Rebuild();
+    }
+
+    private void ResetToken(string name)
+    {
+        dark.Remove(name);
+        light.Remove(name);
+        problems.Remove(Key(name, false));
+        problems.Remove(Key(name, true));
+        Rebuild();
+    }
+
+    private void ResetGroup()
+    {
+        foreach (var token in CurrentGroup.Tokens) ResetToken(token.Name);
+    }
+
+    private void ResetAll()
+    {
+        dark.Clear();
+        light.Clear();
+        problems.Clear();
+        brand = BrandCssBuilder.SednaRed;
+        accent = BrandCssBuilder.OrbitBlue;
+        canvas = BrandCssBuilder.DeepSpace;
+        changeAccent = false;
+        changeCanvas = false;
+        Restart();
+    }
 
     private void BrandChanged(ChangeEventArgs e)
     {
         brand = e.Value?.ToString() ?? brand;
-        Rebuild();
+        Restart();
     }
 
     private void AccentChanged(ChangeEventArgs e)
     {
         accent = e.Value?.ToString() ?? accent;
-        Rebuild();
+        Restart();
     }
 
     private void AccentToggled(ChangeEventArgs e)
     {
         changeAccent = e.Value is true;
+        Restart();
+    }
+
+    private void CanvasChanged(ChangeEventArgs e)
+    {
+        canvas = e.Value?.ToString() ?? canvas;
+        Restart();
+    }
+
+    private void CanvasToggled(ChangeEventArgs e)
+    {
+        changeCanvas = e.Value is true;
+        Restart();
+    }
+
+    /// <summary>Regenerates the ramps from the quick start's colours, then the CSS.</summary>
+    private void Restart()
+    {
+        start = BrandCssBuilder.Ramps(brand, changeAccent ? accent : null, changeCanvas ? canvas : null);
+        // A hex that was refused shows the colour that was used instead.
+        brand = start.Brand;
+        if (start.Accent is not null) accent = start.Accent;
+        if (start.Canvas is not null) canvas = start.Canvas;
         Rebuild();
     }
 
     private void Rebuild()
     {
-        result = BrandCssBuilder.Build(brand, changeAccent ? accent : null);
-        // A hex that was refused shows the colour that was used instead.
-        brand = result.Brand;
-        if (result.Accent is not null) accent = result.Accent;
+        result = BrandCssBuilder.Build(Library, start, dark, light);
+        changedNames = result.Root.Select(t => t.Key).Concat(result.Light.Select(t => t.Key))
+            .ToHashSet(StringComparer.Ordinal);
     }
 }
