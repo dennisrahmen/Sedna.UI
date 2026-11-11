@@ -1,5 +1,5 @@
-<div style="display:flex; flex-direction:column; gap:16px; align-items:flex-start">
-    <fieldset class="form-section" style="margin:0">
+<div class="sedna-col sedna-gap-3 sedna-start">
+    <fieldset class="form-section sedna-mb-0">
         <legend>Time range</legend>
         <div class="segmented">
             <label class="segmented-option"><input type="radio" name="range" /> <span>24h</span></label>
@@ -7,7 +7,7 @@
             <label class="segmented-option"><input type="radio" name="range" /> <span>30d</span></label>
         </div>
     </fieldset>
-    <div class="segmented">
+    <div class="segmented" role="radiogroup" aria-label="Layout">
         <label class="segmented-option"><input type="radio" name="view" checked /><i class="ri-list-check"></i> <span>List</span></label>
         <label class="segmented-option"><input type="radio" name="view" /><i class="ri-layout-grid-line"></i> <span>Grid</span></label>
         <label class="segmented-option"><input type="radio" name="view" disabled /><i class="ri-calendar-line"></i> <span>Calendar</span></label>
