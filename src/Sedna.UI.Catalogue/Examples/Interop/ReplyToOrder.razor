@@ -20,7 +20,7 @@
     </div>
     <div class="modal-footer">
         <button class="btn" type="button" @onclick="Dismiss">Cancel</button>
-        <button class="btn btn--brand btn--solid" type="button" disabled="@IsEmpty"
+        <button class="btn btn--go btn--solid" type="button" disabled="@IsEmpty"
                 @onclick="() => Overlay.CloseAsync(_message)">
             <i class="ri-send-plane-line"></i> <span>Send</span>
         </button>
@@ -39,7 +39,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn" value="keep">Keep writing</button>
-            <button class="btn btn--danger" value="discard">Discard</button>
+            <button class="btn btn--danger btn--solid" value="discard">Discard reply</button>
         </div>
     </form>
 </dialog>

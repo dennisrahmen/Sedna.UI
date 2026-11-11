@@ -1,16 +1,16 @@
 <div class="card" style="max-width:520px">
     <div class="card-head">
-        <strong>TCK-4182 — Mailbox quota exceeded on EXCH-02</strong>
+        <strong>ORD-4182 — Carrier booking rejected</strong>
     </div>
     <div class="card-body">
         <ul class="timeline">
             <li data-kind="danger">
                 <span class="timeline-mark"><i class="ri-error-warning-line" aria-hidden="true"></i></span>
                 <span class="timeline-when">14:52</span>
-                <span class="timeline-what">Automatic reply could not be delivered</span>
+                <span class="timeline-what">The carrier rejected the booking</span>
                 <div class="timeline-body">
-                    <p><code>550 5.2.2 Mailbox full — quota 2048 MB exceeded</code></p>
-                    <p>Retried twice, ten minutes apart. Both attempts returned the same code.</p>
+                    <p><code>422 postcode_not_served — no delivery to this postcode</code></p>
+                    <p>Retried twice, 10 minutes apart. Both attempts returned the same code.</p>
                 </div>
             </li>
             <li data-kind="warn">
@@ -18,8 +18,8 @@
                 <span class="timeline-when">14:41</span>
                 <span class="timeline-what">Held for a person</span>
                 <div class="timeline-body">
-                    The mailbox is shared, so nobody owns the reply. Assigned to the on-call
-                    queue rather than to a name.
+                    No other carrier on the contract serves the address, so someone has to book one by
+                    hand. Assigned to the dispatch queue rather than to a name.
                 </div>
             </li>
             <li>
@@ -28,9 +28,9 @@
                 <span class="timeline-what">Classified and tagged</span>
                 <div class="timeline-body">
                     <div class="chip-set">
-                        <span class="chip">Exchange</span>
-                        <span class="chip">Quota</span>
-                        <span class="chip">Contoso Logistics</span>
+                        <span class="chip">Carrier</span>
+                        <span class="chip">Postcode</span>
+                        <span class="chip">Northwind Retail</span>
                     </div>
                 </div>
             </li>

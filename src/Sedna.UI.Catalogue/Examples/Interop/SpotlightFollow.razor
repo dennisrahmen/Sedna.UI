@@ -2,9 +2,8 @@
 @implements IAsyncDisposable
 
 <div class="sedna-col">
-    <div id="follow-stage" style="position:relative; height:420px; overflow:hidden;
-                                  border:1px solid var(--border); border-radius:var(--radius-surface)">
-        <div class="sedna-col" style="padding:16px">
+    <div id="follow-stage" class="card" style="position:relative; height:420px">
+        <div class="card-body sedna-col sedna-gap-6">
             <div class="toolbar">
                 <div class="toolbar-filters">
                     @* .menu-anchor is what attaches the results to the box. Without it a bare
@@ -14,7 +13,7 @@
                        edge, because this box is at the leading end of the row. *@
                     <span class="menu-anchor">
                         <input class="form-input toolbar-input toolbar-input--wide" type="search"
-                               placeholder="Search shipments…" data-live="@Live(0)" />
+                               placeholder="Search shipments…" aria-label="Search shipments" data-live="@Live(0)" />
 
                         @* Step 1 unions the box with the results it produced, so the hole
                            covers both. *@
@@ -27,9 +26,10 @@
                 <button class="btn btn--warn" type="button" data-live="@Live(1)">Hold selected</button>
             </div>
 
-            @* Clear of the results panel above, which is fixed and overlays rather than
-               pushing — without the room, step 1's panel half-covers this row. *@
-            <div class="stat-row stat-row--divided" data-live="@Live(2)" style="margin-top:36px">
+            @* The column's widest gap keeps this row clear of the results panel above, which
+               is fixed and overlays rather than pushing — without the room, step 1's panel
+               half-covers it. *@
+            <div class="stat-row stat-row--divided" data-live="@Live(2)">
                 <span class="stat">
                     <span class="stat-label">Held</span>
                     <span class="stat-value">6</span>

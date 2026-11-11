@@ -17,7 +17,7 @@
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" }
     ],
     "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "check-the-tools-an-agent-ran" ],
-    "stamp": "8d195aa3c016a96b"
+    "stamp": "8945ac348499f27b"
   },
   {
     "page": "/page-navigation",
@@ -32,7 +32,7 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#a-strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "2a9db502c274bf96"
+    "stamp": "e78a3e9a1e5a69b0"
   },
   {
     "page": "/card",
@@ -52,7 +52,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "d248694c89ddfdae"
+    "stamp": "b3889aed540d66de"
   },
   {
     "page": "/grid",
@@ -71,7 +71,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "ceab397c32850a46"
+    "stamp": "9c8df4e87fa491d9"
   },
   {
     "page": "/list",
@@ -91,7 +91,7 @@
       { "text": "A list of files", "instead": "/files#a-list-of-files" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "a0c1c74e3ddd107d"
+    "stamp": "86f0491b5d8af403"
   },
   {
     "page": "/collections",
@@ -108,7 +108,7 @@
       { "text": "Groups of a long nav", "instead": "/nav-layouts#accordion-groups" }
     ],
     "goals": [ "see-the-step-they-are-on", "open-detail-on-demand", "answer-one-question-at-a-time", "do-a-task-in-steps" ],
-    "stamp": "5011d48b19b0de33"
+    "stamp": "511f6c7c548c7e3f"
   },
   {
     "page": "/tree",
@@ -144,7 +144,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "see-what-happened-to-a-record", "open-a-record-beside-the-list" ],
-    "stamp": "9db5b323eecf7e10"
+    "stamp": "95095e834bba2b55"
   },
   {
     "page": "/tabs",
@@ -162,6 +162,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "2881b31686f1256e"
+    "stamp": "2eac8e92c61f6103"
   }
 ]

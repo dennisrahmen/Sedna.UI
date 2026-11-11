@@ -3,32 +3,34 @@
         <div class="card-head">
             <strong>Merge two tags</strong>
         </div>
-        <div class="card-body">
-            <p class="form-hint" style="margin-bottom:10px">
+        <div class="card-body sedna-col sedna-gap-2">
+            <p class="form-hint">
                 The cataloguer found <code>postgres</code> and <code>postgresql</code> on 41 records
                 between them. Approving keeps the first and retags the rest.
             </p>
-            <div class="kv"><span class="k">Raised by</span><span class="v">cataloguer</span></div>
-            <div class="kv"><span class="k">Confidence</span><span class="v">0.94</span></div>
+            <div>
+                <div class="kv"><span class="k">Raised by</span><span class="v">cataloguer</span></div>
+                <div class="kv"><span class="k">Confidence</span><span class="v">0.94</span></div>
+            </div>
         </div>
         <div class="card-foot">
-            <input class="form-input form-input--sm" style="max-width:260px" type="text"
+            <input class="form-input form-input--sm sedna-w sedna-w--lg" type="text"
                    placeholder="Why, in one line" aria-label="Reason" />
-            <button class="btn btn--sm">Decline</button>
-            <button class="btn btn--go btn--solid btn--sm">Approve</button>
+            <button class="btn btn--sm" type="button">Decline</button>
+            <button class="btn btn--go btn--solid btn--sm" type="button">Approve</button>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-body">
+        <div class="card-body sedna-col sedna-gap-1">
             <strong>Nightly reconciliation</strong>
-            <p class="form-hint" style="margin:6px 0 0">
+            <p class="form-hint">
                 Prunes stale orders and trims the run history.
             </p>
         </div>
         <div class="card-foot card-foot--split">
             <span class="form-hint">Last run 03:15, 4.2 s</span>
-            <button class="btn btn--sm">Run now</button>
+            <button class="btn btn--sm" type="button">Run now</button>
         </div>
     </div>
 </div>
