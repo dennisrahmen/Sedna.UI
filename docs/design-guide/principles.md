@@ -103,6 +103,10 @@ values of its own. Theming and rebranding are in [BRANDING](../BRANDING.md).
 - **Soft is the default, solid is the exception.** A tone's soft tint labels and marks; `--solid`
   fills, for the one thing in a region that must be seen first — its primary action, a state that
   stops work. `--ghost` is for a quiet action beside others.
+- **`go` is the send that commits something outward once** — a reply to a customer, an approval, a
+  dispatch. A chat or prompt composer's send is `brand`: it is the region's everyday action, pressed
+  many times over, as the composer markup on the Agent chat page writes it. Applying a filter is
+  `brand` too; it changes the view and sends nothing.
 - **A filled primary and a filled destructive never sit side by side.** The destructive action takes
   the soft or ghost variant, on the far side of the row; only a confirmation's own button is filled
   danger.
