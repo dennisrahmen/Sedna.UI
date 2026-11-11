@@ -9912,7 +9912,7 @@ dialog.lightbox::before {
     margin-top: var(--space-3);
 }
 .media-player-text > audio::-webkit-media-controls-enclosure {
-    border: 1px solid var(--field-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface-here, var(--bg));
 }

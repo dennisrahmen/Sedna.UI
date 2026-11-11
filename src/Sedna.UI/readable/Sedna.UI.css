@@ -17735,9 +17735,11 @@ dialog.lightbox::before {
 /* Chromium paints the native control on a grey pill of its own, which matches nothing
    the page draws. The pill takes a field's surface, border and corners instead, so the
    control reads as one of the page's controls; the buttons inside it are still the
-   browser's. WebKit draws its control without the pill and ignores this. */
+   browser's. A button's edge rather than a field's: nothing is typed into it, and it
+   has no invalid or read-only state to show. WebKit draws its control without the pill
+   and ignores this. */
 .media-player-text > audio::-webkit-media-controls-enclosure {
-    border: 1px solid var(--field-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--surface-here, var(--bg));
 }
