@@ -609,8 +609,10 @@ Three things worth checking on a new theme, in this order:
 3. **The six near-floor pairs in §7.1** still pass. A generated ramp can drift a step and quietly
    take one below the line.
 
-The catalogue's **Theme builder** page measures the first two, and the brand and link pairs on both
-canvases, for any brand colour and accent, and prints the `brand.css` that applies them.
+The catalogue's **Theme builder** page generates the brand, accent and base ramps from one colour
+each, lets every other token an app may redefine be set for dark and light, and prints a `brand.css`
+holding only what differs from the library. It measures the first two checks, and the text, label,
+tint, edge and focus-ring pairs a change can break, in both variants.
 
 ---
 

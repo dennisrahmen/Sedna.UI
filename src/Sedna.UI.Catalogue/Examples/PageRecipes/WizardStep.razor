@@ -1,0 +1,54 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Return items from ORD-4170</h1>
+        <p>Delivered to Northwind Retail on 28 July. Returns are open until 27 August.</p>
+    </div>
+    <div class="page-head-actions">
+        <button class="btn btn--ghost" type="button"><i class="ri-close-line"></i> <span>Cancel the return</span></button>
+    </div>
+</div>
+
+<ol class="steps" aria-label="Progress">
+    <li data-state="done">Order</li>
+    <li data-state="current" aria-current="step">Items</li>
+    <li>Reason</li>
+    <li>Check and send</li>
+</ol>
+
+<form class="card" aria-labelledby="rw-title">
+    <div class="card-head"><h3 id="rw-title">Which items are coming back?</h3></div>
+    <div class="card-body">
+        <fieldset class="form-field">
+            <legend class="form-label">Items on the order</legend>
+            <div class="form-check-list form-check-list--cards">
+                <label class="form-check">
+                    <input type="checkbox" name="rw-items" value="lamp" checked />
+                    <span class="choice-text">
+                        <span>Desk lamp, matte</span>
+                        <span class="choice-meta">2 delivered</span>
+                        <span class="choice-hint">Both are returned unless you change the quantity on the next step.</span>
+                    </span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" name="rw-items" value="tray" />
+                    <span class="choice-text">
+                        <span>Cable tray, 600 mm</span>
+                        <span class="choice-meta">4 delivered</span>
+                    </span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" name="rw-items" value="arm" disabled />
+                    <span class="choice-text">
+                        <span>Monitor arm, dual</span>
+                        <span class="choice-meta">Made to order &middot; cannot be returned</span>
+                    </span>
+                </label>
+            </div>
+        </fieldset>
+
+        <div class="form-actions form-actions--split">
+            <button class="btn" type="button"><i class="ri-arrow-left-line"></i> <span>Back</span></button>
+            <button class="btn btn--brand btn--solid" type="submit"><span>Continue</span> <i class="ri-arrow-right-line"></i></button>
+        </div>
+    </div>
+</form>

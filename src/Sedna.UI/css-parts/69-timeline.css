@@ -6,8 +6,9 @@
    timeline is an open-ended record. If the reader can be "on" one of them, it is
    steps.
 
-   The rule runs down the markers as a border on the <li>, so it stops exactly at the
-   last entry rather than needing a length.
+   The rule runs down the markers from the middle of each entry's marker to the middle
+   of the next one's, so it starts at the first marker and stops at the last: nothing
+   runs up above the first entry or down below the last, whatever their heights.
 
      <ul class="timeline">
        <li data-kind="go">
@@ -74,9 +75,22 @@
     margin-inline-start: calc((var(--timeline-dot) - var(--timeline-line)) / 2);
     padding-block: 0 var(--timeline-gap);
     padding-inline: var(--space-9) 0;
+    /* The connector's width, kept as an invisible border so every offset below can
+       count it; the line itself is ::after. */
+    border-inline-start: var(--timeline-line) solid transparent;
+    isolation: isolate;
+}
+.timeline > li:last-child { padding-block-end: 0; }
+/* One stretch of the connector: from this entry's marker to the next entry's, each in
+   the middle of its row. A border rather than a background, so forced colours keep it. */
+.timeline > li::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(var(--timeline-line) * -1);
+    inset-block: calc(var(--timeline-lead) / 2) calc(var(--timeline-lead) / -2);
     border-inline-start: var(--timeline-line) solid var(--border);
 }
-.timeline > li:last-child { border-inline-start-color: transparent; padding-block-end: 0; }
+.timeline > li:last-child::after { content: none; }
 .timeline > li::before {
     content: '';
     position: absolute;
@@ -90,6 +104,8 @@
     background: var(--border-hover);
     border: 2px solid var(--timeline-surface);
     border-radius: 50%;
+    /* Local stacking, inside the entry: over the connector. */
+    z-index: 1;
 }
 
 /* The timestamp's line box IS the row the marker centres in, so the two agree by
@@ -173,6 +189,8 @@
 .timeline > li:has(> .timeline-mark)::before { content: none; }
 .timeline-mark {
     position: absolute;
+    /* Local stacking, inside the entry: over the connector. */
+    z-index: 1;
     inset-inline-start: calc((var(--timeline-line) + var(--timeline-marker)) / -2);
     top: calc((var(--timeline-lead) - var(--timeline-marker)) / 2);
     display: flex;
@@ -240,6 +258,8 @@
 }
 .timeline > li.timeline-group::before { content: none; }
 .timeline > li.timeline-group:first-child { padding-block-start: 0; }
+/* A caption heading the record has no marker above it to run from. */
+.timeline > li.timeline-group:first-child::after { content: none; }
 
 /* ── The rest of the record ─────────────────────────────────────────────────
    A record with no end needs a foot that says so. The hollow marker is the point: a

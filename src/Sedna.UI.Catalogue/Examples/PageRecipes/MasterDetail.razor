@@ -1,0 +1,108 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Messages</h1>
+        <p>Customers and colleagues writing about an order.</p>
+    </div>
+    <div class="page-head-actions">
+        <button class="btn btn--brand btn--solid" type="button"><i class="ri-edit-line"></i> <span>New message</span></button>
+    </div>
+</div>
+
+<div class="sedna-split">
+    <section class="card sedna-split-aside" aria-labelledby="md-list-title">
+        <div class="card-head">
+            <h3 id="md-list-title">Conversations</h3>
+            <span class="badge badge--brand">2 unread</span>
+        </div>
+        <div class="card-body">
+            <input class="form-input form-input--sm" type="search" placeholder="Search messages…" aria-label="Search messages" />
+        </div>
+        <ul class="list">
+            <li>
+                <a class="list-row" href="#" aria-current="true">
+                    <span class="avatar avatar--sm avatar--viz-1" aria-hidden="true">AF</span>
+                    <span class="list-main">
+                        <span class="list-title">Alex Fischer</span>
+                        <span class="list-sub">Can you also confirm the label was reprinted?</span>
+                    </span>
+                    <span class="list-meta"><span>09:41</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="list-row" href="#">
+                    <span class="avatar avatar--sm avatar--viz-2" aria-hidden="true">PN</span>
+                    <span class="list-main">
+                        <span class="list-title">Priya Nair</span>
+                        <span class="list-sub">ORD-4213 has a changed address, hold that one</span>
+                    </span>
+                    <span class="list-meta"><span>08:20</span><span class="badge badge--brand">1</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="list-row" href="#">
+                    <span class="avatar avatar--sm avatar--viz-4" aria-hidden="true">NR</span>
+                    <span class="list-main">
+                        <span class="list-title">Northwind Retail</span>
+                        <span class="list-sub">Delivery of ORD-4170 confirmed, thank you</span>
+                    </span>
+                    <span class="list-meta"><span>Yesterday</span></span>
+                </a>
+            </li>
+            <li>
+                <a class="list-row" href="#">
+                    <span class="avatar avatar--sm avatar--muted" aria-hidden="true"><i class="ri-robot-2-line"></i></span>
+                    <span class="list-main">
+                        <span class="list-title">Workflow API</span>
+                        <span class="list-sub">Reservation for ORD-4209 approved</span>
+                    </span>
+                    <span class="list-meta"><span>Mon</span></span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <section class="card" aria-labelledby="md-thread-title">
+        <div class="card-head">
+            <h3 id="md-thread-title">Alex Fischer</h3>
+            <div class="card-head-right">
+                <a class="btn btn--sm" href="#"><i class="ri-file-list-3-line"></i> <span>ORD-4209</span></a>
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-label="Archive the conversation"><i class="ri-archive-line"></i></button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chat" role="log" aria-label="Conversation with Alex Fischer">
+                <div class="chat-day">Yesterday</div>
+                <div class="chat-message">
+                    <span class="avatar avatar--sm avatar--viz-1" aria-hidden="true">AF</span>
+                    <div class="chat-body">
+                        <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time" datetime="2026-09-12T17:52">17:52</time></div>
+                        <div class="chat-bubble">Can you reroute ORD-4209 to EU-West? The central depot has no capacity until Thursday.</div>
+                    </div>
+                </div>
+                <div class="chat-message chat-message--mine">
+                    <div class="chat-body">
+                        <div class="chat-bubble">Done. It leaves tomorrow at 12:20.</div>
+                        <div class="chat-meta"><time class="chat-time" datetime="2026-09-12T18:03">18:03</time><i class="ri-check-double-line chat-status chat-status--read" aria-label="Read" role="img"></i></div>
+                    </div>
+                </div>
+                <div class="chat-day">Today</div>
+                <div class="chat-message">
+                    <span class="avatar avatar--sm avatar--viz-1" aria-hidden="true">AF</span>
+                    <div class="chat-body">
+                        <div class="chat-meta"><span class="chat-author">Alex Fischer</span><time class="chat-time" datetime="2026-09-13T09:41">09:41</time></div>
+                        <div class="chat-bubble">Thanks. Can you also confirm the label was reprinted?</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-foot">
+            <form class="chat-composer sedna-w-full">
+                <div class="chat-composer-row">
+                    <button class="btn btn--ghost btn--icon" type="button" aria-label="Attach a file"><i class="ri-attachment-2"></i></button>
+                    <textarea class="form-input" rows="1" placeholder="Reply to Alex Fischer" aria-label="Reply"></textarea>
+                    <button class="btn btn--brand btn--solid btn--icon" type="submit" aria-label="Send"><i class="ri-send-plane-2-line"></i></button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>

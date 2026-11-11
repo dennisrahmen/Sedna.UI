@@ -48,4 +48,41 @@ public class ThemeBuilderBrowserTests(CatalogueAppFixture app)
 
         await page.CloseAsync();
     }
+
+    [Fact]
+    public async Task Editing_one_token_applies_it_writes_only_it_and_reset_takes_it_back()
+    {
+        if (app.NoBrowser) return;
+        var page = await app.OpenInteractiveAsync("/theme-builder");
+
+        const string Radius = "getComputedStyle(document.documentElement).getPropertyValue('--radius-control').trim()";
+        Assert.Equal("5px", await page.EvaluateAsync<string>("() => " + Radius));
+        Assert.DoesNotContain("--radius-control", await page.Locator("#theme-css pre").InnerTextAsync(), StringComparison.Ordinal);
+
+        // Found by name across every group, then set for dark: one declaration at :root.
+        await page.Locator("#theme-filter").FillAsync("radius-control");
+        var field = page.Locator("input[data-token='--radius-control'][data-variant='dark']");
+        await field.FillAsync("12px");
+        await field.PressAsync(Keys.Tab);
+
+        await page.WaitForFunctionAsync($"() => {Radius} === '12px'");
+        await page.WaitForFunctionAsync(
+            "() => document.querySelector('#theme-css pre').textContent.includes('--radius-control: 12px;')");
+        var css = await page.Locator("#theme-css pre").InnerTextAsync();
+        Assert.DoesNotContain("data-variant", css, StringComparison.Ordinal);
+        Assert.Contains("1 token changed", await page.Locator("#theme-changed").InnerTextAsync(), StringComparison.Ordinal);
+
+        // A value that would end the declaration is refused on the field, and nothing changes.
+        await field.FillAsync("1px; } body { display: none");
+        await field.PressAsync(Keys.Tab);
+        await page.Locator("#theme-editor .form-error").WaitForAsync();
+        Assert.Equal("12px", await page.EvaluateAsync<string>("() => " + Radius));
+
+        await page.Locator("#theme-reset-all").ClickAsync();
+        await page.WaitForFunctionAsync($"() => {Radius} === '5px'");
+        await page.WaitForFunctionAsync(
+            "() => !document.querySelector('#theme-css pre').textContent.includes('--radius-control')");
+
+        await page.CloseAsync();
+    }
 }

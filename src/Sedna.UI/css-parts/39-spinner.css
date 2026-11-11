@@ -1,10 +1,19 @@
 /* ── Spinner ────────────────────────────────────────────────────────────────
    A ring with one coloured arc. Sized by font-size so it matches the text or
-   the button it sits in without a second class. */
+   the button it sits in without a second class.
+
+   A RING THAT TURNS IS ROUND ONLY ON WHOLE PIXELS. Its size is rounded to an even
+   number of pixels, so its centre sits on a pixel and the turning ring is drawn the
+   same in every frame; at a fractional size it is rasterised differently at every
+   angle and wobbles like an egg. It never shrinks in a row: a flex item squeezed on
+   one axis would turn as an oval. Every ring below — a busy button's, a busy icon's,
+   a tree's caret — follows the same two rules. */
 .spinner {
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    flex: none;
+    box-sizing: border-box;
+    width: round(1em, 2px);
+    height: round(1em, 2px);
     border: 2px solid var(--border);
     border-top-color: var(--brand-soft);
     border-radius: 50%;
@@ -12,7 +21,7 @@
     /* Keeps the ring on the text baseline instead of riding above it. */
     vertical-align: -0.125em;
 }
-.spinner--sm { width: 0.75em; height: 0.75em; border-width: 1.5px; }
+.spinner--sm { width: round(0.75em, 2px); height: round(0.75em, 2px); border-width: 1.5px; }
 .spinner--lg { width: 24px; height: 24px; border-width: 3px; }
 
 @keyframes sedna-spin { to { transform: rotate(360deg); } }

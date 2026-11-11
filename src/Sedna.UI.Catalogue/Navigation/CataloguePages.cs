@@ -99,8 +99,8 @@ internal static class CataloguePages
             "The mark, its detail tiers, the palette read live, and the decisions behind it.",
             "logo mark tile wordmark lockup clear space misuse svg outfit theme forest cobalt switch"),
         new("/theme-builder", Start, "Theme builder", "ri-paint-brush-line",
-            "Pick a brand colour, see the components take it on, and copy the brand.css that does it.",
-            "theme builder generator brand colour color picker brand.css ramp palette accent rebrand contrast check"),
+            "Edit every token in dark and light, see the components take it on, and copy the brand.css.",
+            "theme builder generator editor brand colour color picker brand.css ramp palette accent canvas base surface text border radius spacing font shadow motion token override dark light variant rebrand contrast wcag hue check"),
 
         new("/frame", Frame, "Shell", "ri-layout-3-line",
             "The three page shells, the rhythm inside them, and the skip link.",
@@ -134,8 +134,8 @@ internal static class CataloguePages
             "403 404 500 503 401 access denied forbidden unauthorized permission role not found missing error crash session expired signed out timeout maintenance outage unavailable downtime status code reference trace correlation",
             Section: Pages),
         new("/page-recipes", Frame, "Page recipes", "ri-layout-masonry-line",
-            "Whole pages to start from: a list, the record it leads to, a settings page, and page feedback.",
-            "recipe template composition whole page list index detail record view settings preferences form layout page-head toolbar table pager split aside start feedback useful helpful survey report problem",
+            "Whole pages in the app's frame: an overview, a list, a record, its forms, search, settings, an account and sign-in.",
+            "recipe template composition whole page dashboard overview list index loading skeleton empty first run onboarding detail record view create edit new form wizard step multi-step master detail inbox split messages search results settings preferences account profile sessions sign-in login page-head toolbar table pager aside feedback useful helpful survey report problem",
             Section: Pages),
 
         new("/structure", Structure, "Page structure", "ri-layout-top-line",
@@ -490,6 +490,11 @@ internal static class CataloguePages
             "Holding your own bar clear of a home indicator, a notch or a rounded corner.",
             "sedna-safe-top sedna-safe-bottom sedna-safe-inline env safe-area-inset viewport-fit cover notch home indicator iphone island phone landscape"),
 
+        // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
+        new("/mcp-server", Start, "MCP server", "ri-robot-2-line",
+            "The read-only endpoint an agent points at, its tools and its resources.",
+            "mcp agent ai claude tool resource read-only streamable http rate limit since",
+            Section: Reference),
         new("/script", Start, "The script", "ri-code-s-slash-line",
             "Loading it, and the JavaScript behind toasts, the clipboard and the delegated behaviours.",
             "sednaUi toast modal copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent",
@@ -497,11 +502,6 @@ internal static class CataloguePages
         new("/interop", Start, "From C#", "ri-braces-line",
             "ISednaUi: toasts, dialogs, settings, the time zone and the spotlight, called from a component.",
             "ISednaUi interop C# csharp AddSednaUi ToastAsync ShowModalAsync ISednaOverlays FollowSpotlightAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync ShowModalAsync prerender OnAfterRenderAsync",
-            Section: Reference),
-        // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
-        new("/mcp-server", Start, "MCP server", "ri-robot-2-line",
-            "The read-only endpoint an agent points at, its tools and its resources.",
-            "mcp agent ai claude tool resource read-only streamable http rate limit since",
             Section: Reference),
         new("/tooling", Start, "App tooling", "ri-tools-line",
             "The build warning on a renamed class, the rename script, the Stylelint config and the agent skill.",

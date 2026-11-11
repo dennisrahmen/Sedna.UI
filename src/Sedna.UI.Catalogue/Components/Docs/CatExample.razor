@@ -11,7 +11,18 @@
         <CatTitle Text="@Title" /><CatAnchor Id="@Anchor" />
     </h2>
     @ChildContent
-    <div class="ex-demo @Demo">@Instance</div>
+    @if (Shell is null && !AuthShell)
+    {
+        <div class="ex-demo @Demo">@Instance</div>
+    }
+    else
+    {
+        @* A page recipe, drawn inside the app's frame. The code block still prints the
+           example's own file, which is the content of .page and nothing else. *@
+        <div class="ex-demo ex-demo--block ex-demo--flush @Demo">
+            <CatShell Active="@Shell" Auth="@AuthShell" Height="@ShellHeight" Page="@ShellPage">@Instance</CatShell>
+        </div>
+    }
     @if (Companion is null)
     {
         <CatCode Source="@Source" Label="@($"{Title} — markup")" />
@@ -65,6 +76,23 @@
     /// The two files are then tabs in a card instead of one code block. The companion is
     /// never rendered on its own: it is only meaningful inside the thing that presents it.
     [Parameter] public string? Companion { get; set; }
+
+    /// Draws the demo inside the app's frame — the full shell from /frame — with the
+    /// example as the content of .page, and names the sidebar link marked current. For a
+    /// page recipe: the code block still prints only the example, which is what goes
+    /// inside .page.
+    [Parameter] public string? Shell { get; set; }
+
+    /// Draws the demo inside .auth-layout instead, with the example as its content: a
+    /// sign-in, an invitation, a page with no navigation to offer.
+    [Parameter] public bool AuthShell { get; set; }
+
+    /// With Shell: a fixed height for the frame, such as "640px", for a recipe whose point
+    /// is something that sticks while the page scrolls. The content's height otherwise.
+    [Parameter] public string? ShellHeight { get; set; }
+
+    /// With Shell: extra classes on .page, such as "page--fill".
+    [Parameter] public string? ShellPage { get; set; }
 
     private string ExampleFile => typeof(TExample).Name + ".razor";
 

@@ -4,14 +4,16 @@
         <p>Every order in the warehouse queue, newest first.</p>
     </div>
     <div class="page-head-actions page-head-actions--fold">
-        <button class="btn" type="button"><i class="ri-download-line"></i> <span>Export</span></button>
+        <button class="btn" type="button"><i class="ri-upload-2-line"></i> <span>Import</span></button>
+        <button class="btn" type="button"><i class="ri-download-2-line"></i> <span>Export</span></button>
         <button class="btn btn--brand btn--solid actions-keep" type="button"><i class="ri-add-line"></i> <span>New order</span></button>
         <div class="menu-anchor actions-more">
             <button class="btn btn--icon" type="button" data-menu-toggle aria-expanded="false" aria-label="More actions">
                 <i class="ri-more-2-fill"></i>
             </button>
             <div class="menu" hidden>
-                <button class="menu-item" type="button"><i class="ri-download-line"></i> <span>Export</span></button>
+                <button class="menu-item" type="button"><i class="ri-upload-2-line"></i> <span>Import</span></button>
+                <button class="menu-item" type="button"><i class="ri-download-2-line"></i> <span>Export</span></button>
             </div>
         </div>
     </div>
@@ -19,17 +21,35 @@
 
 <div class="toolbar">
     <div class="toolbar-filters">
-        <input class="form-input toolbar-input toolbar-input--wide" type="search" placeholder="Search orders…" aria-label="Search orders" />
+        <input class="form-input toolbar-input toolbar-input--grow" type="search" placeholder="Search orders…" aria-label="Search orders" />
         <select class="form-select toolbar-input" aria-label="State">
             <option>Any state</option>
-            <option>Pending</option>
+            <option selected>Pending</option>
             <option>Approved</option>
             <option>Rejected</option>
         </select>
+        <select class="form-select toolbar-input" aria-label="Region">
+            <option selected>Every region</option>
+            <option>EU-Central</option>
+            <option>EU-West</option>
+            <option>Nordics</option>
+        </select>
     </div>
     <div class="toolbar-actions">
-        <span class="toolbar-count">3 of 1,204</span>
+        <span class="toolbar-count">84 of 1,204</span>
     </div>
+</div>
+
+<div class="chip-set">
+    <span class="chip chip--active">
+        <span class="chip-label">State: Pending</span>
+        <button class="chip-dismiss" type="button" aria-label="Stop filtering by state"><i class="ri-close-line"></i></button>
+    </span>
+    <span class="chip chip--active">
+        <span class="chip-label">Placed: this week</span>
+        <button class="chip-dismiss" type="button" aria-label="Stop filtering by date"><i class="ri-close-line"></i></button>
+    </span>
+    <button class="btn btn--sm btn--ghost" type="button"><i class="ri-filter-off-line"></i> <span>Clear all</span></button>
 </div>
 
 <div class="card">
@@ -37,41 +57,59 @@
         <thead>
             <tr>
                 <th aria-sort="descending"><button class="th-sort" type="button">Order</button></th>
-                <th aria-sort="none"><button class="th-sort" type="button">State</button></th>
+                <th>Customer</th>
+                <th>State</th>
                 <th>Owner</th>
                 <th class="col-num" aria-sort="none"><button class="th-sort" type="button">Lines</button></th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td data-label="Order"><div><a href="#">ORD-4209</a></div><div class="text-muted">Opened 4 min ago</div></td>
+                <td data-label="Order"><div><a href="#">ORD-4212</a></div><div class="text-muted">Placed 4 min ago</div></td>
+                <td data-label="Customer">Northwind Retail</td>
                 <td data-label="State"><span class="badge badge--warn">Pending</span></td>
                 <td data-label="Owner">Alex Fischer</td>
                 <td data-label="Lines" class="col-num">5</td>
             </tr>
             <tr>
-                <td data-label="Order"><div><a href="#">ORD-4204</a></div><div class="text-muted">Opened 22 min ago</div></td>
-                <td data-label="State"><span class="badge badge--go">Approved</span></td>
+                <td data-label="Order"><div><a href="#">ORD-4209</a></div><div class="text-muted">Placed 22 min ago</div></td>
+                <td data-label="Customer">Priya Nair</td>
+                <td data-label="State"><span class="badge badge--warn">Pending</span></td>
                 <td data-label="Owner">Alex Fischer</td>
                 <td data-label="Lines" class="col-num">12</td>
             </tr>
             <tr>
-                <td data-label="Order"><div><a href="#">ORD-4198</a></div><div class="text-muted">Opened 1 h ago</div></td>
-                <td data-label="State"><span class="badge badge--danger">Rejected</span></td>
-                <td data-label="Owner">Unassigned</td>
+                <td data-label="Order"><div><a href="#">ORD-4204</a></div><div class="text-muted">Placed 1 h ago</div></td>
+                <td data-label="Customer">Jordan Weiss</td>
+                <td data-label="State"><span class="badge badge--warn">Pending</span></td>
+                <td data-label="Owner" class="col-muted">Unassigned</td>
                 <td data-label="Lines" class="col-num">1</td>
+            </tr>
+            <tr>
+                <td data-label="Order"><div><a href="#">ORD-4198</a></div><div class="text-muted">Placed yesterday</div></td>
+                <td data-label="Customer">Northwind Retail</td>
+                <td data-label="State"><span class="badge badge--warn">Pending</span></td>
+                <td data-label="Owner">Priya Nair</td>
+                <td data-label="Lines" class="col-num">3</td>
+            </tr>
+            <tr>
+                <td data-label="Order"><div><a href="#">ORD-4187</a></div><div class="text-muted">Placed on Monday</div></td>
+                <td data-label="Customer">Northwind Retail</td>
+                <td data-label="State"><span class="badge badge--warn">Pending</span></td>
+                <td data-label="Owner">Jordan Weiss</td>
+                <td data-label="Lines" class="col-num">8</td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<nav class="pagination" aria-label="Pagination">
+<nav class="pagination" aria-label="Order pages">
     <span class="page-link" aria-disabled="true"><i class="ri-arrow-left-s-line"></i> <span>Previous</span></span>
     <a class="page-link" href="#" aria-current="page" aria-label="Page 1">1</a>
     <a class="page-link" href="#" aria-label="Page 2">2</a>
     <a class="page-link" href="#" aria-label="Page 3">3</a>
-    <span class="page-gap" aria-hidden="true">&hellip;</span>
-    <a class="page-link" href="#" aria-label="Page 61">61</a>
+    <a class="page-link" href="#" aria-label="Page 4">4</a>
+    <a class="page-link" href="#" aria-label="Page 5">5</a>
     <a class="page-link" href="#"><span>Next</span> <i class="ri-arrow-right-s-line"></i></a>
-    <span class="page-count">1&ndash;20 of 1,204</span>
+    <span class="page-count">1&ndash;20 of 84</span>
 </nav>

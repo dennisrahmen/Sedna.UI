@@ -45,6 +45,11 @@ bytes, so a demo and its snippet cannot drift.
 - `Demo="ex-demo--block"` lays the demo out as a block instead of a centred row; add `ex-demo--pad` for
   something that needs room, or `ex-demo--flush` for a demo that brings its own edge, like a whole
   frame. Omit it for small inline things like a badge.
+- `Shell="Orders"` draws the demo inside the app's frame (`Components/Docs/CatShell.razor`), with the
+  example as the content of `.page` and the named sidebar link marked current; `ShellHeight` fixes the
+  frame's height for a recipe whose point is something that sticks, and `AuthShell` uses
+  `.auth-layout` instead. The code block still prints only the example. It is for a whole page — the
+  page recipes — and the example holds no frame markup of its own.
 - A backtick in a `Title` renders as `<code>`. `Title` stays a plain string because it is also the
   anchor slug, the accessible name, and what the MCP server returns.
 

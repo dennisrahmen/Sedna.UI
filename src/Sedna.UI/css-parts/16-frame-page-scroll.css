@@ -83,8 +83,12 @@
 .page--fill > * { flex-shrink: 0; }
 .page--fill > .page-foot { margin-top: auto; }
 
+/* A block-level flex box as wide as its words, not an inline one: an inline box's
+   margin does not collapse with the next sibling's, so the page rhythm's top margin
+   was added to this one's bottom margin and a page head sat further below a back link
+   than below a breadcrumb. */
 .back-link {
-    display: inline-flex; align-items: center; gap: var(--space-2);
+    display: flex; inline-size: fit-content; align-items: center; gap: var(--space-2);
     font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
 }
 .back-link:hover { color: var(--fg); }

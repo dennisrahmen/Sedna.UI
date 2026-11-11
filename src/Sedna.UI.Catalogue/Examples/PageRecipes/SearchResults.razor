@@ -1,0 +1,87 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Search</h1>
+    </div>
+</div>
+
+<form role="search" aria-label="Search everything">
+    <div class="input-group input-group--lg">
+        <span class="input-affix"><i class="ri-search-line"></i></span>
+        <input class="form-input" type="search" value="harbour road" aria-label="Search orders, customers and messages" />
+        <button class="btn btn--brand btn--solid" type="submit">Search</button>
+    </div>
+</form>
+
+<nav class="tabs" aria-label="Kind of result">
+    <a class="tab tab--active" href="#" aria-current="page"><span>All</span> <span class="tab-count">24</span></a>
+    <a class="tab" href="#"><span>Orders</span> <span class="tab-count">18</span></a>
+    <a class="tab" href="#"><span>Customers</span> <span class="tab-count">4</span></a>
+    <a class="tab" href="#"><span>Messages</span> <span class="tab-count">2</span></a>
+</nav>
+
+<div class="toolbar">
+    <div class="toolbar-filters">
+        <select class="form-select toolbar-input" aria-label="Placed">
+            <option selected>Any time</option>
+            <option>This week</option>
+            <option>This month</option>
+        </select>
+    </div>
+    <div class="toolbar-actions">
+        <span class="toolbar-count" role="status">24 results for &ldquo;harbour road&rdquo;</span>
+    </div>
+</div>
+
+<section class="card" aria-label="Results">
+    <ul class="list" style="--list-lines: 3">
+        <li>
+            <a class="list-row" href="#">
+                <span class="avatar avatar--sm avatar--muted" aria-hidden="true"><i class="ri-team-line"></i></span>
+                <span class="list-main">
+                    <span class="list-meta"><span class="badge">Customer</span></span>
+                    <span class="list-title">Northwind Retail</span>
+                    <span class="list-sub">Goods in, Unit 4, 1 Harbour Road, Example Town</span>
+                </span>
+            </a>
+        </li>
+        <li>
+            <a class="list-row" href="#">
+                <span class="avatar avatar--sm avatar--muted" aria-hidden="true"><i class="ri-inbox-line"></i></span>
+                <span class="list-main">
+                    <span class="list-meta"><span class="badge">Order</span><span class="badge badge--warn">On hold</span><span>Today</span></span>
+                    <span class="list-title">ORD-4209</span>
+                    <span class="list-sub">Deliver to 1 Harbour Road · five lines</span>
+                </span>
+            </a>
+        </li>
+        <li>
+            <a class="list-row" href="#">
+                <span class="avatar avatar--sm avatar--muted" aria-hidden="true"><i class="ri-inbox-line"></i></span>
+                <span class="list-main">
+                    <span class="list-meta"><span class="badge">Order</span><span class="badge badge--go">Delivered</span><span>28 Jul</span></span>
+                    <span class="list-title">ORD-4170</span>
+                    <span class="list-sub">Deliver to 1 Harbour Road · four lines</span>
+                </span>
+            </a>
+        </li>
+        <li>
+            <a class="list-row" href="#">
+                <span class="avatar avatar--sm avatar--muted" aria-hidden="true"><i class="ri-chat-3-line"></i></span>
+                <span class="list-main">
+                    <span class="list-meta"><span class="badge">Message</span><span>Yesterday</span></span>
+                    <span class="list-title">Alex Fischer, about ORD-4209</span>
+                    <span class="list-sub">&ldquo;The Harbour Road dock closes at 15:00 on Fridays.&rdquo;</span>
+                </span>
+            </a>
+        </li>
+    </ul>
+</section>
+
+<nav class="pagination" aria-label="Result pages">
+    <span class="page-link" aria-disabled="true"><i class="ri-arrow-left-s-line"></i> <span>Previous</span></span>
+    <a class="page-link" href="#" aria-current="page" aria-label="Page 1">1</a>
+    <a class="page-link" href="#" aria-label="Page 2">2</a>
+    <a class="page-link" href="#" aria-label="Page 3">3</a>
+    <a class="page-link" href="#"><span>Next</span> <i class="ri-arrow-right-s-line"></i></a>
+    <span class="page-count">1&ndash;10 of 24</span>
+</nav>

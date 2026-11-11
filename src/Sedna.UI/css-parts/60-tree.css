@@ -115,8 +115,10 @@
    them and the script lifts `aria-busy`. */
 .tree [aria-busy="true"] > .tree-row > .tree-toggle::before,
 .table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before {
-    width: 0.75em;
-    height: 0.75em;
+    flex: none;
+    box-sizing: border-box;
+    width: round(0.75em + 3px, 2px);
+    height: round(0.75em + 3px, 2px);
     border: 1.5px solid var(--border);
     border-top-color: var(--brand-soft);
     border-radius: 50%;

@@ -40,6 +40,10 @@
 }
 .card-head {
     display: flex;
+    /* A trailing action too wide to share the line goes under the title, rather than
+       squeezing the title to a word a line. */
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
     justify-content: space-between;
     align-items: center;
     padding: var(--card-pad-block) var(--card-pad-inline);
@@ -49,8 +53,10 @@
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
    margin and 1.17em size, so the head measures half again as tall as one holding a
-   <strong> and the heading is bigger than the card it titles. */
-.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+   <strong> and the heading is bigger than the card it titles. Any level, because the
+   level is the page outline's — a card that is a top-level section of its page is
+   titled by an <h2>, a sign-in card by the page's <h1> — and the look is the card's. */
+.card-head :is(h1, h2, h3, h4) { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 /* A leading slot — a drag grip, an icon, a fold toggle — before the title. The title
    then takes the room between it and the trailing actions. */

@@ -6414,7 +6414,10 @@
       ]
     },
     "table--fixed": {
-      "family": "table"
+      "family": "table",
+      "combinedWith": [
+        "table--sticky"
+      ]
     },
     "table--pin-end": {
       "family": "table",
@@ -6440,6 +6443,7 @@
     "table--sticky": {
       "family": "table",
       "combinedWith": [
+        "table--fixed",
         "table--pin-end",
         "table--pin-start"
       ]

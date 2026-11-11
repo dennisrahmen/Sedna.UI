@@ -206,8 +206,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    not a markup edit.
 
    The connector is the <li>'s own ::after, so the last step has none without a
-   modifier. Colour alone does not say which steps are done: the done marker shows a
-   tick, not just a fill. */
+   modifier. Colour alone does not say which steps are done: the done marker is
+   filled and the pending one outlined — see "Done is FILLED" below. */
 .steps {
     /* One number for the marker's diameter, because the connector's own offset is
        half of it. Typed separately they disagreed: the marker rendered 28px across

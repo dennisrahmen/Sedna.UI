@@ -133,13 +133,14 @@ public class StatToneTests : ScriptTestBase
         Assert.NotEqual(warn.ValueColour, danger.ValueColour);
     }
 
-    // A toned tile at either end of a row stops flush with the row, and so with the panels
-    // above and below it: the tint reaches into the gaps between tiles and no further.
+    // A toned tile at either end of a row is drawn whole: its tint reaches past the row's
+    // edge and the row's clip leaves all of it, so no tile reads as cut in half. The
+    // dividing rule, which stands further out, is still clipped.
     [Theory]
     [InlineData("plain")]
     [InlineData("divided")]
     [InlineData("card")]
-    public async Task Nothing_in_a_row_paints_past_its_inline_edges(string layout)
+    public async Task A_toned_tile_at_either_end_of_a_row_is_drawn_whole(string layout)
     {
         if (NoBrowser) return;
         string[] ends = ["stat--warn", "", "stat--danger"];
@@ -153,17 +154,20 @@ public class StatToneTests : ScriptTestBase
               const r = row.getBoundingClientRect();
               const first = document.getElementById('t0').getBoundingClientRect();
               const last = document.getElementById('t2').getBoundingClientRect();
-              // The visible box is the tile's box cut by the row's clip.
-              const clip = getComputedStyle(row).clipPath;
-              const m = /inset\(([-\d.]+)px\s+([-\d.]+)px/.exec(clip);
-              const inline = m ? parseFloat(m[2]) : -1e6;
-              return [Math.max(first.left, r.left - inline) - r.left, r.right - Math.min(last.right, r.right + inline), first.left - r.left];
+              // How far the row's clip reaches past its inline edges.
+              const m = /inset\((-?[\d.]+)px(?:\s+(-?[\d.]+)px)?/.exec(getComputedStyle(row).clipPath);
+              const inline = m ? -parseFloat(m[2] ?? m[1]) : 1e6;
+              // The rule a tile draws before itself, where the row's first tile puts it.
+              const rule = parseFloat(getComputedStyle(row).columnGap) / 2;
+              return [r.left - first.left, last.right - r.right, inline, rule];
             }
             """);
 
-        Assert.Equal(0, edges[0], 0.01);
-        Assert.Equal(0, edges[1], 0.01);
-        Assert.True(edges[2] < 0, "The toned tile no longer reaches past its track, so this measures nothing.");
+        Assert.True(edges[0] > 0, "The toned tile no longer reaches past its track, so this measures nothing.");
+        Assert.True(edges[0] <= edges[2], $"The first tile reaches {edges[0]}px past the row and the clip leaves {edges[2]}px.");
+        Assert.True(edges[1] <= edges[2], $"The last tile reaches {edges[1]}px past the row and the clip leaves {edges[2]}px.");
+        if (layout != "plain")
+            Assert.True(edges[3] > edges[2], $"The rule stands {edges[3]}px out and the clip leaves {edges[2]}px, so it shows.");
     }
 
     // The plain row has the narrowest gap; two tints side by side must leave some of it.

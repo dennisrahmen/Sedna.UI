@@ -85,8 +85,9 @@
     content: '';
     position: absolute;
     inset: 0;
-    width: 1em;
-    height: 1em;
+    box-sizing: border-box;
+    width: round(1em + 4px, 2px);
+    height: round(1em + 4px, 2px);
     margin: auto;
     border: 2px solid currentColor;
     border-inline-end-color: transparent;

@@ -21,8 +21,10 @@
     <p>
         <strong>Live &mdash; drag a column's edge, or Tab to it and use <kbd>&larr;</kbd> <kbd>&rarr;</kbd>.</strong>
         <code>.table--fixed</code> sizes each column from the <code>--col-width</code> of the cell that heads
-        it, between <code>--col-min</code> and <code>--col-max</code>, and the table is as wide as its
-        columns &mdash; in a <code>.sedna-scroll-x</code>, it scrolls once they outgrow the box. A value too
+        it, between <code>--col-min</code> and <code>--col-max</code>. The table fills its box &mdash; the
+        room the columns leave is an empty end to every row, so a column is always exactly as wide as
+        its heading says &mdash; and in a <code>.sedna-scroll-x</code> it scrolls once the columns
+        outgrow the box. Set no width on the table or its cells. A value too
         long for its column ends in an ellipsis. Set <code>--col-width</code> on the table for every
         column's default, and on a header cell for that column's.
     </p>

@@ -1,0 +1,59 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Orders</h1>
+        <p>Every order in the warehouse queue, newest first.</p>
+    </div>
+    <div class="page-head-actions">
+        <button class="btn btn--brand btn--solid" type="button"><i class="ri-add-line"></i> <span>New order</span></button>
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="toolbar-filters">
+        <input class="form-input toolbar-input toolbar-input--grow" type="search" placeholder="Search orders…" aria-label="Search orders" />
+        <select class="form-select toolbar-input" aria-label="State">
+            <option selected>Any state</option>
+            <option>Pending</option>
+            <option>Approved</option>
+        </select>
+    </div>
+    <div class="toolbar-actions">
+        <span class="toolbar-count" role="status"><span class="spinner" aria-hidden="true"></span> <span>Loading orders…</span></span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="sedna-scroll-x">
+        <table class="table" aria-busy="true">
+            <thead>
+                <tr><th>Order</th><th>Customer</th><th>State</th><th class="col-num">Lines</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="skeleton skeleton-text" style="width:72px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:120px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:64px"></span></td>
+                    <td class="col-num"><span class="skeleton skeleton-text" style="width:24px; margin-inline-start:auto"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="skeleton skeleton-text" style="width:72px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:96px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:56px"></span></td>
+                    <td class="col-num"><span class="skeleton skeleton-text" style="width:16px; margin-inline-start:auto"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="skeleton skeleton-text" style="width:72px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:140px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:64px"></span></td>
+                    <td class="col-num"><span class="skeleton skeleton-text" style="width:24px; margin-inline-start:auto"></span></td>
+                </tr>
+                <tr>
+                    <td><span class="skeleton skeleton-text" style="width:72px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:104px"></span></td>
+                    <td><span class="skeleton skeleton-text" style="width:48px"></span></td>
+                    <td class="col-num"><span class="skeleton skeleton-text" style="width:16px; margin-inline-start:auto"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
