@@ -28,7 +28,7 @@
                    opening is the app's, below, whatever the record carries. *@
                 <div class="menu graph-menu" data-graph-menu role="menu" hidden>
                     <span class="menu-label" data-graph-field="label"></span>
-                    <button class="menu-item" role="menuitem" type="button" data-graph-action="select"><i class="ri-user-line"></i> <span>Who owns it</span></button>
+                    <button class="menu-item" role="menuitem" type="button" data-graph-action="select"><i class="ri-user-line"></i> <span>Show who owns it</span></button>
                     <button class="menu-item" role="menuitem" type="button" data-graph-action="open" data-graph-always><i class="ri-external-link-line"></i> <span>Open</span></button>
                 </div>
                 <div class="graph-wait skeleton skeleton-block"></div>
@@ -42,9 +42,9 @@
                     <span class="badge">@service.Kind</span>
                 </div>
                 <div class="card-body">
-                    <div class="kv"><span class="k">Owner</span><span>@service.Fields.GetValueOrDefault("owner")</span></div>
+                    <div class="kv"><span class="k">Owner</span><span class="v">@service.Fields.GetValueOrDefault("owner")</span></div>
                     @* data-on-call arrives under the browser's own name for it: onCall. *@
-                    <div class="kv"><span class="k">On call</span><span>@service.Fields.GetValueOrDefault("onCall")</span></div>
+                    <div class="kv"><span class="k">On call</span><span class="v">@service.Fields.GetValueOrDefault("onCall")</span></div>
                     <div class="kv"><span class="k">Host</span><span class="v">@(service.Meta ?? "—")</span></div>
                 </div>
                 <div class="card-foot">
@@ -56,8 +56,8 @@
                 <div class="card-body">
                     <div class="empty-state empty-state--bare">
                         <i class="ri-cursor-line state-icon state-icon--sm" aria-hidden="true"></i>
-                        <span class="empty-state-title">No service selected</span>
-                        <p>Click one to see who owns it. Double-click or right-click opens it.</p>
+                        <span class="empty-state-title">Select a service to see who owns it</span>
+                        <p>Double-click or right-click a service to open it.</p>
                     </div>
                 </div>
             }

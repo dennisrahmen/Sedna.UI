@@ -7,21 +7,21 @@
             <th aria-sort="@_sort.AriaSort("age")">
                 <button class="th-sort" type="button" @onclick="@(() => Sort("age"))">Age</button>
             </th>
-            <th class="col-num" aria-sort="@_sort.AriaSort("reopens")">
-                <button class="th-sort" type="button" @onclick="@(() => Sort("reopens"))">Reopens</button>
+            <th class="col-num" aria-sort="@_sort.AriaSort("items")">
+                <button class="th-sort" type="button" @onclick="@(() => Sort("items"))">Items</button>
             </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var row in Rows())
         {
-            <tr><td>@row.Order</td><td class="col-muted">@row.Age min</td><td class="col-num">@row.Reopens</td></tr>
+            <tr><td>@row.Order</td><td class="col-muted">@row.Age min</td><td class="col-num">@row.Items</td></tr>
         }
     </tbody>
 </table>
 
 @code {
-    private sealed record Row(string Order, int Age, int Reopens);
+    private sealed record Row(string Order, int Age, int Items);
 
     private static readonly Row[] All =
     [
@@ -43,7 +43,7 @@
         {
             "order" => All.OrderBy(r => r.Order, StringComparer.Ordinal),
             "age" => All.OrderBy(r => r.Age),
-            "reopens" => All.OrderBy(r => r.Reopens),
+            "items" => All.OrderBy(r => r.Items),
             _ => All,
         };
         return _sort.Descending ? rows.Reverse() : rows;

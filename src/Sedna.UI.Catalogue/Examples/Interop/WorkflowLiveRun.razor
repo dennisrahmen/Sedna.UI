@@ -289,7 +289,7 @@
                 <strong>The call</strong>
                 <span class="health-badge @(OnTheLine ? "health-badge--live" : "health-badge--idle")"><span class="health-dot"></span><span>@(OnTheLine ? "On the line" : _said.Count == 0 ? "No call yet" : "Ended")</span></span>
             </div>
-            <div class="chat chat--flat sedna-scroll" role="log" aria-label="Call transcript" style="max-height: 300px">
+            <div class="chat chat--flat sedna-scroll" role="log" aria-label="Call transcript" style="--scroll-max: 300px">
                 @foreach (var line in _said)
                 {
                     <div class="chat-message">
@@ -467,8 +467,8 @@
     {
         _options =
         [
-            new("Page the on-call engineer", 86, true, "Three stores in one region within 15 minutes, out of hours: an outage, not a fault."),
-            new("Queue for the network team", 31, false, "The team starts at 07:00; the tills would be down for nine hours."),
+            new("Page the on-call engineer", 86, true, "3 stores in 1 region within 15 minutes, out of hours: an outage, not a fault."),
+            new("Queue for the network team", 31, false, "The team starts at 07:00; the tills would be down for 9 hours."),
             new("Close as a known issue", 8, false, "Nothing on record matches."),
         ];
         _log.Add(new(Clock, "WEIGH", "route", "3 options"));

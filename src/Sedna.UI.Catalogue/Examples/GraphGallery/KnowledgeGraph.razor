@@ -17,7 +17,7 @@
     </div>
     <div class="sedna-split">
         <div class="graph card" data-graph id="knowledge" data-graph-layout="islands"
-             aria-label="Knowledge graph of three projects" aria-roledescription="graph">
+             aria-label="Knowledge graph of 3 projects" aria-roledescription="graph">
             <ul class="graph-data" data-graph-data>
                 <li data-node="catalogue" data-group="catalogue" data-kind="project" data-shape="hexagon" data-icon="ri-folder-3-line" data-tone="1" data-meta="Project · due 1 April">Spring catalogue</li>
                 <li data-node="kickoff" data-group="catalogue" data-kind="note" data-shape="rounded" data-tone="2" data-meta="Note · 12 January" data-tags="print budget">Kick-off notes</li>
@@ -46,7 +46,6 @@
                 <li data-node="priya" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Engineering">Priya Nair</li>
                 <li data-node="jordan" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Operations">Jordan Weiss</li>
                 <li data-node="rin" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Design">Rin Nakamura</li>
-                <li data-node="tomas" data-kind="person" data-tone="5" data-icon="ri-user-line" data-meta="Person · Logistics">Tomás Ferreira</li>
 
                 <li data-node="tag-print" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">print</li>
                 <li data-node="tag-budget" data-kind="tag" data-shape="tag" data-tone="6" data-meta="Tag">budget</li>
@@ -82,14 +81,14 @@
 
                 <li data-edge data-source="kickoff" data-target="alex" data-kind="author" data-label="written by">Alex Fischer wrote the kick-off notes.</li>
                 <li data-edge data-source="shoot-brief" data-target="rin" data-kind="author" data-label="written by">Rin Nakamura wrote the photo shoot brief.</li>
-                <li data-edge data-source="floor-plan" data-target="tomas" data-kind="author" data-label="written by">Tomás Ferreira wrote the floor plan.</li>
+                <li data-edge data-source="floor-plan" data-target="rin" data-kind="author" data-label="written by">Rin Nakamura wrote the floor plan.</li>
                 <li data-edge data-source="supplier-checklist" data-target="jordan" data-kind="author" data-label="written by">Jordan Weiss wrote the supplier checklist.</li>
                 <li data-edge data-source="approve-layout" data-target="alex" data-kind="assigned" data-label="assigned to">Approving the layout is assigned to Alex Fischer.</li>
                 <li data-edge data-source="send-to-printer" data-target="rin" data-kind="assigned" data-label="assigned to">Sending files to the printer is assigned to Rin Nakamura.</li>
                 <li data-edge data-source="book-photographer" data-target="rin" data-kind="assigned" data-label="assigned to">Booking the photographer was assigned to Rin Nakamura.</li>
-                <li data-edge data-source="order-racking" data-target="tomas" data-kind="assigned" data-label="assigned to">Ordering new racking is assigned to Tomás Ferreira.</li>
+                <li data-edge data-source="order-racking" data-target="jordan" data-kind="assigned" data-label="assigned to">Ordering new racking is assigned to Jordan Weiss.</li>
                 <li data-edge data-source="label-bays" data-target="jordan" data-kind="assigned" data-label="assigned to">Labelling the bays is assigned to Jordan Weiss.</li>
-                <li data-edge data-source="move-slow-sellers" data-target="tomas" data-kind="assigned" data-label="assigned to">Moving slow sellers was assigned to Tomás Ferreira.</li>
+                <li data-edge data-source="move-slow-sellers" data-target="alex" data-kind="assigned" data-label="assigned to">Moving slow sellers was assigned to Alex Fischer.</li>
                 <li data-edge data-source="sign-contract" data-target="alex" data-kind="assigned" data-label="assigned to">Signing the framework contract is assigned to Alex Fischer.</li>
                 <li data-edge data-source="supplier-accounts" data-target="priya" data-kind="assigned" data-label="assigned to">Setting up supplier accounts is assigned to Priya Nair.</li>
                 <li data-edge data-source="collect-certificates" data-target="jordan" data-kind="assigned" data-label="assigned to">Collecting safety certificates was assigned to Jordan Weiss.</li>
@@ -116,7 +115,7 @@
             <div class="menu graph-menu" data-graph-menu role="menu" hidden>
                 <span class="menu-label" data-graph-field="label"></span>
                 <button class="menu-item" role="menuitem" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> <span>Only its neighbourhood</span></button>
-                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> <span>Everything again</span></button>
+                <button class="menu-item" role="menuitem" type="button" data-graph-action="unfocus"><i class="ri-apps-2-line"></i> <span>Show everything</span></button>
                 <button class="menu-item" role="menuitem" type="button" data-graph-action="hide"><i class="ri-eye-off-line"></i> <span>Hide it</span></button>
                 <button class="menu-item" role="menuitem" type="button" data-graph-action="show-all"><i class="ri-eye-line"></i> <span>Show what I hid</span></button>
             </div>
@@ -148,8 +147,8 @@
                 </ul>
             </div>
             <div class="card-foot card-foot--start">
-                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> <span>Neighbourhood</span></button>
-                <button class="btn btn--ghost btn--sm" type="button" data-graph-action="unfocus">Everything</button>
+                <button class="btn btn--sm" type="button" data-graph-action="focus"><i class="ri-focus-3-line"></i> <span>Show its neighbourhood</span></button>
+                <button class="btn btn--ghost btn--sm" type="button" data-graph-action="unfocus">Show everything</button>
             </div>
         </aside>
     </div>

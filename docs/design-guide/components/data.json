@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "81238968e721a951"
+    "stamp": "3d43f21e5a17d330"
   },
   {
     "page": "/table-editing",
@@ -35,7 +35,7 @@
       { "text": "A hierarchy of rows", "instead": "/table-large#a-tree-grid" }
     ],
     "goals": [ "edit-cells-in-place", "work-in-a-grid" ],
-    "stamp": "36292cd233912b7c"
+    "stamp": "4ac1afac79146e77"
   },
   {
     "page": "/table-large",
@@ -104,7 +104,7 @@
       { "text": "A figure over time", "instead": "/chart" }
     ],
     "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
-    "stamp": "acb973e5d2fd4122"
+    "stamp": "1d5edb21c693d22d"
   },
   {
     "page": "/bars",
@@ -121,7 +121,7 @@
       { "text": "Which way a figure is going", "instead": "/sparkline" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period", "show-test-results", "show-a-password" ],
-    "stamp": "789732d7176e8e80"
+    "stamp": "1d1e190b632029b6"
   },
   {
     "page": "/sparkline",
@@ -135,7 +135,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "show-a-key-figure", "show-a-trend" ],
-    "stamp": "eb6065ccfe0ccdc9"
+    "stamp": "98d04e2195c0eef6"
   },
   {
     "page": "/tracker",
@@ -152,7 +152,7 @@
       { "text": "Entries that each need words", "instead": "/timeline" }
     ],
     "goals": [ "show-status-history", "show-activity-over-time" ],
-    "stamp": "f2ead1929145613b"
+    "stamp": "3dee4fa0caf17d5a"
   },
   {
     "page": "/calendar",
@@ -170,7 +170,7 @@
       { "text": "Activity per day with no events", "instead": "/tracker#a-calendar-of-activity" }
     ],
     "goals": [ "see-a-schedule", "pick-a-date" ],
-    "stamp": "a16ca29b3c560d65"
+    "stamp": "b17d319ab3a0928b"
   },
   {
     "page": "/calendar-agenda",
@@ -186,7 +186,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "f442b35c12356053"
+    "stamp": "ab0d9e4ca7b929b4"
   },
   {
     "page": "/pager",
@@ -203,7 +203,7 @@
       { "text": "Switching between views of one record", "instead": "/tabs" }
     ],
     "goals": [ "compare-records", "page-through-results", "show-where-a-page-sits", "say-a-page-was-not-found", "find-a-record-on-a-list-page", "read-a-record", "search-everything", "head-a-page", "browse-a-folder" ],
-    "stamp": "c0e2f874dc5ee23d"
+    "stamp": "96db98695efbac90"
   },
   {
     "page": "/chart",
@@ -221,7 +221,7 @@
       { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "plot-data", "recover-from-a-failed-load" ],
-    "stamp": "e20dfb79a78e39b2"
+    "stamp": "9448c2176f306964"
   },
   {
     "page": "/graph",
@@ -239,7 +239,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "cf4a935b54e25fb7"
+    "stamp": "41761f2d62f1a897"
   },
   {
     "page": "/graph-layouts",
@@ -254,7 +254,7 @@
       { "text": "A strict parent and child hierarchy read in order", "instead": "/tree" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart" ],
-    "stamp": "30477f2943748733"
+    "stamp": "129b1a989fb7d691"
   },
   {
     "page": "/graph-exploring",
@@ -270,7 +270,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "6b48b92bcf64b6b7"
+    "stamp": "59adb5619cb0e5e1"
   },
   {
     "page": "/graph-plugins",
@@ -300,7 +300,7 @@
       { "text": "A chart of figures", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
-    "stamp": "41396704bcfec186"
+    "stamp": "75b33e49032a75cc"
   },
   {
     "page": "/graph-blazor",
@@ -315,7 +315,7 @@
       { "text": "A run whose steps change state", "instead": "/workflow-run" }
     ],
     "goals": [ "explore-a-network", "draw-links-between-records", "watch-a-run-live" ],
-    "stamp": "76188bdd461c399b"
+    "stamp": "f6a6328a04500a6f"
   },
   {
     "page": "/workflow",
@@ -333,7 +333,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "a4a7c9640fbcfcd2"
+    "stamp": "a542a9a54871cde8"
   },
   {
     "page": "/workflow-run",
@@ -348,6 +348,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "cb05f4a3f40f7a43"
+    "stamp": "7c06759a2f138e8c"
   }
 ]
