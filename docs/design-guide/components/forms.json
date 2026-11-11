@@ -16,7 +16,7 @@
       { "text": "Laying out a page that is not a form", "instead": "/grid" },
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
-    "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text" ],
+    "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog" ],
     "stamp": "2f7098a0da55a894"
   },
   {
@@ -33,7 +33,7 @@
       { "text": "A receipt that something was saved", "instead": "/toast" },
       { "text": "A file turned away from an upload", "instead": "/form-file#limits-and-a-file-turned-away" }
     ],
-    "goals": [ "fill-in-a-form", "show-field-errors" ],
+    "goals": [ "fill-in-a-form", "show-field-errors", "summarise-form-errors", "create-or-edit-a-record" ],
     "stamp": "f4165dd1d0a09596"
   },
   {
@@ -52,7 +52,7 @@
       { "text": "The steps of a process the reader watches", "instead": "/workflow" },
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
-    "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission" ],
+    "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
     "stamp": "32710390f3bc09b2"
   },
   {
@@ -68,7 +68,7 @@
       { "text": "A form inside a modal or a drawer, whose footer never scrolls", "instead": "/modal#scrolling-body" },
       { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
     ],
-    "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place" ],
+    "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
     "stamp": "13b13bc825e92617"
   },
   {
@@ -173,7 +173,7 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" },
       { "text": "Running a command by name", "instead": "/palette" }
     ],
-    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree" ],
+    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches" ],
     "stamp": "511c9f60f962310b"
   },
   {

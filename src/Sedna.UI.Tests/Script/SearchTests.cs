@@ -339,6 +339,46 @@ public class SearchTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task Each_comma_separated_keyword_is_ranked_as_a_name_of_its_own()
+    {
+        if (NoBrowser) return;
+        // An item's names, separated by commas: the last one the reader types matches as
+        // well as the first, and outranks another item whose title only holds the words.
+        var page = await Open(Box);
+
+        var ranked = await page.EvaluateAsync<string[]>("""
+            () => {
+                sednaUi.search.register([
+                    { title: 'See that part of a page could not load' },
+                    { title: 'Say an address does not exist', keywords: 'missing page, 404, dead link, page not found' }
+                ]);
+                return sednaUi.search.rank('page not found').map(i => i.title);
+            }
+            """);
+
+        Assert.Equal("Say an address does not exist", ranked[0]);
+    }
+
+    [Fact]
+    public async Task A_keyword_that_is_the_whole_query_beats_one_that_begins_with_it()
+    {
+        if (NoBrowser) return;
+        var page = await Open(Box);
+
+        var ranked = await page.EvaluateAsync<string[]>("""
+            () => {
+                sednaUi.search.register([
+                    { title: 'Open a short list of actions', keywords: 'menu, dropdown menu' },
+                    { title: 'Pick one answer from a short list', keywords: 'select, dropdown' }
+                ]);
+                return sednaUi.search.rank('dropdown').map(i => i.title);
+            }
+            """);
+
+        Assert.Equal(["Pick one answer from a short list", "Open a short list of actions"], ranked);
+    }
+
+    [Fact]
     public async Task A_cut_result_list_says_how_many_it_cut()
     {
         if (NoBrowser) return;

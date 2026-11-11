@@ -27,7 +27,7 @@
   {
     "id": "collapse-the-sidebar",
     "goal": "Let the user shrink the sidebar to a rail of icons",
-    "phrases": [ "collapsible sidebar", "icon rail", "mini sidebar", "navigation rail", "collapse the menu" ],
+    "phrases": [ "collapse the menu", "collapsible sidebar", "icon rail", "mini sidebar", "navigation rail" ],
     "answer": [
       { "page": "/nav#collapsed-rail", "role": "primary" },
       { "page": "/topbar", "role": "part" },
@@ -39,7 +39,7 @@
   {
     "id": "find-a-page-in-a-long-nav",
     "goal": "Let the user find one page in a sidebar too long to scan",
-    "phrases": [ "filter the sidebar", "nav search", "searchable menu", "accordion menu", "too many menu items" ],
+    "phrases": [ "filter the sidebar", "nav search", "searchable sidebar", "accordion menu", "too many menu items" ],
     "answer": [
       { "page": "/nav-layouts#accordion-with-a-filter", "role": "primary" },
       { "page": "/nav-layouts#accordion-groups", "role": "part" },
@@ -51,7 +51,7 @@
   {
     "id": "switch-between-areas",
     "goal": "Let the user switch between the separate areas of a large app",
-    "phrases": [ "two-level navigation", "area rail", "module switcher", "top navigation links", "areas in the header" ],
+    "phrases": [ "areas in the header", "two-level navigation", "area rail", "module switcher", "top navigation links" ],
     "answer": [
       { "page": "/nav-layouts#area-rail", "role": "primary" },
       { "page": "/nav-layouts#areas-in-the-topbar", "role": "part" },
@@ -303,7 +303,7 @@
   {
     "id": "say-a-page-was-not-found",
     "goal": "Let the user see that what they asked for does not exist and carry on",
-    "phrases": [ "404 page", "page not found", "not found screen", "missing record page", "broken link page" ],
+    "phrases": [ "page not found", "404 page", "not found screen", "missing record page", "broken link page" ],
     "answer": [
       { "page": "/common-pages#not-found", "role": "primary" },
       { "page": "/frame#full-shell", "role": "part" },
@@ -315,7 +315,7 @@
   {
     "id": "recover-from-a-server-error",
     "goal": "Let the user recover from a request that failed on the server",
-    "phrases": [ "500 page", "error page", "something went wrong page", "server error screen", "crash page" ],
+    "phrases": [ "error page", "crash page", "500 page", "something went wrong page", "server error screen" ],
     "answer": [
       { "page": "/common-pages#something-went-wrong", "role": "primary" },
       { "page": "/empty-state#waiting-and-failed", "role": "part" }
@@ -349,7 +349,7 @@
   {
     "id": "say-when-maintenance-ends",
     "goal": "Let the user know when the app is back during maintenance",
-    "phrases": [ "maintenance page", "503 page", "down for maintenance", "under maintenance", "service unavailable page" ],
+    "phrases": [ "service unavailable page", "maintenance page", "503 page", "down for maintenance", "under maintenance" ],
     "answer": [
       { "page": "/common-pages#maintenance", "role": "primary" },
       { "page": "/banner#more-than-one-line", "role": "part" }
@@ -372,7 +372,7 @@
   {
     "id": "find-a-record-on-a-list-page",
     "goal": "Let the user find one record among many on a list page",
-    "phrases": [ "list page", "index page", "crud list page", "table page" ],
+    "phrases": [ "table page", "list page", "index page", "crud list page" ],
     "answer": [
       { "page": "/page-recipes#a-list-page", "role": "primary" },
       { "page": "/toolbar#filters-and-a-count", "role": "part" },
@@ -386,7 +386,7 @@
   {
     "id": "read-a-record",
     "goal": "Let the user read one record and act on it",
-    "phrases": [ "detail page", "record overview", "item details page", "single record view", "entity view" ],
+    "phrases": [ "entity view", "detail page", "record overview", "item details page", "single record view" ],
     "answer": [
       { "page": "/page-recipes#a-detail-page", "role": "primary" },
       { "page": "/pager#breadcrumbs", "role": "part" },
@@ -400,7 +400,7 @@
   {
     "id": "create-or-edit-a-record",
     "goal": "Let the user create something new or change it in a form of its own",
-    "phrases": [ "create page", "edit page", "new record page", "crud form page", "add item page" ],
+    "phrases": [ "edit page", "create page", "new record page", "crud form page", "add item page" ],
     "answer": [
       { "page": "/page-recipes#a-create-or-edit-page", "role": "primary" },
       { "page": "/form#a-whole-form", "role": "part" },
@@ -425,7 +425,7 @@
   {
     "id": "work-through-records",
     "goal": "Let the user work through records one after another beside their list",
-    "phrases": [ "master detail", "master-detail layout", "inbox layout", "list detail view", "two pane layout" ],
+    "phrases": [ "two pane layout", "master detail", "master-detail layout", "inbox layout", "list detail view" ],
     "answer": [
       { "page": "/page-recipes#a-list-beside-its-record", "role": "primary" },
       { "page": "/grid#sedna-split", "role": "part" },
@@ -437,7 +437,7 @@
   {
     "id": "search-everything",
     "goal": "Let the user search everything and narrow the results by kind",
-    "phrases": [ "search results page", "search page", "results by type", "full search results" ],
+    "phrases": [ "search page", "search results page", "results by type", "full search results" ],
     "answer": [
       { "page": "/page-recipes#search-results", "role": "primary" },
       { "page": "/tabs#a-strip-of-links", "role": "part" },
@@ -450,7 +450,7 @@
   {
     "id": "change-settings",
     "goal": "Let the user change how the app behaves for them",
-    "phrases": [ "settings page", "preferences page", "user preferences", "options page" ],
+    "phrases": [ "options page", "settings page", "preferences page", "user preferences" ],
     "answer": [
       { "page": "/page-recipes#a-settings-page", "role": "primary" },
       { "page": "/page-navigation#on-this-page", "role": "part" },

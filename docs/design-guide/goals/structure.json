@@ -37,7 +37,7 @@
   {
     "id": "jump-to-a-section",
     "goal": "Let the user jump between the sections of a long page",
-    "phrases": [ "on this page", "table of contents", "scrollspy", "anchor links to sections", "toc sidebar" ],
+    "phrases": [ "toc sidebar", "on this page", "table of contents", "scrollspy", "anchor links to sections" ],
     "answer": [
       { "page": "/page-navigation#on-this-page", "role": "primary" },
       { "page": "/grid#stacking-at-a-set-width-a-sticky-aside-two-even-columns", "role": "part" },

@@ -2,7 +2,7 @@
   {
     "id": "explain-a-page-condition",
     "goal": "Let the user see a condition that stays true while the page is open",
-    "phrases": [ "inline alert", "alert message", "warning message", "info box", "read-only notice", "admonition" ],
+    "phrases": [ "inline alert", "alert message", "warning message", "info box", "read-only notice" ],
     "answer": [
       { "page": "/alert#variants", "role": "primary" },
       { "page": "/alert#with-an-action", "role": "part" },
@@ -25,7 +25,7 @@
   {
     "id": "confirm-an-action-done",
     "goal": "Let the user know that what they just did has happened",
-    "phrases": [ "toast notification", "toast", "snackbar", "success message", "flash message", "growl" ],
+    "phrases": [ "success message", "toast notification", "toast", "snackbar", "growl" ],
     "answer": [
       { "page": "/toast#raising-one", "role": "primary" },
       { "page": "/toast#piled-and-opened-by-the-pointer", "role": "part" }
@@ -133,7 +133,7 @@
   {
     "id": "show-app-starting",
     "goal": "Let the user see that the app is starting before its first render",
-    "phrases": [ "splash screen", "app loading screen", "startup screen", "boot screen" ],
+    "phrases": [ "boot screen", "splash screen", "app loading screen", "startup screen" ],
     "answer": [
       { "page": "/progress#a-splash-while-the-app-starts", "role": "primary" }
     ],
@@ -249,7 +249,7 @@
   {
     "id": "read-a-stack-trace",
     "goal": "Let the user read an exception frame by frame",
-    "phrases": [ "stack trace", "exception details", "call stack", "error trace" ],
+    "phrases": [ "error trace", "stack trace", "exception details", "call stack" ],
     "answer": [
       { "page": "/logs#stack-trace", "role": "primary" },
       { "page": "/logs#expanding-rows", "role": "part" }

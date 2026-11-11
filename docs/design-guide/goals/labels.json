@@ -92,7 +92,7 @@
   {
     "id": "show-acting-as",
     "goal": "Let the user see that they are acting as another person, and stop",
-    "phrases": [ "impersonation", "acting as another user", "log in as a user", "impersonate" ],
+    "phrases": [ "log in as a user", "impersonation", "acting as another user", "impersonate" ],
     "answer": [
       { "page": "/avatar#acting-as-in-the-topbar", "role": "primary" },
       { "page": "/avatar#rings", "role": "part" },

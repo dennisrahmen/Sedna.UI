@@ -17,7 +17,7 @@
       { "text": "More rows than one page should hold", "instead": "/table-large" },
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
-    "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows" ],
+    "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
     "stamp": "81238968e721a951"
   },
   {
@@ -103,7 +103,7 @@
       { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" },
       { "text": "A figure over time", "instead": "/chart" }
     ],
-    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend" ],
+    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
     "stamp": "acb973e5d2fd4122"
   },
   {
@@ -120,7 +120,7 @@
       { "text": "Many points over time, with axes", "instead": "/chart" },
       { "text": "Which way a figure is going", "instead": "/sparkline" }
     ],
-    "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period" ],
+    "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period", "show-test-results", "show-a-password" ],
     "stamp": "789732d7176e8e80"
   },
   {
@@ -169,7 +169,7 @@
       { "text": "A history of entries, each with words", "instead": "/timeline" },
       { "text": "Activity per day with no events", "instead": "/tracker#a-calendar-of-activity" }
     ],
-    "goals": [ "see-a-schedule" ],
+    "goals": [ "see-a-schedule", "pick-a-date" ],
     "stamp": "a16ca29b3c560d65"
   },
   {
@@ -202,7 +202,7 @@
       { "text": "The steps of a form", "instead": "/form-flow" },
       { "text": "Switching between views of one record", "instead": "/tabs" }
     ],
-    "goals": [ "compare-records", "page-through-results", "show-where-a-page-sits" ],
+    "goals": [ "compare-records", "page-through-results", "show-where-a-page-sits", "say-a-page-was-not-found", "find-a-record-on-a-list-page", "read-a-record", "search-everything", "head-a-page" ],
     "stamp": "c0e2f874dc5ee23d"
   },
   {
@@ -220,7 +220,7 @@
       { "text": "Records and the links between them", "instead": "/graph" },
       { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" }
     ],
-    "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "plot-data" ],
+    "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "plot-data", "recover-from-a-failed-load" ],
     "stamp": "e20dfb79a78e39b2"
   },
   {
@@ -347,7 +347,7 @@
       { "text": "A finished run read afterwards", "instead": "/workflow" },
       { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
     ],
-    "goals": [ "follow-a-process-run", "watch-a-run-live" ],
+    "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
     "stamp": "cb05f4a3f40f7a43"
   }
 ]

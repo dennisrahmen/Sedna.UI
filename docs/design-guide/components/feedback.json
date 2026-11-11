@@ -15,7 +15,7 @@
       { "text": "A permanent aside inside prose", "instead": "/structure#callouts" },
       { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
     ],
-    "goals": [ "explain-a-page-condition", "summarise-form-errors" ],
+    "goals": [ "explain-a-page-condition", "summarise-form-errors", "show-field-errors", "confirm-before-it-happens" ],
     "stamp": "e1f85c667fb5f7dc"
   },
   {
@@ -33,7 +33,7 @@
       { "text": "A message about one field", "instead": "/form-validation" },
       { "text": "An action that ended on another page, after a redirect", "instead": "/banner#after-a-redirect" }
     ],
-    "goals": [ "confirm-an-action-done", "show-saving-then-saved", "announce-something-that-arrived" ],
+    "goals": [ "confirm-an-action-done", "show-saving-then-saved", "announce-something-that-arrived", "confirm-after-a-redirect" ],
     "stamp": "ad895885381bf727"
   },
   {
@@ -91,7 +91,7 @@
       { "text": "A wait with a known percentage", "instead": "/progress#progress-bar" },
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
-    "goals": [ "show-content-loading", "show-route-progress" ],
+    "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
     "stamp": "75cb506251812f7f"
   },
   {
@@ -111,7 +111,7 @@
       { "text": "A condition of a page that still shows its content", "instead": "/alert" },
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
-    "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state" ],
+    "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
     "stamp": "32f9544d97b4bc92"
   },
   {
@@ -147,7 +147,7 @@
       { "text": "The connection to the server itself", "instead": "/status-bar" },
       { "text": "A share done with no output to show", "instead": "/progress#progress-bar" }
     ],
-    "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output" ],
+    "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
     "stamp": "616b89b8a95bf7a7"
   },
   {

@@ -26,7 +26,7 @@
   {
     "id": "show-an-action-running",
     "goal": "Let the user see that the action they pressed is still running",
-    "phrases": [ "loading button", "button with a spinner", "busy button", "pending button state" ],
+    "phrases": [ "busy button", "loading button", "button with a spinner", "pending button state" ],
     "answer": [
       { "page": "/button#while-its-action-runs", "role": "primary" }
     ],
@@ -69,7 +69,7 @@
   {
     "id": "offer-variants-of-an-action",
     "goal": "Let the user run an action or pick a variant of it from one control",
-    "phrases": [ "split button", "button with variants", "button with a menu", "send options" ],
+    "phrases": [ "send options", "split button", "button with variants", "button with a menu" ],
     "answer": [
       { "page": "/button-group#a-split-button-that-opens-a-menu", "role": "primary" },
       { "page": "/button-group#split-button", "role": "part" },

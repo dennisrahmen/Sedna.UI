@@ -39,7 +39,7 @@
   {
     "id": "answer-one-question-at-a-time",
     "goal": "Let the user complete a long transaction one question to a page",
-    "phrases": [ "wizard", "multi-step form", "step by step form", "one question per page", "onboarding flow" ],
+    "phrases": [ "multi-step form", "step by step form", "one question per page", "onboarding flow" ],
     "answer": [
       { "page": "/form-flow#one-question-to-a-page", "role": "primary" },
       { "page": "/form-flow#one-field-to-a-page", "role": "part" },
@@ -76,7 +76,7 @@
   {
     "id": "confirm-a-submission",
     "goal": "Let the user see that what they sent has arrived, with its reference",
-    "phrases": [ "confirmation page", "success page", "thank you page", "reference number" ],
+    "phrases": [ "success page", "confirmation page", "thank you page", "reference number" ],
     "answer": [
       { "page": "/form-flow#confirmation", "role": "primary" }
     ],
@@ -260,7 +260,7 @@
   {
     "id": "pick-one-from-a-short-list",
     "goal": "Let the user pick one answer from a short list",
-    "phrases": [ "dropdown", "select element", "drop down list", "select menu", "native select" ],
+    "phrases": [ "dropdown", "drop down list", "select element", "select menu", "native select" ],
     "answer": [
       { "page": "/form-select#the-drop-down", "role": "primary" },
       { "page": "/form-select#options-with-content", "role": "part" },
@@ -282,7 +282,7 @@
   {
     "id": "search-and-pick-one",
     "goal": "Let the user find one option in a long list by typing",
-    "phrases": [ "autocomplete", "combobox", "typeahead", "searchable dropdown", "select with search" ],
+    "phrases": [ "select with search", "autocomplete", "combobox", "typeahead", "searchable dropdown" ],
     "answer": [
       { "page": "/form-combo#searchable-select", "role": "primary" },
       { "page": "/form-combo#a-searchable-select-with-a-leading-icon", "role": "part" }
@@ -293,7 +293,7 @@
   {
     "id": "pick-several-as-chips",
     "goal": "Let the user pick several options from a long list, shown as chips",
-    "phrases": [ "multiselect", "multi select dropdown", "select multiple values", "chips in a select" ],
+    "phrases": [ "chips in a select", "multiselect", "multi select dropdown", "select multiple values" ],
     "answer": [
       { "page": "/form-combo#multiselect-with-chips", "role": "primary" },
       { "page": "/form-combo#collapsed-until-focused", "role": "part" },
@@ -326,7 +326,7 @@
   {
     "id": "pick-from-a-tree",
     "goal": "Let the user pick an item from a hierarchy in a field",
-    "phrases": [ "tree select", "tree picker", "hierarchical dropdown", "nested select", "cascader" ],
+    "phrases": [ "nested select", "tree select", "tree picker", "hierarchical dropdown", "cascader" ],
     "answer": [
       { "page": "/form-combo#picking-from-a-tree", "role": "primary" },
       { "page": "/form-combo#ticking-whole-branches", "role": "part" },

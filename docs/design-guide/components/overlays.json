@@ -16,7 +16,7 @@
       { "text": "Telling the reader something that needs no answer", "instead": "/toast" },
       { "text": "Looking at one picture large", "instead": "/media#looking-at-one-large" }
     ],
-    "goals": [ "confirm-before-it-happens", "answer-in-a-dialog", "edit-in-a-dialog", "welcome-a-new-user", "save-a-view" ],
+    "goals": [ "confirm-before-it-happens", "answer-in-a-dialog", "edit-in-a-dialog", "welcome-a-new-user", "save-a-view", "keep-unsaved-work", "warn-before-the-session-ends" ],
     "stamp": "f6f48769254e47db"
   },
   {
@@ -36,7 +36,7 @@
       { "text": "A panel always beside the content on a wide screen", "instead": "/grid#sedna-split" },
       { "text": "An assistant docked beside the page", "instead": "/assistant-panels#an-assistant-docked-beside-the-page" }
     ],
-    "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list" ],
+    "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone" ],
     "stamp": "a622c5c3030c5d50"
   },
   {

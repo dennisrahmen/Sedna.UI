@@ -88,8 +88,8 @@
       { "text": "Searching the rows of one list", "instead": "/toolbar#filters-and-a-count" },
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
-    "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version" ],
-    "stamp": "b6fc7d78fb0a06f7"
+    "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
+    "stamp": "412454687e1c349d"
   },
   {
     "page": "/status-bar",
@@ -104,7 +104,7 @@
       { "text": "A page that failed to load", "instead": "/common-pages#something-went-wrong" },
       { "text": "The state of one live feed on a page", "instead": "/live-state#connection-state" }
     ],
-    "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error" ],
+    "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
     "stamp": "077d6a6044087dd8"
   },
   {
@@ -121,7 +121,7 @@
       { "text": "The connection to the server dropping", "instead": "/status-bar" },
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
-    "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends" ],
+    "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
     "stamp": "bec413c40419b39e"
   },
   {
@@ -138,7 +138,7 @@
       { "text": "Links or rich content on hover", "instead": "/popover#a-hover-card" },
       { "text": "A label on the collapsed rail's links", "instead": "/nav#collapsed-rail" }
     ],
-    "goals": [ "show-status-history", "explain-a-control" ],
+    "goals": [ "show-status-history", "explain-a-control", "act-with-an-icon-button", "explain-a-disabled-action" ],
     "stamp": "1540f8c5da441a1c"
   },
   {
@@ -159,7 +159,7 @@
       { "text": "Warning of maintenance while the app still works", "instead": "/banner#more-than-one-line" },
       { "text": "Signing in", "instead": "/page-recipes#a-sign-in-page" }
     ],
-    "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends" ],
+    "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends", "count-down-to-a-deadline" ],
     "stamp": "24f14014bf4a248c"
   },
   {
@@ -179,7 +179,7 @@
       { "text": "The frame around a page", "instead": "/frame" },
       { "text": "A dashboard of panels the reader arranges", "instead": "/grid#panels-the-reader-arranges" }
     ],
-    "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped" ],
+    "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
     "stamp": "8ed7d119f49bd02c"
   }
 ]

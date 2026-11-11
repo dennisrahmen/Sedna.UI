@@ -40,6 +40,9 @@
    instead, and nothing is measured. With several boxes, `data-search="<panel id>"`
    names each one's panel; with one, the first `[data-search-panel]` is used.
 
+   `keywords` is one string. Separate it with commas to give an item several names —
+   each is then ranked as if it stood first.
+
    Only `title` is required. `href` is where choosing the result goes; an item
    without one is inert unless it carries a `run` callback, which only a source
    registered from JavaScript can have — a function does not cross into C#.
@@ -92,6 +95,21 @@
             if (!text || text.toLowerCase().indexOf(term) < 0) continue;
             var other = score(term, text, fields[i][1]);
             if (other > s) s = other;
+        }
+
+        /* Comma-separated keywords are names, each scored on its own: the fifth name a
+           reader might type for an item counts as much as the first, rather than being
+           demoted by how far into the string it sits. Keywords with no comma — an
+           example's classes — are one field, as above. A name that is the whole query
+           beats one that only begins with it: "dropdown" before "dropdown menu". */
+        if (item.keywords && item.keywords.indexOf(',') >= 0) {
+            var names = item.keywords.split(',');
+            for (var k = 0; k < names.length; k++) {
+                var name = names[k].trim();
+                if (name.toLowerCase().indexOf(term) < 0) continue;
+                var named = score(term, name, 250) + (name.length === term.length ? 10 : 0);
+                if (named > s) s = named;
+            }
         }
         return s;
     }

@@ -16,7 +16,7 @@
       { "text": "A log that keeps growing", "instead": "/logs#live-tail" },
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" }
     ],
-    "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits" ],
+    "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page" ],
     "stamp": "8d195aa3c016a96b"
   },
   {
@@ -31,7 +31,7 @@
       { "text": "Swapping one region of content in place", "instead": "/tabs" },
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#a-strip-of-links" }
     ],
-    "goals": [ "jump-to-a-section", "get-back-to-the-top" ],
+    "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
     "stamp": "2a9db502c274bf96"
   },
   {
@@ -51,7 +51,7 @@
       { "text": "Laying cards out side by side", "instead": "/grid" },
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
-    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record" ],
+    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account" ],
     "stamp": "d248694c89ddfdae"
   },
   {
@@ -70,7 +70,7 @@
       { "text": "Spacing a row of controls", "instead": "/utility-layout#rows-and-columns" },
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
-    "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section" ],
+    "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records" ],
     "stamp": "ceab397c32850a46"
   },
   {
@@ -90,7 +90,7 @@
       { "text": "Nested items the reader walks and opens", "instead": "/tree" },
       { "text": "A list of files", "instead": "/files#a-list-of-files" }
     ],
-    "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet" ],
+    "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people" ],
     "stamp": "a0c1c74e3ddd107d"
   },
   {
@@ -107,7 +107,7 @@
       { "text": "Views the reader switches between", "instead": "/tabs" },
       { "text": "Groups of a long nav", "instead": "/nav-layouts#accordion-groups" }
     ],
-    "goals": [ "see-the-step-they-are-on", "open-detail-on-demand" ],
+    "goals": [ "see-the-step-they-are-on", "open-detail-on-demand", "answer-one-question-at-a-time", "do-a-task-in-steps" ],
     "stamp": "5011d48b19b0de33"
   },
   {
@@ -124,7 +124,7 @@
       { "text": "The app's own navigation", "instead": "/nav" },
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
-    "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table" ],
+    "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
     "stamp": "98b4f04729cbed91"
   },
   {
@@ -161,7 +161,7 @@
       { "text": "Sections the reader reads one after another", "instead": "/page-navigation" },
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
-    "goals": [ "switch-views-in-place" ],
+    "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
     "stamp": "2881b31686f1256e"
   }
 ]
