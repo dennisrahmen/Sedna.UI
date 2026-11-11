@@ -1,0 +1,129 @@
+@* The app around a page recipe: the full shell from /frame — sidebar, topbar and
+   .page — with the recipe as the content of .page, so a recipe reads as the page it
+   is rather than as a fragment in a box.
+
+   This markup is docs chrome and is never printed. The recipe's own file is what the
+   code block under the demo shows, and it is exactly what goes inside .page: its top
+   level elements land as .page's children, so the page rhythm spaces them here as it
+   will in the app. The shell itself is copied from Shell (Examples/Frame/FullShell),
+   which is where the page text sends the reader.
+
+   The sidebar is the collapsed rail, so the recipe gets the width it would have in an
+   app on a laptop rather than the width a demo box leaves beside a full sidebar — the
+   grids and folding heads in a recipe measure their own width, and would otherwise
+   show their narrow form on a wide screen. .layout--responsive still hides the user's
+   name on a phone. The height is the content's unless Height is given: a recipe whose
+   point is something that sticks — an action row, a column that fills — needs a page
+   that scrolls.
+
+   With Auth the frame is .auth-layout and nothing else, held to a demo's height
+   rather than the viewport's. *@
+
+@if (Auth)
+{
+    <div class="auth-layout" style="min-height:@(Height ?? "640px")">
+        @ChildContent
+    </div>
+    return;
+}
+
+<div class="layout layout--responsive" style="@LayoutStyle">
+    <aside class="sidebar collapsed">
+        <div class="brand">
+            <div class="brand-logo" style="background:var(--brand)"></div>
+            <div class="brand-text">
+                <strong>Dispatch Console</strong>
+                <span class="brand-sub">Northwind Retail</span>
+            </div>
+        </div>
+        <nav class="nav" aria-label="Dispatch Console">
+            <div class="nav-scroll">
+                @foreach (var (label, icon, count) in Primary)
+                {
+                    <a class="@LinkClass(label)" href="#" aria-current="@Current(label)" data-tip="@label">
+                        <i class="@icon"></i><span>@label</span>
+                        @if (count is not null)
+                        {
+                            <span class="nav-count">@count</span>
+                        }
+                    </a>
+                }
+                <div class="nav-section">
+                    <span class="nav-section-label">Administration</span>
+                    @foreach (var (label, icon, _) in Admin)
+                    {
+                        <a class="@LinkClass(label)" href="#" aria-current="@Current(label)" data-tip="@label">
+                            <i class="@icon"></i><span>@label</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="content">
+        <header class="topbar">
+            <button class="topbar-btn topbar-btn--start" type="button" aria-label="Expand sidebar"><i class="ri-side-bar-line"></i></button>
+            <div class="topbar-spacer"></div>
+            <button class="topbar-btn" type="button" aria-label="Notifications, 2 unread">
+                <span class="inbox-bell"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="inbox-count" aria-hidden="true">2</span></span>
+            </button>
+            <div class="user-widget">
+                <button class="user-trigger" type="button">
+                    <span class="user-avatar"><i class="ri-user-line"></i></span>
+                    <span class="user-info">
+                        <span class="user-name">Alex Fischer</span>
+                        <span class="user-email">alex.fischer@example.com</span>
+                    </span>
+                </button>
+                <a class="user-signout" href="#" aria-label="Sign out"><i class="ri-logout-box-r-line"></i></a>
+            </div>
+        </header>
+
+        <div class="@PageClass">
+            @ChildContent
+        </div>
+    </div>
+</div>
+
+@code {
+    /// The nav link marked as the current page — the area the recipe belongs to.
+    [Parameter] public string? Active { get; set; }
+
+    /// .auth-layout around the recipe instead of the app's frame: no navigation at all.
+    [Parameter] public bool Auth { get; set; }
+
+    /// A fixed height for the frame, such as "640px"; the content's own height when null.
+    [Parameter] public string? Height { get; set; }
+
+    /// Extra classes on .page — "page--fill" for a recipe that centres in the page.
+    [Parameter] public string? Page { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private static readonly (string Label, string Icon, string? Count)[] Primary =
+    [
+        ("Overview", "ri-dashboard-line", null),
+        ("Orders", "ri-inbox-line", "3"),
+        ("Messages", "ri-chat-3-line", null),
+        ("Customers", "ri-team-line", null),
+        ("Search", "ri-search-line", null),
+    ];
+
+    private static readonly (string Label, string Icon, string? Count)[] Admin =
+    [
+        ("Automation", "ri-robot-line", null),
+        ("Settings", "ri-settings-3-line", null),
+        ("Account", "ri-user-settings-line", null),
+    ];
+
+    private string LayoutStyle => Height is null
+        ? "height:auto; min-height:0"
+        : $"height:{Height}";
+
+    private string PageClass => Page is null ? "page" : $"page {Page}";
+
+    private string LinkClass(string label) => label == Active ? "nav-link active" : "nav-link";
+
+    private string? Current(string label) => label == Active ? "page" : null;
+}

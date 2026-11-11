@@ -1,0 +1,84 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Your account</h1>
+        <p>Who you are to the rest of the team, and where you are signed in.</p>
+    </div>
+</div>
+
+<section class="card" aria-labelledby="ac-profile-title">
+    <div class="card-head">
+        <h3 id="ac-profile-title">Profile</h3>
+        <button class="btn btn--sm" type="button"><i class="ri-image-edit-line"></i> <span>Change picture</span></button>
+    </div>
+    <div class="card-body">
+        <div class="list-row list-row--flush sedna-mb-5">
+            <span class="avatar avatar--lg avatar--viz-1" aria-hidden="true">AF</span>
+            <span class="list-main">
+                <span class="list-title">Alex Fischer</span>
+                <span class="list-sub">alex.fischer@example.com</span>
+            </span>
+        </div>
+        <dl>
+            <div class="kv kv--text">
+                <dt class="k">Display name</dt>
+                <dd class="v">Alex Fischer</dd>
+                <dd class="kv-action"><a href="#">Change<span class="visually-hidden"> display name</span></a></dd>
+            </div>
+            <div class="kv kv--text">
+                <dt class="k">Role</dt>
+                <dd class="v">Dispatcher</dd>
+                <dd class="kv-action"></dd>
+            </div>
+            <div class="kv kv--text">
+                <dt class="k">Language</dt>
+                <dd class="v">English (United Kingdom)</dd>
+                <dd class="kv-action"><a href="#">Change<span class="visually-hidden"> language</span></a></dd>
+            </div>
+            <div class="kv kv--text">
+                <dt class="k">Time zone</dt>
+                <dd class="v">Central European Time</dd>
+                <dd class="kv-action"><a href="#">Change<span class="visually-hidden"> time zone</span></a></dd>
+            </div>
+        </dl>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="ac-sessions-title">
+    <div class="card-head"><h3 id="ac-sessions-title">Signed in</h3></div>
+    <table class="table table--stack">
+        <thead>
+            <tr><th>Device</th><th>Address</th><th>Last active</th><th class="col-fit"><span class="visually-hidden">Actions</span></th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-label="Device">Chromium on Windows</td>
+                <td data-label="Address" class="text-mono">198.51.100.24</td>
+                <td data-label="Last active" class="col-muted">Now</td>
+                <td class="col-fit"><span class="badge badge--go">This device</span></td>
+            </tr>
+            <tr>
+                <td data-label="Device">Safari on iPhone</td>
+                <td data-label="Address" class="text-mono">203.0.113.7</td>
+                <td data-label="Last active" class="col-muted">Yesterday, 18:02</td>
+                <td class="col-fit"><button class="btn btn--sm btn--ghost" type="button">Sign out<span class="visually-hidden"> Safari on iPhone</span></button></td>
+            </tr>
+            <tr>
+                <td data-label="Device">Safari on iPad</td>
+                <td data-label="Address" class="text-mono">203.0.113.41</td>
+                <td data-label="Last active" class="col-muted">3 Nov</td>
+                <td class="col-fit"><button class="btn btn--sm btn--ghost" type="button">Sign out<span class="visually-hidden"> Safari on iPad</span></button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="card-foot card-foot--start">
+        <button class="btn btn--sm" type="button"><i class="ri-logout-box-r-line"></i> <span>Sign out everywhere else</span></button>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="ac-leave-title">
+    <div class="card-head"><h3 id="ac-leave-title">Leave Northwind Retail</h3></div>
+    <div class="card-body sedna-row-wrap">
+        <p class="form-hint sedna-mb-0">Your orders stay with the team and are reassigned to an administrator. You can be invited back.</p>
+        <button class="btn btn--danger sedna-push" type="button"><i class="ri-logout-box-r-line"></i> <span>Leave the workspace</span></button>
+    </div>
+</section>

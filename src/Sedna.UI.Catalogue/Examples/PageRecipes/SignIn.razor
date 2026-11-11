@@ -1,0 +1,31 @@
+<div class="auth-brand">
+    <span class="brand-logo" style="width:32px; height:32px; background:var(--brand)"></span>
+    <span>Dispatch Console</span>
+</div>
+
+<div class="card auth-card">
+    <div class="card-head"><h1 class="sedna-mb-0">Sign in</h1></div>
+    <form class="card-body form-section-body">
+        <div class="alert alert--danger sedna-mb-0" role="alert">
+            <i class="ri-error-warning-line"></i>
+            <span>That e-mail address and password do not match. Check both, or reset the password.</span>
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="si-email">Work e-mail</label>
+            <input class="form-input" id="si-email" type="email" autocomplete="username" value="alex.fischer@example.com" />
+        </div>
+        <div class="form-field">
+            <div class="sedna-row">
+                <label class="form-label" for="si-password">Password</label>
+                <a class="sedna-push text-sm" href="#">Forgotten it?</a>
+            </div>
+            <input class="form-input" id="si-password" type="password" autocomplete="current-password" />
+        </div>
+        <label class="form-check"><input type="checkbox" /> <span>Keep me signed in on this device</span></label>
+        <button class="btn btn--brand btn--solid btn--fill" type="submit">Sign in</button>
+        <div class="divider-labelled sedna-mt-0 sedna-mb-0">or</div>
+        <button class="btn btn--fill" type="button"><i class="ri-key-2-line"></i> <span>Sign in with a passkey</span></button>
+    </form>
+</div>
+
+<p class="auth-foot">No account yet? Ask an administrator at Northwind Retail to invite you.</p>
