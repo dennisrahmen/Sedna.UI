@@ -4,6 +4,7 @@ using Sedna.UI.Catalogue.Components;
 using Sedna.UI.Catalogue.Health;
 using Sedna.UI.Catalogue.Mcp;
 using Sedna.UI.Catalogue.Navigation;
+using Sedna.UI.Catalogue.Theming;
 using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +41,9 @@ builder.Services.AddHostedService<ReleasedHistoryFetcher>();
 // The topbar search's index, derived from the same two sources. A singleton
 // because it is the same list for everyone: the circuit only pushes it.
 builder.Services.AddSingleton<CatalogueSearch>();
+
+// The theme builder's tokens, read from the token export the index already holds.
+builder.Services.AddSingleton(services => ThemeTokens.From(services.GetRequiredService<CatalogueIndex>().Tokens));
 
 builder.Services
     .AddMcpServer(options => options.ServerInstructions = McpInstructions.Text)

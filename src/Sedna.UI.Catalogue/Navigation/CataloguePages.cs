@@ -99,8 +99,8 @@ internal static class CataloguePages
             "The mark, its detail tiers, the palette read live, and the decisions behind it.",
             "logo mark tile wordmark lockup clear space misuse svg outfit theme forest cobalt switch"),
         new("/theme-builder", Start, "Theme builder", "ri-paint-brush-line",
-            "Pick a brand colour, see the components take it on, and copy the brand.css that does it.",
-            "theme builder generator brand colour color picker brand.css ramp palette accent rebrand contrast check"),
+            "Edit every token in dark and light, see the components take it on, and copy the brand.css.",
+            "theme builder generator editor brand colour color picker brand.css ramp palette accent canvas base surface text border radius spacing font shadow motion token override dark light variant rebrand contrast wcag hue check"),
 
         new("/frame", Frame, "Shell", "ri-layout-3-line",
             "The three page shells, the rhythm inside them, and the skip link.",
