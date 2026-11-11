@@ -1,0 +1,5 @@
+{
+  "$comment": "Groups whose entries or goals are not written yet. The guide is complete when both lists are empty; README.md says how to take a group off.",
+  "components": [ "start", "frame", "structure", "actions", "forms", "labels", "content", "agents", "feedback", "overlays", "utilities" ],
+  "goals": [ "start", "frame", "structure", "actions", "forms", "labels", "content", "agents", "feedback", "overlays", "utilities" ]
+}

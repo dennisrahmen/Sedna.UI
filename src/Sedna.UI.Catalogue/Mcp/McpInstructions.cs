@@ -28,6 +28,14 @@ internal static class McpInstructions
         with ISednaOverlays.ShowAsync<TComponent, TResult>, with one <SednaOverlayHost /> in the
         layout. Never render such a component inline in a page and open it through a @ref.
 
+        Start from the goal, not the component. Search for what the app's user should be able
+        to do, in plain words — "let the user upload a file", "confirm a destructive action" —
+        and a hit of kind "goal" names the page to start from; get_guide with its id says which
+        parts go around it, how they combine and the usual mistake. get_guide with a page route
+        says what that component is for, what it is combined with and what it is not for, and
+        get_guide with "principles" covers composition, spacing, colour, actions, feedback,
+        density, motion and words.
+
         Use search first, then get_example for the exact markup. Do not write shared-UI markup
         from memory, and do not invent class names: a class that is not in the stylesheet does
         nothing at all, silently. Before handing a page over, pass it to check_markup, which names

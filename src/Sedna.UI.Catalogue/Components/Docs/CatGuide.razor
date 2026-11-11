@@ -1,0 +1,75 @@
+@* The page's design-guide entry: what it is for, what it is combined with, what it is not for
+   and which goals it answers. CatHead renders it under the lede of every page, from the route,
+   so no page writes it and none can leave it out. The words are docs/design-guide/components/,
+   and a page with no entry — a reference page — shows nothing. *@
+@using Sedna.UI.Catalogue.Guide
+@inject NavigationManager Nav
+@inject DesignGuide Guide
+
+@if (Entry is { } entry)
+{
+    <section class="card cat-guide" aria-labelledby="cat-guide-title">
+        <div class="card-head">
+            <h2 id="cat-guide-title">When to use it</h2>
+            <div class="card-head-right">
+                <a class="btn btn--sm btn--ghost" href="/design-guide">Design guide</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <dl class="cat-guide-list">
+                <dt>Use it for</dt>
+                <dd>@entry.UseFor</dd>
+
+                <dt>Combine with</dt>
+                <dd>
+                    <ul class="cat-guide-items">
+                        @foreach (var link in entry.CombineWith)
+                        {
+                            <li><a href="@link.Page">@LabelOf(link.Page)</a> &mdash; @link.How</li>
+                        }
+                    </ul>
+                </dd>
+
+                @if (entry.NotFor.Count > 0)
+                {
+                    <dt>Not for</dt>
+                    <dd>
+                        <ul class="cat-guide-items">
+                            @foreach (var not in entry.NotFor)
+                            {
+                                <li>@not.Text &mdash; use <a href="@not.Instead">@LabelOf(not.Instead)</a></li>
+                            }
+                        </ul>
+                    </dd>
+                }
+
+                @if (Guide.GoalsOf(entry) is { Count: > 0 } goals)
+                {
+                    <dt>Answers</dt>
+                    <dd>
+                        <ul class="cat-guide-items">
+                            @foreach (var goal in goals)
+                            {
+                                <li><a href="/design-guide#@goal.Id">@goal.Goal</a></li>
+                            }
+                        </ul>
+                    </dd>
+                }
+            </dl>
+        </div>
+    </section>
+}
+
+@code {
+    private GuideEntry? Entry
+    {
+        get
+        {
+            var path = "/" + Nav.ToBaseRelativePath(Nav.Uri);
+            var end = path.IndexOfAny(['?', '#']);
+            return Guide.EntryFor(end < 0 ? path : path[..end]);
+        }
+    }
+
+    private static string LabelOf(string page) => DesignGuide.LabelOf(page);
+}

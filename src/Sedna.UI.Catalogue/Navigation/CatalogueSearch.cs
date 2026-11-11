@@ -1,10 +1,12 @@
 using Sedna.UI.Catalogue.Components.Docs;
+using Sedna.UI.Catalogue.Guide;
 using Sedna.UI.Catalogue.Mcp;
 
 namespace Sedna.UI.Catalogue.Navigation;
 
 /// <summary>
-/// What the topbar search can find: every page, and every example on one.
+/// What the topbar search can find: every page, every goal in the design guide, and every
+/// example on a page.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -19,12 +21,18 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// question this site is actually asked; full text is the MCP server's
 /// <c>search</c> tool, which does not have to fit in a dropdown.
 /// </para>
+/// <para>
+/// A goal carries its phrases as keywords and opens its primary answer, so typing what the
+/// user should be able to do — "upload a file", "data grid" — offers the part to start from.
+/// <c>GuideSearchTests</c> types every phrase into the box.
+/// </para>
 /// </remarks>
 internal sealed class CatalogueSearch
 {
-    public CatalogueSearch(CatalogueIndex index)
+    public CatalogueSearch(CatalogueIndex index, DesignGuide guide)
     {
         ArgumentNullException.ThrowIfNull(index);
+        ArgumentNullException.ThrowIfNull(guide);
 
         var labels = CataloguePages.All.ToDictionary(p => p.Route, p => p.Label, StringComparer.Ordinal);
 
@@ -35,6 +43,16 @@ internal sealed class CatalogueSearch
             Code = page.Route,
             Meta = page.Blurb,
             Keywords = $"{page.Keywords} {page.Group} {page.Section}",
+        });
+
+        var goals = guide.Goals.Select(goal => new SearchItem
+        {
+            Title = goal.Goal,
+            Href = goal.PrimaryPage,
+            Meta = DesignGuide.LabelOf(goal.PrimaryPage),
+            Tag = "goal",
+            // The phrases first: the ranking demotes a match by how far into the field it is.
+            Keywords = $"{string.Join(", ", goal.Phrases)}, {goal.Id.Replace('-', ' ')}",
         });
 
         var examples = index.Examples.Select(example => new SearchItem
@@ -48,7 +66,7 @@ internal sealed class CatalogueSearch
             Keywords = string.Join(' ', example.Classes),
         });
 
-        Items = [.. pages, .. examples];
+        Items = [.. pages, .. goals, .. examples];
     }
 
     /// <summary>The whole index, in the order the ranking uses to break ties.</summary>
