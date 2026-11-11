@@ -153,7 +153,7 @@
       { "page": "/menu#a-value-trigger-in-a-table-cell", "role": "primary" },
       { "page": "/avatar#in-a-table-cell", "role": "part" }
     ],
-    "how": "A .value-trigger shows the current value and opens a menu whose options carry an icon or a description; .col-control gives its column a floor. Name each trigger after the record it changes.",
+    "how": "A .value-trigger shows the current value and opens a menu whose options carry an icon or a description; .col-control gives its column a floor. Name each trigger after the record it changes and the value it holds, and mark that option aria-current in its menu, in words as well.",
     "avoid": "A value trigger where a plain list of values would do, which is a select."
   },
   {

@@ -14,8 +14,8 @@
         <div class="toast-body">
             <strong data-title></strong><span data-text></span>
             <div class="toast-actions">
-                <button class="btn btn--sm btn--warn btn--solid" type="button" data-toast-value="review">Review now</button>
-                <button class="btn btn--sm" type="button" data-toast-value="later">Later</button>
+                <button class="btn btn--sm btn--brand btn--solid" type="button" data-toast-value="review">Review now</button>
+                <button class="btn btn--sm" type="button" data-toast-value="later">Remind me later</button>
             </div>
         </div>
         <button class="toast-close" type="button" aria-label="Dismiss"><i class="ri-close-line" aria-hidden="true"></i></button>
@@ -23,14 +23,14 @@
 </template>
 
 <div class="sedna-col sedna-gap-4" style="max-width:420px">
-    <div class="sedna-row-wrap sedna-gap-3">
+    <div class="sedna-row-wrap">
         <button class="btn" type="button"
                 onclick="sednaUi.toast.present('toast-assigned', { title: 'Assigned to you', text: 'ORD-4182 · Northwind Retail, by Alex Fischer', href: '/toast' }, { timeout: 0 })">
-            <i class="ri-user-received-line"></i> <span>A task arrives</span>
+            <i class="ri-user-received-line"></i> <span>Show an assignment</span>
         </button>
         <button class="btn" type="button"
                 onclick="sednaUi.toast.result(sednaUi.toast.present('toast-review', { title: 'Retention set to 400 days', text: 'Saved. Usually it is 30 to 365.' }, { timeout: 0 })).then(v => { if (v === 'review') sednaUi.toast('Opened the retention setting.', { kind: 'go' }); })">
-            <i class="ri-alert-line"></i> <span>A value to check</span>
+            <i class="ri-alert-line"></i> <span>Show a value to check</span>
         </button>
     </div>
 
@@ -46,8 +46,8 @@
             <div class="toast-body">
                 <strong>Retention set to 400 days</strong><span>Saved. Usually it is 30 to 365.</span>
                 <div class="toast-actions">
-                    <button class="btn btn--sm btn--warn btn--solid" type="button">Review now</button>
-                    <button class="btn btn--sm" type="button">Later</button>
+                    <button class="btn btn--sm btn--brand btn--solid" type="button">Review now</button>
+                    <button class="btn btn--sm" type="button">Remind me later</button>
                 </div>
             </div>
             <button class="toast-close" type="button" aria-label="Dismiss"><i class="ri-close-line" aria-hidden="true"></i></button>

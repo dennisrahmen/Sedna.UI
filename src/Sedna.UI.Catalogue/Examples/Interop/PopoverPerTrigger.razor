@@ -1,17 +1,19 @@
-<table class="table" @onsedna-popover-fill="Fill">
-    <thead><tr><th>Order</th><th>Customer</th><th>Due</th></tr></thead>
-    <tbody>
-        @foreach (var order in Orders)
-        {
-            <tr @key="order.Id">
-                <td><span class="text-mono" id="@($"order-{order.Id}")" data-popover="order-card" data-popover-hover
-                          tabindex="0" role="button">@order.Id</span></td>
-                <td>@order.Customer</td>
-                <td>@order.Due</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card">
+    <table class="table" @onsedna-popover-fill="Fill">
+        <thead><tr><th>Order</th><th>Customer</th><th>Due</th></tr></thead>
+        <tbody>
+            @foreach (var order in Orders)
+            {
+                <tr @key="order.Id">
+                    <td><span class="text-mono" id="@($"order-{order.Id}")" data-popover="order-card" data-popover-hover
+                              tabindex="0" role="button">@order.Id</span></td>
+                    <td>@order.Customer</td>
+                    <td>@order.Due</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <div class="popover" id="order-card" popover data-popover-for="@_cardFor">
     @if (_card is { } card)

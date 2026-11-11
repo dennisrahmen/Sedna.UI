@@ -42,7 +42,7 @@
       { "page": "/toast#work-that-ends-later", "role": "part" },
       { "page": "/progress#spinner", "role": "part" }
     ],
-    "how": "Present a toast from the app's template with a .spinner in the icon's place and no close button, then replace it in place with the outcome when the work settles: the usual timeout for a success, a timeout of 0 for a failure.",
+    "how": "Present a toast from the app's template with a .spinner in the icon's place and no close button, then replace it in place with the outcome when the work settles. A failure is also written on the page, as an alert beside the work that stays until it succeeds, because the reader has to act on it.",
     "avoid": "Two toasts for one piece of work, one when it starts and one when it ends, which stack up and read as two events."
   },
   {
@@ -151,7 +151,7 @@
       { "page": "/table#nothing-found-and-refreshing", "role": "part" },
       { "page": "/page-recipes#a-list-with-nothing-in-it-yet", "role": "part" }
     ],
-    "how": "An .empty-state in the content's place, inside its card, list or table row, with the toolbar and count still above it: the drawing for the state, a title, a sentence and the one action that resolves it. Nothing yet invites, nothing found echoes the query, and filtered out names the filters and how to clear them.",
+    "how": "An .empty-state in the content's place, inside its card, list or table row, with the toolbar and count still above it: the drawing for the state, a title that says what to do, a sentence and the one action that resolves it. Nothing yet invites, nothing found echoes the query, and filtered out names the filters and how to clear them.",
     "avoid": "One empty state for every kind of empty: a cleared queue that looks like a broken search tells the reader the wrong thing."
   },
   {

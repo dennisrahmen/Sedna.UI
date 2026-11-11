@@ -1,19 +1,19 @@
 <div class="sedna-col sedna-gap-6">
-    <div class="sedna-row-wrap sedna-gap-3">
+    <div class="sedna-row-wrap">
         <button class="btn" type="button"
                 onclick="sednaUi.configure({ toastPile: true, toastLimit: 3 }); ['ORD-4182', 'ORD-4209', 'ORD-4244', 'ORD-4250'].forEach(o => sednaUi.toast(o + ' is on its way to EU-West.', { kind: 'go', title: 'Order dispatched', timeout: 8000 }))">
             <i class="ri-stack-line"></i> <span>Dispatch four, piled</span>
         </button>
         <button class="btn" type="button"
                 onclick="sednaUi.configure({ toastPile: false, toastLimit: 0 }); sednaUi.toast('Every toast stands in its own place again.')">
-            <span>Back to a column</span>
+            <span>Show them in a column</span>
         </button>
     </div>
 
     <!-- What it looks like, for reading before a script runs. Rest the pointer on it.
          The box is as tall as the opened pile and holds it at its foot, so it opens upward
          the way it does in a corner of the screen, and nothing under it moves. -->
-    <div style="display:flex; align-items:flex-end; min-block-size:13rem">
+    <div class="sedna-row sedna-end" style="min-block-size:13rem">
         <div class="toast-stack toast-stack--pile" role="status" aria-live="polite" style="position:static; inset:auto;">
             <div class="toast toast--go">
                 <i class="ri-check-line"></i>
@@ -22,7 +22,7 @@
             </div>
             <div class="toast toast--warn">
                 <i class="ri-alert-line"></i>
-                <span class="toast-body"><strong>Partially fulfilled</strong>Two of five lines are awaiting stock.</span>
+                <span class="toast-body"><strong>Partially fulfilled</strong>2 of 5 lines are awaiting stock.</span>
                 <button class="toast-close" type="button" aria-label="Dismiss"><i class="ri-close-line"></i></button>
             </div>
             <div class="toast toast--go">

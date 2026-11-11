@@ -84,7 +84,9 @@
         <code>.value-trigger</code> shows the <em>current value</em> of something and opens a menu to
         change it — a status, an assignee, an access level. Reach for it where a
         <code>&lt;select&gt;</code> would be wrong because the options need icons or a description;
-        where a plain list of values would do, use a <code>&lt;select&gt;</code>.
+        where a plain list of values would do, use a <code>&lt;select&gt;</code>. Mark the value it
+        holds now with <code>aria-current="true"</code> on its item and say so in words, and name the
+        trigger with its value as well as what it sets.
         <code>--value-trigger-measure</code> is how much of the value the control keeps room for,
         10ch by default, and <code>.col-control</code> on the <code>th</code> and the
         <code>td</code> gives the column its floor — see <a href="/table">Tables</a>.
