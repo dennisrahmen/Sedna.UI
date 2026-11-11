@@ -1,0 +1,45 @@
+[
+  {
+    "id": "read-long-text-in-part",
+    "goal": "Let the user open text that is cut short to read it whole",
+    "phrases": [ "show more", "read more", "line clamp", "truncate text", "expand long text" ],
+    "answer": [
+      { "page": "/utility-text#show-more", "role": "primary" },
+      { "page": "/utility-text#overflow", "role": "part" }
+    ],
+    "how": ".text-clamp-2 or -3 cuts the block after two or three lines, and a button with data-clamp-toggle and aria-controls opens it in full and closes it again; both labels are the app's. Where the text fits, the button is not shown.",
+    "avoid": "Cutting text the reader needs with .text-truncate and no way to read the rest."
+  },
+  {
+    "id": "scroll-inside-a-region",
+    "goal": "Let the user scroll a long or wide block without scrolling the page",
+    "phrases": [ "scrollable area", "scroll container", "horizontal scroll", "max height scroll", "overflow scroll" ],
+    "answer": [
+      { "page": "/utility-scroll#vertical", "role": "primary" },
+      { "page": "/utility-scroll#horizontal", "role": "part" }
+    ],
+    "how": ".sedna-scroll caps a block's height, --sm, --md, --lg or --scroll-max, and .sedna-scroll-x lets a wide table scroll sideways inside the page; both fade the cut edge. Give the scroller tabindex=\"0\", role=\"group\" and an aria-label.",
+    "avoid": "A scroller with no tab stop and no name, which a keyboard reader cannot scroll and a screen reader cannot describe."
+  },
+  {
+    "id": "print-a-page",
+    "goal": "Let the user print a page without the app's own chrome",
+    "phrases": [ "print styles", "hide when printing", "print only content", "printable page" ],
+    "answer": [
+      { "page": "/utility-visibility#print", "role": "primary" }
+    ],
+    "how": "The frame drops itself from paper already; .sedna-no-print keeps the app's own controls off it, and .sedna-print-only adds what only the sheet needs, such as a reference number or a signature line.",
+    "avoid": "Writing a print stylesheet that hides library classes, which breaks on the next release."
+  },
+  {
+    "id": "keep-a-bar-clear-of-the-notch",
+    "goal": "Let the user reach a bar of the app's own on a phone with a notch or a home indicator",
+    "phrases": [ "safe area", "notch", "home indicator", "safe area insets" ],
+    "answer": [
+      { "page": "/utility-safe-area#holding-an-element-clear", "role": "primary" },
+      { "page": "/utility-safe-area#the-top-and-the-sides", "role": "part" }
+    ],
+    "how": "With viewport-fit=cover on the host page, .sedna-safe-bottom, -top and -inline pad the element carrying the background by the strip the device has taken, and by nothing where there is none.",
+    "avoid": "Putting the class on a wrapper, whose padding leaves a transparent band where the device's strip is."
+  }
+]
