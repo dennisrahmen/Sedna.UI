@@ -10219,14 +10219,16 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .tab-panel { padding-top: var(--space-7); }
 
 /* Tabs that share the row equally, so a short strip of them — four on a phone — stays
-   in view without scrolling. A long label wraps onto a second line inside its tab. */
+   in view without scrolling. A long label wraps onto a second line inside its tab, between
+   its words: a tab is never narrower than its longest word, so "Computers" is never cut
+   into "Computer" and "s". Only a word wider than the whole strip breaks inside itself. */
 .tabs--fill > .tab {
     flex: 1 1 0;
-    min-width: 0;
+    min-width: min-content;
     justify-content: center;
     text-align: center;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 
 /* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
@@ -12852,9 +12854,11 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
    is as ordinary as a top-level page opening on an h1. */
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
-/* The auto margin keeps the actions at the end edge when the head wraps them onto a line
-   of their own, as `.toolbar-actions` does. */
-.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
+/* Beside the heading, `space-between` puts the actions at the end edge. Wrapped onto a
+   line of their own under it — a narrow screen — they start where the heading starts, so
+   the eye goes down the start edge from the title to what to do about it, as in a
+   `.card-foot--start` decision row. No auto margin, which would push them to the far end. */
+.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 
 /* ── A head that folds as the page scrolls ──────────────────────────────────
    `.page-head--collapse` keeps the title row in view while the page scrolls under it:
@@ -15093,7 +15097,10 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .table--stack tr:empty { margin: 0; border-width: 0; }
     /* In a card, the records keep their own boxes and the card gives them room: drawn
        against the card's border, each box's edge doubled it with no gutter between. */
-    .card > .table--stack { display: block; padding: var(--space-5); }
+    .card > .table--stack { position: relative; display: block; padding: var(--space-5); }
+    /* The hidden head is pinned to the table's own corner, so its one pixel never stands
+       past the card's edge where a block table's static position would leave it. */
+    .card > .table--stack > thead { inset-block-start: 0; inset-inline-start: 0; }
     .card > .table--stack > :is(tbody, tfoot) { display: block; }
     .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }

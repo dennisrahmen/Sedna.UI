@@ -978,7 +978,10 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .table--stack tr:empty { margin: 0; border-width: 0; }
     /* In a card, the records keep their own boxes and the card gives them room: drawn
        against the card's border, each box's edge doubled it with no gutter between. */
-    .card > .table--stack { display: block; padding: var(--space-5); }
+    .card > .table--stack { position: relative; display: block; padding: var(--space-5); }
+    /* The hidden head is pinned to the table's own corner, so its one pixel never stands
+       past the card's edge where a block table's static position would leave it. */
+    .card > .table--stack > thead { inset-block-start: 0; inset-inline-start: 0; }
     .card > .table--stack > :is(tbody, tfoot) { display: block; }
     .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }

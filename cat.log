@@ -1,0 +1,11 @@
+Using launch settings from src/Sedna.UI.Catalogue/Properties/launchSettings.json...
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5199
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /home/user/Sedna.UI/src/Sedna.UI.Catalogue
+info: Sedna.UI.Catalogue.Mcp.ReleasedHistoryFetcher[0]
+      Class history of release 0.32.0 loaded from https://github.com/dennisrahmen/Sedna.UI/releases/latest/download/class-history.json.

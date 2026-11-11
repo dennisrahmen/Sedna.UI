@@ -5569,11 +5569,11 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .tab-panel { padding-top: var(--space-7); }
 .tabs--fill > .tab {
     flex: 1 1 0;
-    min-width: 0;
+    min-width: min-content;
     justify-content: center;
     text-align: center;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 .tab:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-4) + var(--cap-gap)); }
 .tab-count { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
@@ -7146,7 +7146,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .page-head-text { flex: 1 1 20rem; min-width: 0; }
 .page-head :is(h1, h2, h3) { margin: 0; }
 .page-head-text > p { margin: var(--space-2) 0 0; color: var(--muted); font-size: var(--text-4); }
-.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-inline-start: auto; }
+.page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 .page-head--collapse {
     --page-head-lede: round(calc(var(--text-4) * 1.4), 2px);
     --page-head-fold: calc(var(--space-2) + var(--page-head-lede));
@@ -8358,7 +8358,8 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
     .table--stack .tr-group { border-width: 0; }
     .table--stack tr:empty { margin: 0; border-width: 0; }
-    .card > .table--stack { display: block; padding: var(--space-5); }
+    .card > .table--stack { position: relative; display: block; padding: var(--space-5); }
+    .card > .table--stack > thead { inset-block-start: 0; inset-inline-start: 0; }
     .card > .table--stack > :is(tbody, tfoot) { display: block; }
     .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }

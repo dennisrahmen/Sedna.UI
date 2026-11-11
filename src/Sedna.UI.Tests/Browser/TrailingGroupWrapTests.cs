@@ -3,13 +3,14 @@ using Sedna.UI.Tests.TestSupport;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// A trailing group — <c>.toolbar-actions</c>, <c>.page-head-actions</c> — stays at the end
-/// edge on a line of its own after its row wraps.
+/// Where a trailing group goes when its row wraps. A toolbar's <c>.toolbar-actions</c> — a
+/// count, a view switch — stays at the end edge on a line of its own; a page head's
+/// <c>.page-head-actions</c> starts under the heading, where the eye already is.
 /// </summary>
 public class TrailingGroupWrapTests : ScriptTestBase
 {
     [Fact]
-    public async Task A_page_heads_actions_keep_to_the_end_edge_when_they_wrap()
+    public async Task A_page_heads_actions_start_under_the_heading_when_they_wrap()
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("""
@@ -22,11 +23,32 @@ public class TrailingGroupWrapTests : ScriptTestBase
         var r = await page.EvaluateAsync<double[]>("""
             () => {
                 const box = id => document.getElementById(id).getBoundingClientRect();
-                return [box('actions').top - box('text').bottom, box('head').right - box('actions').right];
+                return [box('actions').top - box('text').bottom, box('actions').left - box('head').left];
             }
             """);
         Assert.True(r[0] >= 0, "The fixture did not wrap.");
-        Assert.True(r[1] < 1, $"The wrapped actions stop {r[1]:0.0}px short of the end edge.");
+        Assert.True(Math.Abs(r[1]) < 1, $"The wrapped actions start {r[1]:0.0}px from the heading's start edge.");
+    }
+
+    [Fact]
+    public async Task Beside_the_heading_a_page_heads_actions_keep_to_the_end_edge()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <div class="page-head" id="head" style="width:900px">
+              <div class="page-head-text" id="text"><h1>Approval queue</h1></div>
+              <div class="page-head-actions" id="actions"><button class="btn" type="button">Refresh</button></div>
+            </div>
+            """);
+
+        var r = await page.EvaluateAsync<double[]>("""
+            () => {
+                const box = id => document.getElementById(id).getBoundingClientRect();
+                return [box('actions').top - box('text').bottom, box('head').right - box('actions').right];
+            }
+            """);
+        Assert.True(r[0] < 0, "The fixture wrapped.");
+        Assert.True(r[1] < 1, $"The actions stop {r[1]:0.0}px short of the end edge.");
     }
 
     [Fact]

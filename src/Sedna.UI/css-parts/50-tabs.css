@@ -73,14 +73,16 @@
 .tab-panel { padding-top: var(--space-7); }
 
 /* Tabs that share the row equally, so a short strip of them — four on a phone — stays
-   in view without scrolling. A long label wraps onto a second line inside its tab. */
+   in view without scrolling. A long label wraps onto a second line inside its tab, between
+   its words: a tab is never narrower than its longest word, so "Computers" is never cut
+   into "Computer" and "s". Only a word wider than the whole strip breaks inside itself. */
 .tabs--fill > .tab {
     flex: 1 1 0;
-    min-width: 0;
+    min-width: min-content;
     justify-content: center;
     text-align: center;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 
 /* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
