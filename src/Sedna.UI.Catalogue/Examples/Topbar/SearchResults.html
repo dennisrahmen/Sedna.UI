@@ -19,7 +19,7 @@
         </a>
     </template>
     <template data-search-empty>
-        <div class="search-status">No order matches &ldquo;<span data-query></span><span>&rdquo;.</span></div>
+        <div class="search-status">No order matches &ldquo;<span data-query></span><span>&rdquo;. Try an order number or a customer.</span></div>
     </template>
     <template data-search-more>
         <div class="search-status"><span data-count></span> <span>more. Keep typing to narrow it down.</span></div>
@@ -30,23 +30,23 @@
 <div class="search-panel sedna-scroll" role="listbox" aria-label="Results">
 
     <a class="search-item search-item--sel" role="option" aria-selected="true" tabindex="-1" href="/order/4182">
-        <span class="search-item-title">Mailbox quota exceeded on EXCH-02</span>
+        <span class="search-item-title">Carrier rejected the delivery address</span>
         <span class="search-item-meta">
-            <span class="text-mono">TCK-4182</span>
-            <span>Contoso Logistics</span>
-            <span class="search-tag search-tag--warn">needs a human</span>
+            <span class="text-mono">ORD-4182</span>
+            <span>Northwind Retail</span>
+            <span class="search-tag search-tag--warn">on hold</span>
         </span>
     </a>
 
     <a class="search-item" role="option" aria-selected="false" tabindex="-1" href="/order/3907">
-        <span class="search-item-title">VPN certificate renewal</span>
+        <span class="search-item-title">Replacement desk lamp, sent on 3 November</span>
         <span class="search-item-meta">
-            <span class="text-mono">TCK-3907</span>
-            <span>Fabrikam Energy</span>
-            <span class="search-tag">closed</span>
+            <span class="text-mono">ORD-3907</span>
+            <span>Jordan Weiss</span>
+            <span class="search-tag">delivered</span>
         </span>
     </a>
 
     <!-- While the results are being fetched, and when there are none. -->
-    <div class="search-status">No order matches “quota”.</div>
+    <div class="search-status">No order matches “lamps”. Try an order number or a customer.</div>
 </div>

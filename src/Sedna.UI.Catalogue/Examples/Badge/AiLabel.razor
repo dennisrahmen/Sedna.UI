@@ -1,4 +1,4 @@
-<div style="max-width:560px; display:flex; flex-direction:column; gap:20px">
+<div class="sedna-col sedna-gap-3" style="max-width:560px">
     <div class="form-field">
         <label class="form-label" for="ai-eta">Expected delivery</label>
         <div class="input-group">
@@ -21,26 +21,28 @@
         </div>
     </div>
 
-    <table class="table">
-        <thead><tr><th>Order</th><th>Category</th><th class="col-num">Weight</th></tr></thead>
-        <tbody>
-            <tr>
-                <td>ORD-4209</td>
-                <td>
-                    <span>Fragile goods</span>
-                    <button class="badge badge-ai badge-ai--icon" type="button" popovertarget="ai-cat-why">
-                        <i class="ri-sparkling-2-line" aria-hidden="true"></i>
-                        <span class="visually-hidden">AI-generated: why this category</span>
-                    </button>
-                </td>
-                <td class="col-num">12.4 kg</td>
-            </tr>
-            <tr><td>ORD-4213</td><td><span>General</span></td><td class="col-num">3.1 kg</td></tr>
-        </tbody>
-    </table>
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>Order</th><th>Category</th><th class="col-num">Weight</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>ORD-4209</td>
+                    <td>
+                        <span>Fragile goods</span>
+                        <button class="badge badge-ai badge-ai--icon" type="button" popovertarget="ai-cat-why">
+                            <i class="ri-sparkling-2-line" aria-hidden="true"></i>
+                            <span class="visually-hidden">AI-generated: why this category</span>
+                        </button>
+                    </td>
+                    <td class="col-num">12.4 kg</td>
+                </tr>
+                <tr><td>ORD-4213</td><td><span>General</span></td><td class="col-num">3.1 kg</td></tr>
+            </tbody>
+        </table>
+    </div>
     <div class="popover" id="ai-cat-why" popover>
         <strong class="popover-title">Categorised by the intake agent</strong>
-        <p>The packing list names glassware on two lines.</p>
+        <p>The packing list names glassware on 2 lines.</p>
         <div class="kv"><span class="k">Confidence</span><span class="confidence" data-level="3"><span class="confidence-bars"><i></i><i></i><i></i></span><span>Sure</span></span></div>
         <div class="popover-actions">
             <button class="btn btn--sm" type="button" popovertarget="ai-cat-why" popovertargetaction="hide"><i class="ri-arrow-go-back-line"></i> <span>Revert to General</span></button>
@@ -56,7 +58,7 @@
     </p>
     <div class="popover" id="ai-forecast-why" popover>
         <strong class="popover-title">Forecast by the planning agent</strong>
-        <p>From the last eight Fridays and the promotion starting on Thursday.</p>
+        <p>From the last 8 Fridays and the promotion starting on Thursday.</p>
         <div class="kv"><span class="k">Confidence</span><span class="confidence" data-level="1"><span class="confidence-bars"><i></i><i></i><i></i></span><span>A guess</span></span></div>
     </div>
 </div>

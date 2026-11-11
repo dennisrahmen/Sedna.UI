@@ -15,7 +15,7 @@
       { "text": "Filters and actions above a list", "instead": "/toolbar#filters-and-actions" }
     ],
     "goals": [],
-    "stamp": "1972c7c3c9e6822e"
+    "stamp": "69a00d9c99daa92c"
   },
   {
     "page": "/utility-spacing",
@@ -30,7 +30,7 @@
       { "text": "Columns of a layout", "instead": "/grid#sedna-grid" }
     ],
     "goals": [],
-    "stamp": "8957428df57f09ee"
+    "stamp": "d48ed57c3800d191"
   },
   {
     "page": "/utility-text",
@@ -46,7 +46,7 @@
       { "text": "Prose the app did not write", "instead": "/prose" }
     ],
     "goals": [ "read-long-text-in-part" ],
-    "stamp": "5b4f95200b71c914"
+    "stamp": "626bbe53b9d3c82f"
   },
   {
     "page": "/utility-visibility",
@@ -62,7 +62,7 @@
       { "text": "A link that jumps past the navigation", "instead": "/frame#skip-link" }
     ],
     "goals": [ "print-a-page" ],
-    "stamp": "62a9bfb994947f60"
+    "stamp": "aa83a635293f8417"
   },
   {
     "page": "/utility-scroll",
@@ -79,7 +79,7 @@
       { "text": "Thousands of rows", "instead": "/table-large#virtualized-rows" }
     ],
     "goals": [ "scroll-inside-a-region" ],
-    "stamp": "a2c8d992ddd06712"
+    "stamp": "ead2450e99f9f774"
   },
   {
     "page": "/utility-safe-area",
@@ -93,6 +93,6 @@
       { "text": "The app's own frame", "instead": "/frame#full-shell" }
     ],
     "goals": [ "keep-a-bar-clear-of-the-notch" ],
-    "stamp": "1f9aa70ce9a5e2c5"
+    "stamp": "5275d9fca63fa9a3"
   }
 ]
