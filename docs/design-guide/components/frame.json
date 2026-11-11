@@ -16,7 +16,7 @@
       { "text": "A whole page to start from", "instead": "/page-recipes" }
     ],
     "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "skip-to-the-content", "fill-the-screen-below-the-header", "show-on-a-wall-screen", "use-the-app-on-a-narrow-screen", "pick-a-workspace", "keep-a-footer-at-the-bottom", "sign-in", "explain-access-denied", "say-a-page-was-not-found", "sign-in-after-the-session-expired" ],
-    "stamp": "ac0060e4d6543571"
+    "stamp": "66293b1e7b610ff6"
   },
   {
     "page": "/nav",
@@ -34,7 +34,7 @@
       { "text": "Navigation on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "find-a-page-in-a-long-nav", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "e3cf23ad17cc6ab8"
+    "stamp": "0418f7cb0ebc4bb5"
   },
   {
     "page": "/nav-layouts",
@@ -51,7 +51,7 @@
       { "text": "Finding a page, a record or a command by typing", "instead": "/palette" }
     ],
     "goals": [ "find-a-page-in-a-long-nav", "switch-between-areas" ],
-    "stamp": "67f844ae3910f22e"
+    "stamp": "0a84e2b820ba82ef"
   },
   {
     "page": "/bottombar",
@@ -70,7 +70,7 @@
       { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
     ],
     "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "cc9545d72f216d41"
+    "stamp": "074c556ba153327a"
   },
   {
     "page": "/topbar",
@@ -89,7 +89,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "412454687e1c349d"
+    "stamp": "597708fc18816a5f"
   },
   {
     "page": "/status-bar",
@@ -105,7 +105,7 @@
       { "text": "The state of one live feed on a page", "instead": "/live-state#connection-state" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
-    "stamp": "077d6a6044087dd8"
+    "stamp": "32164139afc9b5c1"
   },
   {
     "page": "/banner",
@@ -122,7 +122,7 @@
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
     "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
-    "stamp": "bec413c40419b39e"
+    "stamp": "05d342453e8f9e38"
   },
   {
     "page": "/hover-hints",
@@ -139,7 +139,7 @@
       { "text": "A label on the collapsed rail's links", "instead": "/nav#collapsed-rail" }
     ],
     "goals": [ "show-status-history", "explain-a-control", "act-with-an-icon-button", "explain-a-disabled-action" ],
-    "stamp": "1540f8c5da441a1c"
+    "stamp": "fd5a256787ffc0e3"
   },
   {
     "page": "/common-pages",
@@ -160,7 +160,7 @@
       { "text": "Signing in", "instead": "/page-recipes#a-sign-in-page" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends", "count-down-to-a-deadline" ],
-    "stamp": "24f14014bf4a248c"
+    "stamp": "5edb84f4f60fc7d1"
   },
   {
     "page": "/page-recipes",
@@ -180,6 +180,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/grid#panels-the-reader-arranges" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
-    "stamp": "8ed7d119f49bd02c"
+    "stamp": "ec1d0b80cd6f628d"
   }
 ]

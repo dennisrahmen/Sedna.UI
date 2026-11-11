@@ -419,7 +419,7 @@
       { "page": "/collections#steps", "role": "part" },
       { "page": "/form-flow#task-list", "role": "part" }
     ],
-    "how": "The .steps row says where the reader is and how far is left, the card asks one question, and Back and Continue sit at opposite ends of a .form-actions--split. An option that cannot be chosen says why.",
+    "how": "The .steps row says where the reader is and how far is left, the card asks one question with Continue as its only button, and a .back-link above the page head goes to the previous step. An option that cannot be chosen says why.",
     "avoid": "A wizard where later questions do not depend on earlier ones; a long form filled in over several sittings is a task list."
   },
   {
