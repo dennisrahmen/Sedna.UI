@@ -1,7 +1,6 @@
 <div class="layout" style="height:640px; overflow:hidden">
     <aside class="sidebar">
         <div class="brand">
-            <div class="brand-logo" style="background:var(--brand)"></div>
             <div class="brand-text">
                 <strong>Dispatch Console</strong>
                 <span class="brand-sub">Northwind Retail</span>
@@ -9,7 +8,7 @@
         </div>
         <nav class="nav">
             <div class="nav-scroll">
-                <a class="nav-link active" href="#"><i class="ri-dashboard-line"></i><span>Overview</span></a>
+                <a class="nav-link active" href="#" aria-current="page"><i class="ri-dashboard-line"></i><span>Overview</span></a>
                 <a class="nav-link" href="#"><i class="ri-inbox-line"></i><span>Orders</span></a>
                 <a class="nav-link" href="#"><i class="ri-store-2-line"></i><span>Stock</span></a>
                 <a class="nav-status-card nav-status-card--fail" href="#">
@@ -38,7 +37,9 @@
         </div>
 
         <main class="page">
-            <h1>Overview</h1>
+            <div class="page-head">
+                <div class="page-head-text"><h1>Overview</h1></div>
+            </div>
 
             <div class="stat-row stat-row--divided">
                 <span class="stat">
@@ -69,15 +70,15 @@
             <div class="card">
                 <div class="card-head"><strong>Waiting to dispatch</strong></div>
                 <table class="table">
-                    <thead><tr><th>Order</th><th>Customer</th><th></th></tr></thead>
+                    <thead><tr><th>Order</th><th>Customer</th><th class="col-fit"><span class="visually-hidden">Actions</span></th></tr></thead>
                     <tbody>
                         <tr>
                             <td>ORD-4209</td><td>Alex Fischer</td>
-                            <td><button class="btn btn--sm btn--go btn--solid" type="button">Dispatch</button></td>
+                            <td class="col-fit"><button class="btn btn--sm btn--go" type="button">Dispatch</button></td>
                         </tr>
                         <tr>
                             <td>ORD-4211</td><td>Northwind Retail</td>
-                            <td><button class="btn btn--sm btn--go btn--solid" type="button">Dispatch</button></td>
+                            <td class="col-fit"><button class="btn btn--sm btn--go" type="button">Dispatch</button></td>
                         </tr>
                     </tbody>
                 </table>

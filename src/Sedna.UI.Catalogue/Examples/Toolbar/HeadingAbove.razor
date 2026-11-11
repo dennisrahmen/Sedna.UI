@@ -1,20 +1,22 @@
-<div>
-    <h1>Approval queue</h1>
-    <p class="lede">Items the AI proposed and is waiting on a human decision for.</p>
-    <div class="toolbar">
-        <div class="toolbar-filters">
-            <input class="form-input toolbar-input" type="search" placeholder="Search…" />
-            <label class="form-check"><input type="checkbox" checked /> <span>Hide claimed</span></label>
-        </div>
-        <span class="toolbar-count">3 pending</span>
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Approval queue</h1>
+        <p>Items the AI proposed and is waiting on a human decision for.</p>
     </div>
-    <div class="card">
-        <table class="table">
-            <thead><tr><th>Order</th><th>Reservation</th><th>Age</th></tr></thead>
-            <tbody>
-                <tr><td>ORD-4209</td><td>Reroute to EU-West</td><td class="col-muted">4 min</td></tr>
-                <tr><td>ORD-4204</td><td>Raise to P2</td><td class="col-muted">22 min</td></tr>
-            </tbody>
-        </table>
+</div>
+<div class="toolbar">
+    <div class="toolbar-filters">
+        <input class="form-input toolbar-input" type="search" placeholder="Search the queue…" aria-label="Search the queue" />
+        <label class="form-check"><input type="checkbox" checked /> <span>Hide claimed</span></label>
     </div>
+    <span class="toolbar-count">3 pending</span>
+</div>
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Order</th><th>Proposal</th><th>Age</th></tr></thead>
+        <tbody>
+            <tr><td>ORD-4209</td><td>Reroute to EU-West</td><td class="col-muted">4 min</td></tr>
+            <tr><td>ORD-4204</td><td>Raise to P2</td><td class="col-muted">22 min</td></tr>
+        </tbody>
+    </table>
 </div>

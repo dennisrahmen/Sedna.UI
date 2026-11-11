@@ -1,28 +1,30 @@
 <div class="sedna-col sedna-gap-2" style="max-width:640px">
 
-    <table class="table">
-        <thead>
-            <tr><th>Reference</th><th>Customer</th><th class="col-num">Value</th></tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td colspan="3">
-                    <div class="empty-state empty-state--bare">
-                        <svg class="state-art state-art--sm" aria-hidden="true"><use href="#filtered-out" /></svg>
-                        <span class="empty-state-title">No orders match these filters</span>
-                        <p>Removing the date range would show 84 orders.</p>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr><th>Reference</th><th>Customer</th><th class="col-num">Value</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3">
+                        <div class="empty-state empty-state--bare">
+                            <svg class="state-art state-art--sm" aria-hidden="true"><use href="#filtered-out" /></svg>
+                            <span class="empty-state-title">Remove a filter to see orders</span>
+                            <p>Nothing matches. Removing the date range would show 84 orders.</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <div class="card">
         <div class="empty-state">
             <svg class="state-art" aria-hidden="true"><use href="#filtered-out" /></svg>
-            <span class="empty-state-title">No orders match these filters</span>
-            <p>Three filters are applied. Removing the date range would show 84 orders.</p>
-            <button class="btn btn--sm"><i class="ri-filter-off-line"></i> <span>Clear filters</span></button>
+            <span class="empty-state-title">Remove a filter to see orders</span>
+            <p>Nothing matches the 3 filters applied. Removing the date range would show 84 orders.</p>
+            <button class="btn btn--sm" type="button"><i class="ri-filter-off-line"></i> <span>Clear filters</span></button>
         </div>
     </div>
 
@@ -30,12 +32,12 @@
         <div class="empty-state empty-state--page">
             <svg class="state-art state-art--lg" aria-hidden="true"><use href="#filtered-out" /></svg>
             <span class="empty-state-code">No results</span>
-            <span class="empty-state-title">No orders match these filters</span>
-            <p>Three filters are applied to 1,204 orders. Removing the date range would show 84
-            of them.</p>
+            <span class="empty-state-title">Remove a filter to see orders</span>
+            <p>Nothing matches the 3 filters applied to 1,204 orders. Removing the date range
+            would show 84 of them.</p>
             <div class="empty-state-actions">
-                <button class="btn btn--sm btn--brand btn--solid"><i class="ri-filter-off-line"></i> <span>Clear filters</span></button>
-                <button class="btn btn--sm"><i class="ri-calendar-line"></i> <span>Widen the date range</span></button>
+                <button class="btn btn--sm btn--brand btn--solid" type="button"><i class="ri-filter-off-line"></i> <span>Clear filters</span></button>
+                <button class="btn btn--sm" type="button"><i class="ri-calendar-line"></i> <span>Widen the date range</span></button>
             </div>
         </div>
     </div>

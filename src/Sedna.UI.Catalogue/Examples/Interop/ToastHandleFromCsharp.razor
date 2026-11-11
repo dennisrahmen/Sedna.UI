@@ -1,27 +1,42 @@
 @inject ISednaUi Ui
 
-<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
-    <button class="btn" type="button" disabled="@_busy" @onclick="Upload">
-        <i class="ri-upload-2-line"></i> <span>Upload the packing list</span>
-    </button>
-    <label class="form-check"><input type="checkbox" @bind="_fail" /> <span>Make it fail</span></label>
+<div class="sedna-col sedna-gap-2">
+    <div class="sedna-row-wrap">
+        <button class="btn" type="button" aria-busy="@(_busy ? "true" : null)" @onclick="Upload">
+            <i class="ri-upload-2-line"></i> <span>Upload the packing list</span>
+        </button>
+        <label class="form-check"><input type="checkbox" @bind="_fail" /> <span>Make it fail</span></label>
+    </div>
+
+    @if (_failed)
+    {
+        <div class="alert alert--danger">
+            <i class="ri-error-warning-line"></i>
+            <span>packing-list-4209.pdf is not attached: the warehouse did not answer. Upload it again.</span>
+        </div>
+    }
 </div>
 
 @code {
     private bool _busy;
     private bool _fail;
+    private bool _failed;
 
     // One toast for the whole piece of work: it says "uploading" while it runs and is
     // replaced in place with the outcome, rather than one toast leaving and another arriving.
     private async Task Upload()
     {
+        if (_busy) return;      // aria-busy keeps the button focusable, so a second Enter is ignored here
         _busy = true;
         var toast = await Ui.ToastAsync("Uploading packing-list-4209.pdf…", timeoutMs: 0, dismissible: false);
 
         await Task.Delay(1500);     // the work
 
+        // A failure stays on the page beside the button until an upload succeeds; the toast
+        // only says that it happened.
+        _failed = _fail;
         if (_fail)
-            await toast.ReplaceAsync("The warehouse did not answer. Nothing was uploaded.", ToastKind.Danger, timeoutMs: 0);
+            await toast.ReplaceAsync("The warehouse did not answer. Nothing was uploaded.", ToastKind.Danger, title: "Not uploaded");
         else
             await toast.ReplaceAsync("packing-list-4209.pdf is attached to ORD-4209.", ToastKind.Go, title: "Uploaded");
 
