@@ -24,13 +24,13 @@
     <p>
         <code>dagre</code> from the top, <code>data-graph-nodes="box"</code> so every name is read, and
         <code>data-graph-curve="taxi"</code> for the right angles an org chart is expected to have. The
-        role goes in <code>data-meta</code>, which a box writes under the name. Links carry no label,
+        role, or a team's size, goes in <code>data-meta</code>, which a box writes under the name. Links carry no label,
         so <code>data-graph-edge-labels="none"</code> keeps the sentences off the canvas.
     </p>
     <p>
         A dotted-line report is one more link with <code>data-line="dotted"</code>. Draw it between
         adjacent levels: a hierarchy layout weighs every link the same, so a link that skips a level pulls
-        the person it starts from down a rank. The search marks people rather than hiding the rest, and
+        the record it starts from down a rank. The search marks people and teams rather than hiding the rest, and
         both downloads take the whole chart, not just the part in view.
     </p>
 </CatExample>
@@ -170,8 +170,8 @@
     <p>
         The failing store is the root, and <code>data-graph-focus</code> with
         <code>data-graph-focus-depth="2"</code> starts on everything within two hops of it. The hop radios
-        are <code>data-graph-option="depth"</code>; <strong>Whole map</strong> is
-        <code>data-graph-action="unfocus"</code>, and <strong>Back to the failure</strong> is a
+        are <code>data-graph-option="depth"</code>; <strong>Show the whole map</strong> is
+        <code>data-graph-action="unfocus"</code>, and <strong>Return to the failure</strong> is a
         <code>focus</code> action with the record's id as its <code>value</code>. <code>dagre</code> puts
         the callers above what they call, so the failure is at the bottom and the damage climbs.
     </p>

@@ -21,7 +21,7 @@
                 <li data-node="stadium" data-tone="2" data-tone-region="3" data-tone-status="danger" data-meta="Store · South · stopped">Stadium store</li>
                 <li data-node="south-park" data-tone="2" data-tone-region="3" data-tone-status="warn" data-meta="Store · South · running late">South Park store</li>
 
-                <li data-edge data-source="north-hub" data-target="south-hub" data-label="trunk" data-weight="heavy" data-arrow="both">The two hubs share a trunk route</li>
+                <li data-edge data-source="north-hub" data-target="south-hub" data-label="trunk" data-weight="heavy" data-arrow="both">Both hubs share a trunk route</li>
                 <li data-edge data-source="north-hub" data-target="hilltop" data-label="supplies">North hub supplies Hilltop depot</li>
                 <li data-edge data-source="north-hub" data-target="harbour" data-label="supplies">North hub supplies Harbour depot</li>
                 <li data-edge data-source="south-hub" data-target="riverside" data-label="supplies">South hub supplies Riverside depot</li>
@@ -46,7 +46,7 @@
     </div>
     <div class="sedna-col sedna-gap-2" role="radiogroup" aria-label="Colour by">
         <div class="sedna-row-wrap">
-            <label class="form-check" style="min-width:7rem"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="tone" checked /> <span>Kind</span></label>
+            <label class="form-check sedna-w sedna-w--sm"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="tone" checked /> <span>Kind</span></label>
             <div class="graph-legend">
                 <span class="graph-key"><span class="graph-swatch graph-swatch--star series-3"></span> <span>Hub</span></span>
                 <span class="graph-key"><span class="graph-swatch graph-swatch--rounded series-5"></span> <span>Depot</span></span>
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="sedna-row-wrap">
-            <label class="form-check" style="min-width:7rem"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="region" /> <span>Region</span></label>
+            <label class="form-check sedna-w sedna-w--sm"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="region" /> <span>Region</span></label>
             <div class="graph-legend">
                 <span class="graph-key"><span class="graph-swatch series-2"></span> <span>North</span></span>
                 <span class="graph-key"><span class="graph-swatch series-4"></span> <span>East</span></span>
@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="sedna-row-wrap">
-            <label class="form-check" style="min-width:7rem"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="status" /> <span>Today</span></label>
+            <label class="form-check sedna-w sedna-w--sm"><input type="radio" name="xp-colour-by" data-graph-option="colour" value="status" /> <span>Today</span></label>
             <div class="graph-legend">
                 <span class="graph-key"><span class="graph-swatch series-go"></span> <span>On schedule</span></span>
                 <span class="graph-key"><span class="graph-swatch series-warn"></span> <span>Running late</span></span>
