@@ -1,0 +1,217 @@
+[
+  {
+    "id": "head-a-page",
+    "goal": "Let the user see a page's title and the actions for all of it",
+    "phrases": [ "page header", "title row", "page title with actions", "page heading and buttons", "sticky page header" ],
+    "answer": [
+      { "page": "/structure#page-head", "role": "primary" },
+      { "page": "/structure#actions-that-fold-into-a-menu", "role": "part" },
+      { "page": "/structure#a-head-that-folds-as-the-page-scrolls", "role": "part" },
+      { "page": "/pager#above-the-page-head", "role": "part" }
+    ],
+    "how": "A .page-head first in .page: the h1 and one line of purpose in .page-head-text, the actions for the whole page in .page-head-actions with the primary last. --fold turns the actions into one menu by the head's own width, keeping the .actions-keep primary beside it.",
+    "avoid": "Putting a list's own filters and actions in the page head: they belong in the toolbar above the list."
+  },
+  {
+    "id": "copy-a-command",
+    "goal": "Let the user read and copy a command or a payload exactly",
+    "phrases": [ "code block", "code snippet", "copy code button", "preformatted text", "copyable command" ],
+    "answer": [
+      { "page": "/structure#code-blocks", "role": "primary" },
+      { "page": "/structure#a-long-block-clamped", "role": "part" },
+      { "page": "/structure#several-files-in-a-card", "role": "part" }
+    ],
+    "how": "A .code-block around a pre, a .code-block-copy button with data-copy-target, and a .code-block-head naming the file when there is one. A long block is --clamped with a button that shows the rest; several files are tabs in a card.",
+    "avoid": "Wrapping long lines: the block scrolls sideways so a command copies, and reads, exactly as it runs."
+  },
+  {
+    "id": "set-a-note-in-the-content",
+    "goal": "Let the user notice a note, a tip or a caveat written into the content",
+    "phrases": [ "callout", "admonition", "note box", "tip box", "aside in the text" ],
+    "answer": [
+      { "page": "/structure#callouts", "role": "primary" }
+    ],
+    "how": "A .callout with an icon and a .callout-body, a .callout-title for its first words, and a tone only where the note is a caveat or a hazard. It is permanent and about the content, so it stays where it is written.",
+    "avoid": "Using a callout for the state of the page right now, which is an alert, or a page of coloured callouts nobody reads."
+  },
+  {
+    "id": "jump-to-a-section",
+    "goal": "Let the user jump between the sections of a long page",
+    "phrases": [ "on this page", "table of contents", "scrollspy", "anchor links to sections", "toc sidebar" ],
+    "answer": [
+      { "page": "/page-navigation#on-this-page", "role": "primary" },
+      { "page": "/grid#stacking-at-a-set-width-a-sticky-aside-two-even-columns", "role": "part" },
+      { "page": "/page-recipes#a-settings-page", "role": "part" }
+    ],
+    "how": "A nav.page-toc of bare fragment links to the section headings in the sticky aside of a .sedna-split; data-spy marks the section in view aria-current=\"location\", and .page-toc-fold lets the reader fold it once it stacks above the content.",
+    "avoid": "Contents for a page that fits on a screen or two, where the headings already show the reader everything."
+  },
+  {
+    "id": "get-back-to-the-top",
+    "goal": "Let the user get back to the top of a long page in one press",
+    "phrases": [ "back to top", "scroll to top button", "return to top", "go to top of page" ],
+    "answer": [
+      { "page": "/page-navigation#back-to-top", "role": "primary" }
+    ],
+    "how": "An a.back-to-top to #top as the last thing in the page, with an aria-label; it sticks to the bottom corner once the page has scrolled a screen down, and moves focus to the top as well as the view.",
+    "avoid": "A button that only scrolls: the next Tab then lands back at the bottom of the page."
+  },
+  {
+    "id": "read-a-record-s-fields",
+    "goal": "Let the user read one record's fields together in one place",
+    "phrases": [ "detail card", "key value pairs", "description list", "property list", "fields of a record" ],
+    "answer": [
+      { "page": "/card#key-value-rows", "role": "primary" },
+      { "page": "/card#head-and-body", "role": "part" },
+      { "page": "/card#sections-inside-one-body", "role": "part" },
+      { "page": "/badge", "role": "part" }
+    ],
+    "how": "A .card with the record's name in .card-head and its state in .card-head-right, and a .kv row per field in the body: values that are figures or ids in the monospace column, prose with .kv--text. .card-section divides the body where the fields fall into groups.",
+    "avoid": "A table of one row, or a card in a card only to group fields: a card in a card is an object inside an object."
+  },
+  {
+    "id": "claim-before-acting",
+    "goal": "Let the user read a record but claim or unlock it before acting on it",
+    "phrases": [ "locked card", "claim to unlock", "blurred overlay with a button", "guard overlay" ],
+    "answer": [
+      { "page": "/card#a-guarded-card", "role": "primary" },
+      { "page": "/card#a-guarded-card-over-taller-content", "role": "part" }
+    ],
+    "how": "A .guard over a card with position: relative, its .guard-card saying why in one sentence and holding the one button that lifts it; the content behind is inert, so it is read but not reached.",
+    "avoid": "Leaving inert off the guarded content, which keeps every control behind the scrim in the tab order."
+  },
+  {
+    "id": "lay-out-a-dashboard",
+    "goal": "Let the user take in a dashboard of panels at a glance",
+    "phrases": [ "dashboard layout", "dashboard grid", "24 column grid", "bento grid", "panels of different widths" ],
+    "answer": [
+      { "page": "/grid#a-dashboard", "role": "primary" },
+      { "page": "/grid#sedna-grid-24-rows", "role": "part" },
+      { "page": "/stat#a-row-of-tiles", "role": "part" },
+      { "page": "/card", "role": "part" }
+    ],
+    "how": "A .sedna-grid-24 with a .stat-row across the top, then spans of .sedna-stack columns of cards, so a panel growing in one column moves nothing in the other. It collapses by its own width, with no breakpoint chosen.",
+    "avoid": "One row of panels of very different heights, which leaves holes beside the short ones: stack each column, span the tall panel, or fix the rows."
+  },
+  {
+    "id": "arrange-dashboard-panels",
+    "goal": "Let the user rearrange, resize and fold the panels of their dashboard",
+    "phrases": [ "customizable dashboard", "draggable widgets", "resizable panels", "widget board", "personal dashboard layout" ],
+    "answer": [
+      { "page": "/grid#panels-the-reader-arranges", "role": "primary" },
+      { "page": "/card#widgets-the-reader-arranges", "role": "part" },
+      { "page": "/card#a-ceiling-and-a-fold-by-dragging", "role": "part" },
+      { "page": "/drag-drop#reorder-a-grid-of-tiles", "role": "part" }
+    ],
+    "how": "A .drag-grid of .card--resizable panels: a drop arrives as sedna-drop and a resize as sedna-resize, and the app moves the panel in its own list, keeps its height and its fold per reader, and renders them back.",
+    "avoid": "Keeping the arrangement only in the page: the next visit starts from the default unless the app stores it per reader."
+  },
+  {
+    "id": "work-beside-a-side-panel",
+    "goal": "Let the user keep a side panel in view beside the main content",
+    "phrases": [ "two column layout", "main and aside", "split pane", "resizable side panel", "content with a sidebar column" ],
+    "answer": [
+      { "page": "/grid#sedna-split", "role": "primary" },
+      { "page": "/grid#stacking-at-a-set-width-a-sticky-aside-two-even-columns", "role": "part" },
+      { "page": "/grid#a-split-the-reader-resizes", "role": "part" }
+    ],
+    "how": "A .sedna-split with the aside marked .sedna-split-aside, first or last in the markup for the side it sits on. The two stack on their own when the main column would get too narrow; --sticky keeps the aside in view and a .split-resize handle lets the reader set its width.",
+    "avoid": "Choosing a breakpoint for the stack: the split decides by its own width, so the same markup works in a page and in a drawer."
+  },
+  {
+    "id": "open-an-item-from-a-list",
+    "goal": "Let the user pick an item from a list and open it",
+    "phrases": [ "list view", "simple list", "item list with subtitles", "clickable list rows", "mobile list" ],
+    "answer": [
+      { "page": "/list#list", "role": "primary" },
+      { "page": "/list#list-as-cards", "role": "part" },
+      { "page": "/list#nothing-in-it", "role": "part" },
+      { "page": "/badge", "role": "part" }
+    ],
+    "how": "A ul.list whose rows are a.list-row to open a record or button.list-row to act, each a .list-title with a .list-sub under it and the state in .list-meta. --cards turns the same markup into separate cards for a work list.",
+    "avoid": "A click handler on the li: the row is a link or a button, or it has no focus, no keyboard and no announcement."
+  },
+  {
+    "id": "group-a-list-under-headings",
+    "goal": "Let the user scan a long list in groups whose headings stay in view",
+    "phrases": [ "sticky group headers", "grouped list", "section headers in a list", "collapsible list groups" ],
+    "answer": [
+      { "page": "/list#stacking-group-headers", "role": "primary" },
+      { "page": "/list#group-headers-as-a-caption", "role": "part" },
+      { "page": "/list#groups-that-fold", "role": "part" }
+    ],
+    "how": "A .sticky-group-head li before each group with --group-head-index counting from 0, so each header pins below the one above it; a .sticky-group-toggle folds a group and .sticky-group-count keeps its count in the head.",
+    "avoid": "A heading element between two lists: the groups stay one list, or the headers cannot stack."
+  },
+  {
+    "id": "see-the-step-they-are-on",
+    "goal": "Let the user see which step of a process they are on and how many are left",
+    "phrases": [ "stepper", "progress steps", "step indicator", "wizard progress", "approval chain" ],
+    "answer": [
+      { "page": "/collections#steps", "role": "primary" },
+      { "page": "/page-recipes#a-step-in-a-longer-task", "role": "part" },
+      { "page": "/form-flow", "role": "part" }
+    ],
+    "how": "An ol.steps of short names, each li with data-state done or current and the rest left plain; the numbers come from a CSS counter, so a step added is no renumbering.",
+    "avoid": "Steps for a record with no end, which is a timeline: the reader can only be on a step of something that finishes."
+  },
+  {
+    "id": "open-detail-on-demand",
+    "goal": "Let the user open detail only when they want it, one section at a time",
+    "phrases": [ "accordion", "collapsible section", "expandable panel", "faq list", "details and summary" ],
+    "answer": [
+      { "page": "/collections#accordion", "role": "primary" }
+    ],
+    "how": "A .accordion of details elements, each summary an icon and a short label and its content in .accordion-body; the same name on every details makes opening one close the others.",
+    "avoid": "Hiding what most readers need behind a fold: an accordion is for detail few of them open."
+  },
+  {
+    "id": "pick-from-a-hierarchy",
+    "goal": "Let the user walk a hierarchy and pick an item from it",
+    "phrases": [ "tree view", "folder tree", "hierarchical list", "nested items", "treeview" ],
+    "answer": [
+      { "page": "/tree#expanded-and-selected", "role": "primary" },
+      { "page": "/tree#children-loaded-on-demand", "role": "part" },
+      { "page": "/tree#a-tree-of-links", "role": "part" },
+      { "page": "/form-combo#picking-from-a-tree", "role": "part" }
+    ],
+    "how": "A ul.tree of role=\"treeitem\" items, each a .tree-row with a .tree-toggle first and a role=\"group\" of children for a branch. The script keeps one tab stop, the arrow keys and typeahead, and writes aria-expanded and aria-selected as the reader works it.",
+    "avoid": "Leaving aria-selected off an item meant to be picked: without it the item is a heading the reader opens, not a choice."
+  },
+  {
+    "id": "tick-whole-branches",
+    "goal": "Let the user tick whole branches of a hierarchy at once",
+    "phrases": [ "checkbox tree", "tri-state tree", "tick a whole branch", "nested checkbox hierarchy" ],
+    "answer": [
+      { "page": "/tree#tri-state-checkboxes", "role": "primary" },
+      { "page": "/form-combo#ticking-whole-branches", "role": "part" }
+    ],
+    "how": "aria-checked on every item and a .tree-check in each row: ticking a branch ticks everything under it and makes each parent ticked, unticked or mixed, and sedna-tree-check carries every ticked value for the app to keep.",
+    "avoid": "Putting an input checkbox in each row, which makes a second tab stop inside every item."
+  },
+  {
+    "id": "see-what-happened-to-a-record",
+    "goal": "Let the user read what happened to a record and when",
+    "phrases": [ "timeline", "audit trail", "activity feed", "change history", "event history of a record" ],
+    "answer": [
+      { "page": "/timeline#timeline", "role": "primary" },
+      { "page": "/timeline#entries-with-a-body", "role": "part" },
+      { "page": "/timeline#breaks-and-a-foot", "role": "part" },
+      { "page": "/card", "role": "part" }
+    ],
+    "how": "A ul.timeline of entries, each a .timeline-when and a .timeline-what, newest first, with data-kind only on an entry that mattered; .timeline-group breaks it by day and .timeline-more ends it with the way to earlier entries.",
+    "avoid": "Colouring every entry: a tone on each one marks none of them."
+  },
+  {
+    "id": "switch-views-in-place",
+    "goal": "Let the user switch between views of the same thing without leaving the page",
+    "phrases": [ "tabs", "tabbed panels", "tab strip", "tablist", "tabbed card" ],
+    "answer": [
+      { "page": "/tabs#tabs", "role": "primary" },
+      { "page": "/tabs#tabs-in-a-card", "role": "part" },
+      { "page": "/tabs#a-strip-of-links", "role": "part" }
+    ],
+    "how": "A .tabs with role=\"tablist\" and data-tabs, each tab a button with aria-selected and aria-controls naming its tab-panel; the script does the clicks, the arrow keys and the roving tabindex. Where each tab has its own address, the strip is a nav of links instead.",
+    "avoid": "Using tabs to change a setting, which is a segmented control, or for sections the reader reads one after another."
+  }
+]
