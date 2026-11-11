@@ -72,7 +72,7 @@
       { "text": "A panel with nothing to show yet", "instead": "/empty-state#waiting-and-failed" },
       { "text": "The steps of a task the reader moves through", "instead": "/collections#steps" }
     ],
-    "goals": [ "show-progress-of-a-job", "show-busy-state", "list-running-jobs", "show-route-progress", "show-app-starting", "show-saving-then-saved", "show-usage-against-a-limit" ],
+    "goals": [ "show-progress-of-a-job", "show-busy-state", "list-running-jobs", "show-route-progress", "show-app-starting", "show-saving-then-saved", "show-usage-against-a-limit", "follow-an-agents-plan", "follow-uploads" ],
     "stamp": "85a2eb519779f032"
   },
   {

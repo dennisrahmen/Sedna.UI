@@ -29,7 +29,7 @@
       { "text": "Who the agent is", "instead": "/agent-avatar" },
       { "text": "Work with a known figure of done", "instead": "/progress#progress-bar" }
     ],
-    "goals": [ "show-what-an-agent-is-doing", "highlight-what-the-agent-is-on", "show-an-answer-being-written", "mark-ai-generated-content", "show-how-sure-the-agent-is", "show-context-usage" ],
+    "goals": [ "show-what-an-agent-is-doing", "highlight-what-the-agent-is-on", "show-an-answer-being-written", "mark-ai-generated-content", "show-how-sure-the-agent-is", "show-context-usage", "mark-ai-generated-values" ],
     "stamp": "edc67656a487e1c1"
   },
   {

@@ -475,7 +475,7 @@
   {
     "id": "ask-if-a-page-helped",
     "goal": "Let the user say whether a page was useful",
-    "phrases": [ "page feedback", "was this helpful", "feedback widget", "thumbs up thumbs down", "report a problem with this page" ],
+    "phrases": [ "page feedback", "was this helpful", "feedback widget", "helpful yes or no", "report a problem with this page" ],
     "answer": [
       { "page": "/page-recipes#page-feedback", "role": "primary" }
     ],

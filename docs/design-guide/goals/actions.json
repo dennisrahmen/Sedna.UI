@@ -94,7 +94,7 @@
   {
     "id": "act-on-a-selection",
     "goal": "Let the user act on all the rows they selected at once",
-    "phrases": [ "bulk actions", "batch actions", "act on selected rows", "selection toolbar", "select all across pages" ],
+    "phrases": [ "bulk actions", "batch actions", "act on selected rows", "bulk action bar", "select all across pages" ],
     "answer": [
       { "page": "/toolbar#with-a-selection", "role": "primary" },
       { "page": "/menu#anchored-under-a-trigger", "role": "part" },

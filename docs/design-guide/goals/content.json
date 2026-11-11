@@ -49,7 +49,7 @@
   {
     "id": "step-through-slides",
     "goal": "Let the user move through a row of slides one at a time",
-    "phrases": [ "carousel", "slider", "slideshow", "image slider", "content rotator", "swipeable cards" ],
+    "phrases": [ "carousel", "slideshow", "image slider", "content rotator", "swipeable cards" ],
     "answer": [
       { "page": "/carousel#slides-with-dots", "role": "primary" },
       { "page": "/carousel#several-in-view-and-a-peek", "role": "part" }
@@ -71,9 +71,9 @@
     "avoid": "Cutting long file names at the end, where -signed.pdf and -unsigned.pdf both become the same ellipsis."
   },
   {
-    "id": "upload-files",
+    "id": "follow-uploads",
     "goal": "Let the user upload files and follow each one until it is done",
-    "phrases": [ "file upload", "upload progress", "upload queue", "drag and drop upload", "retry a failed upload", "multiple file upload" ],
+    "phrases": [ "upload progress", "upload queue", "retry a failed upload", "multiple file upload" ],
     "answer": [
       { "page": "/files#uploads", "role": "primary" },
       { "page": "/files#pause-resume-retry-and-the-whole-batch", "role": "part" },

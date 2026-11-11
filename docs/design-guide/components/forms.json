@@ -16,7 +16,7 @@
       { "text": "Laying out a page that is not a form", "instead": "/grid" },
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
-    "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog" ],
+    "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
     "stamp": "2f7098a0da55a894"
   },
   {
@@ -119,7 +119,7 @@
       { "text": "Markdown with a toolbar and a preview", "instead": "/markdown" },
       { "text": "One line of text", "instead": "/form-text" }
     ],
-    "goals": [ "write-a-longer-text", "mention-someone" ],
+    "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
     "stamp": "ebd2453155692e43"
   },
   {
@@ -155,7 +155,7 @@
       { "text": "A set of options ticked on sight", "instead": "/form-check-list" },
       { "text": "Actions on a record", "instead": "/menu" }
     ],
-    "goals": [ "pick-one-from-a-short-list", "move-rows-between-two-lists" ],
+    "goals": [ "pick-one-from-a-short-list", "move-rows-between-two-lists", "pick-a-microphone" ],
     "stamp": "bb12c7234184fe3b"
   },
   {
@@ -173,7 +173,7 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" },
       { "text": "Running a command by name", "instead": "/palette" }
     ],
-    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches" ],
+    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model" ],
     "stamp": "511c9f60f962310b"
   },
   {
@@ -190,7 +190,7 @@
       { "text": "An action that runs when pressed", "instead": "/button" },
       { "text": "Filters that narrow a list", "instead": "/chip#a-set-of-filters" }
     ],
-    "goals": [ "turn-a-setting-on-or-off", "tick-an-option", "choose-one-of-a-few", "choose-between-pictures", "show-dependent-options" ],
+    "goals": [ "turn-a-setting-on-or-off", "tick-an-option", "choose-one-of-a-few", "choose-between-pictures", "show-dependent-options", "answer-an-agents-question" ],
     "stamp": "e14620eec9a3bbc4"
   },
   {
@@ -226,7 +226,7 @@
       { "text": "Many options, or long ones", "instead": "/form-select#the-drop-down" },
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
-    "goals": [ "switch-a-view-setting", "build-a-query" ],
+    "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
     "stamp": "20a18c42b882cd70"
   },
   {
@@ -256,7 +256,7 @@
       { "text": "Files already stored, to open or download", "instead": "/files#a-list-of-files" },
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
-    "goals": [ "upload-files", "drop-files-anywhere" ],
+    "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
     "stamp": "6af7b92bc063ab9b"
   },
   {

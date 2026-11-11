@@ -14,7 +14,6 @@ files, and nothing repeats them.
 | `components/<group>.json` | One entry per catalogue page in that sidebar group | hand, except `stamp` |
 | `goals/<group>.json` | The user goals whose primary answer is a page in that group | hand |
 | `stamps/<group>.json` | The sources each entry was last reviewed against | `build/guide-stamp.sh` — never edit |
-| `pending.json` | The groups whose files are not written yet | hand; ends empty |
 
 A group's file is named after its catalogue group in lowercase — `Navigation/CataloguePages.cs`
 `Groups`: `start`, `frame`, `structure`, `actions`, `forms`, `data`, `labels`, `content`, `agents`,
@@ -135,14 +134,13 @@ against, and `--all` restamps everything — only after every entry has been rea
 |---|---|
 | `DesignGuideTests.Every_guide_file_matches_the_schema` | a file has an unknown, missing or null key, or is not a group's name |
 | `DesignGuideTests.Every_entry_says_what_it_is_for_and_what_goes_with_it` | `useFor` or a `how` is not a sentence, `combineWith` is empty, a `notFor` text ends with a full stop, or `stamp` is empty |
-| `DesignGuideTests.Every_page_has_exactly_one_entry_unless_it_is_exempt` | a page of a written group has no entry or two, an entry is in another group's file or names no page, or an exempt page has one |
-| `DesignGuideTests.Every_group_with_a_page_to_describe_has_its_file_or_is_pending` | a group has no file and is not pending, or `pending.json` names no group |
+| `DesignGuideTests.Every_page_has_exactly_one_entry_unless_it_is_exempt` | a page has no entry or two, an entry is in another group's file or names no page, or an exempt page has one |
+| `DesignGuideTests.Every_group_with_a_page_to_describe_has_its_file` | a group has pages that need entries and no `components/` file |
 | `DesignGuideTests.Every_goal_is_complete` | an id is not kebab-case or not unique, the goal does not start `Let the user `, it has fewer than three phrases or a phrase another goal has, it has no single primary, or it is filed under a group its primary answer is not in |
 | `DesignGuideTests.Goals_and_entries_name_each_other` | a goal answers with a page whose entry does not list it, or an entry lists a goal that does not exist or does not answer with it |
 | `DesignGuideTests.Section_ids_goal_ids_and_topics_are_distinct` | a section id, a goal id, a page route and a `get_guide` topic share a name |
 | `DesignGuideTests.The_principles_are_markdown_the_page_can_render` | `principles.md` uses Markdown the page does not render, or links a file that does not exist |
 | `DesignGuideTests.The_app_embeds_the_guide_on_disk` | the catalogue's embedded copy differs from these files |
-| `DesignGuideTests.Nothing_is_pending` | skipped until the last group is written; then `pending.json` must stay empty |
 | `GuideReferenceTests` | a page or an anchor anywhere in the guide is not on the site |
 | `GuideStampTests` | a stamp does not match its sources |
 | `GuidePageTests` | a page does not show its entry, or the design guide page lacks a goal or a section |
@@ -163,19 +161,12 @@ it is about, rather than weakening the other.
 5. Run `dotnet test src/Sedna.UI.Catalogue.Tests --filter "FullyQualifiedName~Guide"`; the search
    tests need a browser for the topbar half.
 
-## Writing a group
+## Adding a group
 
-For the phase that fills the remaining groups, one group per change:
+A new sidebar group gets `components/<group>.json` in the same change, with an entry for each of
+its pages, and `goals/<group>.json` when a goal's primary answer is one of them. Then:
 
-1. Read every page in the group and its examples, and `principles.md`.
-2. Write `components/<group>.json`, one entry per page in the sidebar's order, with `"stamp": ""`.
-3. Write `goals/<group>.json` for the goals whose primary answer is in the group; a group may have
-   none, and then has no goals file.
-4. Add your goal ids to the `goals` of the pages in other groups that your goals answer with, and
-   add other groups' goals that answer with your pages to your entries — the failures name each
-   one.
-5. Run `build/guide-stamp.sh` with your group's routes.
-6. Leave `pending.json` alone: a group whose file exists is checked in full whether or not it is
-   listed. When every group is written, the lists are emptied and `Nothing_is_pending` loses its
-   `Skip`.
-7. Run the guide tests until they pass.
+1. Add the group's goal ids to the `goals` of the pages in other groups they answer with, and the
+   other groups' goals that answer with its pages to its entries — the failures name each one.
+2. Run `build/guide-stamp.sh` with the group's routes.
+3. Run the guide tests until they pass.

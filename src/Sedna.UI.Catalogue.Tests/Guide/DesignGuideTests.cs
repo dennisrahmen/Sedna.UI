@@ -84,8 +84,6 @@ public partial class DesignGuideTests
                 continue;
             }
 
-            if (GuideFiles.IsPending("components", page.Group)) continue;
-
             if (entries.Count == 0)
                 problems.Add($"{page.Route} ({page.Label}) has no entry. Add one to {file}, or exempt it in "
                              + "GuideFiles.Exempt with the reason if it documents no component.");
@@ -106,33 +104,19 @@ public partial class DesignGuideTests
     }
 
     [Fact]
-    public void Every_group_with_a_page_to_describe_has_its_file_or_is_pending()
+    public void Every_group_with_a_page_to_describe_has_its_file()
     {
         var problems = new List<string>();
         foreach (var group in CataloguePages.Groups)
         {
             var needs = CataloguePages.InGroup(group).Any(p => !GuideFiles.Exempt.ContainsKey(p.Route));
             var path = Path.Combine(GuideFiles.Dir, "components", group.ToLowerInvariant() + ".json");
-            if (needs && !File.Exists(path) && !GuideFiles.IsPending("components", group))
+            if (needs && !File.Exists(path))
                 problems.Add($"The {group} group has pages to describe and no components/{group.ToLowerInvariant()}.json.");
         }
 
-        foreach (var kind in new[] { "components", "goals" })
-            foreach (var group in GuideFiles.Pending(kind))
-                if (!CataloguePages.Groups.Any(g => g.ToLowerInvariant() == group))
-                    problems.Add($"pending.json lists \"{group}\" under {kind}, which is no catalogue group.");
 
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
-    }
-
-    [Fact(Skip = "Turned on when the last group has its entries and goals: then pending.json has to be "
-                 + "empty, and this test is what keeps it so. docs/design-guide/README.md says when.")]
-    public void Nothing_is_pending()
-    {
-        var pending = GuideFiles.Pending("components").Concat(GuideFiles.Pending("goals")).ToList();
-        Assert.True(pending.Count == 0,
-            $"docs/design-guide/pending.json still lists {string.Join(", ", pending)}. Write their files "
-            + "and empty the lists.");
     }
 
     [Fact]
@@ -201,8 +185,6 @@ public partial class DesignGuideTests
                                  + "with a component page, or give that page an entry instead of the exemption.");
                     continue;
                 }
-
-                if (GuideFiles.IsPending("components", group)) continue;
 
                 var entry = guide.EntryFor(route);
                 if (entry is null) continue; // Every_page_has_exactly_one_entry reports it.

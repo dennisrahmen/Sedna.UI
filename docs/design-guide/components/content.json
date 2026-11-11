@@ -49,7 +49,7 @@
       { "text": "Pictures looked at rather than managed", "instead": "/media#a-gallery-of-attachments" },
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
-    "goals": [ "browse-a-folder", "upload-files", "show-attachments" ],
+    "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
     "stamp": "4fcf0fdb912d0bb7"
   },
   {

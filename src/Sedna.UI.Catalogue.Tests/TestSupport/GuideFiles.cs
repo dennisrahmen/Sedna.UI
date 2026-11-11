@@ -45,26 +45,6 @@ internal static class GuideFiles
         ["/tooling"] = "The app's build tooling.",
     };
 
-    /// <summary>The groups <c>pending.json</c> lists as not yet written, for one kind of file.</summary>
-    public static IReadOnlySet<string> Pending(string kind)
-    {
-        var path = Path.Combine(Dir, "pending.json");
-        if (!File.Exists(path)) return new HashSet<string>(StringComparer.Ordinal);
-
-        using var doc = JsonDocument.Parse(File.ReadAllText(path));
-        return doc.RootElement.TryGetProperty(kind, out var list)
-            ? list.EnumerateArray().Select(e => e.GetString()!).ToHashSet(StringComparer.Ordinal)
-            : new HashSet<string>(StringComparer.Ordinal);
-    }
-
-    /// <summary>
-    /// Whether a group's file of one kind is still to be written: listed in <c>pending.json</c>
-    /// and not on disk. A file on disk is held to every rule whether or not the group is listed.
-    /// </summary>
-    public static bool IsPending(string kind, string group) =>
-        Pending(kind).Contains(group.ToLowerInvariant())
-        && !File.Exists(Path.Combine(Dir, kind, group.ToLowerInvariant() + ".json"));
-
     /// <summary>The group a registered route belongs to, or null.</summary>
     public static string? GroupOf(string route) =>
         CataloguePages.All.FirstOrDefault(p => p.Route == route)?.Group;

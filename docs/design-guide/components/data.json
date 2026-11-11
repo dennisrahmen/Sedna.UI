@@ -202,7 +202,7 @@
       { "text": "The steps of a form", "instead": "/form-flow" },
       { "text": "Switching between views of one record", "instead": "/tabs" }
     ],
-    "goals": [ "compare-records", "page-through-results", "show-where-a-page-sits", "say-a-page-was-not-found", "find-a-record-on-a-list-page", "read-a-record", "search-everything", "head-a-page" ],
+    "goals": [ "compare-records", "page-through-results", "show-where-a-page-sits", "say-a-page-was-not-found", "find-a-record-on-a-list-page", "read-a-record", "search-everything", "head-a-page", "browse-a-folder" ],
     "stamp": "c0e2f874dc5ee23d"
   },
   {
