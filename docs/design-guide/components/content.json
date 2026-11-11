@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "eb6895b7d313d247"
+    "stamp": "618c8bd343c60ea8"
   },
   {
     "page": "/carousel",
@@ -50,7 +50,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "4fcf0fdb912d0bb7"
+    "stamp": "1ded1f539e37d3aa"
   },
   {
     "page": "/video",
@@ -79,7 +79,7 @@
       { "text": "A recording with pictures", "instead": "/video" }
     ],
     "goals": [ "play-a-recording" ],
-    "stamp": "ebf648c8a2df0036"
+    "stamp": "f7bae2e5b52433d8"
   },
   {
     "page": "/prose",
@@ -94,7 +94,7 @@
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "e49331d6004dd826"
+    "stamp": "125c727732bba5de"
   },
   {
     "page": "/markdown",
@@ -110,7 +110,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "e5875eac90273d33"
+    "stamp": "f5e912673f76e9f0"
   },
   {
     "page": "/diff",
@@ -138,7 +138,7 @@
       { "text": "A picture of a scanned page", "instead": "/media#contain-or-cover" }
     ],
     "goals": [ "read-a-pdf" ],
-    "stamp": "ce4de1897f7c08d1"
+    "stamp": "05533b47224f16ca"
   },
   {
     "page": "/qr",
@@ -150,7 +150,7 @@
       { "text": "An address the reader clicks", "instead": "/media#a-link-preview" }
     ],
     "goals": [ "show-a-qr-code" ],
-    "stamp": "8a40171702c922f5"
+    "stamp": "a551112eefaf1855"
   },
   {
     "page": "/editor",
@@ -167,7 +167,7 @@
       { "text": "A message in a conversation", "instead": "/chat#the-composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "68c665840a49063a"
+    "stamp": "1327c2b2a13886ab"
   },
   {
     "page": "/chat",
@@ -186,6 +186,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "c970515baf60fe56"
+    "stamp": "3d559fb6bfb53c18"
   }
 ]

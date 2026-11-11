@@ -13,7 +13,7 @@
       { "text": "A wait with no agent behind it", "instead": "/progress#spinner" }
     ],
     "goals": [ "show-the-agent-state-at-a-glance", "show-what-an-agent-is-doing" ],
-    "stamp": "4cb32aae2ea88ced"
+    "stamp": "0dafc4c8c58b50f7"
   },
   {
     "page": "/agent-status",
@@ -30,7 +30,7 @@
       { "text": "Work with a known figure of done", "instead": "/progress#progress-bar" }
     ],
     "goals": [ "show-what-an-agent-is-doing", "highlight-what-the-agent-is-on", "show-an-answer-being-written", "mark-ai-generated-content", "show-how-sure-the-agent-is", "show-context-usage", "mark-ai-generated-values" ],
-    "stamp": "edc67656a487e1c1"
+    "stamp": "f465845d7387f848"
   },
   {
     "page": "/agent-avatar",
@@ -47,7 +47,7 @@
       { "text": "A person", "instead": "/avatar" }
     ],
     "goals": [ "tell-agents-apart", "talk-to-an-agent" ],
-    "stamp": "17eb8d83f1e7884e"
+    "stamp": "dac3c966ce9a7ab3"
   },
   {
     "page": "/mochi",
@@ -65,7 +65,7 @@
       { "text": "A guided tour of the page", "instead": "/spotlight" }
     ],
     "goals": [ "give-the-agent-a-character", "perch-a-mascot-on-the-page" ],
-    "stamp": "1888b6e7d1a2ff35"
+    "stamp": "d4ddf2cb1c5c72ba"
   },
   {
     "page": "/agent-steps",
@@ -84,7 +84,7 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "f808ba996b749006"
+    "stamp": "c65c740f1b2d9195"
   },
   {
     "page": "/agent-chat",
@@ -103,7 +103,7 @@
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "def96b36b7ad4bf4"
+    "stamp": "756550dba43a7b07"
   },
   {
     "page": "/assistant-panels",
@@ -119,7 +119,7 @@
       { "text": "The conversation itself", "instead": "/agent-chat" }
     ],
     "goals": [ "dock-an-assistant", "keep-generated-work-open" ],
-    "stamp": "3d81635c5ae7474d"
+    "stamp": "68a5daadab5aa3a1"
   },
   {
     "page": "/voice",

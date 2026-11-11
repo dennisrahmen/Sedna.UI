@@ -1,16 +1,16 @@
 <div class="card">
     <div class="card-body">
         <div class="markdown-body">
-            <h2>Escalation policy</h2>
-            <p>Raise to <strong>P2</strong> when <em>either</em> condition holds:</p>
+            <h2>Split delivery policy</h2>
+            <p>Split an order into <strong>two shipments</strong> when <em>either</em> condition holds:</p>
             <ul>
-                <li>More than 20 users are affected</li>
-                <li>A <code>VIP</code> flag is set on the caller</li>
+                <li>More than 20 lines are waiting for stock</li>
+                <li>A <code>priority</code> flag is set on the customer</li>
             </ul>
-            <blockquote>Never raise priority and reroute in the same decision — the receiving group loses the audit trail.</blockquote>
-            <pre><code>if (affected &gt; 20 || caller.IsVip)
-priority = Priority.P2;</code></pre>
-            <p>See the <a href="#">routing matrix</a> for target groups.</p>
+            <blockquote>Never split and change the carrier in the same decision — the warehouse loses the audit trail.</blockquote>
+            <pre><code>if (waiting &gt; 20 || customer.IsPriority)
+order.Split();</code></pre>
+            <p>See the <a href="#">carrier matrix</a> for which carrier takes the second shipment.</p>
         </div>
     </div>
 </div>
