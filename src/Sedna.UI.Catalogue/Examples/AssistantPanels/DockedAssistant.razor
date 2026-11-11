@@ -1,7 +1,7 @@
 <div class="layout" style="height:480px; overflow:hidden">
     <div class="content">
         <header class="topbar">
-            <div class="topbar-section"><strong>Order queue</strong></div>
+            <div class="topbar-section"><strong>Orders</strong></div>
             <div class="topbar-spacer"></div>
             <button class="topbar-btn" type="button" aria-label="Assistant" aria-controls="dock-assistant" aria-expanded="false"
                     onclick="var d = document.getElementById('dock-assistant'); if (d.open) d.close(); else sednaUi.modal.show('dock-assistant')">
@@ -9,14 +9,22 @@
             </button>
         </header>
         <div class="page">
-            <table class="table">
-                <thead><tr><th>Order</th><th>Customer</th><th>State</th><th class="col-num">Lines</th></tr></thead>
-                <tbody>
-                    <tr><td>ORD-4209</td><td>Northwind Retail</td><td><span class="badge badge--warn">On hold</span></td><td class="col-num">5</td></tr>
-                    <tr><td>ORD-4213</td><td>Alex Fischer</td><td><span class="badge badge--go">Released</span></td><td class="col-num">2</td></tr>
-                    <tr><td>ORD-4250</td><td>Northwind Retail</td><td><span class="badge badge--info">Rerouted</span></td><td class="col-num">8</td></tr>
-                </tbody>
-            </table>
+            <div class="page-head">
+                <div class="page-head-text">
+                    <h1>Order queue</h1>
+                    <p>Orders waiting on stock, a carrier or a decision.</p>
+                </div>
+            </div>
+            <div class="card">
+                <table class="table">
+                    <thead><tr><th>Order</th><th>Customer</th><th>State</th><th class="col-num">Lines</th></tr></thead>
+                    <tbody>
+                        <tr><td>ORD-4209</td><td>Northwind Retail</td><td><span class="badge badge--warn">On hold</span></td><td class="col-num">5</td></tr>
+                        <tr><td>ORD-4213</td><td>Alex Fischer</td><td><span class="badge badge--go">Released</span></td><td class="col-num">2</td></tr>
+                        <tr><td>ORD-4250</td><td>Northwind Retail</td><td><span class="badge badge--info">Rerouted</span></td><td class="col-num">8</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -37,7 +45,7 @@
                     <span class="agent-avatar agent-avatar--sm" role="img" aria-label="Ops agent"></span>
                     <div class="chat-body">
                         <div class="chat-bubble">
-                            <p>Lines 3 and 5 have no free stock in any warehouse. The order ships when either arrives, or you can split it and send the other three today.</p>
+                            <p>Lines 3 and 5 have no free stock in any warehouse. The order ships when either arrives, or you can split it and send the other 3 today.</p>
                         </div>
                     </div>
                 </div>

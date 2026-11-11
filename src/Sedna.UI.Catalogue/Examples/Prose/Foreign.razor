@@ -9,13 +9,13 @@
                  a scroll container needs keyboard access, and display: block drops a
                  table's own role. Foreign HTML arrives without either, so the same
                  sanitizer that cleans it adds them. -->
-            <table tabindex="0" role="table" aria-label="Mailbox quotas on EXCH-02">
+            <table tabindex="0" role="table" aria-label="Mailbox quotas on mail-store-02">
                 <thead>
                     <tr><th>Host</th><th>Mailbox</th><th>Database</th><th>Quota</th><th>Used</th><th>Last logon</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>EXCH-02</td><td>service-desk</td><td>DB-PRIMARY-01</td><td>50 GB</td><td>49.8 GB</td><td>2026-08-28 07:41</td></tr>
-                    <tr><td>EXCH-02</td><td>invoices</td><td>DB-PRIMARY-01</td><td>50 GB</td><td>31.2 GB</td><td>2026-08-28 06:12</td></tr>
+                    <tr><td>mail-store-02</td><td>service-desk</td><td>mail-db-01</td><td>50 GB</td><td>49.8 GB</td><td>2026-08-28 07:41</td></tr>
+                    <tr><td>mail-store-02</td><td>invoices</td><td>mail-db-01</td><td>50 GB</td><td>31.2 GB</td><td>2026-08-28 06:12</td></tr>
                 </tbody>
             </table>
             <pre>Set-Mailbox -Identity service-desk -ProhibitSendQuota 75GB -ProhibitSendReceiveQuota 80GB -IssueWarningQuota 70GB</pre>
