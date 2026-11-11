@@ -108,8 +108,9 @@ goal could answer with it.
 ## The stamp
 
 Each entry's `stamp` is a hash of everything that defines its page as documented: the page's own
-`.razor`, every example it renders and every file under `Examples/<its file name>/`, the css part
-that names each class the page's source names most, and every script part that names one of
+`.razor`, every example it renders and every file under `Examples/<its file name>/`, for each class
+the page's source names the css part that introduces it and the one that names it most, and every
+script part that names one of
 those classes as a selector or one of the `data-*` attributes the page names. Line endings do not
 count. `build/guide-stamp.py` says exactly what is read.
 

@@ -79,7 +79,7 @@
       { "text": "Thousands of rows", "instead": "/table-large#virtualized-rows" }
     ],
     "goals": [ "scroll-inside-a-region" ],
-    "stamp": "ead2450e99f9f774"
+    "stamp": "d3805bc7e96d3288"
   },
   {
     "page": "/utility-safe-area",

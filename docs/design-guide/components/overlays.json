@@ -37,7 +37,7 @@
       { "text": "An assistant docked beside the page", "instead": "/assistant-panels#an-assistant-docked-beside-the-page" }
     ],
     "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone", "dock-an-assistant" ],
-    "stamp": "fc94c5664019a165"
+    "stamp": "3d4166f74ff9024c"
   },
   {
     "page": "/palette",
@@ -52,7 +52,7 @@
       { "text": "Moving between the app's pages with a pointer", "instead": "/nav" }
     ],
     "goals": [ "run-a-command-by-name" ],
-    "stamp": "012a55a30e51a4a5"
+    "stamp": "ec4f0a0a71ca233d"
   },
   {
     "page": "/spotlight",

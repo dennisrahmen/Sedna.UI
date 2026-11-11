@@ -20,6 +20,7 @@
     "src/Sedna.UI.Catalogue/Components/Pages/UtilityScroll.razor": "97f9f848775e1a66",
     "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Horizontal.razor": "c3c31d68d79c2e88",
     "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Vertical.razor": "e6a5ddbb7e07b1fb",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
     "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/js-parts/22-scroll-edge.js": "b57cd39e6dcfa1a4"

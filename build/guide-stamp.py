@@ -16,8 +16,8 @@ A page's sources are, in this order:
   * every example it renders — a CatExample's TExample, a CatSnippet's Name, a Companion —
     and every file under Examples/<the page's file name>/;
   * for each class the page's own source names as `.name` and the stylesheet declares, the
-    css part that names that class most (`build/css-inventory.sh --tally`; a tie goes to the
-    earlier part). The classes a page names are the ones it teaches; the classes its examples
+    css part that introduces it — the first in cascade order to name it — and the part that
+    names it most (`build/css-inventory.sh --tally`; a tie goes to the earlier part). The classes a page names are the ones it teaches; the classes its examples
     merely use — a button in a table's toolbar — are taught by their own pages, and counting
     them would put every part under every page;
   * every script part under src/Sedna.UI/*-parts/ whose code, comments removed by
@@ -96,9 +96,13 @@ class Sources:
             for line in out.splitlines():
                 count, name = line.split()
                 tally.setdefault(name, []).append((int(count), part))
-        # The part that names a class most; on a tie the earlier part, so the answer does
-        # not depend on the order a directory lists in.
-        self.home = {name: sorted(seen, key=lambda s: (-s[0], s[1]))[0][1]
+        # The part that introduces a class — the first in cascade order to name it — and the
+        # part that names it most, on a tie the earlier, so the answer does not depend on the
+        # order a directory lists in. The first is where it is defined; the second is where
+        # most of its rules are, which for a class a later part dresses (a tone, a state) is
+        # not the same file.
+        self.home = {name: {min(part for _, part in seen),
+                            sorted(seen, key=lambda s: (-s[0], s[1]))[0][1]}
                      for name, seen in tally.items()}
 
         strip = load_strip_js(root)
@@ -128,7 +132,8 @@ class Sources:
                     found.add(f"{EXAMPLES}/{attrs[key]}")
 
         classes = {c for c in NAMED_CLASS.findall(text) if c in self.home}
-        found.update(self.home[c] for c in classes)
+        for c in classes:
+            found.update(self.home[c])
 
         alternatives = [r"(?<![\w-])" + re.escape(a) + r"(?![\w-])" for a in sorted(set(DATA_ATTRIBUTE.findall(text)))]
         alternatives += [r"(?<![\w$\])])\." + re.escape(c) + r"(?![\w-])" for c in sorted(classes)]

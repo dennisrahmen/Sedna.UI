@@ -129,4 +129,24 @@ public class LongContentTests : ScriptTestBase
         Assert.True(await page.EvaluateAsync<double>("() => document.getElementById('c').getBoundingClientRect().height") >= 800,
             "The card was squeezed to fit the page instead of the page scrolling.");
     }
+
+    [Fact]
+    public async Task A_button_in_a_narrow_alert_keeps_its_label_inside_it()
+    {
+        if (NoBrowser) return;
+        // Every child of an alert may shrink so its text can wrap; a button that shrank with
+        // them pushed its own label out of its border at a phone's width.
+        var (page, _) = await OpenStyled("""
+            <div style="width:310px">
+                <div class="alert alert--warn">
+                    <i class="ri-alert-line"></i>
+                    <span>Your session expires in 2 minutes.</span>
+                    <button class="btn btn--sm sedna-push" type="button" id="b">Stay signed in</button>
+                </div>
+            </div>
+            """);
+
+        Assert.True(await page.EvaluateAsync<bool>("() => { const b = document.getElementById('b'); return b.scrollWidth <= b.clientWidth; }"),
+            "The button's label spills out of the button.");
+    }
 }

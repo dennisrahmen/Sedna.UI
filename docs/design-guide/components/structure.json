@@ -17,7 +17,7 @@
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" }
     ],
     "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "check-the-tools-an-agent-ran" ],
-    "stamp": "8945ac348499f27b"
+    "stamp": "291bdd4d71e3fa31"
   },
   {
     "page": "/page-navigation",
@@ -52,7 +52,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "b3889aed540d66de"
+    "stamp": "d84d659151f36d93"
   },
   {
     "page": "/grid",
@@ -71,7 +71,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "9c8df4e87fa491d9"
+    "stamp": "3322eeec3476060b"
   },
   {
     "page": "/list",
@@ -125,7 +125,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "98b4f04729cbed91"
+    "stamp": "147f627534b31967"
   },
   {
     "page": "/timeline",

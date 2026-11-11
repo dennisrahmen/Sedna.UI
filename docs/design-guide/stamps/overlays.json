@@ -11,6 +11,7 @@
     "src/Sedna.UI.Catalogue/Examples/Drawer/WideDrawer.razor": "5b438ed38de9365a",
     "src/Sedna.UI.Catalogue/Examples/Interop/OverlayFromCsharp.razor": "a4d9b980a9d5d383",
     "src/Sedna.UI.Catalogue/Examples/Interop/ReassignOrder.razor": "825ff78102be6de8",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
     "src/Sedna.UI/css-parts/36-modal.css": "6adc298cf6ec80f9",
     "src/Sedna.UI/css-parts/40-skeleton.css": "4b9efe7d6ee8a620",
     "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
@@ -50,6 +51,7 @@
     "src/Sedna.UI.Catalogue/Examples/Palette/PalettePages.razor": "3a6575dac1d2c32b",
     "src/Sedna.UI.Catalogue/Examples/Palette/PaletteStates.razor": "9468dab7da79bba0",
     "src/Sedna.UI.Catalogue/Examples/Palette/RegisterCommands.txt": "810168287d130e42",
+    "src/Sedna.UI/css-parts/49-form-combo.css": "16ba9deeb89efb9b",
     "src/Sedna.UI/css-parts/64-palette-spotlight.css": "2b1f60e76b2408ca",
     "src/Sedna.UI/js-parts/24-palette.js": "6d164c1456a6850b"
   },

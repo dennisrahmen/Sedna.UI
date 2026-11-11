@@ -16,7 +16,7 @@
       { "text": "A count on a navigation link", "instead": "/nav#nav-items" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "44431428908918ee"
+    "stamp": "ec93f665cece56b9"
   },
   {
     "page": "/chip",

@@ -50,7 +50,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "1ded1f539e37d3aa"
+    "stamp": "29a6d1583b991cfe"
   },
   {
     "page": "/video",
@@ -64,7 +64,7 @@
       { "text": "A still picture opened large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "play-a-video" ],
-    "stamp": "6358caa9c632e17e"
+    "stamp": "cc184bd58d117ff5"
   },
   {
     "page": "/audio",
@@ -110,7 +110,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "f5e912673f76e9f0"
+    "stamp": "614802c0469a49cb"
   },
   {
     "page": "/diff",
@@ -167,7 +167,7 @@
       { "text": "A message in a conversation", "instead": "/chat#the-composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "1327c2b2a13886ab"
+    "stamp": "3f06b73cc26d2541"
   },
   {
     "page": "/chat",
@@ -186,6 +186,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "3d559fb6bfb53c18"
+    "stamp": "da2e6167276facaf"
   }
 ]
