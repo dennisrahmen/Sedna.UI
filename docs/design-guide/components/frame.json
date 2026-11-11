@@ -1,0 +1,185 @@
+[
+  {
+    "page": "/frame",
+    "useFor": "The shell every page of the app sits in: a sidebar, a topbar and one scrolling page, or the reduced shells for sign-in and the steps before a workspace.",
+    "combineWith": [
+      { "page": "/nav#nav-items", "how": "In the .sidebar, the first child of .layout: the brand, the links and the tools at its foot." },
+      { "page": "/topbar#user-menu", "how": "The .topbar is the first child of .content, above .page: the search, the status and the user widget." },
+      { "page": "/structure#page-head", "how": "The first child of .page, so every page starts with its title and the actions for the whole page." },
+      { "page": "/banner#under-the-topbar", "how": "Between the .topbar and .page, for a notice about the whole app." },
+      { "page": "/bottombar#on-a-phone-only", "how": "The last child of .content, in the sidebar's place below 560px with .layout--bottombar." },
+      { "page": "/common-pages", "how": "The finished pages for each shell: not found keeps .layout, the rest are .auth-layout." }
+    ],
+    "notFor": [
+      { "text": "Laying out a page's own content in columns", "instead": "/grid#sedna-split" },
+      { "text": "A panel that slides over the page", "instead": "/drawer" },
+      { "text": "A whole page to start from", "instead": "/page-recipes" }
+    ],
+    "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "skip-to-the-content", "fill-the-screen-below-the-header", "show-on-a-wall-screen", "use-the-app-on-a-narrow-screen", "pick-a-workspace", "keep-a-footer-at-the-bottom", "sign-in", "explain-access-denied", "say-a-page-was-not-found", "sign-in-after-the-session-expired" ],
+    "stamp": "ac0060e4d6543571"
+  },
+  {
+    "page": "/nav",
+    "useFor": "Moving between the app's pages from the sidebar: links with icons and counts, the current page marked, groups that fold, and a rail of icons.",
+    "combineWith": [
+      { "page": "/frame#full-shell", "how": "The .nav goes in the .sidebar under the brand, with .nav-tools at its foot." },
+      { "page": "/topbar", "how": "A .topbar-btn--start at the start of the header collapses the sidebar to its rail and expands it again." },
+      { "page": "/hover-hints", "how": "On the collapsed rail a link's data-tip becomes a CSS flyout; the bubble itself is skipped inside .sidebar." },
+      { "page": "/nav-layouts", "how": "When one list holds too many pages, the same links go into accordion groups, a filtered nav or an area rail." }
+    ],
+    "notFor": [
+      { "text": "Moving between the parts of one record", "instead": "/tabs#a-strip-of-links" },
+      { "text": "The sections of one long page", "instead": "/page-navigation#on-this-page" },
+      { "text": "Where a record sits under its parents", "instead": "/pager#breadcrumbs" },
+      { "text": "Navigation on a phone", "instead": "/bottombar" }
+    ],
+    "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "find-a-page-in-a-long-nav", "use-the-app-on-a-narrow-screen" ],
+    "stamp": "e3cf23ad17cc6ab8"
+  },
+  {
+    "page": "/nav-layouts",
+    "useFor": "Arranging a sidebar that has outgrown one list: text-only sections, accordion groups, a filter over the links, or one nav per area chosen from a rail or the header.",
+    "combineWith": [
+      { "page": "/nav#nav-items", "how": "Every layout is built from the same .nav-link rows, so a link moves between them unchanged." },
+      { "page": "/nav#the-active-link", "how": "ActiveLink marks the current link, and an area's link by the prefix its pages share." },
+      { "page": "/topbar", "how": "Areas in the header are .topbar-nav links at the start of the topbar, with the sidebar listing the current area's pages." },
+      { "page": "/bottombar#menu-first", "how": "On a phone the bar holds the places used most and a sheet holds the whole nav." }
+    ],
+    "notFor": [
+      { "text": "A nav short enough to read in one list", "instead": "/nav#nav-items" },
+      { "text": "Switching between views of the same content", "instead": "/tabs" },
+      { "text": "Finding a page, a record or a command by typing", "instead": "/palette" }
+    ],
+    "goals": [ "find-a-page-in-a-long-nav", "switch-between-areas" ],
+    "stamp": "67f844ae3910f22e"
+  },
+  {
+    "page": "/bottombar",
+    "useFor": "Moving between the few places used most, or acting on the record in view, with a thumb on a phone.",
+    "combineWith": [
+      { "page": "/frame#on-a-phone-the-document-scrolls", "how": "With .layout--flow the document scrolls on a phone and the bar sticks to the bottom of the viewport." },
+      { "page": "/drawer", "how": "The --start cell opens every page in a sheet that holds an ordinary .nav." },
+      { "page": "/nav", "how": "Its items are the sidebar's places, and the current one is marked aria-current the same way." },
+      { "page": "/progress", "how": "The .bottombar-accessory above the items holds something running in the background, with its progress." },
+      { "page": "/toast", "how": "While the bar shows, toasts and a .fab rise above it by its height." }
+    ],
+    "notFor": [
+      { "text": "Navigation on a wide screen", "instead": "/nav" },
+      { "text": "Every page of a large app", "instead": "/nav-layouts" },
+      { "text": "One action floating over the page", "instead": "/button#floating-action-button" },
+      { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
+    ],
+    "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
+    "stamp": "cc9545d72f216d41"
+  },
+  {
+    "page": "/topbar",
+    "useFor": "The header across every page: the search over the whole app, the app's status and version, a way to other apps, and the signed-in user with their menu.",
+    "combineWith": [
+      { "page": "/frame#full-shell", "how": "The .topbar is the first child of .content, above .page and beside the sidebar." },
+      { "page": "/menu#anchored-under-a-trigger", "how": "The user widget opens the library's one dropdown, .menu, under its trigger." },
+      { "page": "/popover", "how": "The app switcher is a popover opened by a .topbar-btn with popovertarget." },
+      { "page": "/live-state#connection-state", "how": "The status in the right cluster is a .health-badge, its state in a word beside the dot." },
+      { "page": "/notifications#from-the-bell", "how": "The bell is a .topbar-btn whose label carries the unread count, opening the inbox." },
+      { "page": "/hover-hints", "how": "An icon-only .topbar-btn is named by aria-label and says its consequence in a data-tip." }
+    ],
+    "notFor": [
+      { "text": "A command palette opened from the keyboard", "instead": "/palette" },
+      { "text": "Searching the rows of one list", "instead": "/toolbar#filters-and-a-count" },
+      { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
+    ],
+    "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version" ],
+    "stamp": "b6fc7d78fb0a06f7"
+  },
+  {
+    "page": "/status-bar",
+    "useFor": "Telling the reader the app has stopped working normally: the connection dropped and is coming back, the session is gone from the server, or an unhandled error reached the browser.",
+    "combineWith": [
+      { "page": "/common-pages#session-expired", "how": "Where the app redirects rather than staying open, the session-expired page takes over from the strip." },
+      { "page": "/frame", "how": "Written once in the host page, outside the layout, so it shows over whichever shell the page uses." }
+    ],
+    "notFor": [
+      { "text": "Planned maintenance or an outage of a service", "instead": "/banner#tones" },
+      { "text": "An error the reader can fix on the page", "instead": "/alert" },
+      { "text": "A page that failed to load", "instead": "/common-pages#something-went-wrong" },
+      { "text": "The state of one live feed on a page", "instead": "/live-state#connection-state" }
+    ],
+    "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error" ],
+    "stamp": "077d6a6044087dd8"
+  },
+  {
+    "page": "/banner",
+    "useFor": "A notice about the whole app under the topbar: a maintenance window, an outage, the phase a service is in, an action that ended on another page, and the cookie choice.",
+    "combineWith": [
+      { "page": "/frame#full-shell", "how": "A sibling of .topbar and .page in .content or .bare-layout, so the page scrolls below it." },
+      { "page": "/button#three-sizes", "how": "Its actions are .btn--sm buttons in .page-banner-actions; the cookie choice puts them in a row under the words." },
+      { "page": "/badge", "how": "The phase banner leads with a .badge naming the phase." }
+    ],
+    "notFor": [
+      { "text": "A condition of one part of a page", "instead": "/alert#every-tone" },
+      { "text": "A receipt for something done on this page", "instead": "/toast" },
+      { "text": "The connection to the server dropping", "instead": "/status-bar" },
+      { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
+    ],
+    "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends" ],
+    "stamp": "bec413c40419b39e"
+  },
+  {
+    "page": "/hover-hints",
+    "useFor": "Saying in one line what a control does, or what a mark or a cut-off text means, when the reader hovers, focuses or presses and holds it.",
+    "combineWith": [
+      { "page": "/button#icon-only", "how": "An icon button has its name in aria-label and its consequence in data-tip." },
+      { "page": "/badge", "how": "A badge or a status chip says what its state means in its data-tip." },
+      { "page": "/spotlight#a-three-step-tour", "how": "sednaUi.tips.gate turns the hints off while a guided tour owns the reader's attention." }
+    ],
+    "notFor": [
+      { "text": "The only label of an icon button", "instead": "/button#a-name-that-is-read-but-not-shown" },
+      { "text": "Anything the reader must know in order to act", "instead": "/structure#callouts" },
+      { "text": "Links or rich content on hover", "instead": "/popover#a-hover-card" },
+      { "text": "A label on the collapsed rail's links", "instead": "/nav#collapsed-rail" }
+    ],
+    "goals": [ "show-status-history", "explain-a-control" ],
+    "stamp": "1540f8c5da441a1c"
+  },
+  {
+    "page": "/common-pages",
+    "useFor": "The page an app shows instead of the one asked for: access denied, not found, a server error, an expired session or a maintenance window, and the warning before a session ends.",
+    "combineWith": [
+      { "page": "/frame#auth-layout", "how": "Every page but not found is .auth-layout, as there is nothing to navigate to." },
+      { "page": "/frame#full-shell", "how": "Not found keeps the frame, with its block at the top of .page." },
+      { "page": "/empty-state#page-level", "how": "Each page is one .empty-state--page: the code, the title, one line of why and the actions." },
+      { "page": "/state-art", "how": "Each page has a drawing of its own, at .state-art--lg." },
+      { "page": "/pager#breadcrumbs", "how": "Not found puts the trail to the missing record at the top of .page." },
+      { "page": "/modal", "how": "The session warning is the app's own alertdialog, shown with ShowModalAsync." },
+      { "page": "/live-state#countdown", "how": "The time left in the session warning is a countdown in the app's words." }
+    ],
+    "notFor": [
+      { "text": "A list or a filter with nothing in it", "instead": "/empty-state" },
+      { "text": "The connection dropping while the page stays open", "instead": "/status-bar" },
+      { "text": "Warning of maintenance while the app still works", "instead": "/banner#more-than-one-line" },
+      { "text": "Signing in", "instead": "/page-recipes#a-sign-in-page" }
+    ],
+    "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends" ],
+    "stamp": "24f14014bf4a248c"
+  },
+  {
+    "page": "/page-recipes",
+    "useFor": "A whole page to start from, in the app's frame: an overview, a list, a record, the forms that create and change one, search, settings, an account and sign-in.",
+    "combineWith": [
+      { "page": "/frame#full-shell", "how": "A recipe is the content of .page, in the frame taken once from Shell; sign-in is the content of .auth-layout." },
+      { "page": "/structure#page-head", "how": "Every recipe starts with a page head: the title, a line of purpose and the actions for the whole page." },
+      { "page": "/toolbar#filters-and-a-count", "how": "A list page puts the toolbar between the page head and the table's card." },
+      { "page": "/table#with-a-toolbar-in-a-card", "how": "A list page's table sits in a card, with the pager after it." },
+      { "page": "/grid#sedna-split", "how": "A detail page, a list beside its record and settings lay their two regions out in a .sedna-split." },
+      { "page": "/skeleton#table-rows", "how": "While a list loads it keeps its head and toolbar, and only its rows are skeletons." },
+      { "page": "/form-saving#actions-that-stay-in-reach", "how": "A long create or edit form keeps its actions in reach." }
+    ],
+    "notFor": [
+      { "text": "The page shown when something is missing or fails", "instead": "/common-pages" },
+      { "text": "The frame around a page", "instead": "/frame" },
+      { "text": "A dashboard of panels the reader arranges", "instead": "/grid#panels-the-reader-arranges" }
+    ],
+    "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped" ],
+    "stamp": "8ed7d119f49bd02c"
+  }
+]
