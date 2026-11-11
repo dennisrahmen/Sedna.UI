@@ -63,7 +63,7 @@ public class ThemeBuilderBrowserTests(CatalogueAppFixture app)
         await page.Locator("#theme-filter").FillAsync("radius-control");
         var field = page.Locator("input[data-token='--radius-control'][data-variant='dark']");
         await field.FillAsync("12px");
-        await field.PressAsync("Tab");
+        await field.PressAsync(Keys.Tab);
 
         await page.WaitForFunctionAsync($"() => {Radius} === '12px'");
         await page.WaitForFunctionAsync(
@@ -74,7 +74,7 @@ public class ThemeBuilderBrowserTests(CatalogueAppFixture app)
 
         // A value that would end the declaration is refused on the field, and nothing changes.
         await field.FillAsync("1px; } body { display: none");
-        await field.PressAsync("Tab");
+        await field.PressAsync(Keys.Tab);
         await page.Locator("#theme-editor .form-error").WaitForAsync();
         Assert.Equal("12px", await page.EvaluateAsync<string>("() => " + Radius));
 
