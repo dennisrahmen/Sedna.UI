@@ -1,0 +1,95 @@
+<a class="back-link" href="#"><i class="ri-arrow-left-line"></i> <span>Back to orders</span></a>
+
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>New order</h1>
+        <p>Raised by hand. The warehouse sees it as soon as you save.</p>
+    </div>
+</div>
+
+<form class="card" aria-labelledby="nf-title">
+    <div class="card-head"><h3 id="nf-title">Order details</h3></div>
+    <div class="card-body">
+        <div class="alert alert--danger">
+            <i class="ri-error-warning-line"></i>
+            <span>
+                <strong>Nothing was saved.</strong> Two fields need attention:
+                <a href="#nf-customer">the customer</a> and
+                <a href="#nf-postcode">the postcode</a>.
+            </span>
+        </div>
+
+        <fieldset class="form-section">
+            <legend>Customer</legend>
+            <div class="form-section-body">
+                <div class="sedna-grid sedna-grid--fit">
+                    <div class="form-field">
+                        <label class="form-label form-label--required" for="nf-customer">Customer</label>
+                        <input class="form-input" id="nf-customer" type="text" required
+                               aria-invalid="true" aria-describedby="nf-customer-error" />
+                        <p class="form-error" id="nf-customer-error">
+                            <i class="ri-error-warning-line"></i> <span>Choose who the order is for.</span>
+                        </p>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label" for="nf-reference">Their reference</label>
+                        <input class="form-input" id="nf-reference" type="text" value="PO-88213" />
+                        <p class="form-hint">Printed on the delivery note.</p>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="form-section">
+            <legend>Delivery</legend>
+            <p class="form-section-hint">Where the carrier takes it. The address is checked against the postcode.</p>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <label class="form-label form-label--required" for="nf-street">Street and number</label>
+                    <input class="form-input" id="nf-street" type="text" value="Unit 4, 1 Harbour Road" required />
+                </div>
+                <div class="sedna-grid sedna-grid--fit">
+                    <div class="form-field">
+                        <label class="form-label form-label--required" for="nf-postcode">Postcode</label>
+                        <input class="form-input" id="nf-postcode" type="text" value="12" required
+                               aria-invalid="true" aria-describedby="nf-postcode-error" />
+                        <p class="form-error" id="nf-postcode-error">
+                            <i class="ri-error-warning-line"></i> <span>A postcode has five digits.</span>
+                        </p>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label form-label--required" for="nf-town">Town</label>
+                        <input class="form-input" id="nf-town" type="text" value="Example Town" required />
+                    </div>
+                </div>
+                <div class="form-field">
+                    <span class="form-label" id="nf-speed-label">Speed</span>
+                    <div class="segmented" role="radiogroup" aria-labelledby="nf-speed-label">
+                        <label class="segmented-option"><input type="radio" name="nf-speed" checked /> <span>Standard</span></label>
+                        <label class="segmented-option"><input type="radio" name="nf-speed" /> <span>Next day</span></label>
+                        <label class="segmented-option"><input type="radio" name="nf-speed" /> <span>Collect</span></label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="form-section">
+            <legend>For the warehouse</legend>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <label class="form-label" for="nf-note">Note</label>
+                    <textarea class="form-input" id="nf-note" rows="3" placeholder="What the pickers should know"></textarea>
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>Hold until every line is in stock</span></label>
+            </div>
+        </fieldset>
+
+        <div class="form-actions form-actions--sticky form-actions--split">
+            <button class="btn btn--ghost" type="button">Save as draft</button>
+            <div class="sedna-row">
+                <button class="btn" type="button">Cancel</button>
+                <button class="btn btn--brand btn--solid" type="submit">Create order</button>
+            </div>
+        </div>
+    </div>
+</form>

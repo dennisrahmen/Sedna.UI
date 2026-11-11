@@ -1,13 +1,12 @@
 <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a class="breadcrumb-item" href="#"><i class="ri-home-4-line"></i> <span>Console</span></a>
     <a class="breadcrumb-item" href="#"><span>Orders</span></a>
     <span class="breadcrumb-item" aria-current="page"><span>ORD-4209</span></span>
 </nav>
 
 <div class="page-head">
     <div class="page-head-text">
-        <h1>ORD-4209</h1>
-        <p>Five lines, three reserved. Raised 31 July at 09:14.</p>
+        <h1>ORD-4209 <span class="badge badge--warn">On hold</span></h1>
+        <p>Northwind Retail · five lines, three reserved · placed 31 July at 09:14</p>
     </div>
     <div class="page-head-actions page-head-actions--fold">
         <button class="btn" type="button"><i class="ri-printer-line"></i> <span>Print</span></button>
@@ -25,34 +24,97 @@
     </div>
 </div>
 
+<div class="alert alert--warn">
+    <i class="ri-error-warning-line"></i>
+    <span><strong>Two lines are short.</strong> The order waits until they arrive, or until you dispatch the three that are here.</span>
+</div>
+
+<nav class="tabs" aria-label="ORD-4209">
+    <a class="tab tab--active" href="#" aria-current="page">Summary</a>
+    <a class="tab" href="#"><span>Lines</span> <span class="tab-count">5</span></a>
+    <a class="tab" href="#"><span>Shipments</span> <span class="tab-count">0</span></a>
+    <a class="tab" href="#">Documents</a>
+</nav>
+
 <div class="sedna-split">
-    <div class="card">
-        <div class="card-head"><h3>Details</h3></div>
-        <div class="card-body">
-            <div class="kv"><span class="k">Order</span><span class="v">ORD-4209</span></div>
-            <div class="kv"><span class="k">Region</span><span class="v">EU-Central</span></div>
-            <div class="kv kv--text"><span class="k">Customer</span><span class="v">Northwind Retail</span></div>
-            <div class="kv kv--text"><span class="k">Owner</span><span class="v">Alex Fischer, Fulfilment</span></div>
-            <div class="kv"><span class="k">Priority</span><span class="badge badge--warn">P3</span></div>
-        </div>
+    <div class="sedna-stack">
+        <section class="card">
+            <div class="card-head"><h3>Details</h3></div>
+            <div class="card-body">
+                <div class="kv kv--text"><span class="k">Customer</span><span class="v">Northwind Retail</span></div>
+                <div class="kv"><span class="k">Region</span><span class="v">EU-Central</span></div>
+                <div class="kv kv--text"><span class="k">Carrier</span><span class="v">Road, next day</span></div>
+                <div class="kv"><span class="k">Priority</span><span class="v"><span class="badge badge--warn">P3</span></span></div>
+                <div class="kv kv--text"><span class="k">Deliver to</span><span class="v">Goods in, Unit 4, 1 Harbour Road, Example Town</span></div>
+                <div class="kv kv--text"><span class="k">Note</span><span class="v">Call ahead: the dock closes at 15:00 on Fridays.</span></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-head"><h3>Lines</h3></div>
+            <table class="table table--stack">
+                <thead>
+                    <tr><th>Item</th><th class="col-num">Ordered</th><th class="col-num">Reserved</th><th>State</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td data-label="Item">Desk lamp, matte</td><td data-label="Ordered" class="col-num">2</td><td data-label="Reserved" class="col-num">2</td><td data-label="State"><span class="badge badge--go">Reserved</span></td></tr>
+                    <tr><td data-label="Item">Cable tray, 600 mm</td><td data-label="Ordered" class="col-num">4</td><td data-label="Reserved" class="col-num">4</td><td data-label="State"><span class="badge badge--go">Reserved</span></td></tr>
+                    <tr><td data-label="Item">Footrest</td><td data-label="Ordered" class="col-num">1</td><td data-label="Reserved" class="col-num">1</td><td data-label="State"><span class="badge badge--go">Reserved</span></td></tr>
+                    <tr><td data-label="Item">Monitor arm, dual</td><td data-label="Ordered" class="col-num">2</td><td data-label="Reserved" class="col-num">0</td><td data-label="State"><span class="badge badge--warn">Due Thursday</span></td></tr>
+                    <tr><td data-label="Item">Keyboard tray</td><td data-label="Ordered" class="col-num">1</td><td data-label="Reserved" class="col-num">0</td><td data-label="State"><span class="badge badge--warn">Due Thursday</span></td></tr>
+                </tbody>
+            </table>
+        </section>
     </div>
-    <aside class="card sedna-split-aside">
-        <div class="card-head"><strong>History</strong></div>
-        <div class="card-body">
-            <ul class="timeline">
-                <li data-kind="go">
-                    <span class="timeline-when">09:41</span>
-                    <span class="timeline-what">Three lines reserved</span>
-                </li>
-                <li data-kind="info">
-                    <span class="timeline-when">09:20</span>
-                    <span class="timeline-what">Assigned to Alex Fischer</span>
+
+    <aside class="sedna-split-aside sedna-stack">
+        <section class="card">
+            <div class="card-head"><h3>People</h3></div>
+            <ul class="list">
+                <li>
+                    <span class="list-row">
+                        <span class="avatar avatar--sm avatar--viz-1" aria-hidden="true">AF</span>
+                        <span class="list-main">
+                            <span class="list-title">Alex Fischer</span>
+                            <span class="list-sub">Owner</span>
+                        </span>
+                    </span>
                 </li>
                 <li>
-                    <span class="timeline-when">09:14</span>
-                    <span class="timeline-what">Order raised from an e-mail</span>
+                    <span class="list-row">
+                        <span class="avatar avatar--sm avatar--viz-3" aria-hidden="true">PN</span>
+                        <span class="list-main">
+                            <span class="list-title">Priya Nair</span>
+                            <span class="list-sub">Picking</span>
+                        </span>
+                    </span>
                 </li>
             </ul>
-        </div>
+        </section>
+
+        <section class="card">
+            <div class="card-head"><h3>History</h3></div>
+            <div class="card-body">
+                <ul class="timeline">
+                    <li data-kind="warn">
+                        <span class="timeline-when">09:58</span>
+                        <span class="timeline-what">Held: two lines short</span>
+                    </li>
+                    <li data-kind="go">
+                        <span class="timeline-when">09:41</span>
+                        <span class="timeline-what">Three lines reserved</span>
+                    </li>
+                    <li data-kind="info">
+                        <span class="timeline-when">09:20</span>
+                        <span class="timeline-what">Assigned to Alex Fischer</span>
+                    </li>
+                    <li>
+                        <span class="timeline-when">09:14</span>
+                        <span class="timeline-what">Placed from an e-mail</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-foot card-foot--start"><a href="#">Full history</a></div>
+        </section>
     </aside>
 </div>

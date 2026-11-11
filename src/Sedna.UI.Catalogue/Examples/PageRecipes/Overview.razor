@@ -1,0 +1,180 @@
+<div class="page-head">
+    <div class="page-head-text">
+        <h1>Overview</h1>
+        <p>The warehouse this week. Figures refresh every five minutes.</p>
+    </div>
+    <div class="page-head-actions">
+        <div class="segmented segmented--sm" role="radiogroup" aria-label="Period">
+            <label class="segmented-option"><input type="radio" name="ov-period" /> <span>Today</span></label>
+            <label class="segmented-option"><input type="radio" name="ov-period" checked /> <span>7 days</span></label>
+            <label class="segmented-option"><input type="radio" name="ov-period" /> <span>30 days</span></label>
+        </div>
+    </div>
+</div>
+
+<section class="card" aria-label="This week in figures">
+    <div class="card-body">
+        <div class="stat-row">
+            <div class="stat">
+                <span class="stat-label">Dispatched</span>
+                <span class="stat-value">1,204</span>
+                <span class="stat-delta stat-delta--good"><i class="ri-arrow-up-line"></i> <span>8% on last week</span></span>
+                <svg class="sparkline" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="sparkline-area" d="M0 24 L16 22 L33 25 L50 18 L66 15 L83 12 L100 6 V32 H0 Z" />
+                    <polyline class="sparkline-line" points="0,24 16,22 33,25 50,18 66,15 83,12 100,6" />
+                </svg>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Open orders</span>
+                <span class="stat-value">412</span>
+                <span class="stat-delta stat-delta--bad"><i class="ri-arrow-up-line"></i> <span>37 since Monday</span></span>
+                <svg class="sparkline series-warn" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline class="sparkline-line" points="0,22 16,21 33,19 50,20 66,15 83,13 100,10" />
+                </svg>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Time to dispatch</span>
+                <span class="stat-value">4.2<span class="stat-unit">h</span></span>
+                <span class="stat-delta stat-delta--good"><i class="ri-arrow-down-line"></i> <span>20 min faster</span></span>
+                <svg class="sparkline series-go" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline class="sparkline-line" points="0,8 16,10 33,9 50,14 66,15 83,18 100,20" />
+                </svg>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Returns</span>
+                <span class="stat-value">9</span>
+                <span class="stat-note">0.7% of dispatched</span>
+                <svg class="sparkline series-muted" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+                    <polyline class="sparkline-line" points="0,16 16,15 33,17 50,16 66,15 83,16 100,15" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="sedna-grid-24">
+    <section class="card sedna-span-16" data-chart-frame>
+        <div class="card-head"><h3>Orders per day</h3></div>
+        <div class="card-body">
+            <div class="chart-legend">
+                <span class="chart-key"><span class="chart-swatch series-1"></span><span>This week</span></span>
+                <span class="chart-key"><span class="chart-swatch chart-swatch--square series-2"></span><span>Last week</span></span>
+            </div>
+            <div class="chart" data-chart="line" id="ov-orders-chart"
+                 aria-label="Orders per day, this week against last week" aria-roledescription="chart">
+                <table class="chart-data" data-chart-data>
+                    <caption>Orders per day</caption>
+                    <thead>
+                        <tr><th scope="col">Day</th><th scope="col">This week</th><th scope="col">Last week</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><th scope="row">Mon</th><td>182</td><td>164</td></tr>
+                        <tr><th scope="row">Tue</th><td>204</td><td>171</td></tr>
+                        <tr><th scope="row">Wed</th><td>196</td><td>188</td></tr>
+                        <tr><th scope="row">Thu</th><td>231</td><td>192</td></tr>
+                        <tr><th scope="row">Fri</th><td>248</td><td>215</td></tr>
+                        <tr><th scope="row">Sat</th><td>143</td><td>131</td></tr>
+                        <tr><th scope="row">Sun</th><td></td><td>94</td></tr>
+                    </tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+            </div>
+            <p class="visually-hidden" data-chart-live aria-live="polite"
+               data-chart-announce="{category}, {series}: {value} orders."></p>
+        </div>
+    </section>
+
+    <section class="card sedna-span-8" data-chart-frame>
+        <div class="card-head"><h3>Open orders, by state</h3></div>
+        <div class="card-body">
+            <div class="chart" data-chart="donut" id="ov-states-chart"
+                 aria-label="Open orders by state, 412 in all" aria-roledescription="chart">
+                <table class="chart-data" data-chart-data>
+                    <caption>Open orders by state</caption>
+                    <thead><tr><th scope="col">State</th><th scope="col">Orders</th></tr></thead>
+                    <tbody>
+                        <tr data-tone="1"><th scope="row">Picking</th><td>164</td></tr>
+                        <tr data-tone="2"><th scope="row">Packed</th><td>118</td></tr>
+                        <tr data-tone="4"><th scope="row">With the carrier</th><td>96</td></tr>
+                        <tr data-tone="warn"><th scope="row">On hold</th><td>34</td></tr>
+                    </tbody>
+                </table>
+                <div class="chart-plot"></div>
+                <div class="chart-total">
+                    <span class="chart-total-value">412</span>
+                    <span class="chart-total-label">open</span>
+                </div>
+                <div class="chart-wait skeleton skeleton-block"></div>
+            </div>
+            <p class="visually-hidden" data-chart-live aria-live="polite"
+               data-chart-announce="{category}: {value} orders, {percent}."></p>
+        </div>
+        <div class="card-foot card-foot--start">
+            <div class="chart-legend">
+                <span class="chart-key"><span class="chart-swatch chart-swatch--block series-1"></span><span>Picking</span></span>
+                <span class="chart-key"><span class="chart-swatch chart-swatch--block series-2"></span><span>Packed</span></span>
+                <span class="chart-key"><span class="chart-swatch chart-swatch--block series-4"></span><span>With the carrier</span></span>
+                <span class="chart-key"><span class="chart-swatch chart-swatch--block series-warn"></span><span>On hold</span></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="card sedna-span-14">
+        <div class="card-head"><h3>Needs attention</h3></div>
+        <ul class="list" style="--list-lines: 2">
+            <li>
+                <a class="list-row" href="#">
+                    <span class="list-main">
+                        <span class="list-meta"><span class="badge badge--warn">On hold</span><span>4 min</span></span>
+                        <span class="list-title">Two of five lines are short</span>
+                        <span class="list-sub">ORD-4209 · Northwind Retail · EU-Central</span>
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a class="list-row" href="#">
+                    <span class="list-main">
+                        <span class="list-meta"><span class="badge badge--danger">Failed</span><span>22 min</span></span>
+                        <span class="list-title">Carrier rejected the label: postcode does not match the town</span>
+                        <span class="list-sub">ORD-4204 · Priya Nair · EU-West</span>
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a class="list-row" href="#">
+                    <span class="list-main">
+                        <span class="list-meta"><span class="badge badge--warn">Pending</span><span>2 d</span></span>
+                        <span class="list-title">Waiting on a decision for 48 hours</span>
+                        <span class="list-sub">ORD-4187 · Jordan Weiss · Nordics</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <div class="card-foot card-foot--start"><a href="#">All open orders</a></div>
+    </section>
+
+    <section class="card sedna-span-10">
+        <div class="card-head"><h3>Recent activity</h3></div>
+        <div class="card-body">
+            <ul class="timeline">
+                <li data-kind="go">
+                    <span class="timeline-when">10:42</span>
+                    <span class="timeline-what">Wave 14 dispatched, 38 orders</span>
+                </li>
+                <li data-kind="info">
+                    <span class="timeline-when">10:15</span>
+                    <span class="timeline-what">Alex Fischer took ORD-4204</span>
+                </li>
+                <li data-kind="warn">
+                    <span class="timeline-when">09:58</span>
+                    <span class="timeline-what">ORD-4209 held for stock</span>
+                </li>
+                <li>
+                    <span class="timeline-when">09:30</span>
+                    <span class="timeline-what">Wave 14 released to picking</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+</div>

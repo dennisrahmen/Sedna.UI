@@ -134,8 +134,8 @@ internal static class CataloguePages
             "403 404 500 503 401 access denied forbidden unauthorized permission role not found missing error crash session expired signed out timeout maintenance outage unavailable downtime status code reference trace correlation",
             Section: Pages),
         new("/page-recipes", Frame, "Page recipes", "ri-layout-masonry-line",
-            "Whole pages to start from: a list, the record it leads to, a settings page, and page feedback.",
-            "recipe template composition whole page list index detail record view settings preferences form layout page-head toolbar table pager split aside start feedback useful helpful survey report problem",
+            "Whole pages in the app's frame: an overview, a list, a record, its forms, search, settings, an account and sign-in.",
+            "recipe template composition whole page dashboard overview list index loading skeleton empty first run onboarding detail record view create edit new form wizard step multi-step master detail inbox split messages search results settings preferences account profile sessions sign-in login page-head toolbar table pager aside feedback useful helpful survey report problem",
             Section: Pages),
 
         new("/structure", Structure, "Page structure", "ri-layout-top-line",

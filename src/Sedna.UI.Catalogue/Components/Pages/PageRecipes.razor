@@ -1,55 +1,191 @@
 @page "/page-recipes"
 
 <CatHead Title="Page recipes" Tier="@CatHead.Tier2">
-    Whole pages, composed from the classes on the other pages: the list a record is found in, the
-    record itself, and the settings behind it. Each one is the content of the shell's
-    <code>.page</code> &mdash; take the frame from <a href="/frame">Shell</a>.
+    Whole pages, composed from the classes on the other pages: an overview, a list and the record it
+    leads to, the forms that create and change one, and the pages around them. Copy one whole and
+    change its content.
 </CatHead>
 
 <div class="callout callout--info">
     <i class="ri-information-line"></i>
     <div class="callout-body">
-        <span class="callout-title">These are compositions, not new classes</span>
-        Copy a recipe whole and change its content. Every class in it has a page of its own that says
-        what it is for; a part a recipe leaves out is still on that page.
+        <span class="callout-title">The code is the page; the frame around it is Shell</span>
+        Each recipe is drawn inside the app's frame &mdash; a sidebar, here folded to its icon rail,
+        the topbar and <code>.page</code> &mdash; so it can be read as the page it is. The code under
+        it is only what goes <em>inside</em> <code>.page</code>: take the frame once, from
+        <a href="/frame">Shell</a>, and put a recipe in it. The sign-in page is the one exception,
+        and its code is the content of <code>.auth-layout</code>.
     </div>
 </div>
 
-<CatExample TExample="Examples.PageRecipes.ListPage" Title="A list page" Demo="ex-demo--block">
+<p class="cat-lede">Choose by what the reader came to do.</p>
+<div class="card">
+    <table class="table">
+        <thead><tr><th>Recipe</th><th>The reader came to</th></tr></thead>
+        <tbody>
+            <tr><td><a href="#an-overview">An overview</a></td><td>See how things stand, and what needs them</td></tr>
+            <tr><td><a href="#a-list-page">A list page</a></td><td>Find one record among many</td></tr>
+            <tr><td><a href="#a-list-page-while-it-loads">A list page while it loads</a></td><td>The same, before the rows have arrived</td></tr>
+            <tr><td><a href="#a-list-with-nothing-in-it-yet">A list with nothing in it yet</a></td><td>Start, on their first visit</td></tr>
+            <tr><td><a href="#a-detail-page">A detail page</a></td><td>Read one record and act on it</td></tr>
+            <tr><td><a href="#a-create-or-edit-page">A create or edit page</a></td><td>Make a record, or change one</td></tr>
+            <tr><td><a href="#a-step-in-a-longer-task">A step in a longer task</a></td><td>Do something that takes several decisions</td></tr>
+            <tr><td><a href="#a-list-beside-its-record">A list beside its record</a></td><td>Work through many records one after another</td></tr>
+            <tr><td><a href="#search-results">Search results</a></td><td>Find something whose kind they do not know</td></tr>
+            <tr><td><a href="#a-settings-page">A settings page</a></td><td>Change how the app behaves for them</td></tr>
+            <tr><td><a href="#an-account-page">An account page</a></td><td>See and change what the app knows about them</td></tr>
+            <tr><td><a href="#a-sign-in-page">A sign-in page</a></td><td>Get in</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<CatExample TExample="Examples.PageRecipes.Overview" Title="An overview" Shell="Overview">
     <p>
-        A page head whose actions fold into a menu on a narrow screen, keeping the primary one; a
-        toolbar with the filters on the leading side and the count on the trailing one; a card holding
-        a sortable table that stacks into cards on a phone; and the pager under it. When no row
-        matches, the table keeps its head and shows one <code>.tr-empty</code> row, as on
-        <a href="/table">Tables</a> &mdash; the page does not swap to an empty state for a filter
-        that found nothing.
+        The figures first, in one card so the row of <code>.stat</code> tiles reads as one object; then
+        the two charts on a <a href="/grid"><code>.sedna-grid-24</code></a>, and under them the two
+        lists that send the reader somewhere: what needs them, and what just happened. Every panel
+        ends in a link to the page it summarises. The period control is in the page head because it
+        applies to the whole page &mdash; a control inside one card would read as that card's alone.
+    </p>
+    <p>
+        The charts are <a href="/chart"><code>[data-chart]</code></a> tables. On a narrow screen the
+        grid stacks its panels in source order, so put them in the order a phone reader should meet them.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.PageRecipes.DetailPage" Title="A detail page" Demo="ex-demo--block">
+<CatExample TExample="Examples.PageRecipes.ListPage" Title="A list page" Shell="Orders">
     <p>
-        The trail back to the list, a page head naming the record, and <code>.sedna-split</code>: the
-        record's fields in a card of <code>.kv</code> rows &mdash; <code>.kv--text</code> for a value
-        that is prose &mdash; beside an aside holding its history. The aside drops under the card when
-        the split runs out of room.
+        Page head, toolbar, the filters that are applied, the table in a card, the pager &mdash; each a
+        child of <code>.page</code>, so the page's own rhythm spaces them and no margin is written by
+        hand. The head's actions fold into a menu on a narrow screen and keep the primary one; the
+        toolbar keeps the filters on the leading side and the count on the trailing one; the chips say
+        what is applied and take it off in one press. On a phone the table stacks into one card per row.
+    </p>
+    <p>
+        The count and the pager agree: the toolbar says how many rows match, the pager how many of
+        those are on this page. When nothing matches, the table keeps its head and shows one
+        <code>.tr-empty</code> row, as on <a href="/table">Tables</a> &mdash; a filter that found
+        nothing is not an empty page.
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.PageRecipes.SettingsPage" Title="A settings page" Demo="ex-demo--block">
+<CatExample TExample="Examples.PageRecipes.LoadingPage" Title="A list page while it loads" Shell="Orders">
     <p>
-        One <code>.form-section</code> per subject, each with a line saying what it is for, and one
-        <code>.form-actions</code> row for the whole form. A switch applies a choice; Save applies
-        the fields &mdash; if a switch should wait for Save too, make it a checkbox.
+        The page keeps everything it knows before the rows arrive: the head, the toolbar, the table's
+        own columns. Only the rows are <a href="/skeleton"><code>.skeleton</code></a> lines, shaped like
+        the values they stand for, and the count says it is loading. Swapping the whole page for a
+        spinner moves every control the reader was reaching for when the data lands.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.FirstRun" Title="A list with nothing in it yet" Shell="Customers">
+    <p>
+        The first visit, before there is anything to list. The page head stays &mdash; the reader
+        still needs to know where they are &mdash; and the table gives way to an
+        <a href="/empty-state"><code>.empty-state</code></a> that says what will be here and offers the
+        ways to start, the likelier one primary. Two cards under it answer what the reader asks next.
+        Use this only when nothing exists yet; a search or a filter that finds nothing keeps the table.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.DetailPage" Title="A detail page" Shell="Orders">
+    <p>
+        The trail back to the list, a head naming the record with its state beside the name, and an
+        <a href="/alert"><code>.alert</code></a> for the one thing the reader has to know before acting.
+        The <a href="/tabs">tab strip</a> is links, one address per part of the record. Under it
+        <code>.sedna-split</code>: the record's fields and lines in the main column, the people and the
+        history in the aside, which drops under the main column when the split runs out of room.
+    </p>
+    <p>
+        Fields are <code>.kv</code> rows, <code>.kv--text</code> where the value is prose. A badge
+        inside the <code>&lt;h1&gt;</code> is read as part of the name, so keep it to the state.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.FormPage" Title="A create or edit page" Shell="Orders" ShellHeight="680px">
+    <p>
+        <strong>Live &mdash; scroll the page.</strong> One form in one card, in
+        <code>.form-section</code>s that each name a subject, with fields side by side only where they
+        belong together. After a rejected submit the summary at the top names every field that needs
+        attention and links to it, and each field says what is wrong in its own words. The actions
+        stay in reach while the form is longer than the screen &mdash;
+        <a href="/form-saving"><code>.form-actions--sticky</code></a> &mdash; with the draft on the far
+        side from the commit button.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.WizardStep" Title="A step in a longer task" Shell="Orders">
+    <p>
+        Use it when a later question depends on an earlier answer. The
+        <a href="/collections"><code>.steps</code></a> row says where the reader is and how far is left;
+        the card asks one question; Back and Continue sit at opposite ends. An option that cannot be
+        chosen says why where it is shown, rather than disappearing. For a long form a reader fills in
+        over several sittings, use a task list instead &mdash; see
+        <a href="/form-flow">Multi-page forms</a>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.MasterDetail" Title="A list beside its record" Shell="Messages">
+    <p>
+        For working through records one after another: the list holds its place while the record
+        beside it changes, and the open one is marked with <code>aria-current</code>. The list is the
+        split's aside, so it keeps its width and the record takes the rest; where the two no longer
+        fit, the record drops under the list &mdash; an app that shows one at a time on a phone
+        routes between them instead. Each half is a card with its own
+        head, so the actions in the record's head plainly belong to that record.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.SearchResults" Title="Search results" Shell="Search">
+    <p>
+        The query stays in the field it was typed into, so it can be corrected rather than retyped.
+        The tabs split the results by kind with a count on each, the toolbar narrows them further, and
+        each row says what kind of thing it is and why it matched. The kind and the state sit on a
+        line of their own above the title, where they wrap on a phone instead of squeezing it. The count is a live region: the
+        reader hears how many results a change produced.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.SettingsPage" Title="A settings page" Shell="Settings" ShellHeight="640px">
+    <p>
+        <strong>Live &mdash; scroll the page, or follow a link in the contents.</strong> The
+        <a href="/page-navigation"><code>.page-toc</code></a> stays in view beside the sections and marks
+        the one being read. One boxed <code>.form-section</code> per subject, each with a line saying
+        what it is for; what most readers never change folds away. A switch applies a choice; Save
+        applies the fields &mdash; if a switch should wait for Save too, make it a checkbox.
+    </p>
+    <p>
+        The save bar shows only while the form differs from what was saved: the app puts
+        <code>data-dirty</code> on the form while it does, and takes it off once saved. It is in the
+        markup here so the bar can be seen.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.AccountPage" Title="An account page" Shell="Account">
+    <p>
+        What the app knows about the reader, as <code>.kv</code> rows with a change link each, and a
+        row with nothing to change where the reader cannot change it. The sessions table names the
+        device the reader is on, so they do not sign themselves out. Leaving is last and alone in its
+        card, and says what happens to the reader's work before the button does it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.PageRecipes.SignIn" Title="A sign-in page" AuthShell="true">
+    <p>
+        The content of <a href="/frame"><code>.auth-layout</code></a>: no navigation, because there is
+        nothing to navigate to yet. A failed attempt says so above the fields without saying which one
+        was wrong, and keeps the e-mail address. The <code>autocomplete</code> values are what let a
+        password manager fill both fields.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.PageRecipes.PageFeedback" Title="Page feedback" Demo="ex-demo--block">
     <p>
-        At the foot of a page, after its content: one question and two answers. <strong>Yes</strong>
-        records the answer and replaces the row with the thanks; <strong>No</strong> and
-        &ldquo;Report a problem&rdquo; replace it with a short form of two open questions, and Send
-        replaces the form with the thanks. All three are one region whose content the app swaps, so
-        focus and the reader's place stay where they were; send the page's address with the answer.
-        Ask for nothing personal, and say so above the fields.
+        Not a page but the end of one, after its content: one question and two answers.
+        <strong>Yes</strong> records the answer and replaces the row with the thanks;
+        <strong>No</strong> and &ldquo;Report a problem&rdquo; replace it with a short form of two open
+        questions, and Send replaces the form with the thanks. All three are one region whose content
+        the app swaps, so focus and the reader's place stay where they were; send the page's address
+        with the answer. Ask for nothing personal, and say so above the fields.
     </p>
 </CatExample>

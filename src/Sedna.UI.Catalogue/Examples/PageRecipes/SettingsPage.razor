@@ -1,54 +1,104 @@
 <div class="page-head">
     <div class="page-head-text">
         <h1>Settings</h1>
-        <p>How the queue behaves for you. Saved to your account.</p>
+        <p>How the queue behaves for you. Saved to your account, on every device.</p>
     </div>
 </div>
 
-<form style="max-width:560px">
-    <fieldset class="form-section">
-        <legend>Notifications</legend>
-        <p class="form-section-hint">What reaches you while the queue is open in another tab.</p>
-        <div class="form-section-body">
-            <label class="switch">
-                <input type="checkbox" checked />
-                <span class="choice-text">
-                    <span>Notify me about new pending orders</span>
-                    <span class="choice-hint">A desktop notification, at most one a minute.</span>
-                </span>
-            </label>
-            <label class="switch"><input type="checkbox" /> <span>Play a sound on new orders</span></label>
-            <div class="form-field">
-                <label class="form-label" for="settings-quiet">Quiet hours</label>
-                <input class="form-input" id="settings-quiet" type="text" value="22:00 – 07:00" />
-                <p class="form-hint">No notifications in this window. The queue still updates.</p>
-            </div>
-        </div>
-    </fieldset>
+<div class="sedna-split sedna-split--sm sedna-split--stack-sm sedna-split--sticky">
+    <aside class="sedna-split-aside">
+        <nav class="page-toc" aria-label="Settings sections" data-spy>
+            <details class="page-toc-fold" open>
+                <summary class="page-toc-title">On this page</summary>
+                <ol class="page-toc-list">
+                    <li><a class="page-toc-link" href="#st-notifications">Notifications</a></li>
+                    <li><a class="page-toc-link" href="#st-escalation">Escalation</a></li>
+                    <li><a class="page-toc-link" href="#st-appearance">Appearance</a></li>
+                    <li><a class="page-toc-link" href="#st-advanced">Advanced</a></li>
+                </ol>
+            </details>
+        </nav>
+    </aside>
 
-    <fieldset class="form-section">
-        <legend>Escalation</legend>
-        <p class="form-section-hint">Who is paged when nobody has acknowledged an order in time.</p>
-        <div class="form-section-body">
-            <div class="form-field">
-                <label class="form-label form-label--required" for="settings-team">Team</label>
-                <select class="form-input form-select" id="settings-team" required>
-                    <option selected>Fulfilment</option>
-                    <option>Returns</option>
-                </select>
-            </div>
-            <div class="form-field">
-                <label class="form-label" for="settings-after">Escalate after</label>
-                <div class="input-group">
-                    <input class="form-input" id="settings-after" type="number" value="15" />
-                    <span class="input-affix">minutes</span>
+    <form data-dirty>
+        <fieldset class="form-section form-section--box" id="st-notifications">
+            <legend>Notifications</legend>
+            <p class="form-section-hint">What reaches you while the queue is open in another tab.</p>
+            <div class="form-section-body">
+                <label class="switch">
+                    <input type="checkbox" checked />
+                    <span class="choice-text">
+                        <span>Notify me about new pending orders</span>
+                        <span class="choice-hint">A desktop notification, at most one a minute.</span>
+                    </span>
+                </label>
+                <label class="switch"><input type="checkbox" /> <span>Play a sound on new orders</span></label>
+                <div class="form-field">
+                    <label class="form-label" for="st-quiet">Quiet hours</label>
+                    <input class="form-input sedna-w sedna-w--md" id="st-quiet" type="text" value="22:00 – 07:00" />
+                    <p class="form-hint">No notifications in this window. The queue still updates.</p>
                 </div>
             </div>
-        </div>
-    </fieldset>
+        </fieldset>
 
-    <div class="form-actions">
-        <button class="btn" type="button">Cancel</button>
-        <button class="btn btn--brand btn--solid" type="submit">Save</button>
-    </div>
-</form>
+        <fieldset class="form-section form-section--box" id="st-escalation">
+            <legend>Escalation</legend>
+            <p class="form-section-hint">Who is paged when nobody has acknowledged an order in time.</p>
+            <div class="form-section-body">
+                <div class="sedna-grid sedna-grid--fit">
+                    <div class="form-field">
+                        <label class="form-label form-label--required" for="st-team">Team</label>
+                        <select class="form-input form-select" id="st-team" required>
+                            <option selected>Fulfilment</option>
+                            <option>Returns</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label" for="st-after">Escalate after</label>
+                        <div class="input-group">
+                            <input class="form-input" id="st-after" type="number" value="15" />
+                            <span class="input-affix">minutes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="form-section form-section--box" id="st-appearance">
+            <legend>Appearance</legend>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <span class="form-label" id="st-density-label">Density</span>
+                    <div class="segmented" role="radiogroup" aria-labelledby="st-density-label">
+                        <label class="segmented-option"><input type="radio" name="st-density" checked /> <span>Comfortable</span></label>
+                        <label class="segmented-option"><input type="radio" name="st-density" /> <span>Compact</span></label>
+                    </div>
+                </div>
+                <label class="form-check"><input type="checkbox" /> <span>Reduce motion</span></label>
+            </div>
+        </fieldset>
+
+        <details class="form-section form-section--box" id="st-advanced">
+            <summary>
+                <span class="form-section-legend">Advanced</span>
+                <span class="form-section-summary">History kept 90 days · audit log on</span>
+            </summary>
+            <div class="form-section-body">
+                <div class="form-field">
+                    <label class="form-label" for="st-keep">Keep history for</label>
+                    <div class="input-group sedna-w sedna-w--sm">
+                        <input class="form-input" id="st-keep" type="number" value="90" />
+                        <span class="input-affix">days</span>
+                    </div>
+                </div>
+                <label class="form-check"><input type="checkbox" checked /> <span>Write an audit log</span></label>
+            </div>
+        </details>
+
+        <div class="form-actions form-actions--save-bar">
+            <p class="form-actions-status"><i class="ri-error-warning-line"></i><span>Unsaved changes</span></p>
+            <button class="btn" type="reset">Discard</button>
+            <button class="btn btn--brand btn--solid" type="submit">Save</button>
+        </div>
+    </form>
+</div>
