@@ -4,12 +4,12 @@
 
 @* docs/design-guide/, rendered: the goals first, because a page is chosen from what its user has
    to do, then the principles. Nothing here is written twice — the words are the files', and
-   every component page shows its own entry under its title (CatGuide). *@
+   every component page shows its own entry at its foot (CatGuide). *@
 
 @* The lede is principles.md's opening paragraph, so the page and get_guide("principles") say the same. *@
 <CatHead Title="Design guide" Tier="@CatHead.Site">
     @((MarkupString)GuideMarkdown.InlineHtml(Guide.Intro)) Every component page carries its own entry
-    under its title.
+    at its foot, under "Goes well with".
 </CatHead>
 
 <nav class="page-toc cat-guide-toc" aria-label="On this page">

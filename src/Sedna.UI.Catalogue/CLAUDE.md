@@ -14,8 +14,8 @@ up here first, and reading this project shows how the library is actually used.
 2. One file per example under `Examples/<Name>/`.
 3. Register the page in `Navigation/CataloguePages.cs`.
 4. Give it an entry in `docs/design-guide/components/<group>.json` and run
-   `build/guide-stamp.sh /<route>` — `docs/design-guide/README.md` has the schema. `CatHead` shows the
-   entry under the title by itself.
+   `build/guide-stamp.sh /<route>` — `docs/design-guide/README.md` has the schema. The layout shows the
+   entry at the foot of the page by itself.
 5. `dotnet test`. An orphaned page, a registry entry with no page and a page with no guide entry all
    fail.
 

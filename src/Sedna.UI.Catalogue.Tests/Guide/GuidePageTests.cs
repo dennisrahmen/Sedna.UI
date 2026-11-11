@@ -4,7 +4,7 @@ using Sedna.UI.Catalogue.Tests.TestSupport;
 namespace Sedna.UI.Catalogue.Tests;
 
 /// <summary>
-/// The guide on the site: every entry under its page's title, every goal and section on the
+/// The guide on the site: every entry at the foot of its page, every goal and section on the
 /// design guide page — rendered by the server, so they are there with scripting off.
 /// </summary>
 [Trait(Scope.Name, Scope.Site)]
@@ -18,7 +18,7 @@ public class GuidePageTests(CatalogueAppFixture app)
         foreach (var entry in GuideFiles.Guide.Entries)
         {
             var html = WebUtility.HtmlDecode(await Get(entry.Page));
-            if (!html.Contains("class=\"card cat-guide\"", StringComparison.Ordinal))
+            if (!html.Contains("class=\"cat-guide\"", StringComparison.Ordinal))
                 problems.Add($"{entry.Page} renders no guide panel.");
             else if (!html.Contains(entry.UseFor, StringComparison.Ordinal))
                 problems.Add($"{entry.Page}'s guide panel does not say what the entry's useFor says.");
