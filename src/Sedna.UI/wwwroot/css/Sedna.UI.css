@@ -1248,7 +1248,7 @@ a.topbar-version--pre:hover {
 .page--fill > * { flex-shrink: 0; }
 .page--fill > .page-foot { margin-top: auto; }
 .back-link {
-    display: inline-flex; align-items: center; gap: var(--space-2);
+    display: flex; inline-size: fit-content; align-items: center; gap: var(--space-2);
     font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
 }
 .back-link:hover { color: var(--fg); }
@@ -2208,13 +2208,15 @@ a.topbar-version--pre:hover {
 }
 .card-head {
     display: flex;
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
     justify-content: space-between;
     align-items: center;
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
     background: var(--card-head-bg);
 }
-.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.card-head :is(h1, h2, h3, h4) { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 .card-head-lead { display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0; margin-inline-end: var(--space-4); color: var(--muted); }
 .card-head:has(> .card-head-lead) { justify-content: flex-start; }
@@ -2560,7 +2562,7 @@ textarea.form-input::-webkit-resizer {
 }
 .toolbar-filters { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
 .toolbar-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-inline-start: auto; }
-.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
+.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); max-inline-size: 100%; }
 .toolbar-input--wide { --toolbar-input-width: 280px; }
 .toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
 .input-group.toolbar-input { width: var(--toolbar-input-width); }
@@ -8356,6 +8358,9 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .table--stack :is(tbody, tfoot) :is(td, th):not([data-label]) { text-align: start; }
     .table--stack .tr-group { border-width: 0; }
     .table--stack tr:empty { margin: 0; border-width: 0; }
+    .card > .table--stack { display: block; padding: var(--space-5); }
+    .card > .table--stack > :is(tbody, tfoot) { display: block; }
+    .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }
 }
 @layer sedna.paint {

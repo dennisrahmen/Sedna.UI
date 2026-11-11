@@ -976,4 +976,9 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .table--stack .tr-group { border-width: 0; }
     /* A virtualized table's spacer row keeps its height and nothing else. */
     .table--stack tr:empty { margin: 0; border-width: 0; }
+    /* In a card, the records keep their own boxes and the card gives them room: drawn
+       against the card's border, each box's edge doubled it with no gutter between. */
+    .card > .table--stack { display: block; padding: var(--space-5); }
+    .card > .table--stack > :is(tbody, tfoot) { display: block; }
+    .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }

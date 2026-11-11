@@ -33,7 +33,8 @@
    `--grow` rather than a third fixed step, because a search box that is the only
    thing in the bar wants the room that is there, and a fixed width cannot know how
    much that is. It keeps a floor, so it still reads as a box on a narrow window. */
-.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
+/* Never wider than the toolbar: on a phone a 280px step is wider than the row it is in. */
+.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); max-inline-size: 100%; }
 .toolbar-input--wide { --toolbar-input-width: 280px; }
 .toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
 /* A filter that carries a leading icon is an `.input-group`, which is `width: 100%`

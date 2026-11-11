@@ -2605,8 +2605,12 @@ a.topbar-version--pre:hover {
 .page--fill > * { flex-shrink: 0; }
 .page--fill > .page-foot { margin-top: auto; }
 
+/* A block-level flex box as wide as its words, not an inline one: an inline box's
+   margin does not collapse with the next sibling's, so the page rhythm's top margin
+   was added to this one's bottom margin and a page head sat further below a back link
+   than below a breadcrumb. */
 .back-link {
-    display: inline-flex; align-items: center; gap: var(--space-2);
+    display: flex; inline-size: fit-content; align-items: center; gap: var(--space-2);
     font-size: var(--text-3); color: var(--muted); text-decoration: none; margin-bottom: var(--space-6);
 }
 .back-link:hover { color: var(--fg); }
@@ -4265,6 +4269,10 @@ a.topbar-version--pre:hover {
 }
 .card-head {
     display: flex;
+    /* A trailing action too wide to share the line goes under the title, rather than
+       squeezing the title to a word a line. */
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
     justify-content: space-between;
     align-items: center;
     padding: var(--card-pad-block) var(--card-pad-inline);
@@ -4274,8 +4282,10 @@ a.topbar-version--pre:hover {
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
    margin and 1.17em size, so the head measures half again as tall as one holding a
-   <strong> and the heading is bigger than the card it titles. */
-.card-head h3 { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+   <strong> and the heading is bigger than the card it titles. Any level, because the
+   level is the page outline's — a card that is a top-level section of its page is
+   titled by an <h2>, a sign-in card by the page's <h1> — and the look is the card's. */
+.card-head :is(h1, h2, h3, h4) { margin: 0; font-size: var(--text-6); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .card-head-right { display: flex; align-items: center; gap: var(--space-4); }
 /* A leading slot — a drag grip, an icon, a fold toggle — before the title. The title
    then takes the room between it and the trailing actions. */
@@ -4972,7 +4982,8 @@ textarea.form-input::-webkit-resizer {
    `--grow` rather than a third fixed step, because a search box that is the only
    thing in the bar wants the room that is there, and a fixed width cannot know how
    much that is. It keeps a floor, so it still reads as a box on a narrow window. */
-.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); }
+/* Never wider than the toolbar: on a phone a 280px step is wider than the row it is in. */
+.toolbar-input { --toolbar-input-width: 160px; width: var(--toolbar-input-width); max-inline-size: 100%; }
 .toolbar-input--wide { --toolbar-input-width: 280px; }
 .toolbar-input--grow { --toolbar-input-width: auto; flex: 1 1 12rem; min-width: 12rem; }
 /* A filter that carries a leading icon is an `.input-group`, which is `width: 100%`
@@ -15080,6 +15091,11 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .table--stack .tr-group { border-width: 0; }
     /* A virtualized table's spacer row keeps its height and nothing else. */
     .table--stack tr:empty { margin: 0; border-width: 0; }
+    /* In a card, the records keep their own boxes and the card gives them room: drawn
+       against the card's border, each box's edge doubled it with no gutter between. */
+    .card > .table--stack { display: block; padding: var(--space-5); }
+    .card > .table--stack > :is(tbody, tfoot) { display: block; }
+    .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }
 }
 
@@ -15293,8 +15309,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    not a markup edit.
 
    The connector is the <li>'s own ::after, so the last step has none without a
-   modifier. Colour alone does not say which steps are done: the done marker shows a
-   tick, not just a fill. */
+   modifier. Colour alone does not say which steps are done: the done marker is
+   filled and the pending one outlined — see "Done is FILLED" below. */
 .steps {
     /* One number for the marker's diameter, because the connector's own offset is
        half of it. Typed separately they disagreed: the marker rendered 28px across
