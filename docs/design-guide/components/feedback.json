@@ -1,0 +1,174 @@
+[
+  {
+    "page": "/alert",
+    "useFor": "A condition of the page that stays true while it is open, such as read-only access, a service that is slow or a form that was not saved, said in place above what it is about.",
+    "combineWith": [
+      { "page": "/frame#the-rhythm-between-page-sections", "how": "Straight on .page between the sections it is about, spaced by the page's own rhythm with no margin of its own." },
+      { "page": "/card", "how": "Above the card whose controls it explains, as read-only mode does, so the reason is read before the disabled buttons." },
+      { "page": "/form-validation#error-and-warning", "how": "A validation summary goes at the top of the form and links to each field, and every field keeps its own .form-error." },
+      { "page": "/toast#toast-or-alert", "how": "The receipt for the same event, once nothing is left for the reader to do." }
+    ],
+    "notFor": [
+      { "text": "A receipt for something the reader just did", "instead": "/toast" },
+      { "text": "A notice about the whole app, such as an outage or a maintenance window", "instead": "/banner#under-the-topbar" },
+      { "text": "A caveat about one card's own data", "instead": "/card#a-caveat-about-the-card-s-own-content" },
+      { "text": "A permanent aside inside prose", "instead": "/structure#callouts" },
+      { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
+    ],
+    "goals": [ "explain-a-page-condition", "summarise-form-errors" ],
+    "stamp": "e1f85c667fb5f7dc"
+  },
+  {
+    "page": "/toast",
+    "useFor": "A receipt for something the reader just did, which goes on its own and would change nothing if it were missed.",
+    "combineWith": [
+      { "page": "/alert", "how": "Whatever stays true, or still needs the reader, goes in an alert in the page; the toast only reports that something happened." },
+      { "page": "/notifications#arrives", "how": "A notification that arrives is added to the inbox and may also be presented as a toast the app writes, never only as one." },
+      { "page": "/progress#spinner", "how": "A .spinner in the icon's place for a toast that stands for work still running, replaced in place by its outcome." }
+    ],
+    "notFor": [
+      { "text": "An error the reader must fix, or anything they need later", "instead": "/alert" },
+      { "text": "Something to come back to later", "instead": "/notifications" },
+      { "text": "A question that must be answered before going on", "instead": "/modal" },
+      { "text": "A message about one field", "instead": "/form-validation" },
+      { "text": "An action that ended on another page, after a redirect", "instead": "/banner#after-a-redirect" }
+    ],
+    "goals": [ "confirm-an-action-done", "show-saving-then-saved", "announce-something-that-arrived" ],
+    "stamp": "ad895885381bf727"
+  },
+  {
+    "page": "/notifications",
+    "useFor": "What happened while the reader was elsewhere, kept behind a bell with an unread count until they have seen it.",
+    "combineWith": [
+      { "page": "/topbar", "how": "The bell is a .topbar-btn at the header's end, its unread count in the button's name." },
+      { "page": "/popover", "how": "The panel is a .popover the bell opens with popovertarget, so the platform places it, closes it and returns the focus." },
+      { "page": "/tabs", "how": "All, Unread and Archived as .tabs with .inbox-tabs, under the panel's head." },
+      { "page": "/menu#anchored-under-a-trigger", "how": "An item's further actions, such as mark as read, snooze and archive, behind one button at its end." },
+      { "page": "/avatar", "how": "Who it is from at the start of each item; an item from the system is an icon in an avatar." },
+      { "page": "/empty-state", "how": "A tab with nothing in it shows an empty state in the list's place, in words for that tab." },
+      { "page": "/toast#a-notification-card", "how": "Announces an item as it arrives, beside adding it to the list." }
+    ],
+    "notFor": [
+      { "text": "A receipt for what the reader just did", "instead": "/toast" },
+      { "text": "Something that must be answered before anything else", "instead": "/modal" },
+      { "text": "The history of one record, told as events", "instead": "/timeline" }
+    ],
+    "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
+    "stamp": "5f83c0e0f6f492f0"
+  },
+  {
+    "page": "/progress",
+    "useFor": "Saying that work is under way: a bar or a ring with its figure where the share done is known, a spinner where it is not, and aria-busy on whatever is busy.",
+    "combineWith": [
+      { "page": "/button#while-its-action-runs", "how": "An action in flight is aria-busy on its own button, which keeps its width, its focus and its name." },
+      { "page": "/list", "how": "Running work is a list with one row per job, the bar under its title and the figure, a spinner or a badge at its end." },
+      { "page": "/badge", "how": "Finished work trades its bar for a badge that says the outcome in words." },
+      { "page": "/files#uploads", "how": "Each file being uploaded carries its own bar with the figure beside it." },
+      { "page": "/skeleton", "how": "A wait with no figure but a known shape shows the shape instead of a spinner." }
+    ],
+    "notFor": [
+      { "text": "A value against a limit with its thresholds marked", "instead": "/bars#a-value-against-its-thresholds" },
+      { "text": "A wait whose content has a known shape", "instead": "/skeleton" },
+      { "text": "A panel with nothing to show yet", "instead": "/empty-state#waiting-and-failed" },
+      { "text": "The steps of a task the reader moves through", "instead": "/collections#steps" }
+    ],
+    "goals": [ "show-progress-of-a-job", "show-busy-state", "list-running-jobs", "show-route-progress", "show-app-starting", "show-saving-then-saved", "show-usage-against-a-limit" ],
+    "stamp": "85a2eb519779f032"
+  },
+  {
+    "page": "/skeleton",
+    "useFor": "The first load of content whose shape is known: placeholders the size of the rows, fields and figures to come, so nothing moves when they arrive.",
+    "combineWith": [
+      { "page": "/page-recipes#a-list-page-while-it-loads", "how": "A whole list page loading: the real toolbar and table headings, skeleton rows under them, and the count saying what is loading." },
+      { "page": "/card#head-and-body", "how": "Inside the real card and its head, so the card holds its place while its body loads." },
+      { "page": "/list", "how": "The real .list rows with placeholders where the title, the line under it and the badge go." },
+      { "page": "/stat#a-row-of-tiles", "how": "Stat tiles with the value's box held at the figure's height, since the figure is what the reader waits for." },
+      { "page": "/chart#loading-empty-and-failed", "how": "A skeleton block in the chart's place until the table it draws arrives." },
+      { "page": "/progress#busy-on-a-control-and-on-a-surface", "how": "A refresh of content already shown keeps the content and marks it aria-busy instead." }
+    ],
+    "notFor": [
+      { "text": "A refresh of content already on screen", "instead": "/progress#busy-on-a-control-and-on-a-surface" },
+      { "text": "A wait with a known percentage", "instead": "/progress#progress-bar" },
+      { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
+    ],
+    "goals": [ "show-content-loading", "show-route-progress" ],
+    "stamp": "75cb506251812f7f"
+  },
+  {
+    "page": "/empty-state",
+    "useFor": "A view with nothing to show, or nothing yet: saying which kind of empty it is, or that it failed, and giving the one action that resolves it.",
+    "combineWith": [
+      { "page": "/state-art#the-thirteen-states", "how": "The drawing above the title names the state at a glance; a state icon takes its place where the missing thing has a glyph." },
+      { "page": "/card", "how": "Inside the card of the panel it stands for, in the content's place, with the card's head still above it." },
+      { "page": "/table#nothing-found-and-refreshing", "how": "In a table, in one full-width row under the real headings." },
+      { "page": "/list#nothing-in-it", "how": "In a list, in the place of its rows." },
+      { "page": "/notifications#every-tab-says-when-it-is-empty", "how": "Each inbox tab with nothing in it says so in words for that tab." },
+      { "page": "/common-pages#not-found", "how": "At page scale, .empty-state--page is the body of not found, access denied and the error page." }
+    ],
+    "notFor": [
+      { "text": "A wait for content with a known shape", "instead": "/skeleton" },
+      { "text": "A wait with a percentage", "instead": "/progress#progress-bar" },
+      { "text": "A condition of a page that still shows its content", "instead": "/alert" },
+      { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
+    ],
+    "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state" ],
+    "stamp": "32f9544d97b4bc92"
+  },
+  {
+    "page": "/state-art",
+    "useFor": "The drawing that names a view's state before its sentence is read: nothing yet, filtered out, failed, offline, waiting, all done.",
+    "combineWith": [
+      { "page": "/empty-state#empty", "how": "Above the empty state's title and aria-hidden, since the title says the same in words." },
+      { "page": "/table#nothing-found-and-refreshing", "how": "The small size in a table row with nothing in it." },
+      { "page": "/list#nothing-in-it", "how": "The small size in a list's place when the list is empty." },
+      { "page": "/common-pages#not-found", "how": "The large size on a page that is nothing but the state." }
+    ],
+    "notFor": [
+      { "text": "A missing thing that has a glyph of its own, such as invoices or members", "instead": "/empty-state#state-icon" },
+      { "text": "A picture that is part of the content", "instead": "/media" }
+    ],
+    "goals": [ "illustrate-a-state", "explain-an-empty-view" ],
+    "stamp": "fae10e78df5806e7"
+  },
+  {
+    "page": "/live-state",
+    "useFor": "What a view shows while something is still happening: the state of a connection, output being written, how long ago or how long left, and work the reader can watch and cancel.",
+    "combineWith": [
+      { "page": "/status-bar", "how": "The connection to the server is the status bar's; a health badge reports a service or a stream inside the page." },
+      { "page": "/banner#under-the-topbar", "how": "A degraded page says once, in a page banner, what is down and what still works." },
+      { "page": "/stat#target-link-and-unavailable", "how": "A figure that could not be read is .stat--unavailable with a .stale saying how old the last good one is." },
+      { "page": "/list", "how": "Work in progress is a .list-row with its bar in the subtext and its cancel button in .list-meta." },
+      { "page": "/common-pages#before-the-session-ends", "how": "A countdown inside the warning dialog that offers to keep the reader signed in." },
+      { "page": "/logs#live-tail", "how": "The same pane as an application log, with columns, levels and rows that expand." }
+    ],
+    "notFor": [
+      { "text": "A panel with nothing to show yet", "instead": "/empty-state" },
+      { "text": "The first load of content with a known shape", "instead": "/skeleton" },
+      { "text": "The connection to the server itself", "instead": "/status-bar" },
+      { "text": "A share done with no output to show", "instead": "/progress#progress-bar" }
+    ],
+    "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output" ],
+    "stamp": "616b89b8a95bf7a7"
+  },
+  {
+    "page": "/logs",
+    "useFor": "An app's own log or a developer's output read in place: lines in columns by level, a live tail, rows that expand and act, a terminal, a stack trace and test results.",
+    "combineWith": [
+      { "page": "/toolbar#filters-and-actions", "how": "Above the pane: the search and the level chips leading, the wrapping setting and the refresh trailing." },
+      { "page": "/chip#a-set-of-filters", "how": "The level filter as pressed chips, each with the number of lines it holds." },
+      { "page": "/segmented#in-a-toolbar", "how": "Wrap or one line, as a small segmented setting in the toolbar." },
+      { "page": "/menu#anchored-under-a-trigger", "how": "A line's further actions behind one button in its .output-actions strip, after the copy button." },
+      { "page": "/popover", "how": "The time range, opened from a .form-trigger at the start of the toolbar." },
+      { "page": "/bars#one-bar-in-parts", "how": "A test run's passed, failed and skipped as one bar in parts above the suites, its legend in words." },
+      { "page": "/card#key-value-rows", "how": "Environment variables as key/value rows in a card, with a copy and a reveal button each." },
+      { "page": "/skeleton#lines-and-a-title", "how": "Skeleton lines in the pane for the first load." }
+    ],
+    "notFor": [
+      { "text": "Records compared down columns and sorted", "instead": "/table" },
+      { "text": "The history of one record, told as events", "instead": "/timeline" },
+      { "text": "Code shown for the reader to copy", "instead": "/structure#code-blocks" }
+    ],
+    "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
+    "stamp": "d67b2851914ad787"
+  }
+]
