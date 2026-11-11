@@ -98,8 +98,10 @@
    row is row 1, so the body's second row is the first striped, as without it. Both
    rules stay at (0,2,3) through `:where()`, so row selection still wins the tie. */
 .table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])) > td,
-.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td { background: var(--surface-soft); }
-.table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td,
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"])::after { background: var(--surface-soft); }
+.table--zebra .tr-clickable:hover > td,
+.table--zebra .tr-clickable:hover::after { background: var(--bg-hover); }
 
 /* ── Sortable header ────────────────────────────────────────────────────────
    The whole header cell is the control, so put a <button> inside it filling the
@@ -168,7 +170,8 @@
    above, which then loses on source order. Without it selection is (0,2,2) and an
    even striped row would show the stripe instead of the selection — the more
    important of the two signals, silently dropped. */
-.table tbody tr[aria-selected="true"] > td { background: var(--brand-tint); }
+.table tbody tr[aria-selected="true"] > td,
+.table tbody tr[aria-selected="true"]::after { background: var(--brand-tint); }
 
 /* The marker goes on the FIRST cell, not on every one. An inset shadow is drawn
    per box, so `> td` gave each cell its own 3px rule and the row read as a set of
@@ -545,7 +548,8 @@
     text-align: center;
 }
 .tr-empty:hover > td,
-.tr-busy:hover > td { background: none; }
+.tr-busy:hover > td,
+.tr-busy:hover::after { background: none; }
 .tr-busy .spinner { margin-inline-end: var(--space-4); }
 :is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
@@ -715,7 +719,8 @@
    surface, and its save and cancel buttons are the app's — `data-row-save` and
    `data-row-cancel` on them let Enter and Escape in an editor press them. Keep the
    same size of button in the row in both modes, and the row keeps its height. */
-.table tbody tr[data-editing] > td { background: var(--surface-soft); }
+.table tbody tr[data-editing] > td,
+.table tbody tr[data-editing]::after { background: var(--surface-soft); }
 .table tbody tr[data-editing] { --pin-tint: var(--surface-soft); }
 
 /* ── Column width ───────────────────────────────────────────────────────────
@@ -775,10 +780,13 @@
 
 /* ── Columns the reader sizes and moves ─────────────────────────────────────
    `.table--fixed` lays the table out from its header: each column is as wide as the
-   `--col-width` of the cell that heads it, held between `--col-min` and `--col-max`,
-   and the table is as wide as its columns add up to — inside a `.sedna-scroll-x`, so a
-   table wider than its box scrolls. A fixed layout needs a width that is not `auto`;
-   `0` is the smallest, so the sum of the columns is the width. The widths come from
+   `--col-width` of the cell that heads it, held between `--col-min` and `--col-max`.
+   The table fills its box: while the columns add up to less, the room left over is one
+   more, empty cell at the end of every row, so each column stays exactly as wide as it
+   says and a grip being dragged stays under the pointer. Once they add up to more, the
+   table is as wide as its columns — inside a `.sedna-scroll-x`, it scrolls. A fixed
+   layout needs a width that is not `auto`; `0` is the smallest, so the sum of the
+   columns is the width, and `min-inline-size` makes it the box's. The widths come from
    the first header row: one row of header cells, or the first of them carrying the
    widths. A cell's content no longer sets its column, so a value too long for it ends
    in an ellipsis rather than running into the next.
@@ -809,6 +817,23 @@
     --col-max: 40rem;
     table-layout: fixed;
     inline-size: 0;
+    min-inline-size: 100%;
+}
+/* The room left over. A cell of its own rather than a wider last column: a column with
+   no width of its own takes what is left, which is nothing once the table is wider than
+   its box, and the last column would vanish. Generated content, so it is in no row the
+   app writes, no keyboard grid and no reading order; the row highlights below name it
+   beside their cells, so a row lights up end to end. */
+.table--fixed tr::after {
+    content: '';
+    display: table-cell;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+}
+.table--fixed > thead > tr::after { background: var(--table-head-bg); }
+.table--fixed.table--sticky > thead > tr::after {
+    background: var(--bg-elevated);
+    box-shadow: inset 0 -1px 0 var(--border), 0 -1px 0 var(--bg-elevated);
 }
 .table--fixed > thead > tr:first-child > :is(th, td) {
     inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
@@ -922,6 +947,7 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
    cannot be the container its own rows are measured against. */
 @media (max-width: 640px) {
     .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .table--stack tr::after { content: none; }
     .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
     /* A body cell is one block: its label floats at the start, and everything else in
        it — a link, a line under it, an icon beside a word — flows at the end edge as one

@@ -14,12 +14,34 @@
     </div>
 </div>
 
+<div class="callout">
+    <i class="ri-list-ordered"></i>
+    <div class="callout-body">
+        <span class="callout-title">Numbers, unless there are none to show</span>
+        A table or a list of known length takes the numbered pager: the ends, the pages around the
+        current one and the gaps between, from <code>SednaPager.Window</code> &mdash; never the
+        current page alone, which tells the reader nothing about how far there is to go. Previous,
+        next and the range with no numbers is for a result whose length is unknown &mdash; a cursor,
+        a search that stops counting &mdash; and for a pager squeezed into a toolbar row. Write the
+        pager straight after the card or the list it pages: it keeps its distance from it by itself.
+    </div>
+</div>
+
 <CatExample TExample="Examples.Pager.Pagination" Title="Pagination" Demo="ex-demo--block">
     <p>
         Wrap it in <code>&lt;nav aria-label="Pagination"&gt;</code> and put
         <code>aria-current="page"</code> on the current one. The class colours it;
         <code>aria-current</code> is what is announced. <code>.page-count</code> pushes the range
         to the far end, which is where the reader looks to find out how much is left.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Pager.UnderATable" Title="Under the table it pages" Demo="ex-demo--block">
+    <p>
+        The pager follows the card that holds the table, outside it, and keeps a toolbar's distance
+        from it with no class or wrapper of its own &mdash; in a tab panel or a card body as much as
+        on the page. The range counts rows, the numbers count pages: &ldquo;41&ndash;60 of
+        1,204&rdquo; beside page 3 of 61.
     </p>
 </CatExample>
 
@@ -55,10 +77,11 @@
 
 <CatExample TExample="Examples.Pager.PagerCompact" Title="Prev, next and the range" Demo="ex-demo--block">
     <p>
-        Enough for a short list, and for a pager that has to live inside a
+        For a result whose length is not known, and for a pager that has to live inside a
         <a href="/toolbar">toolbar</a> row. <code>.page-count</code> is what makes it usable without
         numbers, and the disabled ends are <code>&lt;span aria-disabled="true"&gt;</code>, not links
-        to nowhere.
+        to nowhere. A list whose pages are known still shows them: the toolbar's pager keeps its
+        numbers.
     </p>
 </CatExample>
 

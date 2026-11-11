@@ -1,11 +1,20 @@
-<div style="--row-hover-accent: var(--brand)">
-    <table class="table table--stagger">
-        <thead><tr><th>Order</th><th>Customer</th><th>Status</th></tr></thead>
-        <tbody>
-            <tr class="tr-clickable"><td>ORD-4182</td><td>Northwind Retail</td><td><span class="badge badge--go">Shipped</span></td></tr>
-            <tr class="tr-clickable"><td>ORD-4183</td><td>Alex Fischer</td><td><span class="badge badge--warn">Partial</span></td></tr>
-            <tr class="tr-clickable"><td>ORD-4184</td><td>Northwind Retail</td><td><span class="badge">Open</span></td></tr>
-            <tr class="tr-clickable"><td>ORD-4185</td><td>Alex Fischer</td><td><span class="badge">Open</span></td></tr>
-        </tbody>
-    </table>
+<div class="sedna-col sedna-gap-6">
+    <!-- The button only replays the arrival for this page; an app's rows arrive when it renders them. -->
+    <div>
+        <button class="btn btn--sm" type="button"
+                onclick="document.getElementById('stagger-orders').getAnimations({ subtree: true }).forEach(a => { a.cancel(); a.play(); })">
+            <i class="ri-restart-line"></i> <span>Replay</span>
+        </button>
+    </div>
+    <div style="--row-hover-accent: var(--brand)">
+        <table class="table table--stagger" id="stagger-orders">
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr class="tr-clickable"><td>ORD-4182</td><td>Northwind Retail</td><td><span class="badge badge--go">Shipped</span></td></tr>
+                <tr class="tr-clickable"><td>ORD-4183</td><td>Alex Fischer</td><td><span class="badge badge--warn">Partial</span></td></tr>
+                <tr class="tr-clickable"><td>ORD-4184</td><td>Northwind Retail</td><td><span class="badge">Open</span></td></tr>
+                <tr class="tr-clickable"><td>ORD-4185</td><td>Alex Fischer</td><td><span class="badge">Open</span></td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>

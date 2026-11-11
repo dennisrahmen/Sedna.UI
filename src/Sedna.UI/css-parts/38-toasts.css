@@ -164,13 +164,22 @@
 
    A toast behind the front one is as tall as the front one: it adds nothing to the
    cell's height (height 0) and then fills the cell (min-height 100%), so a long toast
-   behind a short one does not stand out above the pile. */
+   behind a short one does not stand out above the pile.
+
+   Every toast in the pile is positioned, so they paint in source order and the newest
+   is on top: a transformed box paints with the positioned layer, which would otherwise
+   put the two behind over the untransformed one in front.
+
+   Opened, the stack is a column again, and `align-items` goes back to `normal`: in the
+   grid it places a toast at the bottom of the cell, in a column it would push every
+   toast to the inline end of whatever box the stack fills. */
 .toast-stack--pile {
     --toast-pile-step: var(--space-4);
     display: grid;
     align-items: end;
 }
 .toast-stack--pile > .toast {
+    position: relative;
     grid-area: 1 / 1;
     transform-origin: 50% 0;
     transition: transform var(--motion-mid) ease, opacity var(--motion-mid) ease;
@@ -187,6 +196,7 @@
 
 .toast-stack--pile:is(:hover, :focus-within) {
     display: flex;
+    align-items: normal;
     pointer-events: auto;
 }
 .toast-stack--pile:is(:hover, :focus-within) > .toast {

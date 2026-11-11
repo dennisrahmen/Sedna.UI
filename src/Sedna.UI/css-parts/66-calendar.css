@@ -444,7 +444,11 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     block-size: calc(var(--cal-length) - var(--space-1));
     z-index: 1;
     padding: var(--space-1) var(--space-3);
-    background: var(--cal-fill);
+    /* The tint laid over the calendar's own surface rather than over whatever is behind
+       the block, so the block is opaque: an hour line or a block in the next lane does
+       not show through it, and the cover below repeats its colour exactly instead of
+       laying a second tint along its foot. */
+    background: linear-gradient(var(--cal-fill), var(--cal-fill)), var(--card-bg);
     border-inline-start: 3px solid var(--cal-accent);
     border-radius: var(--radius-inner);
     color: var(--fg);
@@ -1127,8 +1131,10 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     block-size: var(--cal-length);
     /* Local stacking: under the blocks' 1. */
     z-index: 0;
-    /* One short line, so no part-line to cover: the cover would lay a second tint
-       along its foot. */
+    /* A tint over the hours, not a block on them: what is behind shows through. One
+       short line, so no part-line to cover: the cover would lay a second tint along its
+       foot. */
+    background: var(--cal-fill);
     padding-block-end: var(--space-1);
 }
 .cal-block.cal-event--background::after { content: none; }

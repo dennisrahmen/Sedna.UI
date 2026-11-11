@@ -490,6 +490,11 @@ internal static class CataloguePages
             "Holding your own bar clear of a home indicator, a notch or a rounded corner.",
             "sedna-safe-top sedna-safe-bottom sedna-safe-inline env safe-area-inset viewport-fit cover notch home indicator iphone island phone landscape"),
 
+        // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
+        new("/mcp-server", Start, "MCP server", "ri-robot-2-line",
+            "The read-only endpoint an agent points at, its tools and its resources.",
+            "mcp agent ai claude tool resource read-only streamable http rate limit since",
+            Section: Reference),
         new("/script", Start, "The script", "ri-code-s-slash-line",
             "Loading it, and the JavaScript behind toasts, the clipboard and the delegated behaviours.",
             "sednaUi toast modal copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent",
@@ -497,11 +502,6 @@ internal static class CataloguePages
         new("/interop", Start, "From C#", "ri-braces-line",
             "ISednaUi: toasts, dialogs, settings, the time zone and the spotlight, called from a component.",
             "ISednaUi interop C# csharp AddSednaUi ToastAsync ShowModalAsync ISednaOverlays FollowSpotlightAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync ShowModalAsync prerender OnAfterRenderAsync",
-            Section: Reference),
-        // Not "/mcp": that route is the MCP endpoint itself, mapped in Program.cs.
-        new("/mcp-server", Start, "MCP server", "ri-robot-2-line",
-            "The read-only endpoint an agent points at, its tools and its resources.",
-            "mcp agent ai claude tool resource read-only streamable http rate limit since",
             Section: Reference),
         new("/tooling", Start, "App tooling", "ri-tools-line",
             "The build warning on a renamed class, the rename script, the Stylelint config and the agent skill.",

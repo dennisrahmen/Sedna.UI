@@ -95,6 +95,19 @@ Three helpers render attributes from the app's own state — never a component:
   on each tab and `SednaTabs.Panel(key, _tab)` on each panel. Never plain `data-tabs` with C# selection:
   two things would write `aria-selected`.
 
+### Tables, filters and pagers
+
+- **Filters on a table:** a `.toolbar` above it by default; a `.tr-filter` row for filtering column
+  by column, each control matching its column's type; a `.th-filter` popover where the table is too
+  narrow. Mark a set filter with `.col-filtered`, repeat it as a removable `.chip--active`, and show the
+  count of rows left.
+- **Resizable columns:** `.table--fixed` inside a `.sedna-scroll-x`, with each width as the heading's
+  `--col-width` kept from `sedna-resize`. The table fills its box and scrolls once the columns outgrow it;
+  never set a `width` on the table or its cells.
+- **A pager** goes straight after the card or list it pages, and keeps its own distance from it. A list
+  of known length shows the page numbers from `SednaPager.Window` — never only the current page between
+  Previous and Next.
+
 ### The header search
 
 `.search` in the topbar is a library class. An app that already ships its own search chrome under its

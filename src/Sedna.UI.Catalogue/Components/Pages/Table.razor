@@ -17,6 +17,7 @@
         <code>--row-hover-accent</code> draws a strip at the start of a clickable row under the
         pointer, on a <code>.tr-clickable</code> and a linked <code>.list-row</code>; it is
         transparent until you set it. Both are off for a reader who asked for reduced motion.
+        <strong>Live &mdash; Replay plays the arrival again.</strong>
     </p>
 </CatExample>
 
@@ -131,6 +132,36 @@
         <code>.table--sticky</code> the group row pins beneath the header.
     </p>
 </CatExample>
+
+<h2 id="filtering">Filtering by column <CatAnchor Id="filtering" /></h2>
+
+<p>
+    Pick the shape by how the reader narrows the list, not by how many columns there are. Every shape
+    below filters the same rows; what changes is where the controls stand.
+</p>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr><th>The reader&hellip;</th><th>Write</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>searches, then narrows by one or two things</td><td>A <a href="/toolbar">toolbar</a> above the table: the search field and a select or two. The default.</td></tr>
+            <tr><td>filters an admin table column by column</td><td>A <code>.tr-filter</code> row under the headings, one control per filterable column, each the control for that column's type.</td></tr>
+            <tr><td>filters a table too narrow for a filter row</td><td>A <code>.th-filter</code> button in each filterable heading, opening that column's control in a popover.</td></tr>
+            <tr><td>combines many filters, or saves them as views</td><td>A <a href="/filtering">filter side panel</a>, or a drawer on a narrow screen.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<p>
+    Whichever it is, the same three things follow a filter that is set: <code>.col-filtered</code> on
+    its heading, a removable <code>.chip--active</code> above the table with <em>Reset all</em> once
+    there are two, and a count that says how many rows are left. A column whose values are a handful
+    of states is a select or a set of checkboxes, never a text field; a date is a range, a number is
+    a from&ndash;to pair. Filter on the server for a list that pages, and keep the filters in the
+    address so a filtered list can be shared.
+</p>
 
 <CatExample TExample="Examples.Table.FilterRow" Title="A filter per column" Demo="ex-demo--block">
     <p>

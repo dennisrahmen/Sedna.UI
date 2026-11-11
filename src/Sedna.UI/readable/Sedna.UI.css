@@ -4612,7 +4612,8 @@ a.topbar-version--pre:hover {
     letter-spacing: 0.04em;
 }
 .tr-clickable { cursor: pointer; user-select: none; }
-.tr-clickable:hover > td { background: var(--bg-hover); }
+.tr-clickable:hover > td,
+.tr-clickable:hover::after { background: var(--bg-hover); }
 .col-muted { color: var(--muted); font-size: var(--text-3); white-space: nowrap; }
 
 }
@@ -4706,8 +4707,9 @@ a.topbar-version--pre:hover {
     content: '';
     position: absolute;
     inset: 0;
-    width: 1em;
-    height: 1em;
+    box-sizing: border-box;
+    width: round(1em + 4px, 2px);
+    height: round(1em + 4px, 2px);
     margin: auto;
     border: 2px solid currentColor;
     border-inline-end-color: transparent;
@@ -5463,13 +5465,22 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
    A toast behind the front one is as tall as the front one: it adds nothing to the
    cell's height (height 0) and then fills the cell (min-height 100%), so a long toast
-   behind a short one does not stand out above the pile. */
+   behind a short one does not stand out above the pile.
+
+   Every toast in the pile is positioned, so they paint in source order and the newest
+   is on top: a transformed box paints with the positioned layer, which would otherwise
+   put the two behind over the untransformed one in front.
+
+   Opened, the stack is a column again, and `align-items` goes back to `normal`: in the
+   grid it places a toast at the bottom of the cell, in a column it would push every
+   toast to the inline end of whatever box the stack fills. */
 .toast-stack--pile {
     --toast-pile-step: var(--space-4);
     display: grid;
     align-items: end;
 }
 .toast-stack--pile > .toast {
+    position: relative;
     grid-area: 1 / 1;
     transform-origin: 50% 0;
     transition: transform var(--motion-mid) ease, opacity var(--motion-mid) ease;
@@ -5486,6 +5497,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
 .toast-stack--pile:is(:hover, :focus-within) {
     display: flex;
+    align-items: normal;
     pointer-events: auto;
 }
 .toast-stack--pile:is(:hover, :focus-within) > .toast {
@@ -5524,11 +5536,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 @layer sedna.paint {
 /* ── Spinner ────────────────────────────────────────────────────────────────
    A ring with one coloured arc. Sized by font-size so it matches the text or
-   the button it sits in without a second class. */
+   the button it sits in without a second class.
+
+   A RING THAT TURNS IS ROUND ONLY ON WHOLE PIXELS. Its size is rounded to an even
+   number of pixels, so its centre sits on a pixel and the turning ring is drawn the
+   same in every frame; at a fractional size it is rasterised differently at every
+   angle and wobbles like an egg. It never shrinks in a row: a flex item squeezed on
+   one axis would turn as an oval. Every ring below — a busy button's, a busy icon's,
+   a tree's caret — follows the same two rules. */
 .spinner {
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    flex: none;
+    box-sizing: border-box;
+    width: round(1em, 2px);
+    height: round(1em, 2px);
     border: 2px solid var(--border);
     border-top-color: var(--brand-soft);
     border-radius: 50%;
@@ -5536,7 +5557,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     /* Keeps the ring on the text baseline instead of riding above it. */
     vertical-align: -0.125em;
 }
-.spinner--sm { width: 0.75em; height: 0.75em; border-width: 1.5px; }
+.spinner--sm { width: round(0.75em, 2px); height: round(0.75em, 2px); border-width: 1.5px; }
 .spinner--lg { width: 24px; height: 24px; border-width: 3px; }
 
 @keyframes sedna-spin { to { transform: rotate(360deg); } }
@@ -12689,15 +12710,19 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
    it is given, so it behaves correctly inside a narrow column too.
 
-   Nothing it holds paints past its inline edges: a toned tile's tint and a linked tile's
-   hover reach into the gaps between tiles, and stop flush with the row's own edge, so a
-   row lines up with the panels above and below it. Clipped rather than inset, so a tile
-   turning amber while the page is open moves nothing. */
+   A tile's words line up with the panels above and below the row. A toned tile's tint,
+   a linked tile's hover and its focus ring reach a few pixels past the tile's track —
+   into the gaps, and past the row's own first and last edge — and are drawn whole
+   there: a tint cut flush at the row's edge reads as a tile cut in half. Reached past
+   rather than inset, so a tile turning amber while the page is open moves nothing.
+
+   The row clips at `--space-6` past its inline edges: wide enough for all three, short
+   of the dividing rules below, which stand a whole `--space-7` outside. */
 .stat-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
     gap: var(--space-7);
-    clip-path: inset(calc(var(--space-6) * -1) 0);
+    clip-path: inset(calc(var(--space-6) * -1));
 }
 /* ── A dividing rule between tiles ──────────────────────────────────────────
    Tiles inside a card get a rule between them rather than a bare gap, so the card
@@ -12706,8 +12731,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
    The rule has to survive the row wrapping, and no selector can tell which tile starts
    the second row. So EVERY tile draws its rule, in the middle of the gap before it,
    and the row clips what falls outside its own edge: the first tile of each row puts
-   its rule there, and loses it — the row's own clip, above, which stops at its inline
-   edges and lets a linked tile's hover and focus ring out above and below.
+   its rule there, and loses it — the row's own clip, above, which lets a tint, a hover
+   and a focus ring out on every side and stops short of the rule.
 
    The track floor is the plain row's 150px less the wider gap, so a row that fitted on
    one line before still does. */
@@ -13416,6 +13441,13 @@ td.diff-gap { background: var(--surface-soft); }
 }
 /* "121–140 of 1,204" beside the controls. */
 .page-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); }
+
+/* Under the list it pages — a card holding a table, a `.list`, a grid of cards — a pager
+   keeps the same distance a `.toolbar` keeps above it, wherever the two are written: in
+   a tab panel, a card body or a wrapper of the app's own, where no page rhythm reaches.
+   A direct child of `.page` takes the page's rhythm instead, and a pager in a toolbar
+   row, the toolbar's alignment. */
+:not(.page, .toolbar, .toolbar-filters, .toolbar-actions) > * + .pagination { margin-block-start: var(--space-7); }
 
 /* ── Breadcrumb ─────────────────────────────────────────────────────────────
    Where this page sits, when the sidebar cannot show it — a record three levels
@@ -14170,8 +14202,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    row is row 1, so the body's second row is the first striped, as without it. Both
    rules stay at (0,2,3) through `:where()`, so row selection still wins the tie. */
 .table--zebra tbody tr:nth-child(even of :where(:not(:empty))):where(:not([aria-rowindex])) > td,
-.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td { background: var(--surface-soft); }
-.table--zebra .tr-clickable:hover > td { background: var(--bg-hover); }
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"]) > td,
+.table--zebra tbody tr:is([aria-rowindex$="1"], [aria-rowindex$="3"], [aria-rowindex$="5"], [aria-rowindex$="7"], [aria-rowindex$="9"])::after { background: var(--surface-soft); }
+.table--zebra .tr-clickable:hover > td,
+.table--zebra .tr-clickable:hover::after { background: var(--bg-hover); }
 
 /* ── Sortable header ────────────────────────────────────────────────────────
    The whole header cell is the control, so put a <button> inside it filling the
@@ -14240,7 +14274,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    above, which then loses on source order. Without it selection is (0,2,2) and an
    even striped row would show the stripe instead of the selection — the more
    important of the two signals, silently dropped. */
-.table tbody tr[aria-selected="true"] > td { background: var(--brand-tint); }
+.table tbody tr[aria-selected="true"] > td,
+.table tbody tr[aria-selected="true"]::after { background: var(--brand-tint); }
 
 /* The marker goes on the FIRST cell, not on every one. An inset shadow is drawn
    per box, so `> td` gave each cell its own 3px rule and the row read as a set of
@@ -14617,7 +14652,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     text-align: center;
 }
 .tr-empty:hover > td,
-.tr-busy:hover > td { background: none; }
+.tr-busy:hover > td,
+.tr-busy:hover::after { background: none; }
 .tr-busy .spinner { margin-inline-end: var(--space-4); }
 :is(.tr-empty, .list-empty) .state-art { display: block; margin: 0 auto var(--space-5); }
 
@@ -14787,7 +14823,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    surface, and its save and cancel buttons are the app's — `data-row-save` and
    `data-row-cancel` on them let Enter and Escape in an editor press them. Keep the
    same size of button in the row in both modes, and the row keeps its height. */
-.table tbody tr[data-editing] > td { background: var(--surface-soft); }
+.table tbody tr[data-editing] > td,
+.table tbody tr[data-editing]::after { background: var(--surface-soft); }
 .table tbody tr[data-editing] { --pin-tint: var(--surface-soft); }
 
 /* ── Column width ───────────────────────────────────────────────────────────
@@ -14847,10 +14884,13 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 
 /* ── Columns the reader sizes and moves ─────────────────────────────────────
    `.table--fixed` lays the table out from its header: each column is as wide as the
-   `--col-width` of the cell that heads it, held between `--col-min` and `--col-max`,
-   and the table is as wide as its columns add up to — inside a `.sedna-scroll-x`, so a
-   table wider than its box scrolls. A fixed layout needs a width that is not `auto`;
-   `0` is the smallest, so the sum of the columns is the width. The widths come from
+   `--col-width` of the cell that heads it, held between `--col-min` and `--col-max`.
+   The table fills its box: while the columns add up to less, the room left over is one
+   more, empty cell at the end of every row, so each column stays exactly as wide as it
+   says and a grip being dragged stays under the pointer. Once they add up to more, the
+   table is as wide as its columns — inside a `.sedna-scroll-x`, it scrolls. A fixed
+   layout needs a width that is not `auto`; `0` is the smallest, so the sum of the
+   columns is the width, and `min-inline-size` makes it the box's. The widths come from
    the first header row: one row of header cells, or the first of them carrying the
    widths. A cell's content no longer sets its column, so a value too long for it ends
    in an ellipsis rather than running into the next.
@@ -14881,6 +14921,23 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     --col-max: 40rem;
     table-layout: fixed;
     inline-size: 0;
+    min-inline-size: 100%;
+}
+/* The room left over. A cell of its own rather than a wider last column: a column with
+   no width of its own takes what is left, which is nothing once the table is wider than
+   its box, and the last column would vanish. Generated content, so it is in no row the
+   app writes, no keyboard grid and no reading order; the row highlights below name it
+   beside their cells, so a row lights up end to end. */
+.table--fixed tr::after {
+    content: '';
+    display: table-cell;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+}
+.table--fixed > thead > tr::after { background: var(--table-head-bg); }
+.table--fixed.table--sticky > thead > tr::after {
+    background: var(--bg-elevated);
+    box-shadow: inset 0 -1px 0 var(--border), 0 -1px 0 var(--bg-elevated);
 }
 .table--fixed > thead > tr:first-child > :is(th, td) {
     inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
@@ -14994,6 +15051,7 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
    cannot be the container its own rows are measured against. */
 @media (max-width: 640px) {
     .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .table--stack tr::after { content: none; }
     .table--stack tr { display: block; margin-bottom: var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
     /* A body cell is one block: its label floats at the start, and everything else in
        it — a link, a line under it, an icon beside a word — flows at the end edge as one
@@ -15613,8 +15671,10 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    them and the script lifts `aria-busy`. */
 .tree [aria-busy="true"] > .tree-row > .tree-toggle::before,
 .table[role="treegrid"] tr[aria-busy="true"] > * > .tree-toggle::before {
-    width: 0.75em;
-    height: 0.75em;
+    flex: none;
+    box-sizing: border-box;
+    width: round(0.75em + 3px, 2px);
+    height: round(0.75em + 3px, 2px);
     border: 1.5px solid var(--border);
     border-top-color: var(--brand-soft);
     border-radius: 50%;
@@ -17672,6 +17732,16 @@ dialog.lightbox::before {
     height: var(--control-height);
     margin-top: var(--space-3);
 }
+/* Chromium paints the native control on a grey pill of its own, which matches nothing
+   the page draws. The pill takes a field's surface, border and corners instead, so the
+   control reads as one of the page's controls; the buttons inside it are still the
+   browser's. WebKit draws its control without the pill and ignores this. */
+.media-player-text > audio::-webkit-media-controls-enclosure {
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-control);
+    background: var(--surface-here, var(--bg));
+}
+.media-player-text > audio::-webkit-media-controls-panel { background: transparent; }
 /* In a narrow player — on a phone, in a side panel — the actions go under the text
    rather than squeezing the title to nothing. */
 @container sedna-media-player (width < 560px) {
@@ -19651,7 +19721,11 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     block-size: calc(var(--cal-length) - var(--space-1));
     z-index: 1;
     padding: var(--space-1) var(--space-3);
-    background: var(--cal-fill);
+    /* The tint laid over the calendar's own surface rather than over whatever is behind
+       the block, so the block is opaque: an hour line or a block in the next lane does
+       not show through it, and the cover below repeats its colour exactly instead of
+       laying a second tint along its foot. */
+    background: linear-gradient(var(--cal-fill), var(--cal-fill)), var(--card-bg);
     border-inline-start: 3px solid var(--cal-accent);
     border-radius: var(--radius-inner);
     color: var(--fg);
@@ -20334,8 +20408,10 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     block-size: var(--cal-length);
     /* Local stacking: under the blocks' 1. */
     z-index: 0;
-    /* One short line, so no part-line to cover: the cover would lay a second tint
-       along its foot. */
+    /* A tint over the hours, not a block on them: what is behind shows through. One
+       short line, so no part-line to cover: the cover would lay a second tint along its
+       foot. */
+    background: var(--cal-fill);
     padding-block-end: var(--space-1);
 }
 .cal-block.cal-event--background::after { content: none; }
@@ -24597,8 +24673,8 @@ button.inbox-item-title {
     content: "";
     position: absolute;
     inset: 0;
-    inline-size: 1em;
-    block-size: 1em;
+    inline-size: round(1em, 2px);
+    block-size: round(1em, 2px);
     margin: auto;
     border: 2px solid var(--muted);
     border-inline-end-color: transparent;
@@ -24698,8 +24774,9 @@ button.inbox-item-title {
    timeline is an open-ended record. If the reader can be "on" one of them, it is
    steps.
 
-   The rule runs down the markers as a border on the <li>, so it stops exactly at the
-   last entry rather than needing a length.
+   The rule runs down the markers from the middle of each entry's marker to the middle
+   of the next one's, so it starts at the first marker and stops at the last: nothing
+   runs up above the first entry or down below the last, whatever their heights.
 
      <ul class="timeline">
        <li data-kind="go">
@@ -24766,9 +24843,22 @@ button.inbox-item-title {
     margin-inline-start: calc((var(--timeline-dot) - var(--timeline-line)) / 2);
     padding-block: 0 var(--timeline-gap);
     padding-inline: var(--space-9) 0;
+    /* The connector's width, kept as an invisible border so every offset below can
+       count it; the line itself is ::after. */
+    border-inline-start: var(--timeline-line) solid transparent;
+    isolation: isolate;
+}
+.timeline > li:last-child { padding-block-end: 0; }
+/* One stretch of the connector: from this entry's marker to the next entry's, each in
+   the middle of its row. A border rather than a background, so forced colours keep it. */
+.timeline > li::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(var(--timeline-line) * -1);
+    inset-block: calc(var(--timeline-lead) / 2) calc(var(--timeline-lead) / -2);
     border-inline-start: var(--timeline-line) solid var(--border);
 }
-.timeline > li:last-child { border-inline-start-color: transparent; padding-block-end: 0; }
+.timeline > li:last-child::after { content: none; }
 .timeline > li::before {
     content: '';
     position: absolute;
@@ -24782,6 +24872,8 @@ button.inbox-item-title {
     background: var(--border-hover);
     border: 2px solid var(--timeline-surface);
     border-radius: 50%;
+    /* Local stacking, inside the entry: over the connector. */
+    z-index: 1;
 }
 
 /* The timestamp's line box IS the row the marker centres in, so the two agree by
@@ -24865,6 +24957,8 @@ button.inbox-item-title {
 .timeline > li:has(> .timeline-mark)::before { content: none; }
 .timeline-mark {
     position: absolute;
+    /* Local stacking, inside the entry: over the connector. */
+    z-index: 1;
     inset-inline-start: calc((var(--timeline-line) + var(--timeline-marker)) / -2);
     top: calc((var(--timeline-lead) - var(--timeline-marker)) / 2);
     display: flex;
@@ -24932,6 +25026,8 @@ button.inbox-item-title {
 }
 .timeline > li.timeline-group::before { content: none; }
 .timeline > li.timeline-group:first-child { padding-block-start: 0; }
+/* A caption heading the record has no marker above it to run from. */
+.timeline > li.timeline-group:first-child::after { content: none; }
 
 /* ── The rest of the record ─────────────────────────────────────────────────
    A record with no end needs a foot that says so. The hollow marker is the point: a
@@ -25215,8 +25311,10 @@ button.inbox-item-title {
 a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover { background: var(--tone-bg-hover); }
 
 /* A table row that means something — stale, failing, waiting. */
-.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td { background: var(--tone-bg); }
-.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td { background: var(--tone-bg-hover); }
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td,
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret)::after { background: var(--tone-bg); }
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td,
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover::after { background: var(--tone-bg-hover); }
 
 /* An ordinary neutral ghost button placed straight in the header reads the header's
    own tokens, as .topbar-btn does, so a brand-coloured header keeps it legible. A toned

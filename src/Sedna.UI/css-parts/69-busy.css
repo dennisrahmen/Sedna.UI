@@ -34,8 +34,8 @@
     content: "";
     position: absolute;
     inset: 0;
-    inline-size: 1em;
-    block-size: 1em;
+    inline-size: round(1em, 2px);
+    block-size: round(1em, 2px);
     margin: auto;
     border: 2px solid var(--muted);
     border-inline-end-color: transparent;

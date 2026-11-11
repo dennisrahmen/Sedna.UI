@@ -58,6 +58,13 @@
 /* "121–140 of 1,204" beside the controls. */
 .page-count { margin-inline-start: auto; color: var(--muted); font-size: var(--text-3); }
 
+/* Under the list it pages — a card holding a table, a `.list`, a grid of cards — a pager
+   keeps the same distance a `.toolbar` keeps above it, wherever the two are written: in
+   a tab panel, a card body or a wrapper of the app's own, where no page rhythm reaches.
+   A direct child of `.page` takes the page's rhythm instead, and a pager in a toolbar
+   row, the toolbar's alignment. */
+:not(.page, .toolbar, .toolbar-filters, .toolbar-actions) > * + .pagination { margin-block-start: var(--space-7); }
+
 /* ── Breadcrumb ─────────────────────────────────────────────────────────────
    Where this page sits, when the sidebar cannot show it — a record three levels
    inside a section. If the sidebar already highlights the page, a breadcrumb repeats

@@ -232,8 +232,10 @@
 a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover { background: var(--tone-bg-hover); }
 
 /* A table row that means something — stale, failing, waiting. */
-.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td { background: var(--tone-bg); }
-.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td { background: var(--tone-bg-hover); }
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret) > td,
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret)::after { background: var(--tone-bg); }
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover > td,
+.table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover::after { background: var(--tone-bg-hover); }
 
 /* An ordinary neutral ghost button placed straight in the header reads the header's
    own tokens, as .topbar-btn does, so a brand-coloured header keeps it legible. A toned
