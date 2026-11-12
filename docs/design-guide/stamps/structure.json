@@ -39,7 +39,7 @@
     "src/Sedna.UI/js-parts/27-workflow.js": "63763826fdc679ba"
   },
   "/grid": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Grid.razor": "6793b25c788ee6b6",
+    "src/Sedna.UI.Catalogue/Components/Pages/Grid.razor": "b5c89eb6d318693f",
     "src/Sedna.UI.Catalogue/Examples/Grid/AutoFill.razor": "f4f83ba561d3719c",
     "src/Sedna.UI.Catalogue/Examples/Grid/AutoFit.razor": "0d73b1f53d6dc0f5",
     "src/Sedna.UI.Catalogue/Examples/Grid/Dashboard.razor": "361a5e97821897f6",
@@ -66,7 +66,7 @@
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412"
   },
   "/list": {
-    "src/Sedna.UI.Catalogue/Components/Pages/List.razor": "7724e1e902f4cecb",
+    "src/Sedna.UI.Catalogue/Components/Pages/List.razor": "335044a4841fe5e3",
     "src/Sedna.UI.Catalogue/Examples/Interop/GroupFoldFromCsharp.razor": "d53d7084b34b471b",
     "src/Sedna.UI.Catalogue/Examples/List/Cards.razor": "2f73cef3b9ef2ecb",
     "src/Sedna.UI.Catalogue/Examples/List/EmptyList.razor": "0c90e276fc97b442",

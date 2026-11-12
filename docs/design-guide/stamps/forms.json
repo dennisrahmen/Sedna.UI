@@ -26,7 +26,7 @@
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5"
   },
   "/form-check-list": {
-    "src/Sedna.UI.Catalogue/Components/Pages/FormCheckList.razor": "b53d46a441311995",
+    "src/Sedna.UI.Catalogue/Components/Pages/FormCheckList.razor": "30f84252ceae5373",
     "src/Sedna.UI.Catalogue/Examples/FormCheckList/Agents.razor": "bc45125363abd54e",
     "src/Sedna.UI.Catalogue/Examples/FormCheckList/Basic.razor": "78181e3db5af78dd",
     "src/Sedna.UI.Catalogue/Examples/FormCheckList/Cards.razor": "2af06a1ea42977b2",
@@ -91,7 +91,7 @@
     "src/Sedna.UI/js-parts/23-colour.js": "0977b150edc5c4c5"
   },
   "/form-combo": {
-    "src/Sedna.UI.Catalogue/Components/Pages/FormCombo.razor": "56ffbcdf0bd4a716",
+    "src/Sedna.UI.Catalogue/Components/Pages/FormCombo.razor": "aeac569db07f8383",
     "src/Sedna.UI.Catalogue/Examples/FormCombo/Collapse.razor": "74e2e8d92abc1ae3",
     "src/Sedna.UI.Catalogue/Examples/FormCombo/FreeEntry.razor": "a7ea84186b06b3cf",
     "src/Sedna.UI.Catalogue/Examples/FormCombo/FreeEntryInBlazor.txt": "e700e30183929448",
@@ -121,7 +121,7 @@
     "src/Sedna.UI/js-parts/23-mention.js": "01d3e6759ea2e2c3"
   },
   "/form-datetime": {
-    "src/Sedna.UI.Catalogue/Components/Pages/FormDatetime.razor": "2b7ea5233db8c09f",
+    "src/Sedna.UI.Catalogue/Components/Pages/FormDatetime.razor": "f2d6215854a6dea2",
     "src/Sedna.UI.Catalogue/Examples/FormDatetime/AskDateErrors.razor": "ee1f766cacea5fd8",
     "src/Sedna.UI.Catalogue/Examples/FormDatetime/AskDateOfBirth.razor": "bff01f176d251725",
     "src/Sedna.UI.Catalogue/Examples/FormDatetime/Basics.razor": "c2ded0a8a9a7370a",

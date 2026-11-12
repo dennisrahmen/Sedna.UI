@@ -301,7 +301,7 @@ would be reverted on the next render, silently and only sometimes.
 `docs/design-guide/` is the design guide's one home: `principles.md`, and per catalogue group a
 `components/<group>.json` of entries — what each page is for, what it is combined with, what it is
 not for, which user goals it answers — and a `goals/<group>.json` of the goals whose primary answer
-is in that group. The `/design-guide` page, the panel under every page's title, the topbar search
+is in that group. The `/design-guide` page, the "Goes well with" section at every page's foot, the topbar search
 and the MCP server's `search`, `get_guide` and `get_page` read them. Each entry is stamped against
 its page, its examples and the parts behind the classes it teaches, so **changing a component fails
 `GuideStampTests` until its entry has been reviewed** — read the entry, correct it, then run the

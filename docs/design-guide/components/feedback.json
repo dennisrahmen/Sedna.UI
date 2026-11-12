@@ -112,7 +112,7 @@
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
     "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
-    "stamp": "84ce6efe0c72640c"
+    "stamp": "c8d239f3a346350e"
   },
   {
     "page": "/state-art",
@@ -128,7 +128,7 @@
       { "text": "A picture that is part of the content", "instead": "/media" }
     ],
     "goals": [ "illustrate-a-state", "explain-an-empty-view" ],
-    "stamp": "4035ada247eb0fcb"
+    "stamp": "f22caaa197885ffe"
   },
   {
     "page": "/live-state",

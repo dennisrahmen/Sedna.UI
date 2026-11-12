@@ -1,6 +1,8 @@
 @page "/design-guide"
 @using Sedna.UI.Catalogue.Guide
 @inject DesignGuide Guide
+@inject NavigationManager Nav
+@implements IDisposable
 
 @* docs/design-guide/, rendered: the goals first, because a page is chosen from what its user has
    to do, then the principles. Nothing here is written twice — the words are the files', and
@@ -11,16 +13,6 @@
     @((MarkupString)GuideMarkdown.InlineHtml(Guide.Intro)) Every component page carries its own entry
     at its foot, under "Goes well with".
 </CatHead>
-
-<nav class="page-toc cat-guide-toc" aria-label="On this page">
-    <ol class="page-toc-list">
-        <li><a class="page-toc-link" href="/design-guide#goals">What the user can do</a></li>
-        @foreach (var section in Guide.Sections)
-        {
-            <li><a class="page-toc-link" href="/design-guide#@section.Id">@section.Title</a></li>
-        }
-    </ol>
-</nav>
 
 <h2 id="goals">What the user can do <CatAnchor Id="goals" /></h2>
 
@@ -39,7 +31,7 @@
     <div class="accordion">
         @foreach (var goal in goals)
         {
-            <details id="@goal.Id">
+            <details id="@goal.Id" open="@(goal.Id == Named)">
                 <summary><span>@goal.Goal</span></summary>
                 <div class="accordion-body cat-goal">
                     <p>@goal.How</p>
@@ -64,10 +56,29 @@
 @foreach (var section in Guide.Sections)
 {
     <h2 id="@section.Id">@section.Title <CatAnchor Id="@section.Id" /></h2>
-    <div class="prose">@((MarkupString)GuideMarkdown.ToHtml(section.Markdown))</div>
+    @* The library's prose keeps a 72ch reading measure; this is the page's own column, as wide
+       as every other page's text, so the measure is lifted with its token. *@
+    <div class="prose" style="--prose-measure: none">@((MarkupString)GuideMarkdown.ToHtml(section.Markdown))</div>
 }
 
 @code {
+    // The goal the address names, opened: a component page's "Goals it answers" links here
+    // with the goal's id, and a closed entry would show only its sentence.
+    private string? Named
+    {
+        get
+        {
+            var hash = Nav.Uri.IndexOf('#');
+            return hash < 0 ? null : Uri.UnescapeDataString(Nav.Uri[(hash + 1)..]);
+        }
+    }
+
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
     private static List<GuideAnswer> Parts(GuideGoal goal) =>
         goal.Answer.Where(a => a.Role == GuideAnswer.Part).ToList();
 }

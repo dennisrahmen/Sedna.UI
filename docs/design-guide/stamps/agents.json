@@ -118,7 +118,7 @@
     "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"
   },
   "/mochi": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Mochi.razor": "7f2214330c9f23f3",
+    "src/Sedna.UI.Catalogue/Components/Pages/Mochi.razor": "a0c877007ab86abc",
     "src/Sedna.UI.Catalogue/Examples/Mochi/Actions.razor": "5c6355dfab00b3a7",
     "src/Sedna.UI.Catalogue/Examples/Mochi/Controls.razor": "eca194e5d1b00812",
     "src/Sedna.UI.Catalogue/Examples/Mochi/Dividers.razor": "4321e8aee0efca9a",
@@ -140,7 +140,7 @@
     "src/Sedna.UI/js-parts/46-mochi.js": "0efdf035d14abd7d"
   },
   "/orb": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Orb.razor": "aee4b7a2646cba06",
+    "src/Sedna.UI.Catalogue/Components/Pages/Orb.razor": "8efe511605781a0f",
     "src/Sedna.UI.Catalogue/Examples/Orb/Activities.razor": "a94b867bc51e351f",
     "src/Sedna.UI.Catalogue/Examples/Orb/Hero.razor": "c48cdb9f780d5e42",
     "src/Sedna.UI.Catalogue/Examples/Orb/Inline.razor": "5429ea4adc26dcc0",
