@@ -23,6 +23,11 @@ paths-ignore:
   - src/Sedna.UI/signature-parts
   - src/Sedna.UI/qr-parts
 
+# Generated code is not excluded here but in codeql.yml, after the analysis: a source
+# generator's output under obj/ is compiled with the project, and for a built language
+# paths-ignore does not decide what is compiled. The step there drops every result whose
+# locations are all under obj/, and says how many it dropped.
+
 query-filters:
   # `cs/path-combine` warns that Path.Combine silently drops its earlier
   # arguments when a later one is an absolute path. Every call in this repository

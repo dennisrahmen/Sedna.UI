@@ -88,7 +88,50 @@ jobs:
         if: matrix.language == 'csharp'
         run: dotnet build Sedna.UI.slnx -c Release
 
+      # Analysed, filtered, then uploaded, rather than uploaded by the analysis itself.
+      # A C# build compiles source generators' output under obj/ — the regex generator's
+      # RegexGenerator.g.cs for every [GeneratedRegex] — and CodeQL analyses what was
+      # compiled. Nothing in this repository can change that code, so a finding in it
+      # is noise that hides the findings that are ours. Dropping results located under
+      # obj/ is the one place that holds for every generator; paths-ignore cannot, since
+      # for a built language it does not decide what the build compiles.
       - name: Analyse
         uses: github/codeql-action/analyze@v4
         with:
           category: /language:${{ matrix.language }}
+          output: sarif-results
+          upload: never
+
+      - name: Drop findings in generated code
+        run: |
+          python3 - <<'PY'
+          import glob, json
+          for path in glob.glob('sarif-results/*.sarif'):
+              with open(path) as f:
+                  sarif = json.load(f)
+              for run in sarif.get('runs', []):
+                  def ours(result):
+                      uris = [l.get('physicalLocation', {}).get('artifactLocation', {}).get('uri', '')
+                              for l in result.get('locations', [])]
+                      return not uris or not all('/obj/' in '/' + u for u in uris)
+                  kept = [r for r in run.get('results', []) if ours(r)]
+                  print(f"{path}: {len(run.get('results', [])) - len(kept)} in generated code dropped, {len(kept)} kept")
+                  run['results'] = kept
+              with open(path, 'w') as f:
+                  json.dump(sarif, f)
+          PY
+
+      - name: Upload
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-results
+          category: /language:${{ matrix.language }}
+
+      # The same results as a workflow artifact, so they can be read through the Actions
+      # API by anyone who can read the run, where the code scanning API needs more.
+      - name: Keep the results
+        uses: actions/upload-artifact@v7
+        with:
+          name: codeql-${{ matrix.language }}
+          path: sarif-results
+          retention-days: 30
