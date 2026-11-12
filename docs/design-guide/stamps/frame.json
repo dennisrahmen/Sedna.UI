@@ -40,7 +40,7 @@
     "src/Sedna.UI/css-parts/19-frame-responsive.css": "18e78ee09cc08198",
     "src/Sedna.UI/css-parts/24-frame-bottombar.css": "a38b70eec70c5dec",
     "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
-    "src/Sedna.UI/css-parts/61-buttons-extra.css": "d63ae13d0dd8d706",
+    "src/Sedna.UI/css-parts/61-buttons-extra.css": "114ddace2c87fe1b",
     "src/Sedna.UI/js-parts/23-nav.js": "89ac7f455237f563",
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412"
   },
@@ -196,7 +196,7 @@
     "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6"
   },
   "/topbar": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Topbar.razor": "ee41f3fa2c50286a",
+    "src/Sedna.UI.Catalogue/Components/Pages/Topbar.razor": "cdf457bbb074376b",
     "src/Sedna.UI.Catalogue/Examples/Interop/SearchRankFromCsharp.razor": "1a85be6375d4ad03",
     "src/Sedna.UI.Catalogue/Examples/Topbar/AnchoredSearch.html": "70314b00b21b9a49",
     "src/Sedna.UI.Catalogue/Examples/Topbar/AppSwitcher.razor": "4ef8998e2c6f0854",
@@ -204,7 +204,7 @@
     "src/Sedna.UI.Catalogue/Examples/Topbar/HeaderSearch.razor": "54777557eae73e16",
     "src/Sedna.UI.Catalogue/Examples/Topbar/QuietText.razor": "2e38fac492297984",
     "src/Sedna.UI.Catalogue/Examples/Topbar/SearchResults.html": "847f7503849bfd77",
-    "src/Sedna.UI.Catalogue/Examples/Topbar/UserMenu.razor": "0dfaf237158f9d5f",
+    "src/Sedna.UI.Catalogue/Examples/Topbar/UserMenu.razor": "f9a1eeec6e5975cd",
     "src/Sedna.UI.Catalogue/Examples/Topbar/VersionTag.razor": "f8c4709d38f9b92d",
     "src/Sedna.UI/css-parts/13-frame-topbar.css": "ad0f8b685900c38d",
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "5a8918a36a9a8dee",
@@ -212,7 +212,7 @@
     "src/Sedna.UI/css-parts/21-frame-search.css": "435782bc5ecf73e5",
     "src/Sedna.UI/css-parts/24-frame-bottombar.css": "a38b70eec70c5dec",
     "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
-    "src/Sedna.UI/css-parts/58-menu.css": "3bc0e54a86c0c26a",
+    "src/Sedna.UI/css-parts/58-menu.css": "88d0610e40a715c8",
     "src/Sedna.UI/css-parts/65-app-switcher.css": "4d2abd1533417256",
     "src/Sedna.UI/css-parts/69-busy.css": "3b12f0dd9589d085",
     "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",

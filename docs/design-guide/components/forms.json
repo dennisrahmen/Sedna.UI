@@ -120,7 +120,7 @@
       { "text": "One line of text", "instead": "/form-text" }
     ],
     "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
-    "stamp": "32f57c8f60452870"
+    "stamp": "597b0433996a15cc"
   },
   {
     "page": "/form-datetime",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "88dccb425869d95a"
+    "stamp": "edbff45c2690e37c"
   },
   {
     "page": "/form-select",
@@ -155,8 +155,8 @@
       { "text": "A set of options ticked on sight", "instead": "/form-check-list" },
       { "text": "Actions on a record", "instead": "/menu" }
     ],
-    "goals": [ "pick-one-from-a-short-list", "move-rows-between-two-lists", "pick-a-microphone" ],
-    "stamp": "33570d35c97bca6b"
+    "goals": [ "pick-one-from-a-short-list", "move-rows-between-two-lists", "pick-a-microphone", "open-a-panel-upward" ],
+    "stamp": "c6ccb094b0f50e81"
   },
   {
     "page": "/form-combo",
@@ -173,8 +173,8 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" },
       { "text": "Running a command by name", "instead": "/palette" }
     ],
-    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model" ],
-    "stamp": "6d4a418918661ab5"
+    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
+    "stamp": "367805dfdbe5456b"
   },
   {
     "page": "/form-choice",

@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "327e5cd8641e1701"
+    "stamp": "6add3dc72013fb62"
   },
   {
     "page": "/progress",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/structure#code-blocks" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "4985aefd3f65b6eb"
+    "stamp": "95f574dcf2e972c7"
   }
 ]

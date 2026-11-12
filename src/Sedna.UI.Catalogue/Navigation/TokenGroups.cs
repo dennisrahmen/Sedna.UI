@@ -186,6 +186,9 @@ internal static class TokenGroups
             "--cap-gap",
         ], Swatch: false),
 
+        // Where a panel anchored to a trigger opens: a keyword, read with a style query.
+        new("Placement", ["--panel-placement"], Swatch: false),
+
         // How much of each viewport edge the device has taken — a home indicator, a
         // notch, a rounded corner. 0px on a desktop, a real value on a phone or a
         // tablet; `env()` is the device detection, so a rule that adds one is correct

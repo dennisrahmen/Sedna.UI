@@ -123,6 +123,79 @@
     justify-self: start;
 }
 
+/* ── Where the panel opens: `--panel-placement` ─────────────────────────────
+   One token for every panel anchored to a trigger — this one, the mention list below,
+   `.popover`, `.form-combo-panel` and `.form-select`'s drop-down — with the same four
+   values, the `position-area` keywords for the four sides of the trigger:
+
+     block-end      below, the default
+     block-start    above
+     inline-end     beside it, after the trigger in the reading direction
+     inline-start   beside it, before the trigger
+
+       <div class="menu-anchor" style="--panel-placement: block-start">…</div>
+
+   It is read with a style query, so it is set on the element the panel sits in — the
+   anchor here — or on anything above it, and inherits: a bar pinned to the foot of a
+   pane sets it once and every menu, popover and field in it opens upward. It cannot be
+   set on the panel itself, which is what moves.
+
+   Each placement keeps the panel's alignment along the trigger and its gap on the side
+   facing the trigger, and keeps the flip: an upward panel turns downward where there is
+   no room above, and a side panel turns to the other side, grows the other way along
+   the trigger, and where neither side has room opens below it, then above. A side placement lines the panel up with the trigger's block-start
+   edge, so `.menu--start` only chooses between the inline edges above and below. All of
+   it is logical, so RTL mirrors with no rule in 70-rtl.css. Below 768px a menu is a
+   sheet whatever the placement says. `AnchoredPlacementTests` measures every panel in
+   every placement, and `Every_anchored_panel_takes_every_placement` fails on a panel
+   that does not have all four. */
+/* A side placement whose panel fits on neither side — a narrow window, a trigger in
+   the middle of it — opens below the trigger as a last resort, lined up with either of
+   its edges, then above it. Every panel's side placements end their fallbacks with
+   these two; the popover has its own pair with its own gap. */
+@position-try --sedna-panel-below {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    margin: var(--space-2) 0 0;
+}
+@position-try --sedna-panel-above {
+    position-area: block-start span-inline-end;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 var(--space-2);
+}
+@container style(--panel-placement: block-start) {
+    .menu-anchor > .menu {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+    .menu-anchor > .menu--start { position-area: block-start span-inline-end; }
+}
+@container style(--panel-placement: inline-end) {
+    .menu-anchor > .menu {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .menu-anchor > .menu {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+
 /* ── A submenu ──────────────────────────────────────────────────────────────
    An item that opens a further menu beside it: `.menu-sub-anchor` holds the item, which
    carries `data-menu-sub` and `aria-haspopup="menu"`, and the `.menu.menu-sub` it opens.
@@ -278,6 +351,37 @@
 /* A trailing shortcut hint or count. */
 .menu-item-note { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); }
 
+/* ── The current item ───────────────────────────────────────────────────────
+   The value a menu changes — the access level a row has, the view the page shows —
+   is the item with `aria-current`, and that attribute is the whole of the markup:
+
+     <button class="menu-item" type="button" aria-current="true">…<span>Maintainer</span></button>
+
+   It is the tint and the brand ink `.nav-link.active` and a `.form-select`'s chosen
+   option carry, so the three read alike, and a tick at the trailing edge, where the
+   select draws its own, so it does not depend on colour. The tick is drawn as the
+   combo field's is, and stands in a column of its own: a menu holding a current item
+   keeps that room at the end of every row, so a `.menu-item-note` stays lined up down
+   the panel and never sits under the tick. */
+.menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
+    position: relative;
+    padding-inline-end: calc(var(--space-5) * 2 + 7px);
+}
+.menu-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+.menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }
+.menu-item[aria-current]:not([aria-current="false"]):is(:hover, [data-active]) { background: var(--brand-tint-strong); }
+.menu-item[aria-current]:not([aria-current="false"])::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: calc(var(--space-5) + 1px);
+    top: 50%;
+    width: 5px;
+    height: 9px;
+    border-inline-end: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-60%) rotate(45deg);
+}
+
 .menu-label {
     display: block;
     padding: var(--space-4) var(--space-5) var(--space-2);
@@ -375,6 +479,37 @@
     max-block-size: 16rem;
     overflow-y: auto;
     z-index: 550;
+}
+/* `--panel-placement` on the field or above it, as on a `.menu-anchor`. A composer at
+   the foot of a pane that still has room below it sets `block-start`. */
+@container style(--panel-placement: block-start) {
+    .mention-field > .menu {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .mention-field > .menu {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .mention-field > .menu {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
 }
 .mention-field > .menu[hidden] { display: none; }
 .chat-composer-row > .mention-field { flex: 1; }

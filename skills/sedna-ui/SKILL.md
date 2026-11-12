@@ -218,6 +218,17 @@ on the element, not a class to override. `--toolbar-input-width`, `--search-max`
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
 
+**Where a dropdown opens is a knob too.** `--panel-placement` — `block-end` (below, the default),
+`block-start` (above), `inline-end` or `inline-start` (beside) — places every panel anchored to a
+trigger: a `.menu` in `.menu-anchor`, a `.popover`, a `.form-combo-panel`, a mention list and a
+`.form-select`'s drop-down, each still turning round where its side has no room. Set it on the element
+the panel sits in or on anything above it — a bar pinned to the foot of a pane sets
+`style="--panel-placement: block-start"` once — never on the panel, and never write `position-area`
+for a library panel yourself.
+
+**A menu marks its current item itself.** `aria-current="true"` on the `.menu-item` that holds the value
+in use tints it and draws the tick; do not write a tick or a "Current" note of your own.
+
 ### Check the classes this app uses
 
 `SednaContract.Classes` holds every class the installed package declares, with the release that

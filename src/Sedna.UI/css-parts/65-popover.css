@@ -41,9 +41,12 @@
     margin: 0;
     position: fixed;
     position-area: block-end span-inline-end;
-    /* Flips above the trigger when there is no room below. The flip takes the
-       margin with it, so the gap stays on the side facing the invoker. */
-    position-try-fallbacks: flip-block;
+    /* Flips above the trigger when there is no room below, and to the trigger's
+       other edge when there is none beside it, as `.menu` does — an upward popover
+       near the top corner otherwise had no fallback that fitted and covered its own
+       invoker. The flip takes the margin with it, so the gap stays on the side facing
+       the invoker. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     margin-block-start: var(--space-3);
     z-index: 550;
 
@@ -69,6 +72,55 @@
     text-transform: none;
     white-space: normal;
 }
+/* ── Where it opens ─────────────────────────────────────────────────────────
+   `--panel-placement`, the token every anchored panel reads (58-menu.css has the
+   whole of it): `block-start` above the invoker, `inline-end` or `inline-start` beside
+   it, each still flipping where there is no room. A popover is read from its parent,
+   so set it on the element the popover is written in, or anything above that. */
+/* A side placement's last resort, as for the menu (58-menu.css), with the popover's
+   own gap. */
+@position-try --sedna-popover-below {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    margin: var(--space-3) 0 0;
+}
+@position-try --sedna-popover-above {
+    position-area: block-start span-inline-end;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 var(--space-3);
+}
+@container style(--panel-placement: block-start) {
+    .popover {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-3);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-3) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-popover-below, --sedna-popover-below flip-inline, --sedna-popover-above, --sedna-popover-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-3);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-popover-below, --sedna-popover-below flip-inline, --sedna-popover-above, --sedna-popover-above flip-inline;
+    }
+}
+
 .popover > :first-child { margin-top: 0; }
 .popover > :last-child { margin-bottom: 0; }
 

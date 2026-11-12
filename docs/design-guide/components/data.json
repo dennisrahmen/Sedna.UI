@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "edc90d065b0ac12d"
+    "stamp": "429433d8307e0b61"
   },
   {
     "page": "/table-editing",
@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "6f40e6f684f31757"
+    "stamp": "4f895b6c0ef0778c"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "131175e9d2241ca8"
+    "stamp": "f949023e64be418f"
   },
   {
     "page": "/stat",
@@ -186,7 +186,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "538b934a23f09dcf"
+    "stamp": "687d74180ed61605"
   },
   {
     "page": "/pager",
@@ -270,7 +270,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "79461dc8e2157322"
+    "stamp": "2389df928aae4459"
   },
   {
     "page": "/graph-plugins",

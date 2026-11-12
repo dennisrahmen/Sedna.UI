@@ -153,7 +153,7 @@
       { "page": "/menu#a-value-trigger-in-a-table-cell", "role": "primary" },
       { "page": "/avatar#in-a-table-cell", "role": "part" }
     ],
-    "how": "A .value-trigger shows the current value and opens a menu whose options carry an icon or a description; .col-control gives its column a floor. Name each trigger after the record it changes and the value it holds, and mark that option aria-current in its menu, in words as well.",
+    "how": "A .value-trigger shows the current value and opens a menu whose options carry an icon or a description; .col-control gives its column a floor. Name each trigger after the record it changes and the value it holds, and mark that option aria-current in its menu, which tints it and draws its tick.",
     "avoid": "A value trigger where a plain list of values would do, which is a select."
   },
   {
@@ -213,5 +213,19 @@
     ],
     "how": ".drag-grid with data-drag-axis=\"grid\" counts positions in reading order, so the index is the same whatever the column count, and the arrow keys move a tile across and between rows.",
     "avoid": "Storing a tile's position as a column and a row, which breaks as soon as the grid has a different number of columns."
+  },
+  {
+    "id": "open-a-panel-upward",
+    "goal": "Let the user open a menu or a list upward from a bar pinned to the foot of a pane",
+    "phrases": [ "menu opens upward", "dropup menu", "open menu above the button", "panel placement", "menu beside the trigger" ],
+    "answer": [
+      { "page": "/menu#a-bar-at-the-foot-of-a-pane", "role": "primary" },
+      { "page": "/menu#where-it-opens", "role": "part" },
+      { "page": "/popover#where-it-opens", "role": "part" },
+      { "page": "/form-combo#a-list-that-opens-upward", "role": "part" },
+      { "page": "/form-select#a-drop-down-that-opens-upward", "role": "part" }
+    ],
+    "how": "--panel-placement on the bar, block-start for above or inline-end and inline-start for beside, reaches every panel anchored to a trigger inside it: menus, popovers, combo fields and selects. Each still turns round where its side has no room, and a menu is a sheet on a phone whatever it says.",
+    "avoid": "Writing position-area for a library panel in the app's own CSS, which loses the flip and the sheet."
   }
 ]

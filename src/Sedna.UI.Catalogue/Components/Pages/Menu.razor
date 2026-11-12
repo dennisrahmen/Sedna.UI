@@ -38,6 +38,35 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Menu.Placement" Title="Where it opens" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> <code>--panel-placement</code> chooses the side of the trigger the
+        panel opens on: <code>block-end</code> below, the default; <code>block-start</code> above;
+        <code>inline-end</code> and <code>inline-start</code> beside it, after and before the trigger
+        in the reading direction, so they mirror in a right-to-left page. Each still turns round where
+        its side has no room &mdash; an upward menu near the top of the screen opens downward. The
+        same token and the same four values place a <a href="/popover">popover</a>, a
+        <a href="/form-combo">combo field's list</a>, a mention list and a
+        <a href="/form-select">select's drop-down</a>.
+    </p>
+    <p>
+        Set it on the <code>.menu-anchor</code> or on anything above it, never on the panel itself:
+        it is read from the panel's container. Above and below, <code>.menu--start</code> still
+        chooses which of the trigger's edges the panel lines up with; beside it, the panel lines up
+        with the trigger's top. Below 768px a menu is a sheet whatever the token says.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Menu.BarAtTheFoot" Title="A bar at the foot of a pane" Demo="ex-demo--block">
+    <p>
+        <strong>Live.</strong> A bar pinned to the bottom of a pane &mdash; a viewer's footer, a
+        player's controls, a composer &mdash; sets <code>--panel-placement: block-start</code> once,
+        and every menu, popover and field in it opens upward, towards what the reader is looking at,
+        even where the window has room below. A panel that sets the token on its own anchor wins over
+        the bar's.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Menu.AtThePointer" Title="At the pointer, with a submenu" Demo="ex-demo--block">
     <p>
         <strong>Live — right-click a row.</strong> <code>data-menu-context="&lt;id&gt;"</code> on
@@ -85,8 +114,10 @@
         change it — a status, an assignee, an access level. Reach for it where a
         <code>&lt;select&gt;</code> would be wrong because the options need icons or a description;
         where a plain list of values would do, use a <code>&lt;select&gt;</code>. Mark the value it
-        holds now with <code>aria-current="true"</code> on its item and say so in words, and name the
-        trigger with its value as well as what it sets.
+        holds now with <code>aria-current="true"</code> on its item: the library tints it as a current
+        nav link is tinted and ticks it at the trailing edge, where a select ticks its chosen option,
+        and keeps that column free on every row so a <code>.menu-item-note</code> stays lined up.
+        Write no tick of your own. Name the trigger with its value as well as what it sets.
         <code>--value-trigger-measure</code> is how much of the value the control keeps room for,
         10ch by default, and <code>.col-control</code> on the <code>th</code> and the
         <code>td</code> gives the column its floor — see <a href="/table">Tables</a>.

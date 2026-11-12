@@ -70,7 +70,7 @@
       { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
     ],
     "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "9c1d8a8372832f64"
+    "stamp": "86d8431e5e303338"
   },
   {
     "page": "/topbar",
@@ -89,7 +89,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "4ed5b1bb47060dd0"
+    "stamp": "2ea317faeb49c2eb"
   },
   {
     "page": "/status-bar",

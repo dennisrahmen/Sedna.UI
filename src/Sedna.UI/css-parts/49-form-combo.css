@@ -253,6 +253,40 @@
 }
 .form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
 
+/* Where the list opens: `--panel-placement` on the `.form-combo` or anything above it,
+   the token every anchored panel reads (58-menu.css has the whole of it). A field in a
+   bar at the foot of a pane opens its list upward; it still flips where there is no
+   room. The phone's sheet below outweighs these, and an inline list has no side to open on. */
+@container style(--panel-placement: block-start) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+
 /* On a phone the panel is a sheet on the bottom edge, the full width of the screen and
    clear of the home indicator, as a menu is there (58-menu.css): an anchored panel as
    wide as a field is a narrow box beside a thumb. The field keeps the focus, so the

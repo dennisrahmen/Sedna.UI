@@ -3890,6 +3890,8 @@
         "menu-item--danger"
       ],
       "attributes": [
+        ":not([aria-current=\"false\"])",
+        "[aria-current]",
         "[aria-disabled=\"true\"]",
         "[data-active]",
         "[data-menu-sub]",

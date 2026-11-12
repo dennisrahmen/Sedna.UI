@@ -167,7 +167,7 @@
       { "text": "A message in a conversation", "instead": "/chat#the-composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "3f06b73cc26d2541"
+    "stamp": "ab94dd3957eb01a7"
   },
   {
     "page": "/chat",
@@ -186,6 +186,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "da2e6167276facaf"
+    "stamp": "102a5e6a0796588a"
   }
 ]

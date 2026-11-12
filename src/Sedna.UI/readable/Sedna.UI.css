@@ -1068,6 +1068,15 @@
        give the keys more room, or on one row. */
     --kv-key-width: 30%;
 
+    /* Where an anchored panel opens against its trigger: `block-end` (below, the
+       default), `block-start` (above), `inline-end` or `inline-start` (beside it,
+       mirrored in RTL). Every panel anchored to a trigger reads it — a `.menu` in
+       `.menu-anchor`, a `.popover`, a `.form-combo-panel`, a mention list and a
+       `.form-select`'s drop-down — and still flips to the other side where there is no
+       room. Set it on the element the panel sits in, or on anything above it: a bar
+       pinned to the foot of a pane sets it once and every panel in it opens upward. */
+    --panel-placement: block-end;
+
     /* ── Agents ─────────────────────────────────────────────────────────────
        The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
        orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
@@ -9435,6 +9444,40 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 }
 .form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
 
+/* Where the list opens: `--panel-placement` on the `.form-combo` or anything above it,
+   the token every anchored panel reads (58-menu.css has the whole of it). A field in a
+   bar at the foot of a pane opens its list upward; it still flips where there is no
+   room. The phone's sheet below outweighs these, and an inline list has no side to open on. */
+@container style(--panel-placement: block-start) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+
 /* On a phone the panel is a sheet on the bottom edge, the full width of the screen and
    clear of the home indicator, as a menu is there (58-menu.css): an anchored panel as
    wide as a field is a narrow box beside a thumb. The field keeps the focus, so the
@@ -9951,6 +9994,44 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
         opacity var(--motion-fast),
         display var(--motion-fast) allow-discrete,
         overlay var(--motion-fast) allow-discrete;
+}
+/* Where the list opens: `--panel-placement` on the select's container or anything
+   above it, the token every anchored panel reads (58-menu.css has the whole of it).
+
+   The other three placements flip where there is no room, as every anchored panel does,
+   and that takes `position-try-order: normal`. The UA gives the picker
+   `position-try-order: most-block-size`, which tries every fallback and keeps the one
+   with the MOST room rather than the first that fits — measured: a list placed above a
+   select in the upper half of the viewport opened below it with room to spare above.
+   That is very likely the unconditional `flip-block` described above as well, but below
+   keeps `none` until it is measured there on its own. */
+@container style(--panel-placement: block-start) {
+    .form-select::picker(select) {
+        position-area: block-start span-inline-end;
+        position-try-fallbacks: flip-block;
+        position-try-order: normal;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .form-select::picker(select) {
+        position-area: inline-end span-block-end;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+        position-try-order: normal;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .form-select::picker(select) {
+        position-area: inline-start span-block-end;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+        position-try-order: normal;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+    }
 }
 .form-select:open::picker(select) { opacity: 1; }
 @starting-style {
@@ -13789,6 +13870,79 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     justify-self: start;
 }
 
+/* ── Where the panel opens: `--panel-placement` ─────────────────────────────
+   One token for every panel anchored to a trigger — this one, the mention list below,
+   `.popover`, `.form-combo-panel` and `.form-select`'s drop-down — with the same four
+   values, the `position-area` keywords for the four sides of the trigger:
+
+     block-end      below, the default
+     block-start    above
+     inline-end     beside it, after the trigger in the reading direction
+     inline-start   beside it, before the trigger
+
+       <div class="menu-anchor" style="--panel-placement: block-start">…</div>
+
+   It is read with a style query, so it is set on the element the panel sits in — the
+   anchor here — or on anything above it, and inherits: a bar pinned to the foot of a
+   pane sets it once and every menu, popover and field in it opens upward. It cannot be
+   set on the panel itself, which is what moves.
+
+   Each placement keeps the panel's alignment along the trigger and its gap on the side
+   facing the trigger, and keeps the flip: an upward panel turns downward where there is
+   no room above, and a side panel turns to the other side, grows the other way along
+   the trigger, and where neither side has room opens below it, then above. A side placement lines the panel up with the trigger's block-start
+   edge, so `.menu--start` only chooses between the inline edges above and below. All of
+   it is logical, so RTL mirrors with no rule in 70-rtl.css. Below 768px a menu is a
+   sheet whatever the placement says. `AnchoredPlacementTests` measures every panel in
+   every placement, and `Every_anchored_panel_takes_every_placement` fails on a panel
+   that does not have all four. */
+/* A side placement whose panel fits on neither side — a narrow window, a trigger in
+   the middle of it — opens below the trigger as a last resort, lined up with either of
+   its edges, then above it. Every panel's side placements end their fallbacks with
+   these two; the popover has its own pair with its own gap. */
+@position-try --sedna-panel-below {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    margin: var(--space-2) 0 0;
+}
+@position-try --sedna-panel-above {
+    position-area: block-start span-inline-end;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 var(--space-2);
+}
+@container style(--panel-placement: block-start) {
+    .menu-anchor > .menu {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+    .menu-anchor > .menu--start { position-area: block-start span-inline-end; }
+}
+@container style(--panel-placement: inline-end) {
+    .menu-anchor > .menu {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .menu-anchor > .menu {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+
 /* ── A submenu ──────────────────────────────────────────────────────────────
    An item that opens a further menu beside it: `.menu-sub-anchor` holds the item, which
    carries `data-menu-sub` and `aria-haspopup="menu"`, and the `.menu.menu-sub` it opens.
@@ -13944,6 +14098,37 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 /* A trailing shortcut hint or count. */
 .menu-item-note { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); }
 
+/* ── The current item ───────────────────────────────────────────────────────
+   The value a menu changes — the access level a row has, the view the page shows —
+   is the item with `aria-current`, and that attribute is the whole of the markup:
+
+     <button class="menu-item" type="button" aria-current="true">…<span>Maintainer</span></button>
+
+   It is the tint and the brand ink `.nav-link.active` and a `.form-select`'s chosen
+   option carry, so the three read alike, and a tick at the trailing edge, where the
+   select draws its own, so it does not depend on colour. The tick is drawn as the
+   combo field's is, and stands in a column of its own: a menu holding a current item
+   keeps that room at the end of every row, so a `.menu-item-note` stays lined up down
+   the panel and never sits under the tick. */
+.menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
+    position: relative;
+    padding-inline-end: calc(var(--space-5) * 2 + 7px);
+}
+.menu-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+.menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }
+.menu-item[aria-current]:not([aria-current="false"]):is(:hover, [data-active]) { background: var(--brand-tint-strong); }
+.menu-item[aria-current]:not([aria-current="false"])::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: calc(var(--space-5) + 1px);
+    top: 50%;
+    width: 5px;
+    height: 9px;
+    border-inline-end: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-60%) rotate(45deg);
+}
+
 .menu-label {
     display: block;
     padding: var(--space-4) var(--space-5) var(--space-2);
@@ -14041,6 +14226,37 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     max-block-size: 16rem;
     overflow-y: auto;
     z-index: 550;
+}
+/* `--panel-placement` on the field or above it, as on a `.menu-anchor`. A composer at
+   the foot of a pane that still has room below it sets `block-start`. */
+@container style(--panel-placement: block-start) {
+    .mention-field > .menu {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .mention-field > .menu {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .mention-field > .menu {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
 }
 .mention-field > .menu[hidden] { display: none; }
 .chat-composer-row > .mention-field { flex: 1; }
@@ -15941,6 +16157,9 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    its items as separate pills lined up on the button's end edge, and the button's icon
    turns while it is open. Three to five actions; past that it is a menu or a sheet. */
 .menu-anchor.fab-dial {
+    /* Upward through the placement token every anchored panel reads (58-menu.css), so
+       the dial flips like any other upward menu where there is no room above it. */
+    --panel-placement: block-start;
     position: fixed;
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
     inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
@@ -15951,10 +16170,6 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab-dial > .fab i { transition: transform var(--motion-fast) ease; }
 .fab-dial > .fab[aria-expanded="true"] i { transform: rotate(45deg); }
 .fab-dial > .menu {
-    position-area: block-start span-inline-start;
-    justify-self: end;
-    align-self: end;
-    position-try-fallbacks: flip-block;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -18349,9 +18564,12 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin: 0;
     position: fixed;
     position-area: block-end span-inline-end;
-    /* Flips above the trigger when there is no room below. The flip takes the
-       margin with it, so the gap stays on the side facing the invoker. */
-    position-try-fallbacks: flip-block;
+    /* Flips above the trigger when there is no room below, and to the trigger's
+       other edge when there is none beside it, as `.menu` does — an upward popover
+       near the top corner otherwise had no fallback that fitted and covered its own
+       invoker. The flip takes the margin with it, so the gap stays on the side facing
+       the invoker. */
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     margin-block-start: var(--space-3);
     z-index: 550;
 
@@ -18377,6 +18595,55 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     text-transform: none;
     white-space: normal;
 }
+/* ── Where it opens ─────────────────────────────────────────────────────────
+   `--panel-placement`, the token every anchored panel reads (58-menu.css has the
+   whole of it): `block-start` above the invoker, `inline-end` or `inline-start` beside
+   it, each still flipping where there is no room. A popover is read from its parent,
+   so set it on the element the popover is written in, or anything above that. */
+/* A side placement's last resort, as for the menu (58-menu.css), with the popover's
+   own gap. */
+@position-try --sedna-popover-below {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    margin: var(--space-3) 0 0;
+}
+@position-try --sedna-popover-above {
+    position-area: block-start span-inline-end;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 var(--space-3);
+}
+@container style(--panel-placement: block-start) {
+    .popover {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-3);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-3) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-popover-below, --sedna-popover-below flip-inline, --sedna-popover-above, --sedna-popover-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-3);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-popover-below, --sedna-popover-below flip-inline, --sedna-popover-above, --sedna-popover-above flip-inline;
+    }
+}
+
 .popover > :first-child { margin-top: 0; }
 .popover > :last-child { margin-bottom: 0; }
 
@@ -25821,6 +26088,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
     .nav-link.active,
+    .menu-item[aria-current]:not([aria-current="false"]),
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
     .page-toc-link[aria-current="location"],
