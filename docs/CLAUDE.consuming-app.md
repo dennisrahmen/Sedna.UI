@@ -222,6 +222,14 @@ on the element, not a class to override. `--toolbar-input-width`, `--search-max`
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
 
+The same goes for a border, a corner, a position or a padding written inline beside a library class.
+A panel that draws its own frame — `.code-block`, `.diff`, `.accordion`, `.pdf-frame`,
+`.media-player`, `.cal-agenda`, `.cal-month`, `.cal-week`, `.cal-timeline` — takes its `--flush`
+modifier inside a card, never `style="border: 0; border-radius: 0"`. A `.guard` positions the element
+it covers itself, so its card needs no `position: relative`; `.mochi-host--room` keeps clear the room a
+perch reaches into, so the page around Mochi needs no padding for it; and a `.palette` that is not a
+`<dialog>` draws the same panel, so it needs no card around it.
+
 The `hidden` attribute hides an element whatever library class it carries — an `.alert`, a `.toast`,
 a `.menu-item`. Hide with the attribute; never write a `[hidden]` rule for a library class.
 

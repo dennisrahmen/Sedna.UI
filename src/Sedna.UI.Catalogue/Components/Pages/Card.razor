@@ -92,7 +92,8 @@
 <CatExample TExample="Examples.Card.Guarded" Title="A guarded card" Demo="ex-demo--block">
     <p>
         A card the reader can read but must claim, accept or unlock before acting on.
-        <code>.guard</code> is absolute, so the card needs <code>position: relative</code>; put
+        <code>.guard</code> covers the element it is a child of &mdash; here the card, which the
+        library positions for it, so no <code>position: relative</code> is needed. Put
         <code>inert</code> on the guarded content, or it stays in the tab order behind the scrim.
     </p>
 </CatExample>

@@ -7475,6 +7475,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border-radius: var(--radius-surface);
     overflow: hidden;
 }
+.diff--flush { border: none; border-radius: 0; }
 .diff-head {
     display: flex;
     flex-wrap: wrap;
@@ -8757,6 +8758,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .sticky-group-toggle:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus-ring); }
 [data-group-hidden] { display: none; }
 .accordion { border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
+.accordion--flush { border: none; border-radius: 0; }
 .accordion > details + details { border-top: 1px solid var(--border); }
 .accordion summary {
     display: flex;
@@ -9200,6 +9202,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border-radius: var(--radius-surface);
     overflow: hidden;
 }
+.pdf-frame--flush { border: none; border-radius: 0; }
 .pdf-frame--page {
     block-size: auto;
     aspect-ratio: var(--media-ratio, 210 / 297);
@@ -10036,8 +10039,7 @@ dialog.lightbox::before {
     cursor: zoom-in;
     overflow: hidden;
 }
-.media-open > img,
-.media-open > .media-frame { display: block; }
+.media-open > img { display: block; }
 .media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }
 }
 @layer sedna.paint {
@@ -10052,6 +10054,7 @@ dialog.lightbox::before {
     background: var(--surface-here, var(--bg));
     overflow: hidden;
 }
+.media-player--flush { border: none; border-radius: 0; }
 .media-player > video {
     display: block;
     width: 100%;
@@ -10205,14 +10208,9 @@ dialog.lightbox::before {
 }
 }
 @layer sedna.paint {
-dialog.palette[open] {
+.palette {
     display: flex;
     flex-direction: column;
-}
-dialog.palette {
-    width: min(560px, calc(100vw - 32px));
-    max-height: 60dvh;
-    margin: 12dvh auto auto;
     padding: 0;
     overflow: hidden;
     --surface-here: var(--bg-elevated);
@@ -10222,8 +10220,14 @@ dialog.palette {
     border-radius: var(--radius-panel);
     box-shadow: var(--shadow-pop);
     color: var(--fg);
+}
+dialog.palette {
+    width: min(560px, calc(100vw - 32px));
+    max-height: 60dvh;
+    margin: 12dvh auto auto;
     --dialog-backdrop: var(--backdrop);
 }
+dialog.palette:not([open]) { display: none; }
 dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: blur(2px); }
 .palette-input {
     flex-shrink: 0;
@@ -11016,6 +11020,7 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+.cal-agenda--flush { border: none; border-radius: 0; }
 .cal-agenda-day + .cal-agenda-day { border-top: 1px solid var(--border); }
 .cal-agenda-head {
     position: sticky;
@@ -11132,6 +11137,7 @@ a.cal-agenda-title:focus-visible { outline: none; border-radius: var(--radius-sm
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+.cal-month--flush { border: none; border-radius: 0; }
 .cal-weekdays,
 .cal-row {
     display: grid;
@@ -11348,6 +11354,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+.cal-week--flush { border: none; border-radius: 0; }
 .cal-week-head,
 .cal-week-body {
     display: grid;
@@ -11462,6 +11469,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+.cal-timeline--flush { border: none; border-radius: 0; }
 .cal-timeline-head,
 .cal-timeline-row {
     display: grid;
@@ -13160,6 +13168,7 @@ button.inbox-item-title {
 .btn-mic[data-state="muted"]:hover { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-fg); }
 }
 @layer sedna.paint {
+:where(:has(> .guard)) { position: relative; }
 .guard {
     position: absolute;
     inset: 0;
@@ -13345,6 +13354,20 @@ button.inbox-item-title {
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="sit"]   { inset-block-start: calc(50% - var(--size) * 0.75); }
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="stand"] { inset-block-end: calc(50% - var(--size) * 0.0375); }
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="hang"]  { inset-block-start: calc(50% - var(--size) * 0.1875); }
+.mochi-host--room { --size: 112px; }
+.mochi-host--room:has(> .mochi--sm) { --size: 64px; }
+.mochi-host--room:has(> .mochi--md) { --size: 88px; }
+.mochi-host--room:has(> .mochi--lg) { --size: 140px; }
+.mochi-host--room:has(> .mochi--xl) { --size: 220px; }
+.mochi-host--room > .mochi { --size: inherit; }
+.mochi-host--room:has(> .mochi[data-perch="sit"])  { margin-block-start: calc(var(--size) * 0.8); }
+.mochi-host--room:has(> .mochi:is([data-perch="peek"], [data-perch="look"])) { margin-block-start: calc(var(--size) * 0.4); }
+.mochi-host--room:has(> .mochi[data-perch="hang"]) { margin-block-end: calc(var(--size) * 0.82); }
+.mochi-host--room:has(> .mochi[data-perch="side"]) { margin-inline-end: calc(var(--size) * 0.65); }
+.mochi-host--room:has(> .mochi[data-perch="point"]) { padding-block: calc(var(--size) * 0.4); padding-inline-start: calc(var(--size) * 1.05); }
+.mochi-host--room:has(> .mochi[data-perch="point"][data-facing="start"]) { padding-inline: 0 calc(var(--size) * 1.05); }
+.mochi-host--room:has(> :is(.divider, .divider-labelled)):has(> .mochi[data-perch="stand"]) { margin-block-start: calc(var(--size) * 0.8); }
+.mochi-host--room:has(> :is(.divider, .divider-labelled)):has(> .mochi[data-perch="sit"]) { margin-block-end: calc(var(--size) * 0.25); }
 .sedna-mochi-body  { fill: var(--mochi-body); }
 .sedna-mochi-palm  { fill: var(--mochi-body); }
 .sedna-mochi-seg   { fill: var(--mochi-limb); }

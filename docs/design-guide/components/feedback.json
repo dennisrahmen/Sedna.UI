@@ -92,7 +92,7 @@
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
     "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
-    "stamp": "3b20bc68df936f0e"
+    "stamp": "2bafaeb8b5687cea"
   },
   {
     "page": "/empty-state",
@@ -112,7 +112,7 @@
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
     "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
-    "stamp": "6a502694f81a400b"
+    "stamp": "bcb509e31183382f"
   },
   {
     "page": "/state-art",
@@ -148,7 +148,7 @@
       { "text": "A share done with no output to show", "instead": "/progress#progress-bar" }
     ],
     "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "d9fa00e6047c14bc"
+    "stamp": "3b8dc4bfa2c65108"
   },
   {
     "page": "/logs",

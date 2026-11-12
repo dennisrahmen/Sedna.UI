@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "24dcd9e816585771"
+    "stamp": "0f7ac3c9a75eba18"
   },
   {
     "page": "/carousel",
@@ -50,7 +50,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "709fe7970c0b8c68"
+    "stamp": "44440949da9186aa"
   },
   {
     "page": "/video",
@@ -64,7 +64,7 @@
       { "text": "A still picture opened large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "play-a-video" ],
-    "stamp": "cc184bd58d117ff5"
+    "stamp": "368a7bcb119f1e61"
   },
   {
     "page": "/audio",
@@ -72,14 +72,15 @@
     "combineWith": [
       { "page": "/list", "how": "A voicemail or a playlist is a list whose rows play, the one playing marked aria-current." },
       { "page": "/chat#a-link-a-voice-message-an-upload", "how": "A voice message in a thread is the same .audio-wave inside the bubble." },
-      { "page": "/video#a-player", "how": "The player is the same .media-player as a video's, with no picture and a .media-transcript under it." }
+      { "page": "/video#a-player", "how": "The player is the same .media-player as a video's, with no picture and a .media-transcript under it." },
+      { "page": "/card", "how": "The player of the track playing sits under a card head as .media-player--flush, over the track list." }
     ],
     "notFor": [
       { "text": "A live voice moving with the microphone", "instead": "/voice#live-bars" },
       { "text": "A recording with pictures", "instead": "/video" }
     ],
     "goals": [ "play-a-recording" ],
-    "stamp": "f7bae2e5b52433d8"
+    "stamp": "b5a0eca020ac36a5"
   },
   {
     "page": "/prose",
@@ -117,28 +118,30 @@
     "useFor": "Two versions of a text line by line, unified or side by side, from a diff the app computes.",
     "combineWith": [
       { "page": "/badge#semantic", "how": "The .diff-head names the file and counts the lines added and removed in go and danger badges." },
-      { "page": "/prose#what-changed", "how": "Inside a changed line, ins and del mark the words that changed." }
+      { "page": "/prose#what-changed", "how": "Inside a changed line, ins and del mark the words that changed." },
+      { "page": "/card", "how": "A diff straight in a card, under a head that names the file, takes .diff--flush, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "A few words changed in running text", "instead": "/prose#what-changed" },
       { "text": "Code shown once, with nothing to compare", "instead": "/structure#code-blocks" }
     ],
     "goals": [ "mark-changed-words", "compare-two-versions" ],
-    "stamp": "04ec7c16aa9b993c"
+    "stamp": "54ba42f9cf04ee71"
   },
   {
     "page": "/pdf",
     "useFor": "A PDF read in the page through the browser's own viewer, with a bar to open or download it and a fallback where there is no viewer.",
     "combineWith": [
       { "page": "/empty-state", "how": "The fallback inside the object is an empty state naming the document, with a link that downloads it." },
-      { "page": "/media#a-document-in-it", "how": "A PDF opened from a gallery is a .lightbox-frame in the lightbox's stage." }
+      { "page": "/media#a-document-in-it", "how": "A PDF opened from a gallery is a .lightbox-frame in the lightbox's stage." },
+      { "page": "/card", "how": "A PDF in a card takes .pdf-frame--flush, with its name and actions in the card head instead of a bar." }
     ],
     "notFor": [
       { "text": "A list of documents to download", "instead": "/files#attached-to-a-record" },
       { "text": "A picture of a scanned page", "instead": "/media#contain-or-cover" }
     ],
     "goals": [ "read-a-pdf" ],
-    "stamp": "05533b47224f16ca"
+    "stamp": "cc654a801d132b14"
   },
   {
     "page": "/qr",
@@ -186,6 +189,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "8df13ed2512fa2d7"
+    "stamp": "313826695d0061cd"
   }
 ]

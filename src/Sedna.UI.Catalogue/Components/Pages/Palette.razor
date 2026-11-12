@@ -38,8 +38,11 @@
 
 <CatExample TExample="Examples.Palette.PaletteStates" Title="Matching, and nothing found" Demo="ex-demo--block">
     <p>
-        The two states side by side, laid out statically here in a card standing in for the
-        <code>&lt;dialog class="palette"&gt;</code> so both are visible at once, with
+        The two states side by side, laid out statically so both are visible at once. The panel is
+        <code>.palette</code>'s wherever its markup is, so a <code>&lt;div class="palette"&gt;</code>
+        draws the same box as the dialog &mdash; for a picture of the palette in help text, or commands
+        kept on screen &mdash; and only the place near the top and the backdrop belong to
+        <code>&lt;dialog class="palette"&gt;</code>. Here with
         <code>.palette-footer</code> carrying the keys as <code>.kbd</code> literals.
         <code>.palette-group</code> heads a run of commands from the same group and is dropped once
         a query has reordered the list; its <code>&lt;li&gt;</code> needs

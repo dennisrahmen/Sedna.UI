@@ -54,7 +54,9 @@
         marker that opens its list is a <code>&lt;button&gt;</code> with
         <code>data-popover</code>; give it a label that says what the number counts.
         <code>.cal-month--day-tones</code> sets a weekend's and a holiday's day number in their
-        tones, which reads beside markers where the day's shade does not.
+        tones, which reads beside markers where the day's shade does not. In a card,
+        <code>.cal-month--flush</code> gives up the month's own border and corners, so the card's are
+        the only frame.
     </p>
 </CatExample>
 
@@ -109,7 +111,8 @@
 <CatExample TExample="Examples.Calendar.Day" Title="A day" Demo="ex-demo--block">
     <p>
         The same surface with <code>--cal-days: 1</code>. Nothing else changes, so a week view and a day
-        view share one set of rules and one layout of blocks.
+        view share one set of rules and one layout of blocks. In a card, <code>.cal-week--flush</code>
+        leaves the frame to the card, as every framed calendar view's <code>--flush</code> does.
     </p>
 </CatExample>
 
@@ -167,6 +170,7 @@
         <code>--continues-*</code>. A column that is a day takes the day's modifiers, and
         <code>.cal-now</code> is a vertical rule at <code>--cal-at</code> columns. Keep it in a
         <code>.sedna-scroll-x</code>: a column never gets narrower than <code>--cal-column-min</code>.
+        Straight in a card, as here, <code>.cal-timeline--flush</code> leaves the frame to the card.
     </p>
 </CatExample>
 

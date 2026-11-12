@@ -13403,6 +13403,9 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border-radius: var(--radius-surface);
     overflow: hidden;
 }
+/* Inside a surface that already draws the frame — a card, a tab panel of one — the diff
+   gives up its own border and corners, as `.code-block--flush` does. */
+.diff--flush { border: none; border-radius: 0; }
 .diff-head {
     display: flex;
     flex-wrap: wrap;
@@ -15785,6 +15788,9 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    `::-webkit-details-marker` is needed because the two engines expose the default
    triangle differently, and neither alone removes it everywhere. */
 .accordion { border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
+/* Inside a card, edge to edge: the card draws the frame, so the accordion gives up its
+   own border and corners, as `.code-block--flush` does. */
+.accordion--flush { border: none; border-radius: 0; }
 .accordion > details + details { border-top: 1px solid var(--border); }
 .accordion summary {
     display: flex;
@@ -16603,6 +16609,9 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border-radius: var(--radius-surface);
     overflow: hidden;
 }
+/* Inside a card or a drawer's flush body, which draws the frame: the frame gives up its
+   own border and corners, as `.code-block--flush` does. */
+.pdf-frame--flush { border: none; border-radius: 0; }
 .pdf-frame--page {
     block-size: auto;
     aspect-ratio: var(--media-ratio, 210 / 297);
@@ -17922,8 +17931,9 @@ dialog.lightbox::before {
     cursor: zoom-in;
     overflow: hidden;
 }
-.media-open > img,
-.media-open > .media-frame { display: block; }
+/* A bare picture loses its baseline gap. A `.media-frame` keeps its own display: it
+   centres what it holds, a picture that does not fill it or a `.file-icon` alike. */
+.media-open > img { display: block; }
 .media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }
 }
 
@@ -17965,6 +17975,9 @@ dialog.lightbox::before {
     background: var(--surface-here, var(--bg));
     overflow: hidden;
 }
+/* Inside a card — the track playing, over the card's track list — the card draws the
+   frame, so the player gives up its own border and corners, as `.code-block--flush` does. */
+.media-player--flush { border: none; border-radius: 0; }
 /* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
    page does not jump when the metadata arrives. A different ratio is `--media-ratio`,
    on the player or on anything around it, as for every framed medium. */
@@ -18175,18 +18188,13 @@ dialog.lightbox::before {
    No fuzzy-match library. The scorer is `ui._.score` in js-parts/00-core.js, shared
    with the header search — this package loads nothing at runtime.
    ─────────────────────────────────────────────────────────────────────────── */
-/* Any class that gives a <dialog> a display has to gate it on [open], or it overrides
-   the UA's `display: none` for a closed dialog. The palette is built once and reused,
-   so without the gate it stays in the page as a 560px panel below the content from the
-   first Ctrl-K onwards. */
-dialog.palette[open] {
+/* The panel is the class's, wherever its markup is: a palette shown in the page — a
+   static picture of one, an app that keeps its commands on screen — is the same panel
+   as the dialog. Only what makes it a dialog is on `dialog.palette`: its place near the
+   top, its height cap and its backdrop. `.modal` is split the same way. */
+.palette {
     display: flex;
     flex-direction: column;
-}
-dialog.palette {
-    width: min(560px, calc(100vw - 32px));
-    max-height: 60dvh;
-    margin: 12dvh auto auto;
     padding: 0;
     overflow: hidden;
     --surface-here: var(--bg-elevated);
@@ -18196,8 +18204,18 @@ dialog.palette {
     border-radius: var(--radius-panel);
     box-shadow: var(--shadow-pop);
     color: var(--fg);
+}
+dialog.palette {
+    width: min(560px, calc(100vw - 32px));
+    max-height: 60dvh;
+    margin: 12dvh auto auto;
     --dialog-backdrop: var(--backdrop);
 }
+/* `.palette`'s own `display: flex` is gated on nothing, so it also applies to a CLOSED
+   dialog and outranks the UA's `display: none`. The palette is built once and reused, so
+   without this it stays in the page as a 560px panel below the content from the first
+   Ctrl-K onwards. */
+dialog.palette:not([open]) { display: none; }
 dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: blur(2px); }
 
 .palette-input {
@@ -19482,6 +19500,9 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* In a card: the card draws the frame, so the agenda gives up its own border and
+   corners — the same `--flush` every framed calendar view takes (66-calendar.css). */
+.cal-agenda--flush { border: none; border-radius: 0; }
 .cal-agenda-day + .cal-agenda-day { border-top: 1px solid var(--border); }
 
 /* The heading keeps the surface under its own tint, so a row sliding under it while it
@@ -19669,6 +19690,11 @@ a.cal-agenda-title:focus-visible { outline: none; border-radius: var(--radius-sm
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* Inside a surface that already draws the frame — a card, a drawer's flush body — the
+   calendar gives up its own border and corners so the frame's are the only ones, as
+   `.code-block--flush` does. `--flush` is the same on every framed calendar view:
+   `.cal-agenda`, `.cal-month`, `.cal-week` and `.cal-timeline`. */
+.cal-month--flush { border: none; border-radius: 0; }
 /* Each day column starts at a line named `day`, so a layer can say "from the first
    day" and mean it with or without a week-number column in front. */
 .cal-weekdays,
@@ -19982,6 +20008,8 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* In a card: see `.cal-month--flush`. */
+.cal-week--flush { border: none; border-radius: 0; }
 .cal-week-head,
 .cal-week-body {
     display: grid;
@@ -20161,6 +20189,8 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* In a card: see `.cal-month--flush`. */
+.cal-timeline--flush { border: none; border-radius: 0; }
 .cal-timeline-head,
 .cal-timeline-row {
     display: grid;
@@ -22781,9 +22811,9 @@ button.inbox-item-title {
    covers one card. `disabled` greys content out, and the whole point of this is
    that the content reads — the reader is deciding whether to take it on.
 
-   Scoped to a positioned ancestor, which is the card:
+   It covers the element it is a child of, which is the card:
 
-     <article class="card" style="position: relative">
+     <article class="card">
        …the content, readable…
        <div class="guard">
          <div class="guard-card">
@@ -22805,6 +22835,11 @@ button.inbox-item-title {
    z-index 1 is local stacking inside the card, not a rung on the documented
    scale — a guard belongs to one card and never rises over the page.
    ─────────────────────────────────────────────────────────────────────────── */
+/* Whatever holds a guard is what it covers, so the holder is positioned here and the app
+   writes no `position: relative`. At no specificity: an element that is already
+   positioned — sticky, fixed, a drawer — keeps its own position, and is already the box
+   the guard covers. */
+:where(:has(> .guard)) { position: relative; }
 .guard {
     position: absolute;
     inset: 0;
@@ -23113,6 +23148,35 @@ button.inbox-item-title {
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="sit"]   { inset-block-start: calc(50% - var(--size) * 0.75); }
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="stand"] { inset-block-end: calc(50% - var(--size) * 0.0375); }
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="hang"]  { inset-block-start: calc(50% - var(--size) * 0.1875); }
+
+/* ── Room for the perch ──
+   A perch reaches out of its host: above it for `sit`, `peek` and `look`, below it for
+   `hang`, past its end for `side`, and beside the anchor for `point`. `.mochi-host--room`
+   keeps that room clear, as a margin outside the host's edge — the edge is the perch, so
+   it stays where it is — and for `point`, whose anchor is inside the host, as padding.
+   The room is a fraction of `--size`, measured from what the drawing paints in every
+   action, so it is right at every size; beside the host and below it, it holds Mochi's
+   whole box too, which would otherwise widen whatever scrolls around it. `stand` keeps
+   its feet inside a box's bottom edge and needs none outside it; on a divider, below.
+
+   The host reads `--size` and Mochi inherits it from there: a size class on the Mochi
+   reaches the host through `:has()`, and a size of the app's own is set on the host. */
+.mochi-host--room { --size: 112px; }
+.mochi-host--room:has(> .mochi--sm) { --size: 64px; }
+.mochi-host--room:has(> .mochi--md) { --size: 88px; }
+.mochi-host--room:has(> .mochi--lg) { --size: 140px; }
+.mochi-host--room:has(> .mochi--xl) { --size: 220px; }
+.mochi-host--room > .mochi { --size: inherit; }
+.mochi-host--room:has(> .mochi[data-perch="sit"])  { margin-block-start: calc(var(--size) * 0.8); }
+.mochi-host--room:has(> .mochi:is([data-perch="peek"], [data-perch="look"])) { margin-block-start: calc(var(--size) * 0.4); }
+.mochi-host--room:has(> .mochi[data-perch="hang"]) { margin-block-end: calc(var(--size) * 0.82); }
+.mochi-host--room:has(> .mochi[data-perch="side"]) { margin-inline-end: calc(var(--size) * 0.65); }
+.mochi-host--room:has(> .mochi[data-perch="point"]) { padding-block: calc(var(--size) * 0.4); padding-inline-start: calc(var(--size) * 1.05); }
+.mochi-host--room:has(> .mochi[data-perch="point"][data-facing="start"]) { padding-inline: 0 calc(var(--size) * 1.05); }
+/* On a divider the line is the edge: standing, the whole of Mochi is above it, and
+   sitting, the feet hang below it. */
+.mochi-host--room:has(> :is(.divider, .divider-labelled)):has(> .mochi[data-perch="stand"]) { margin-block-start: calc(var(--size) * 0.8); }
+.mochi-host--room:has(> :is(.divider, .divider-labelled)):has(> .mochi[data-perch="sit"]) { margin-block-end: calc(var(--size) * 0.25); }
 
 /* ── The sprite's parts ─────────────────────────────────────────────────────── */
 .sedna-mochi-body  { fill: var(--mochi-body); }

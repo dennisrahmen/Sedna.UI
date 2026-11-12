@@ -37,7 +37,7 @@
       { "text": "An assistant docked beside the page", "instead": "/assistant-panels#an-assistant-docked-beside-the-page" }
     ],
     "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone", "dock-an-assistant" ],
-    "stamp": "c3826fb9fe7b75be"
+    "stamp": "b109ecd6f45c7777"
   },
   {
     "page": "/palette",
@@ -52,7 +52,7 @@
       { "text": "Moving between the app's pages with a pointer", "instead": "/nav" }
     ],
     "goals": [ "run-a-command-by-name" ],
-    "stamp": "875f5985c965397f"
+    "stamp": "ea12407498310be8"
   },
   {
     "page": "/spotlight",
@@ -68,6 +68,6 @@
       { "text": "Detail about a control the reader asked for", "instead": "/popover" }
     ],
     "goals": [ "take-a-guided-tour", "point-out-something-new", "welcome-a-new-user" ],
-    "stamp": "8ecc9d3bd5ac5555"
+    "stamp": "3cc12ec46c64dbb8"
   }
 ]

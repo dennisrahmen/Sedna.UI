@@ -34,6 +34,9 @@
     background: var(--surface-here, var(--bg));
     overflow: hidden;
 }
+/* Inside a card — the track playing, over the card's track list — the card draws the
+   frame, so the player gives up its own border and corners, as `.code-block--flush` does. */
+.media-player--flush { border: none; border-radius: 0; }
 /* The picture on the letterbox, at its frame's ratio before a byte has loaded, so the
    page does not jump when the metadata arrives. A different ratio is `--media-ratio`,
    on the player or on anything around it, as for every framed medium. */
