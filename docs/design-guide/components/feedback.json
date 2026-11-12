@@ -148,7 +148,7 @@
       { "text": "A share done with no output to show", "instead": "/progress#progress-bar" }
     ],
     "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "0fd1ed6a6740644b"
+    "stamp": "e03d62d9d2eda080"
   },
   {
     "page": "/logs",

@@ -34,7 +34,7 @@
     "src/Sedna.UI.Catalogue/Examples/Interop/SessionCountdown.razor": "e6133cc4c000f292",
     "src/Sedna.UI.Catalogue/Examples/LiveState/ActivityRow.razor": "d3609345c3e20e98",
     "src/Sedna.UI.Catalogue/Examples/LiveState/Connection.razor": "0c06c6e853e06bf3",
-    "src/Sedna.UI.Catalogue/Examples/LiveState/Degraded.razor": "e18d7dddb38a3c09",
+    "src/Sedna.UI.Catalogue/Examples/LiveState/Degraded.razor": "ec476638cc8c0f7f",
     "src/Sedna.UI.Catalogue/Examples/LiveState/OutputPane.razor": "169b744feb40ceb1",
     "src/Sedna.UI.Catalogue/Examples/LiveState/RelativeList.razor": "b4a57ecd1503745c",
     "src/Sedna.UI.Catalogue/Examples/LiveState/RelativeTable.razor": "4ec10b7a0173d1fb",
