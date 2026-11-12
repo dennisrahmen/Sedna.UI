@@ -52,7 +52,7 @@
       { "text": "Moving between the app's pages with a pointer", "instead": "/nav" }
     ],
     "goals": [ "run-a-command-by-name" ],
-    "stamp": "5803fb4d5891a3dd"
+    "stamp": "875f5985c965397f"
   },
   {
     "page": "/spotlight",

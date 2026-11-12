@@ -125,7 +125,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "cd336603fd4d8ebc"
+    "stamp": "ef2d486938b223d5"
   },
   {
     "page": "/timeline",

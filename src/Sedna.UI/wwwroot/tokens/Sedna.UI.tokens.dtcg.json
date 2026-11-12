@@ -103,6 +103,7 @@
         "color-scheme": "dark",
         "kv-key-width": "30%",
         "level": "initial",
+        "panel-placement": "block-end",
         "safe-block-end": "env(safe-area-inset-bottom, 0px)",
         "safe-block-start": "env(safe-area-inset-top, 0px)",
         "safe-inline-end": "env(safe-area-inset-right, 0px)",

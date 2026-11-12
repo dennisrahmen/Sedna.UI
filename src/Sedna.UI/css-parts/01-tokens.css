@@ -688,6 +688,15 @@
        give the keys more room, or on one row. */
     --kv-key-width: 30%;
 
+    /* Where an anchored panel opens against its trigger: `block-end` (below, the
+       default), `block-start` (above), `inline-end` or `inline-start` (beside it,
+       mirrored in RTL). Every panel anchored to a trigger reads it — a `.menu` in
+       `.menu-anchor`, a `.popover`, a `.form-combo-panel`, a mention list and a
+       `.form-select`'s drop-down — and still flips to the other side where there is no
+       room. Set it on the element the panel sits in, or on anything above it: a bar
+       pinned to the foot of a pane sets it once and every panel in it opens upward. */
+    --panel-placement: block-end;
+
     /* ── Agents ─────────────────────────────────────────────────────────────
        The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
        orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,

@@ -397,6 +397,7 @@
     --page-banner-pad-block: var(--space-5);
     --list-lines: 1;
     --kv-key-width: 30%;
+    --panel-placement: block-end;
     --agent-from:  var(--coral-500);
     --agent-to:    var(--orbit-400);
     --level: initial;
@@ -5185,6 +5186,35 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     z-index: 550;
 }
 .form-combo:has(> .form-combo-box > .form-combo-input[aria-expanded="true"]) > .form-combo-panel { display: block; }
+@container style(--panel-placement: block-start) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .form-combo:not(.form-combo--inline) > .form-combo-panel {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
 @media (max-width: 767px) {
     .form-combo:not(.form-combo--inline) > .form-combo-panel {
         inset: auto 0 0;
@@ -5467,6 +5497,34 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
         opacity var(--motion-fast),
         display var(--motion-fast) allow-discrete,
         overlay var(--motion-fast) allow-discrete;
+}
+@container style(--panel-placement: block-start) {
+    .form-select::picker(select) {
+        position-area: block-start span-inline-end;
+        position-try-fallbacks: flip-block;
+        position-try-order: normal;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .form-select::picker(select) {
+        position-area: inline-end span-block-end;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+        position-try-order: normal;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .form-select::picker(select) {
+        position-area: inline-start span-block-end;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+        position-try-order: normal;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+    }
 }
 .form-select:open::picker(select) { opacity: 1; }
 @starting-style {
@@ -7718,6 +7776,48 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     position-area: block-end span-inline-end;
     justify-self: start;
 }
+@position-try --sedna-panel-below {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    margin: var(--space-2) 0 0;
+}
+@position-try --sedna-panel-above {
+    position-area: block-start span-inline-end;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 var(--space-2);
+}
+@container style(--panel-placement: block-start) {
+    .menu-anchor > .menu {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+    .menu-anchor > .menu--start { position-area: block-start span-inline-end; }
+}
+@container style(--panel-placement: inline-end) {
+    .menu-anchor > .menu {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .menu-anchor > .menu {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
 .menu-sub-anchor { position: relative; anchor-name: --sedna-submenu; anchor-scope: --sedna-submenu; }
 .menu-sub-anchor > .menu-sub {
     display: none;
@@ -7813,6 +7913,24 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu-item--danger,
 .menu-item--danger i { color: var(--danger-fg); }
 .menu-item-note { margin-inline-start: auto; color: var(--muted); font-size: var(--text-2); }
+.menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
+    position: relative;
+    padding-inline-end: calc(var(--space-5) * 2 + 7px);
+}
+.menu-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+.menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }
+.menu-item[aria-current]:not([aria-current="false"]):is(:hover, [data-active]) { background: var(--brand-tint-strong); }
+.menu-item[aria-current]:not([aria-current="false"])::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: calc(var(--space-5) + 1px);
+    top: 50%;
+    width: 5px;
+    height: 9px;
+    border-inline-end: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-60%) rotate(45deg);
+}
 .menu-label {
     display: block;
     padding: var(--space-4) var(--space-5) var(--space-2);
@@ -7874,6 +7992,35 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     max-block-size: 16rem;
     overflow-y: auto;
     z-index: 550;
+}
+@container style(--panel-placement: block-start) {
+    .mention-field > .menu {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .mention-field > .menu {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .mention-field > .menu {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+    }
 }
 .chat-composer-row > .mention-field { flex: 1; }
 .chat-composer-row > .mention-field > .form-input {
@@ -8843,6 +8990,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 .fab--icon { width: 48px; padding: 0; }
 .menu-anchor.fab-dial {
+    --panel-placement: block-start;
     position: fixed;
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
     inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
@@ -8853,10 +9001,6 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab-dial > .fab i { transition: transform var(--motion-fast) ease; }
 .fab-dial > .fab[aria-expanded="true"] i { transform: rotate(45deg); }
 .fab-dial > .menu {
-    position-area: block-start span-inline-start;
-    justify-self: end;
-    align-self: end;
-    position-try-fallbacks: flip-block;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -10316,7 +10460,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin: 0;
     position: fixed;
     position-area: block-end span-inline-end;
-    position-try-fallbacks: flip-block;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     margin-block-start: var(--space-3);
     z-index: 550;
     width: max-content;
@@ -10336,6 +10480,47 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     text-align: start;
     text-transform: none;
     white-space: normal;
+}
+@position-try --sedna-popover-below {
+    position-area: block-end span-inline-end;
+    justify-self: start;
+    align-self: start;
+    margin: var(--space-3) 0 0;
+}
+@position-try --sedna-popover-above {
+    position-area: block-start span-inline-end;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 var(--space-3);
+}
+@container style(--panel-placement: block-start) {
+    .popover {
+        position-area: block-start span-inline-end;
+        align-self: end;
+        margin-block: 0 var(--space-3);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--space-3) 0;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-popover-below, --sedna-popover-below flip-inline, --sedna-popover-above, --sedna-popover-above flip-inline;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--space-3);
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-popover-below, --sedna-popover-below flip-inline, --sedna-popover-above, --sedna-popover-above flip-inline;
+    }
 }
 .popover > :first-child { margin-top: 0; }
 .popover > :last-child { margin-bottom: 0; }
@@ -15183,6 +15368,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chart:focus-visible:not([data-chart-pointer])::after { outline: 2px solid CanvasText; outline-offset: -2px; }
     button.chart-key:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .nav-link.active,
+    .menu-item[aria-current]:not([aria-current="false"]),
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
     .page-toc-link[aria-current="location"],

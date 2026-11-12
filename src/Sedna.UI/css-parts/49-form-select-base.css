@@ -201,6 +201,44 @@
         display var(--motion-fast) allow-discrete,
         overlay var(--motion-fast) allow-discrete;
 }
+/* Where the list opens: `--panel-placement` on the select's container or anything
+   above it, the token every anchored panel reads (58-menu.css has the whole of it).
+
+   The other three placements flip where there is no room, as every anchored panel does,
+   and that takes `position-try-order: normal`. The UA gives the picker
+   `position-try-order: most-block-size`, which tries every fallback and keeps the one
+   with the MOST room rather than the first that fits — measured: a list placed above a
+   select in the upper half of the viewport opened below it with room to spare above.
+   That is very likely the unconditional `flip-block` described above as well, but below
+   keeps `none` until it is measured there on its own. */
+@container style(--panel-placement: block-start) {
+    .form-select::picker(select) {
+        position-area: block-start span-inline-end;
+        position-try-fallbacks: flip-block;
+        position-try-order: normal;
+        margin-block: 0 var(--space-2);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .form-select::picker(select) {
+        position-area: inline-end span-block-end;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+        position-try-order: normal;
+        margin-block: 0;
+        margin-inline: var(--space-2) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .form-select::picker(select) {
+        position-area: inline-start span-block-end;
+        position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block,
+            --sedna-panel-below, --sedna-panel-below flip-inline, --sedna-panel-above, --sedna-panel-above flip-inline;
+        position-try-order: normal;
+        margin-block: 0;
+        margin-inline: 0 var(--space-2);
+    }
+}
 .form-select:open::picker(select) { opacity: 1; }
 @starting-style {
     .form-select:open::picker(select) { opacity: 0; }
