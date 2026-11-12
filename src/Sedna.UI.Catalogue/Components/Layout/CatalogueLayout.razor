@@ -47,7 +47,7 @@
                     <main class="cat-main" id="main" tabindex="-1">
                         @Body
                         @* The page's design-guide entry, at its foot, found by the route. *@
-                        <CatGuide />
+                        <CatGuide Route="@Route" />
                     </main>
                     @if (Sections is { Count: > 1 } sections)
                     {
@@ -112,14 +112,23 @@
 <SednaOverlayHost />
 
 @code {
-    // The page's sections, and its design-guide entry's heading last when it has one.
-    private IReadOnlyList<PageSection> Sections
+    // The current page's route, without query or fragment.
+    private string Route
     {
         get
         {
             var path = "/" + Nav.ToBaseRelativePath(Nav.Uri);
             var end = path.IndexOfAny(['?', '#']);
-            var route = end < 0 ? path : path[..end];
+            return end < 0 ? path : path[..end];
+        }
+    }
+
+    // The page's sections, and its design-guide entry's heading last when it has one.
+    private IReadOnlyList<PageSection> Sections
+    {
+        get
+        {
+            var route = Route;
             var sections = Contents.For(route);
             return Guide.EntryFor(route) is null ? sections : [.. sections, new PageSection(CatGuide.HeadingId, "Goes well with")];
         }
