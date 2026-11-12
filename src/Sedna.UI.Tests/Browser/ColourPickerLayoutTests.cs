@@ -16,7 +16,7 @@ public class ColourPickerLayoutTests : ScriptTestBase
             <div class="form-color-area" data-color-area id="area" role="slider" tabindex="0" aria-label="Saturation and brightness"></div>
             <input class="form-range form-range--hue" data-color-hue id="hue" type="range" min="0" max="360" aria-label="Hue">
             <input class="form-range form-range--alpha" data-color-alpha id="alpha" type="range" min="0" max="100" aria-label="Opacity">
-            <div class="sedna-row sedna-gap-2" id="row">
+            <div class="sedna-row sedna-gap-12" id="row">
               <span class="form-color-preview" id="preview"></span>
               <input class="form-input" data-color-value id="hex" type="text" value="#3aa8e280" aria-label="Hex">
             </div>

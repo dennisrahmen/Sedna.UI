@@ -26,7 +26,7 @@
         }
     </tbody>
 </table>
-<p class="text-muted sedna-mt-3">Open: @(_years.Any(y => y.Open) ? string.Join(", ", _years.Where(y => y.Open).Select(y => y.Id)) : "none")</p>
+<p class="text-muted sedna-mt-20">Open: @(_years.Any(y => y.Open) ? string.Join(", ", _years.Where(y => y.Open).Select(y => y.Id)) : "none")</p>
 
 @code {
     private sealed record Month(string Name, int Orders, int Revenue);

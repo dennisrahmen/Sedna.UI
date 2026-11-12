@@ -16,7 +16,7 @@
       { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
     ],
     "goals": [ "explain-a-page-condition", "summarise-form-errors", "show-field-errors", "confirm-before-it-happens" ],
-    "stamp": "9ae70eb1851c2193"
+    "stamp": "00bb5a3a52058493"
   },
   {
     "page": "/toast",
@@ -34,7 +34,7 @@
       { "text": "An action that ended on another page, after a redirect", "instead": "/banner#after-a-redirect" }
     ],
     "goals": [ "confirm-an-action-done", "show-saving-then-saved", "announce-something-that-arrived", "confirm-after-a-redirect" ],
-    "stamp": "47fb00545a0ac2c4"
+    "stamp": "2570e799f9e48534"
   },
   {
     "page": "/notifications",
@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "0289241051f44b3e"
+    "stamp": "dc0de869a469b757"
   },
   {
     "page": "/progress",
@@ -73,7 +73,7 @@
       { "text": "The steps of a task the reader moves through", "instead": "/collections#steps" }
     ],
     "goals": [ "show-progress-of-a-job", "show-busy-state", "list-running-jobs", "show-route-progress", "show-app-starting", "show-saving-then-saved", "show-usage-against-a-limit", "follow-an-agents-plan", "follow-uploads" ],
-    "stamp": "0eb8e6fb683167a7"
+    "stamp": "0e491f500ad9ebce"
   },
   {
     "page": "/skeleton",
@@ -92,7 +92,7 @@
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
     "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
-    "stamp": "2bafaeb8b5687cea"
+    "stamp": "2d273a94763c93ce"
   },
   {
     "page": "/empty-state",
@@ -112,7 +112,7 @@
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
     "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
-    "stamp": "f6a216d5052ea2d7"
+    "stamp": "524293bb18d1e12d"
   },
   {
     "page": "/state-art",
@@ -128,7 +128,7 @@
       { "text": "A picture that is part of the content", "instead": "/media" }
     ],
     "goals": [ "illustrate-a-state", "explain-an-empty-view" ],
-    "stamp": "f22caaa197885ffe"
+    "stamp": "e5782d3b864c432c"
   },
   {
     "page": "/live-state",
@@ -148,7 +148,7 @@
       { "text": "A share done with no output to show", "instead": "/progress#progress-bar" }
     ],
     "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "3b8dc4bfa2c65108"
+    "stamp": "5286e56212c1b873"
   },
   {
     "page": "/logs",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/structure#code-blocks" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "0ce8b4af60032636"
+    "stamp": "ebb3984af3adbebf"
   }
 ]

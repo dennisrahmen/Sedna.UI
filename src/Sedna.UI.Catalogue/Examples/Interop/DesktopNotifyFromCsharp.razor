@@ -1,6 +1,6 @@
 @inject ISednaUi Ui
 
-<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+<div class="sedna-row-wrap sedna-gap-20" style="align-items:center">
     <button class="btn" type="button" @onclick="Watch"><i class="ri-notification-badge-line"></i> <span>Tell me when ORD-4209 leaves</span></button>
     <button class="btn btn--go" type="button" disabled="@(!_watching)" @onclick="Dispatched"><i class="ri-truck-line"></i> <span>The warehouse dispatches it</span></button>
     <span class="text-muted" role="status">@_status</span>

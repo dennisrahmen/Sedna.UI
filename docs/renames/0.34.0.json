@@ -1,0 +1,115 @@
+{
+  "release": "0.34.0",
+  "from": "0.33.0",
+  "about": "Every class 0.34.0 renames, old name to the class that gives the same look. The gap and margin steps are named by their size in pixels now, so that 16px could join the scale without moving any other step: sedna-gap-3, which was 20px, is sedna-gap-20. The numbered names are gone; nothing aliases them. sedna-gap-16, sedna-mt-16 and sedna-mb-16 are new, and the -0 steps keep their names.",
+  "renames": [
+    {
+      "old": "sedna-gap-1",
+      "new": [
+        "sedna-gap-8"
+      ]
+    },
+    {
+      "old": "sedna-gap-2",
+      "new": [
+        "sedna-gap-12"
+      ]
+    },
+    {
+      "old": "sedna-gap-3",
+      "new": [
+        "sedna-gap-20"
+      ]
+    },
+    {
+      "old": "sedna-gap-4",
+      "new": [
+        "sedna-gap-24"
+      ]
+    },
+    {
+      "old": "sedna-gap-5",
+      "new": [
+        "sedna-gap-32"
+      ]
+    },
+    {
+      "old": "sedna-gap-6",
+      "new": [
+        "sedna-gap-40"
+      ]
+    },
+    {
+      "old": "sedna-mt-1",
+      "new": [
+        "sedna-mt-8"
+      ]
+    },
+    {
+      "old": "sedna-mt-2",
+      "new": [
+        "sedna-mt-12"
+      ]
+    },
+    {
+      "old": "sedna-mt-3",
+      "new": [
+        "sedna-mt-20"
+      ]
+    },
+    {
+      "old": "sedna-mt-4",
+      "new": [
+        "sedna-mt-24"
+      ]
+    },
+    {
+      "old": "sedna-mt-5",
+      "new": [
+        "sedna-mt-32"
+      ]
+    },
+    {
+      "old": "sedna-mt-6",
+      "new": [
+        "sedna-mt-40"
+      ]
+    },
+    {
+      "old": "sedna-mb-1",
+      "new": [
+        "sedna-mb-8"
+      ]
+    },
+    {
+      "old": "sedna-mb-2",
+      "new": [
+        "sedna-mb-12"
+      ]
+    },
+    {
+      "old": "sedna-mb-3",
+      "new": [
+        "sedna-mb-20"
+      ]
+    },
+    {
+      "old": "sedna-mb-4",
+      "new": [
+        "sedna-mb-24"
+      ]
+    },
+    {
+      "old": "sedna-mb-5",
+      "new": [
+        "sedna-mb-32"
+      ]
+    },
+    {
+      "old": "sedna-mb-6",
+      "new": [
+        "sedna-mb-40"
+      ]
+    }
+  ]
+}

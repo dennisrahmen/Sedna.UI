@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "0f7ac3c9a75eba18"
+    "stamp": "e6b91ecf52feedae"
   },
   {
     "page": "/carousel",
@@ -50,7 +50,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "44440949da9186aa"
+    "stamp": "3a02c944be43dc86"
   },
   {
     "page": "/video",
@@ -153,7 +153,7 @@
       { "text": "An address the reader clicks", "instead": "/media#a-link-preview" }
     ],
     "goals": [ "show-a-qr-code" ],
-    "stamp": "a551112eefaf1855"
+    "stamp": "49d7789bdec7196f"
   },
   {
     "page": "/editor",
@@ -189,6 +189,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "8367984fe06f3faf"
+    "stamp": "f67f0bc585e14478"
   }
 ]

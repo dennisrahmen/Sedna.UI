@@ -3,7 +3,7 @@
 
 <div class="sedna-col">
     <div id="follow-stage" class="card" style="position:relative; height:420px">
-        <div class="card-body sedna-col sedna-gap-6">
+        <div class="card-body sedna-col sedna-gap-40">
             <div class="toolbar">
                 <div class="toolbar-filters">
                     @* .menu-anchor is what attaches the results to the box. Without it a bare
@@ -50,7 +50,7 @@
             <div class="spotlight-tip-body">@Steps[_step].Body</div>
             <div class="spotlight-tip-actions">
                 <span class="spotlight-step">@(_step + 1) of @Steps.Length — @_side</span>
-                <span class="sedna-row sedna-gap-1">
+                <span class="sedna-row sedna-gap-8">
                     <button class="btn btn--sm" type="button" disabled="@(_step == 0)"
                             @onclick="() => Go(-1)">Back</button>
                     <button class="btn btn--sm btn--brand btn--solid" type="button" disabled="@(_step == Steps.Length - 1)"

@@ -156,7 +156,7 @@
 .sedna-grid-24--dense { grid-auto-flow: row dense; }
 
 /* A column of panels with the grid's own gap, whichever grid it sits in —
-   `--grid-gap` is inherited from it, so a stack inside a `.sedna-gap-3` grid is
+   `--grid-gap` is inherited from it, so a stack inside a `.sedna-gap-20` grid is
    spaced like the grid. Outside a grid it falls back to the same 16px. */
 .sedna-stack {
     display: flex;

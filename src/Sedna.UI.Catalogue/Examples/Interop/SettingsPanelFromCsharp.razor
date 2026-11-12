@@ -3,7 +3,7 @@
 @implements IDisposable
 
 <div class="card" style="max-width:560px">
-    <div class="card-body sedna-col sedna-gap-3">
+    <div class="card-body sedna-col sedna-gap-20">
         <div class="form-field">
             <label class="form-label" for="ex-theme">Theme</label>
             <select class="form-input form-select" id="ex-theme" value="@Settings.Current.Theme"
@@ -32,7 +32,7 @@
             <span>Colours for colour-blind readers</span>
         </label>
 
-        <div class="sedna-row-wrap sedna-gap-3">
+        <div class="sedna-row-wrap sedna-gap-20">
             <select class="form-input form-select sedna-w-fit" aria-label="Language" value="@Settings.Current.Language"
                     @onchange="@(e => Settings.SetLanguageAsync(e.Value?.ToString() ?? "en"))">
                 <option value="en">English</option>

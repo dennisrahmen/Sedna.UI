@@ -16,7 +16,7 @@
       { "text": "A count on a navigation link", "instead": "/nav#nav-items" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "53c0f181c53de50b"
+    "stamp": "be73040fba79e414"
   },
   {
     "page": "/chip",
@@ -33,7 +33,7 @@
       { "text": "A choice between a few views or settings", "instead": "/segmented#segmented-control" }
     ],
     "goals": [ "narrow-a-long-list", "search-a-list", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "pick-several-as-chips", "find-a-record-on-a-list-page", "approve-an-agent-action" ],
-    "stamp": "e9b9e8def838e8fc"
+    "stamp": "17b8f875911b17f1"
   },
   {
     "page": "/avatar",
@@ -51,6 +51,6 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "7ecd524098cbbe4d"
+    "stamp": "15e4b665c7382dc0"
   }
 ]

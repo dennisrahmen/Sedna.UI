@@ -5030,7 +5030,7 @@ textarea.form-input::-webkit-resizer {
 
    Its absence was not theoretical. This library's own examples had invented it three
    different ways — a second `.toolbar-filters` (those are not filters), a
-   `.sedna-row sedna-gap-2`, and a `.sedna-push` on a bare span, which is the one
+   `.sedna-row sedna-gap-12`, and a `.sedna-push` on a bare span, which is the one
    that was visibly broken on the landing page. */
 /* The auto margin keeps it at the end edge on a line of its own, where `space-between` has
    nothing to distribute; on a shared line it takes the same free space `space-between`
@@ -6462,7 +6462,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .sedna-grid-24--dense { grid-auto-flow: row dense; }
 
 /* A column of panels with the grid's own gap, whichever grid it sits in —
-   `--grid-gap` is inherited from it, so a stack inside a `.sedna-gap-3` grid is
+   `--grid-gap` is inherited from it, so a stack inside a `.sedna-gap-20` grid is
    spaced like the grid. Outside a grid it falls back to the same 16px. */
 .sedna-stack {
     display: flex;
@@ -7165,7 +7165,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
             data-color-valuetext="Saturation {s}%, brightness {v}%"></div>
        <input class="form-range form-range--hue" data-color-hue type="range" min="0" max="360" value="201" aria-label="Hue">
        <input class="form-range form-range--alpha" data-color-alpha type="range" min="0" max="100" value="100" aria-label="Opacity">
-       <div class="sedna-row sedna-gap-2">
+       <div class="sedna-row sedna-gap-12">
          <span class="form-color-preview" aria-hidden="true"></span>
          <input class="form-input" data-color-value type="text" value="#3aa8e2" aria-label="Colour as hex" spellcheck="false">
        </div>
@@ -26769,21 +26769,24 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 /* Pushes everything after it to the far end of a flex container. */
 .sedna-push { margin-inline-start: auto; }
 
-/* Six gap steps and none. `.sedna-row` and `.sedna-col` set one gap; these are for the
-   rows that need a tighter or looser one, which was an inline `style="gap:12px"`. Steps
-   4 to 6 are the section-sized gaps — 24, 32 and 40px — between blocks of a page. */
+/* Gap steps, each named by its size in pixels, one scale with the margin steps below:
+   0, 8, 12, 16, 20, 24, 32 and 40. `.sedna-row` and `.sedna-col` set one gap of 8px; these
+   are for the rows that need a tighter or looser one, which was an inline `style="gap:12px"`.
+   16 is the space between fields; 20 and up space blocks of a page. A size, not a position,
+   is the name, so a step added later moves no other step. */
 /* Each sets `--grid-gap` beside `gap`, because `.sedna-grid-24` and `.sedna-stack`
    read their gap from that property. The last rule puts back the grid's capped column
    gap, which the `gap` shorthand here would otherwise replace from this later layer —
    43-content-grids.css says why it is capped. */
-.sedna-gap-0 { gap: 0;                --grid-gap: 0px; }
-.sedna-gap-1 { gap: var(--space-4);   --grid-gap: var(--space-4); }
-.sedna-gap-2 { gap: var(--space-6);   --grid-gap: var(--space-6); }
-.sedna-gap-3 { gap: var(--space-8);   --grid-gap: var(--space-8); }
-.sedna-gap-4 { gap: var(--space-9);   --grid-gap: var(--space-9); }
-.sedna-gap-5 { gap: var(--space-10);  --grid-gap: var(--space-10); }
-.sedna-gap-6 { gap: var(--space-11);  --grid-gap: var(--space-11); }
-.sedna-grid-24:is(.sedna-gap-0, .sedna-gap-1, .sedna-gap-2, .sedna-gap-3, .sedna-gap-4, .sedna-gap-5, .sedna-gap-6) { column-gap: min(var(--grid-gap), 100% / 23); }
+.sedna-gap-0 { gap: 0;             --grid-gap: 0px; }
+.sedna-gap-8 { gap: var(--space-4); --grid-gap: var(--space-4); }
+.sedna-gap-12 { gap: var(--space-6); --grid-gap: var(--space-6); }
+.sedna-gap-16 { gap: var(--space-7); --grid-gap: var(--space-7); }
+.sedna-gap-20 { gap: var(--space-8); --grid-gap: var(--space-8); }
+.sedna-gap-24 { gap: var(--space-9); --grid-gap: var(--space-9); }
+.sedna-gap-32 { gap: var(--space-10); --grid-gap: var(--space-10); }
+.sedna-gap-40 { gap: var(--space-11); --grid-gap: var(--space-11); }
+.sedna-grid-24:is(.sedna-gap-0, .sedna-gap-8, .sedna-gap-12, .sedna-gap-16, .sedna-gap-20, .sedna-gap-24, .sedna-gap-32, .sedna-gap-40) { column-gap: min(var(--grid-gap), 100% / 23); }
 
 /* Cross-axis alignment. `.sedna-row` centres; a row of fields with labels wants
    `.sedna-start`, and a row of text of different sizes wants `.sedna-baseline`. */
@@ -26855,19 +26858,21 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 /* Block margins only, and only for removing or adding a step. There is no inline
    pair: horizontal placement belongs to the layout, not to a utility on the child. */
 .sedna-mt-0 { margin-top: 0; }
-.sedna-mt-1 { margin-top: var(--space-4); }
-.sedna-mt-2 { margin-top: var(--space-6); }
-.sedna-mt-3 { margin-top: var(--space-8); }
-.sedna-mt-4 { margin-top: var(--space-9); }
-.sedna-mt-5 { margin-top: var(--space-10); }
-.sedna-mt-6 { margin-top: var(--space-11); }
+.sedna-mt-8 { margin-top: var(--space-4); }
+.sedna-mt-12 { margin-top: var(--space-6); }
+.sedna-mt-16 { margin-top: var(--space-7); }
+.sedna-mt-20 { margin-top: var(--space-8); }
+.sedna-mt-24 { margin-top: var(--space-9); }
+.sedna-mt-32 { margin-top: var(--space-10); }
+.sedna-mt-40 { margin-top: var(--space-11); }
 .sedna-mb-0 { margin-bottom: 0; }
-.sedna-mb-1 { margin-bottom: var(--space-4); }
-.sedna-mb-2 { margin-bottom: var(--space-6); }
-.sedna-mb-3 { margin-bottom: var(--space-8); }
-.sedna-mb-4 { margin-bottom: var(--space-9); }
-.sedna-mb-5 { margin-bottom: var(--space-10); }
-.sedna-mb-6 { margin-bottom: var(--space-11); }
+.sedna-mb-8 { margin-bottom: var(--space-4); }
+.sedna-mb-12 { margin-bottom: var(--space-6); }
+.sedna-mb-16 { margin-bottom: var(--space-7); }
+.sedna-mb-20 { margin-bottom: var(--space-8); }
+.sedna-mb-24 { margin-bottom: var(--space-9); }
+.sedna-mb-32 { margin-bottom: var(--space-10); }
+.sedna-mb-40 { margin-bottom: var(--space-11); }
 
 /* A hairline between rows without an <hr> and without a wrapper. */
 .sedna-divider-top    { border-top: 1px solid var(--divider); }

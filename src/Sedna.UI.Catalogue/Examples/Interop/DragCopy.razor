@@ -3,7 +3,7 @@
    data-drag-cancel="Cancelled. {item} stays in {zone}."></p>
 
 <div class="sedna-grid sedna-grid--sm sedna-grid--fit" @onsedna-drop="Drop">
-    <div class="sedna-col sedna-gap-2">
+    <div class="sedna-col sedna-gap-12">
         <span class="form-label" id="templates-label">Reply templates</span>
         <ul class="drag-list" data-drag-zone="templates" data-drag-group="replies" data-drag-accept=""
             data-drag-effect="copy" aria-labelledby="templates-label" data-drag-label="Reply templates">
@@ -18,7 +18,7 @@
         </ul>
     </div>
 
-    <div class="sedna-col sedna-gap-2">
+    <div class="sedna-col sedna-gap-12">
         <span class="form-label">Shortcut keys</span>
         @foreach (var key in Keys)
         {

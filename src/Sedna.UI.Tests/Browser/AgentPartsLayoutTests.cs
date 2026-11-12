@@ -122,7 +122,7 @@ public class AgentPartsLayoutTests : ScriptTestBase
             <span class="agent-approval-icon"><i class="ri-question-answer-line"></i></span>
             <span class="agent-approval-title"><strong>Before I draft the change</strong><span>Two answers</span></span>
           </div></div>
-          <div class="card-body sedna-col sedna-gap-5">
+          <div class="card-body sedna-col sedna-gap-32">
             <fieldset class="agent-question" id="single">
               <legend id="legend">Where should it go first?</legend>
               <div class="choice-tiles" role="radiogroup" aria-label="Where" id="tiles">
@@ -343,12 +343,12 @@ public class AgentPartsLayoutTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("""
             <div style="width:600px">
-              <div class="divider-labelled" id="cp"><span class="sedna-row sedna-gap-2"><i class="ri-bookmark-line"></i><span>Checkpoint</span></span>
+              <div class="divider-labelled" id="cp"><span class="sedna-row sedna-gap-12"><i class="ri-bookmark-line"></i><span>Checkpoint</span></span>
                 <button class="btn btn--sm btn--ghost" id="restore" type="button">Restore to here</button></div>
               <div class="chat" role="log">
                 <div class="chat-message chat-message--mine" id="editing"><div class="chat-body">
                   <form class="chat-bubble chat-bubble--editing" id="bubble"><textarea class="form-input" id="field" rows="2">Hi</textarea>
-                    <div class="sedna-row sedna-gap-2"><button class="btn btn--sm btn--ghost sedna-push" type="button">Cancel</button><button class="btn btn--sm btn--solid" type="submit">Send</button></div></form>
+                    <div class="sedna-row sedna-gap-12"><button class="btn btn--sm btn--ghost sedna-push" type="button">Cancel</button><button class="btn btn--sm btn--solid" type="submit">Send</button></div></form>
                 </div></div>
                 <div class="chat-message chat-message--mine" id="short"><div class="chat-body"><div class="chat-bubble">Hi</div></div></div>
                 <div class="chat-message chat-message--agent"><span class="agent-avatar"></span><div class="chat-body">

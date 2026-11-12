@@ -27,7 +27,7 @@
         <div class="sedna-grid sedna-grid--fit">
             <div class="form-field">
                 <label class="form-label" for="theme-brand">Brand colour</label>
-                <div class="sedna-row sedna-gap-2">
+                <div class="sedna-row sedna-gap-12">
                     <input class="form-color" id="theme-brand" type="color"
                            value="@brand" @oninput="BrandChanged" />
                     <input class="form-input" type="text" value="@brand" @onchange="BrandChanged"
@@ -44,7 +44,7 @@
                     <input type="checkbox" checked="@changeAccent" @onchange="AccentToggled" id="theme-accent-on" />
                     <span>Change the accent</span>
                 </label>
-                <div class="sedna-row sedna-gap-2">
+                <div class="sedna-row sedna-gap-12">
                     <input class="form-color" id="theme-accent" type="color" value="@accent"
                            @oninput="AccentChanged" disabled="@(!changeAccent)" aria-label="Accent colour" />
                     <input class="form-input" type="text" value="@accent" @onchange="AccentChanged"
@@ -58,7 +58,7 @@
                     <input type="checkbox" checked="@changeCanvas" @onchange="CanvasToggled" id="theme-canvas-on" />
                     <span>Change the base</span>
                 </label>
-                <div class="sedna-row sedna-gap-2">
+                <div class="sedna-row sedna-gap-12">
                     <input class="form-color" id="theme-canvas" type="color" value="@canvas"
                            @oninput="CanvasChanged" disabled="@(!changeCanvas)" aria-label="Canvas colour" />
                     <input class="form-input" type="text" value="@canvas" @onchange="CanvasChanged"
@@ -94,7 +94,7 @@
     <code>color-mix()</code>, a length.
 </p>
 
-<div class="sedna-row sedna-gap-3 sedna-wrap sedna-mb-4" id="theme-tools">
+<div class="sedna-row sedna-gap-20 sedna-wrap sedna-mb-24" id="theme-tools">
     <div class="form-field">
         <label class="form-label" for="theme-group">Group</label>
         <select class="form-select" id="theme-group" value="@groupSlug" @onchange="GroupChanged"
@@ -198,26 +198,26 @@
         }
     </div>
 
-    <aside class="sedna-split-aside sedna-col sedna-gap-4" id="theme-preview" aria-label="Preview">
+    <aside class="sedna-split-aside sedna-col sedna-gap-24" id="theme-preview" aria-label="Preview">
         <div class="card">
             <div class="card-head"><h3>Orders</h3><span class="badge badge--brand">New</span></div>
-            <div class="card-body sedna-col sedna-gap-3">
+            <div class="card-body sedna-col sedna-gap-20">
                 <p class="sedna-mb-0">Body text reads on the card. <span class="text-muted">Quiet text is the line under it.</span>
                     <a href="/tokens">Links take the accent.</a></p>
-                <div class="sedna-row sedna-gap-2 sedna-wrap">
+                <div class="sedna-row sedna-gap-12 sedna-wrap">
                     <button class="btn btn--brand btn--solid" type="button">Save</button>
                     <button class="btn" type="button">Cancel</button>
                     <button class="btn btn--brand" type="button">Export</button>
                     <button class="btn btn--ghost" type="button">More</button>
                 </div>
-                <div class="sedna-row sedna-gap-2 sedna-wrap">
+                <div class="sedna-row sedna-gap-12 sedna-wrap">
                     <button class="btn btn--go btn--solid btn--sm" type="button">Send</button>
                     <button class="btn btn--warn btn--solid btn--sm" type="button">Change</button>
                     <button class="btn btn--danger btn--solid btn--sm" type="button">Delete</button>
                     <button class="btn btn--danger btn--sm" type="button">Remove</button>
                     <button class="btn btn--sm" type="button" disabled>Disabled</button>
                 </div>
-                <div class="sedna-row sedna-gap-2 sedna-wrap">
+                <div class="sedna-row sedna-gap-12 sedna-wrap">
                     <span class="badge badge--go"><i class="ri-check-line"></i> <span>Shipped</span></span>
                     <span class="badge badge--warn"><i class="ri-time-line"></i> <span>Waiting</span></span>
                     <span class="badge badge--danger"><i class="ri-close-line"></i> <span>Failed</span></span>
@@ -249,7 +249,7 @@
         </div>
 
         <div class="card">
-            <div class="card-body sedna-col sedna-gap-3">
+            <div class="card-body sedna-col sedna-gap-20">
                 <div class="form-field">
                     <label class="form-label" for="preview-name">Customer</label>
                     <input class="form-input" id="preview-name" type="text" placeholder="Search by name or e-mail" />
@@ -270,7 +270,7 @@
             </div>
         </div>
 
-        <div class="sedna-col sedna-gap-1">
+        <div class="sedna-col sedna-gap-8">
             <div class="alert alert--brand"><i class="ri-megaphone-line"></i><span>The new pick list is live.</span></div>
             <div class="alert alert--go"><i class="ri-check-line"></i><span>All 42 orders were exported.</span></div>
             <div class="alert alert--warn"><i class="ri-alert-line"></i><span>Two lines are waiting for stock.</span></div>
@@ -362,7 +362,7 @@
     <a href="/branding">Branding</a> shows how.
 </p>
 
-<div class="sedna-row sedna-gap-3 sedna-wrap sedna-mb-4" id="theme-summary">
+<div class="sedna-row sedna-gap-20 sedna-wrap sedna-mb-24" id="theme-summary">
     <span class="badge @(result.Changed > 0 ? "badge--brand" : null)" id="theme-changed">
         @(result.Changed == 1 ? "1 token changed" : $"{result.Changed} tokens changed")
     </span>
@@ -433,7 +433,7 @@
         var shown = (isLight ? result.LightValues : result.Dark).GetValueOrDefault(token.Name) ?? "";
         var colours = isLight ? result.LightColours : result.DarkColours;
         var variant = isLight ? "light" : "dark";
-        <div class="sedna-row sedna-gap-2">
+        <div class="sedna-row sedna-gap-12">
             @if (token.Kind == TokenKind.Colour)
             {
                 <input class="form-color form-input--sm" type="color"
@@ -466,7 +466,7 @@
     {
         if (reading.Foreground is { } fg && reading.Background is { } bg)
         {
-            <div class="sedna-row sedna-gap-2 sedna-wrap">
+            <div class="sedna-row sedna-gap-12 sedna-wrap">
                 <span class="cat-pair" title="@($"{check.Foreground} {fg.Hex} on {check.Background} {bg.Hex}")">
                     <span class="cat-pair-chip" style="background:@fg.Hex"></span>
                     <span class="cat-pair-chip" style="background:@bg.Hex"></span>
