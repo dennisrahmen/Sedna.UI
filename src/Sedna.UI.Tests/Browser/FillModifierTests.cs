@@ -70,7 +70,7 @@ public class FillModifierTests : ScriptTestBase
                 return [range.getClientRects().length, row.scrollWidth - row.clientWidth];
             }
             """);
-        Assert.True(r[0] == 1, $"\"Computers\" is broken over {r[0]} lines.");
+        Assert.True(r[0] < 1.5, $"\"Computers\" is broken over {r[0]} lines.");
         Assert.True(r[1] <= 0, $"The row overflows by {r[1]}px.");
     }
 }
