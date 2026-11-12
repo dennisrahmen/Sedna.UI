@@ -127,6 +127,9 @@ public class BrandTextContrastTests
         // script toggles.
         ["button.chip[aria-pressed=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         ["button.chip[aria-pressed=\"true\"] i"] = (Ink.Icon, ["--brand-tint"]),
+        // A link chip is the view shown by aria-current="page" alone, on the same tint.
+        ["a.chip[aria-current=\"page\"]"] = (Ink.Text, ["--brand-tint"]),
+        ["a.chip[aria-current=\"page\"] i"] = (Ink.Icon, ["--brand-tint"]),
         // A graph tool that is switched on — drawing links, outlines, full screen: an icon button.
         [".graph-tools .btn[aria-pressed=\"true\"]"] = (Ink.Icon, ["--brand-tint"]),
         // A rating the reader gave an agent's answer: a ghost icon button, on the thread's ground.
