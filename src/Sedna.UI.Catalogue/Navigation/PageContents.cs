@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using Sedna.UI.Catalogue.Components.Docs;
-using Sedna.UI.Catalogue.Components.Pages;
 using Sedna.UI.Catalogue.Guide;
 
 namespace Sedna.UI.Catalogue.Navigation;
@@ -28,8 +27,8 @@ public sealed record PageSection(string Id, string Title, IReadOnlyList<PageSect
 /// <remarks>
 /// Read once from the page sources the assembly embeds, the same ones the MCP index reads, so a
 /// section added to a page is in its contents without a list to keep. A heading a page writes in
-/// a loop has no literal id to read; the two pages that do — the design guide and the tokens —
-/// take theirs from the data the loop renders, the tokens' groups nested under their sections. <c>PageContentsTests</c> holds every list to the
+/// a loop has no literal id to read; the two pages that do — the principles and the tokens — take
+/// theirs from the data the loop renders, nested under their topics. <c>PageContentsTests</c> holds every list to the
 /// headings the served page has.
 /// </remarks>
 internal sealed class PageContents
@@ -105,13 +104,9 @@ internal sealed class PageContents
             byRoute[directive.Groups["route"].Value] = sections;
         }
 
-        byRoute["/design-guide"] =
-            [
-                new PageSection("goals", "What the user can do",
-                    [.. CataloguePages.Groups.Where(g => guide.Goals.Any(goal => goal.Group == g))
-                        .Select(g => new PageSection(DesignGuidePage.GoalsId(g), g))]),
-                new PageSection("principles", "Principles", [.. guide.Sections.Select(s => new PageSection(s.Id, s.Title))]),
-            ];
+        byRoute["/principles"] =
+            [.. PrincipleTopics.Of(guide).Select(t => new PageSection(Slug.From(t.Topic), t.Topic,
+                [.. t.Sections.Select(s => new PageSection(s.Id, s.Title))]))];
 
         byRoute["/tokens"] =
             [.. For("/tokens"), .. TokenGroups.BySection.Select(s => new PageSection(Slug.From(s.Section), s.Section,

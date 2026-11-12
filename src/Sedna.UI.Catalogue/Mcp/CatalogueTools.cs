@@ -451,6 +451,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             {
                 meta,
                 topic = Principles,
+                url = CatalogueLinks.Site + Principles,
                 intro = GuideMarkdown.Absolute(guide.Intro),
                 sections = guide.Sections.Select(s => new { id = s.Id, title = s.Title }),
                 next = "get_guide with a section id for its text, or with \"goals\" for what the user can do.",
@@ -474,7 +475,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 meta,
                 topic = section.Id,
                 title = section.Title,
-                url = CatalogueLinks.Site + "design-guide#" + section.Id,
+                url = CatalogueLinks.Site + "principles#" + section.Id,
                 markdown = GuideMarkdown.Absolute(section.Markdown),
             };
         }

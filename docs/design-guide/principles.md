@@ -17,7 +17,7 @@ browse them on [the design guide page](https://www.sedna-ui.com/design-guide#goa
 - Read its **not for** before writing markup. Each line names the part to use instead.
 - Build what **combine with** names around it, in the place it says. A table is a toolbar above a
   card, the table in the card, and a pager after it — not a table alone.
-- Write every word from [Words](https://www.sedna-ui.com/design-guide#words), and pass the page to
+- Write every word from [Words](https://www.sedna-ui.com/principles#words), and pass the page to
   `check_markup` before handing it over.
 
 ## Page composition
@@ -47,7 +47,7 @@ whole pages to start from are on [Page recipes](https://www.sedna-ui.com/page-re
 ## Spacing
 
 Spacing is the library's, at every level: the page, the card, the form, the row. An app sets none of
-it with a margin. The values below are the default density; [Density](https://www.sedna-ui.com/design-guide#density)
+it with a margin. The values below are the default density; [Density](https://www.sedna-ui.com/principles#density)
 moves them together.
 
 | Where | What spaces it | Default |

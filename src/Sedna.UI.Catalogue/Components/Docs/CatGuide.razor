@@ -5,6 +5,7 @@
    page — shows nothing. *@
 @using Sedna.UI.Catalogue.Guide
 @using Sedna.UI.Catalogue.Navigation
+@using Sedna.UI.Catalogue.Components.Pages
 @inject NavigationManager Nav
 @inject DesignGuide Guide
 
@@ -55,7 +56,7 @@
             <ul class="cat-guide-goals">
                 @foreach (var goal in goals)
                 {
-                    <li><a href="/design-guide#@goal.Id">@goal.Goal</a></li>
+                    <li><a href="@DesignGuidePage.HrefOf(goal.Group, goal.Id)">@goal.Goal</a></li>
                 }
             </ul>
         }

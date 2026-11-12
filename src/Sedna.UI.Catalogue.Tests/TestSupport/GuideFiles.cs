@@ -35,6 +35,7 @@ internal static class GuideFiles
         ["/"] = "The landing page shows the library; it documents no component.",
         ["/getting-started"] = "Installing the package and wiring the host page.",
         ["/design-guide"] = "The guide itself.",
+        ["/principles"] = "The guide's principles, which apply to every page.",
         ["/concepts"] = "The rules an app writes its CSS against, which principles.md links to.",
         ["/tokens"] = "The token reference, read from the stylesheet.",
         ["/branding"] = "The mark, the palette and the theming decisions.",

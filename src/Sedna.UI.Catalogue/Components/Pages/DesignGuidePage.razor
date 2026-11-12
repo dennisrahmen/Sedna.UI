@@ -1,96 +1,106 @@
 @page "/design-guide"
 @using Sedna.UI.Catalogue.Guide
 @inject DesignGuide Guide
-@inject NavigationManager Nav
-@implements IDisposable
 
-@* docs/design-guide/, rendered: the goals first, because a page is chosen from what its user has
-   to do, then the principles. Nothing here is written twice — the words are the files', and
-   every component page shows its own entry at its foot (CatGuide). *@
+@* docs/design-guide/, as a place to start from: the principles as tiles into their own page, then
+   the goals of one catalogue area at a time. The area is in the address (?group=forms), so it is
+   rendered by the server, can be linked to and works before the circuit connects; a component
+   page's "Goals it answers" links to its goal's card with the area in the address. Nothing here
+   is written twice — the words are the files'. *@
 
-@* The lede is principles.md's opening paragraph, so the page and get_guide("principles") say the same. *@
 <CatHead Title="Design guide" Tier="@CatHead.Site">
-    @((MarkupString)GuideMarkdown.InlineHtml(Guide.Intro)) Every component page carries its own entry
-    at its foot, under "Goes well with".
+    Start from what the app's user has to do: pick the area, find the goal, and start from the page
+    it names. Search for a goal in your own words from the box at the top of the page, or ask the MCP
+    server's <code>search</code> and <code>get_guide</code>. Every component page carries its own
+    entry at its foot, under "Goes well with".
 </CatHead>
 
-@* Two topics, laid out as a CatGroup would: the goals by catalogue group, then the principles.
-   Written as its markup rather than the component, because every heading under them comes from
-   data, and PageContents nests the same sections from the guide. *@
-<section class="cat-group">
-<h2 id="goals">What the user can do <CatAnchor Id="goals" /></h2>
-
+<h2 id="principles">Principles <CatAnchor Id="principles" /></h2>
 <p>
-    Each goal names the part to start from and the parts around it. Search for a goal in your own
-    words from the box at the top of the page, or ask the MCP server's <code>search</code> and
-    <code>get_guide</code>.
+    How any page is composed — the spacing, colour, actions, feedback and words every goal below
+    relies on. Each is a section of the <a href="/principles">principles</a> page.
+</p>
+<div class="cat-tiles">
+    @foreach (var section in Guide.Sections)
+    {
+        <a class="card cat-tile" href="/principles#@section.Id">
+            <span class="cat-tile-text">
+                <strong>@section.Title</strong>
+                <span>@GuideMarkdown.Summary(section.Markdown)</span>
+            </span>
+            <i class="ri-arrow-right-line cat-tile-go"></i>
+        </a>
+    }
+</div>
+
+<h2 id="goals">Goals <CatAnchor Id="goals" /></h2>
+<p>
+    What the app's user should be able to do, by the area of the catalogue that answers it. Each goal
+    names the page to start from, the parts that go around it, and the usual mistake.
 </p>
 
-@foreach (var group in CataloguePages.Groups)
-{
-    var goals = Guide.Goals.Where(g => g.Group == group).ToList();
-    if (goals.Count == 0) continue;
-
-    <h3 id="@GoalsId(group)">@group<CatAnchor Id="@GoalsId(group)" /></h3>
-    <div class="accordion">
-        @foreach (var goal in goals)
+@* The areas are links to addresses, each a filter that is on or offered: chips, which wrap, so
+   every area is in view however many there are. *@
+<nav aria-label="Areas">
+    <div class="chip-set">
+        @foreach (var (group, count) in Areas)
         {
-            <details id="@goal.Id" open="@(goal.Id == Named)">
-                <summary><span>@goal.Goal</span></summary>
-                <div class="accordion-body cat-goal">
-                    <p>@goal.How</p>
-                    <p>
-                        <strong>Start from</strong>
-                        <a href="@goal.PrimaryPage">@DesignGuide.LabelOf(goal.PrimaryPage)</a>@if (Parts(goal) is { Count: > 0 } parts)
-                        {
-                            <text>, with </text>
-                            @for (var i = 0; i < parts.Count; i++)
-                            {
-                                @(i == 0 ? null : i == parts.Count - 1 ? " and " : ", ")<a href="@parts[i].Page">@DesignGuide.LabelOf(parts[i].Page)</a>
-                            }
-                        }.
-                    </p>
-                    <p><strong>Avoid</strong> @goal.Avoid</p>
-                </div>
-            </details>
+            var current = group == Area;
+            <a class="chip @(current ? "chip--active" : null)" href="@HrefOf(group)" aria-current="@(current ? "page" : null)">
+                <span class="chip-label">@group · @count</span>
+            </a>
         }
     </div>
-}
+</nav>
 
-</section>
-
-<section class="cat-group">
-<h2 id="principles">Principles <CatAnchor Id="principles" /></h2>
-@foreach (var section in Guide.Sections)
-{
-    <h3 id="@section.Id">@section.Title <CatAnchor Id="@section.Id" /></h3>
-    @* The library's prose keeps a 72ch reading measure; this is the page's own column, as wide
-       as every other page's text, so the measure is lifted with its token. *@
-    <div class="prose" style="--prose-measure: none">@((MarkupString)GuideMarkdown.ToHtml(section.Markdown))</div>
-}
-</section>
+<div class="sedna-grid cat-goals">
+    @foreach (var goal in Guide.Goals.Where(g => g.Group == Area))
+    {
+        <article class="card cat-goal" id="@goal.Id">
+            <div class="card-body">
+                <h3>@goal.Goal</h3>
+                <p>@goal.How</p>
+                <p>
+                    <strong>Start from</strong>
+                    <a href="@goal.PrimaryPage">@DesignGuide.LabelOf(goal.PrimaryPage)</a>@if (Parts(goal) is { Count: > 0 } parts)
+                    {
+                        <text>, with </text>
+                        @for (var i = 0; i < parts.Count; i++)
+                        {
+                            @(i == 0 ? null : i == parts.Count - 1 ? " and " : ", ")<a href="@parts[i].Page">@DesignGuide.LabelOf(parts[i].Page)</a>
+                        }
+                    }.
+                </p>
+                <p class="cat-goal-avoid"><strong>Avoid</strong> @goal.Avoid</p>
+            </div>
+        </article>
+    }
+</div>
 
 @code {
-    /// The id of a catalogue group's goals, which the page's contents link to.
-    public static string GoalsId(string group) => "goals-" + Slug.From(group);
+    /// The area whose goals are shown: the address's ?group=, by its lowercase name.
+    [SupplyParameterFromQuery(Name = "group")] public string? GroupQuery { get; set; }
 
-    // The goal the address names, opened: a component page's "Goals it answers" links here
-    // with the goal's id, and a closed entry would show only its sentence.
-    private string? Named
-    {
-        get
-        {
-            var hash = Nav.Uri.IndexOf('#');
-            return hash < 0 ? null : Uri.UnescapeDataString(Nav.Uri[(hash + 1)..]);
-        }
-    }
+    /// The address of an area's goals, and of one goal's card within it.
+    public static string HrefOf(string group, string? goalId = null) =>
+        $"/design-guide?group={group.ToLowerInvariant()}{(goalId is null ? null : "#" + goalId)}";
 
-    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+    private IReadOnlyList<(string Group, int Count)> Areas =>
+        [.. CataloguePages.Groups
+            .Select(g => (g, Guide.Goals.Count(goal => goal.Group == g)))
+            .Where(a => a.Item2 > 0)];
 
-    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+    private string Area =>
+        Areas.Select(a => a.Group).FirstOrDefault(g => string.Equals(g, GroupQuery, StringComparison.OrdinalIgnoreCase))
+        ?? Areas[0].Group;
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
-
+    // Each page once, and not the one to start from: three anchors on one page read as the page's
+    // name three times.
     private static List<GuideAnswer> Parts(GuideGoal goal) =>
-        goal.Answer.Where(a => a.Role == GuideAnswer.Part).ToList();
+        goal.Answer.Where(a => a.Role == GuideAnswer.Part)
+            .Where(a => RouteOf(a.Page) != RouteOf(goal.PrimaryPage))
+            .DistinctBy(a => RouteOf(a.Page))
+            .ToList();
+
+    private static string RouteOf(string page) => page.Split('#')[0];
 }

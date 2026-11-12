@@ -131,9 +131,15 @@
     padding-top: 40px;
     border-top: 1px solid var(--border);
 }
-.cat-group > h2 { margin: 0 0 8px; font-size: 20px; scroll-margin-top: 16px; }
+.cat-group > h2 { margin: 0 0 14px; font-size: 20px; scroll-margin-top: 16px; }
 .cat-group > h3 { margin: 38px 0 10px; font-size: 16px; scroll-margin-top: 16px; }
 .cat-group > h3:first-child { margin-top: 0; }
+.cat-group > h4 { margin: 24px 0 8px; font-size: 14px; }
+/* A table in a card among a principle's paragraphs: the card may not carry a margin here, so the
+   text after it does. */
+.cat-group > .card + p,
+.cat-group > .card + ul,
+.cat-group > .card + h4 { margin-top: 16px; }
 .cat-group > .card + .cat-ex { margin-top: 38px; }
 .cat-group:last-child { margin-bottom: 16px; }
 
@@ -496,6 +502,15 @@
     font-size: 13px;
 }
 .cat-guide-goals > li > a:hover { border-color: var(--brand); color: var(--brand-text); text-decoration: none; }
+/* The design guide's goals: one area at a time, a card per goal, two or three across. The card
+   a component page links to is outlined, so the reader lands on it rather than near it. */
+.cat-goals { margin-top: 16px; align-items: start; }
+.cat-goal { scroll-margin-top: 16px; }
+.cat-goal:target { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+.cat-goal > .card-body > h3 { margin: 0 0 8px; font-size: 15px; line-height: 1.4; }
+.cat-goal > .card-body > p { margin: 0 0 8px; font-size: 13px; line-height: 1.6; color: var(--fg-soft); }
+.cat-goal > .card-body > p:last-child { margin-bottom: 0; }
+.cat-goal > .card-body > .cat-goal-avoid { color: var(--muted); }
 /* A link inside a sentence is told from the sentence by more than its colour. */
 .cat-goal a { text-decoration: underline; text-underline-offset: 2px; }
 
