@@ -25,6 +25,8 @@ namespace Sedna.UI.Tests;
 /// </remarks>
 public class EntranceAnimationScanTests
 {
+    private static readonly char[] Separators = [' ', '\t', '\n', '\r'];
+
     /// <summary>
     /// Every property that, while an animation holds it, makes the element the containing
     /// block of a fixed descendant.
@@ -75,7 +77,7 @@ public class EntranceAnimationScanTests
         {
             foreach (var item in m.Groups["value"].Value.Split(','))
             {
-                var words = item.Split((char[])[' ', '\t', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+                var words = item.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
                 if (!words.Any(w => w is "both" or "forwards")) continue;
                 foreach (var w in words.Where(names.Contains)) yield return w;
             }

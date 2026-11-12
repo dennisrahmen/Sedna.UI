@@ -110,16 +110,18 @@ public class MochiRoomTests : ScriptTestBase
             var painted = 0;
             var outside = new Dictionary<string, int>();
             for (var y = 0; y < shown.Height; y++)
-            for (var x = 0; x < shown.Width; x++)
             {
-                var (r1, g1, b1) = shown.Pixel(x, y);
-                var (r2, g2, b2) = hidden.Pixel(x, y);
-                if (Math.Abs(r1 - r2) + Math.Abs(g1 - g2) + Math.Abs(b1 - b2) < 60) continue;
-                painted++;
-                // Half a pixel of antialiasing on the box's own edge is the edge.
-                var px = x - Around; var py = y - Around;
-                var side = py < -1 ? "top" : py > H + 1 ? "bottom" : px < -1 ? "start" : px > W + 1 ? "end" : null;
-                if (side is not null && c.Sides.Split(' ').Contains(side)) outside[side] = outside.GetValueOrDefault(side) + 1;
+                for (var x = 0; x < shown.Width; x++)
+                {
+                    var (r1, g1, b1) = shown.Pixel(x, y);
+                    var (r2, g2, b2) = hidden.Pixel(x, y);
+                    if (Math.Abs(r1 - r2) + Math.Abs(g1 - g2) + Math.Abs(b1 - b2) < 60) continue;
+                    painted++;
+                    // Half a pixel of antialiasing on the box's own edge is the edge.
+                    var px = x - Around; var py = y - Around;
+                    var side = py < -1 ? "top" : py > H + 1 ? "bottom" : px < -1 ? "start" : px > W + 1 ? "end" : null;
+                    if (side is not null && c.Sides.Split(' ').Contains(side)) outside[side] = outside.GetValueOrDefault(side) + 1;
+                }
             }
 
             if (painted < 200) failures.Add($"#{i} {c.Perch} on a {c.Host} paints {painted} pixels: the fixture did not draw Mochi.");
