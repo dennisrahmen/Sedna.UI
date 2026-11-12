@@ -2,8 +2,8 @@
 
 Which part of Sedna.UI answers what an app's user has to do, how it is combined with the rest, and
 how a page is composed with it. This directory is the guide's one home: the catalogue's
-[design guide page](https://www.sedna-ui.com/design-guide), the panel under every component page's
-title, the topbar search and the MCP server's `search`, `get_guide` and `get_page` all read these
+[design guide page](https://www.sedna-ui.com/design-guide), the "Goes well with" section at the foot of
+every component page, the topbar search and the MCP server's `search`, `get_guide` and `get_page` all read these
 files, and nothing repeats them.
 
 ## The files

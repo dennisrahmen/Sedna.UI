@@ -13,7 +13,7 @@
       { "text": "A wait with no agent behind it", "instead": "/progress#spinner" }
     ],
     "goals": [ "show-the-agent-state-at-a-glance", "show-what-an-agent-is-doing" ],
-    "stamp": "589b50dcd5c529ad"
+    "stamp": "d11b54e6e44b02bf"
   },
   {
     "page": "/agent-status",
@@ -65,7 +65,7 @@
       { "text": "A guided tour of the page", "instead": "/spotlight" }
     ],
     "goals": [ "give-the-agent-a-character", "perch-a-mascot-on-the-page" ],
-    "stamp": "2c1c93dc5f01e029"
+    "stamp": "acf74daed4051f58"
   },
   {
     "page": "/agent-steps",

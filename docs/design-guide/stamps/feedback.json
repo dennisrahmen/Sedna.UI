@@ -15,7 +15,7 @@
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5"
   },
   "/empty-state": {
-    "src/Sedna.UI.Catalogue/Components/Pages/EmptyState.razor": "b06e52bb9f8a6c06",
+    "src/Sedna.UI.Catalogue/Components/Pages/EmptyState.razor": "c96ea19317feb570",
     "src/Sedna.UI.Catalogue/Examples/EmptyState/EmptyState.razor": "f3824912f32cd780",
     "src/Sedna.UI.Catalogue/Examples/EmptyState/Pending.razor": "c4a61fb281ca2522",
     "src/Sedna.UI.Catalogue/Examples/EmptyState/StateIcon.razor": "8444fac0ecbdbf98",
@@ -161,7 +161,7 @@
     "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a"
   },
   "/state-art": {
-    "src/Sedna.UI.Catalogue/Components/Pages/StateArt.razor": "86df1d24c41dcf5b",
+    "src/Sedna.UI.Catalogue/Components/Pages/StateArt.razor": "e8e13c1d1ac237dc",
     "src/Sedna.UI.Catalogue/Examples/StateArt/Accents.razor": "301001bbadd62b65",
     "src/Sedna.UI.Catalogue/Examples/StateArt/DrawingClasses.razor": "c55aa17f881e997a",
     "src/Sedna.UI.Catalogue/Examples/StateArt/Motion.razor": "f0ab5beea4893c9f",

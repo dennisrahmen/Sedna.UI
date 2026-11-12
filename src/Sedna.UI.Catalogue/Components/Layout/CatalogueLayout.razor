@@ -12,6 +12,8 @@
 @inject NavigationManager Nav
 @inject ISednaUi Ui
 @inject CatalogueSearch Search
+@inject PageContents Contents
+@inject Sedna.UI.Catalogue.Guide.DesignGuide Guide
 
 @* Examples/Frame/SkipLink.html, as written: a bare fragment. Under <base href="/">
    that would open the landing page, and Sedna.UI.js is what keeps it here and moves
@@ -39,11 +41,19 @@
             @* The library's own answer to a footer on a short page: the page is a flex
                column, and .cat-column fills it so the footer sits at its bottom. *@
             <div class="cat-column">
-                <main class="cat-main" id="main" tabindex="-1">
-                    @Body
-                    @* The page's design-guide entry, at its foot, found by the route. *@
-                    <CatGuide />
-                </main>
+                @* The page beside its contents: the library's split, with the contents in its
+                   sticky aside. It stacks below 900px, where the contents are left out. *@
+                <div class="sedna-split sedna-split--sm sedna-split--stack-md sedna-split--sticky cat-body">
+                    <main class="cat-main" id="main" tabindex="-1">
+                        @Body
+                        @* The page's design-guide entry, at its foot, found by the route. *@
+                        <CatGuide />
+                    </main>
+                    @if (Sections is { Count: > 1 } sections)
+                    {
+                        <div class="sedna-split-aside cat-toc"><CatContents Sections="sections" /></div>
+                    }
+                </div>
                 <CatalogueFooter />
             </div>
         </div>
@@ -102,6 +112,19 @@
 <SednaOverlayHost />
 
 @code {
+    // The page's sections, and its design-guide entry's heading last when it has one.
+    private IReadOnlyList<PageSection> Sections
+    {
+        get
+        {
+            var path = "/" + Nav.ToBaseRelativePath(Nav.Uri);
+            var end = path.IndexOfAny(['?', '#']);
+            var route = end < 0 ? path : path[..end];
+            var sections = Contents.For(route);
+            return Guide.EntryFor(route) is null ? sections : [.. sections, new PageSection(CatGuide.HeadingId, "Goes well with")];
+        }
+    }
+
     private bool _navOpen;
     private bool _collapsed;
     // Set by the sidebar when a rail area is chosen: that navigation opens the

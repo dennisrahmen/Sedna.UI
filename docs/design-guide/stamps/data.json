@@ -231,7 +231,7 @@
     "src/Sedna.UI/js-parts/51-toast.js": "2fb04f633c667a90"
   },
   "/graph-gallery": {
-    "src/Sedna.UI.Catalogue/Components/Pages/GraphGallery.razor": "125a327cb41d0879",
+    "src/Sedna.UI.Catalogue/Components/Pages/GraphGallery.razor": "8505506476be4459",
     "src/Sedna.UI.Catalogue/Examples/GraphGallery/AutomationRun.razor": "5c04b4eaf9213b3b",
     "src/Sedna.UI.Catalogue/Examples/GraphGallery/BlastRadius.razor": "10d18a72a0a87400",
     "src/Sedna.UI.Catalogue/Examples/GraphGallery/DataLineage.razor": "12ec864732af7598",
@@ -330,7 +330,7 @@
     "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6"
   },
   "/table": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Table.razor": "6fa8547cbbf7df99",
+    "src/Sedna.UI.Catalogue/Components/Pages/Table.razor": "51f81fe4dbecbc51",
     "src/Sedna.UI.Catalogue/Examples/Interop/SortFromCsharp.razor": "39f93544c2009486",
     "src/Sedna.UI.Catalogue/Examples/Table/Basic.razor": "1199d00f3a3f824a",
     "src/Sedna.UI.Catalogue/Examples/Table/ClickableRows.razor": "918f0cfd0e0536d9",

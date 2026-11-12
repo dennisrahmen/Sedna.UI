@@ -71,7 +71,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "3322eeec3476060b"
+    "stamp": "69c0cc9609a8fdbd"
   },
   {
     "page": "/list",
@@ -91,7 +91,7 @@
       { "text": "A list of files", "instead": "/files#a-list-of-files" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "86f0491b5d8af403"
+    "stamp": "af48f44e7846b1dd"
   },
   {
     "page": "/collections",

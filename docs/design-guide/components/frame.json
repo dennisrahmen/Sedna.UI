@@ -139,7 +139,7 @@
       { "text": "A label on the collapsed rail's links", "instead": "/nav#collapsed-rail" }
     ],
     "goals": [ "show-status-history", "explain-a-control", "act-with-an-icon-button", "explain-a-disabled-action" ],
-    "stamp": "1c72ec21b6c93351"
+    "stamp": "ba62563cbb881416"
   },
   {
     "page": "/common-pages",
@@ -160,7 +160,7 @@
       { "text": "Signing in", "instead": "/page-recipes#a-sign-in-page" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends", "count-down-to-a-deadline" ],
-    "stamp": "bf49b355ce29eccc"
+    "stamp": "614348923ef164f9"
   },
   {
     "page": "/page-recipes",

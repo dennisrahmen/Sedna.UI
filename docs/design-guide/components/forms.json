@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "1af43e70892b3ceb"
+    "stamp": "88dccb425869d95a"
   },
   {
     "page": "/form-select",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model" ],
-    "stamp": "613618630b1d604e"
+    "stamp": "6d4a418918661ab5"
   },
   {
     "page": "/form-choice",
@@ -209,7 +209,7 @@
       { "text": "A long set the reader builds up row by row", "instead": "/form-select#moving-rows-between-two-lists" }
     ],
     "goals": [ "pick-a-set-from-a-list" ],
-    "stamp": "6d6698914db6a821"
+    "stamp": "b23ddd037ce69729"
   },
   {
     "page": "/segmented",

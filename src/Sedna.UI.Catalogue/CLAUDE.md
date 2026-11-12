@@ -100,6 +100,12 @@ survives re-renders by construction.
   - a jump — the skip link, a validation summary — is a bare fragment, checked by `SamePageLinkTests`;
   - in an example, a fragment names an id the same example declares, or is the placeholder `#`, which
     `catalogue.js` cancels inside a demo. `ExampleSourceTests` fails on any other.
+- **Every page has its contents beside it**, built from its sections by `Navigation/PageContents.cs`.
+  A section is a `CatExample`, a `CatSnippet`, or a hand-written `<h2 id="…">` with a
+  `<CatAnchor Id="…" />` in it — the same id, and every page heading has one, so its link can be
+  copied. A heading written in a loop has no literal id to read: the page's sections are then
+  added in `PageContents` from the data the loop renders, as the design guide's and the tokens'
+  are. `PageContentsTests` fails when a page's contents and its anchored headings disagree.
 - **An unknown address renders `Components/Pages/NotFound.razor`** with a 404, through the router's
   `NotFoundPage` and `UseStatusCodePagesWithReExecute`. Its route is `CataloguePages.NotFoundRoute` and
   it is not in `All`; `NotFoundTests` covers it.

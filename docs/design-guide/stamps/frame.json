@@ -45,7 +45,7 @@
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412"
   },
   "/common-pages": {
-    "src/Sedna.UI.Catalogue/Components/Pages/CommonPages.razor": "1b0eda78d2855ae5",
+    "src/Sedna.UI.Catalogue/Components/Pages/CommonPages.razor": "7001ed7226669595",
     "src/Sedna.UI.Catalogue/Examples/CommonPages/AccessDenied.razor": "c541c1ab5c65fe62",
     "src/Sedna.UI.Catalogue/Examples/CommonPages/Maintenance.razor": "b44fa4ed27f53732",
     "src/Sedna.UI.Catalogue/Examples/CommonPages/NotFound.razor": "83b95fd79e4fa8ef",
@@ -100,7 +100,7 @@
     "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"
   },
   "/hover-hints": {
-    "src/Sedna.UI.Catalogue/Components/Pages/HoverHints.razor": "0266cc575c8372ab",
+    "src/Sedna.UI.Catalogue/Components/Pages/HoverHints.razor": "2c2deacb21c9abc0",
     "src/Sedna.UI.Catalogue/Examples/HoverHints/Controls.razor": "a586a9ab3255338e",
     "src/Sedna.UI.Catalogue/Examples/HoverHints/Positions.razor": "db9dc72206faff9e",
     "src/Sedna.UI.Catalogue/Examples/HoverHints/TipGate.txt": "25876026440287ea",

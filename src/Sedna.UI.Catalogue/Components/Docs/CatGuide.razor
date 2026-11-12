@@ -10,10 +10,10 @@
 
 @if (Entry is { } entry)
 {
-    <section class="cat-guide" aria-labelledby="cat-guide-title">
+    <section class="cat-guide" aria-labelledby="@HeadingId">
         <div class="cat-guide-head">
-            <h2 id="cat-guide-title">Goes well with</h2>
-            <a class="btn btn--sm btn--ghost" href="/design-guide"><i class="ri-compass-3-line"></i> <span>Design guide</span></a>
+            <h2 id="@HeadingId">Goes well with <CatAnchor Id="@HeadingId" /></h2>
+            <a class="btn btn--brand" href="/design-guide"><i class="ri-compass-3-line"></i> <span>Open the design guide</span> <i class="ri-arrow-right-line"></i></a>
         </div>
         <p class="cat-guide-use">@entry.UseFor</p>
 
@@ -63,6 +63,9 @@
 }
 
 @code {
+    /// The id of the section's heading, which the page's contents link to.
+    public const string HeadingId = "goes-well-with";
+
     private GuideEntry? Entry
     {
         get

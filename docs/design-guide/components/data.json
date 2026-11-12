@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "3d43f21e5a17d330"
+    "stamp": "edc90d065b0ac12d"
   },
   {
     "page": "/table-editing",
@@ -300,7 +300,7 @@
       { "text": "A chart of figures", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
-    "stamp": "75b33e49032a75cc"
+    "stamp": "8265114642052604"
   },
   {
     "page": "/graph-blazor",
