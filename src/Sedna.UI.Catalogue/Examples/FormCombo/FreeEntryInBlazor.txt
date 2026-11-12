@@ -22,7 +22,7 @@
     </div>
     @if (_recipients.FirstOrDefault(a => !IsAddress(a)) is { } bad)
     {
-        <p class="form-error" id="recipients-error">“@bad” is not an e-mail address.</p>
+        <p class="form-error" id="recipients-error"><i class="ri-error-warning-line"></i><span>“@bad” is not an e-mail address. Enter it as name@example.com.</span></p>
     }
 </div>
 

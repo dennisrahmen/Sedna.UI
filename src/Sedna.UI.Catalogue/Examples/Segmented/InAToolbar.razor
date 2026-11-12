@@ -1,18 +1,20 @@
 <div class="toolbar">
     <div class="toolbar-filters">
-        <input class="form-input toolbar-input" type="search" placeholder="Search orders…" />
+        <input class="form-input toolbar-input" type="search" placeholder="Search orders…" aria-label="Search orders" />
         <div class="segmented" role="group" aria-label="Time range">
             <label class="segmented-option"><input type="radio" name="tb-range" /> <span>24h</span></label>
             <label class="segmented-option"><input type="radio" name="tb-range" checked /> <span>7d</span></label>
             <label class="segmented-option"><input type="radio" name="tb-range" /> <span>30d</span></label>
         </div>
     </div>
-    <div class="segmented" role="group" aria-label="Layout">
-        <label class="segmented-option">
-            <input type="radio" name="tb-view" checked /><i class="ri-list-check"></i> <span>List</span>
-        </label>
-        <label class="segmented-option">
-            <input type="radio" name="tb-view" /><i class="ri-layout-grid-line"></i> <span>Grid</span>
-        </label>
+    <div class="toolbar-actions">
+        <div class="segmented" role="group" aria-label="Layout">
+            <label class="segmented-option">
+                <input type="radio" name="tb-view" checked /><i class="ri-list-check"></i> <span>List</span>
+            </label>
+            <label class="segmented-option">
+                <input type="radio" name="tb-view" /><i class="ri-layout-grid-line"></i> <span>Grid</span>
+            </label>
+        </div>
     </div>
 </div>
