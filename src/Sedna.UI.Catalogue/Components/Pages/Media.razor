@@ -14,128 +14,133 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Media.MediaFrame" Title="Media frame" Demo="ex-demo--block">
-    <p>
-        A bounded box for an image whose size you do not control. The <code>aspect-ratio</code> is
-        what stops the page reflowing as images arrive — the box has its height before the first
-        byte — and <code>width</code>/<code>height</code> on the <code>&lt;img&gt;</code> is worth
-        writing anyway, because it tells the browser the ratio of the file rather than of the frame.
-        <code>loading="lazy"</code> on anything below the fold; a real <code>alt</code> always, and
-        <code>&lt;figure class="media-figure"&gt;</code> when there is a caption.
-    </p>
-</CatExample>
+<CatGroup Title="Frames">
+    <CatExample TExample="Examples.Media.MediaFrame" Title="Media frame" Demo="ex-demo--block">
+        <p>
+            A bounded box for an image whose size you do not control. The <code>aspect-ratio</code> is
+            what stops the page reflowing as images arrive — the box has its height before the first
+            byte — and <code>width</code>/<code>height</code> on the <code>&lt;img&gt;</code> is worth
+            writing anyway, because it tells the browser the ratio of the file rather than of the frame.
+            <code>loading="lazy"</code> on anything below the fold; a real <code>alt</code> always, and
+            <code>&lt;figure class="media-figure"&gt;</code> when there is a caption.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Media.Fit" Title="Contain or cover" Demo="ex-demo--block">
-    <p>
-        The same photograph in the same square frame, and the whole decision in one pair. The
-        default <strong>contains</strong>: the image is letterboxed and all of it is there, which is
-        what a screenshot, a scanned document or a label needs, because cropping one removes the
-        part somebody needed. <code>.media-frame--cover</code> <strong>fills and crops</strong>,
-        which is what a thumbnail or a banner needs. Picking the wrong one is silent — the image
-        still appears, just without the corner that mattered.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Media.Fit" Title="Contain or cover" Demo="ex-demo--block">
+        <p>
+            The same photograph in the same square frame, and the whole decision in one pair. The
+            default <strong>contains</strong>: the image is letterboxed and all of it is there, which is
+            what a screenshot, a scanned document or a label needs, because cropping one removes the
+            part somebody needed. <code>.media-frame--cover</code> <strong>fills and crops</strong>,
+            which is what a thumbnail or a banner needs. Picking the wrong one is silent — the image
+            still appears, just without the corner that mattered.
+        </p>
+    </CatExample>
 
+    <CatExample TExample="Examples.Media.Ratio" Title="Any ratio, one token" Demo="ex-demo--block">
+        <p>
+            Every frame that holds a picture at a fixed shape reads <code>--media-ratio</code>: the
+            <code>.media-frame</code>, the <code>.skeleton-image</code> it replaces, a
+            <a href="/form-choice"><code>.choice-tile-art</code></a>, a
+            <a href="/files"><code>.file-tile-thumb</code></a> and a
+            <a href="/video"><code>.media-player</code></a>'s video. Each is 16:9 unless it says otherwise
+            &mdash; a file tile is square &mdash; so a skeleton swaps for its picture without a jump. Set
+            the token on one frame or on a whole container: <code>4 / 3</code>, <code>3 / 2</code>,
+            <code>9 / 16</code>. <code>--square</code> and <code>--wide</code> set it too.
+        </p>
+    </CatExample>
+</CatGroup>
 
+<CatGroup Title="Transparency">
+    <CatExample TExample="Examples.Media.Transparency" Title="Seeing transparency" Demo="ex-demo--block">
+        <p>
+            <code>.media-frame--transparency</code> paints a checkerboard behind the picture, so a
+            transparent background can be told from a white or grey one &mdash; a logo, an icon, a
+            cut-out, an upload being checked. It is behind the picture alone, so a letterbox stays plain.
+            The squares are <code>--surface-soft</code> and
+            <code>--border</code>, so they follow the theme; <code>--checker-size</code> is one square.
+        </p>
+    </CatExample>
 
+    <CatExample TExample="Examples.Media.TransparencyFrames" Title="Transparency in every frame" Demo="ex-demo--block">
+        <p>
+            Every frame that shows a picture takes the same modifier: <code>.file-tile-thumb--transparency</code>
+            on a file tile, <code>.file-thumb--transparency</code> on an attachment waiting to upload, and
+            <code>.choice-tile-art--transparency</code> on a choice between pictures &mdash; where telling a
+            transparent logo from a boxed one is the whole decision. The lightbox's stage takes
+            <code>.lightbox-stage--transparency</code>, below.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Media.Ratio" Title="Any ratio, one token" Demo="ex-demo--block">
-    <p>
-        Every frame that holds a picture at a fixed shape reads <code>--media-ratio</code>: the
-        <code>.media-frame</code>, the <code>.skeleton-image</code> it replaces, a
-        <a href="/form-choice"><code>.choice-tile-art</code></a>, a
-        <a href="/files"><code>.file-tile-thumb</code></a> and a
-        <a href="/video"><code>.media-player</code></a>'s video. Each is 16:9 unless it says otherwise
-        &mdash; a file tile is square &mdash; so a skeleton swaps for its picture without a jump. Set
-        the token on one frame or on a whole container: <code>4 / 3</code>, <code>3 / 2</code>,
-        <code>9 / 16</code>. <code>--square</code> and <code>--wide</code> set it too.
-    </p>
-</CatExample>
+    <CatSnippet Name="Media/LightboxTransparency.html" Title="Transparency in the lightbox">
+        <p>
+            The same modifier on the stage of a <code>.lightbox</code>, for a picture opened full size.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatExample TExample="Examples.Media.Transparency" Title="Seeing transparency" Demo="ex-demo--block">
-    <p>
-        <code>.media-frame--transparency</code> paints a checkerboard behind the picture, so a
-        transparent background can be told from a white or grey one &mdash; a logo, an icon, a
-        cut-out, an upload being checked. It is behind the picture alone, so a letterbox stays plain.
-        The squares are <code>--surface-soft</code> and
-        <code>--border</code>, so they follow the theme; <code>--checker-size</code> is one square.
-    </p>
-</CatExample>
+<CatGroup Title="Galleries and previews">
+    <CatExample TExample="Examples.Media.Gallery" Title="Gallery of attachments" Demo="ex-demo--block">
+        <p>
+            <code>.gallery</code> is a breakpoint-free grid of thumbnails. Each tile is a real
+            <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> directly inside it — never a
+            <code>&lt;div&gt;</code> with a click handler — and every frame is square whatever aspect
+            modifier it carries, so a row of mixed attachments lines up. Which is the point of the mix
+            here: two photographs somebody took at the dock and two files, in one grid, squared by the
+            same rule. What the lightbox below can show &mdash; the photographs and the
+            PDF &mdash; is a <code>.media-open</code> button, and its frame centres a file's
+            <code>.file-icon</code> as it centres a picture; the spreadsheet, which only downloads, is a
+            link with <code>download</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Media.TransparencyFrames" Title="Transparency in every frame" Demo="ex-demo--block">
-    <p>
-        Every frame that shows a picture takes the same modifier: <code>.file-tile-thumb--transparency</code>
-        on a file tile, <code>.file-thumb--transparency</code> on an attachment waiting to upload, and
-        <code>.choice-tile-art--transparency</code> on a choice between pictures &mdash; where telling a
-        transparent logo from a boxed one is the whole decision. The lightbox's stage takes
-        <code>.lightbox-stage--transparency</code>, below.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Media.TightGallery" Title="Pictures sharing one frame" Demo="ex-demo--block">
+        <p>
+            <code>.gallery--tight</code> packs pictures that belong to one thing &mdash; the photos in a
+            chat message, the ones on a card &mdash; two across with a hairline between them. The frame
+            around them has the corners, so the pictures have none. Three leave a slot; four fill it.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Media/LightboxTransparency.html" Title="Transparency in the lightbox">
-    <p>
-        The same modifier on the stage of a <code>.lightbox</code>, for a picture opened full size.
-    </p>
-</CatSnippet>
+    <CatExample TExample="Examples.Media.LinkPreview" Title="Link preview" Demo="ex-demo--block">
+        <p>
+            <code>.link-preview</code> is a link unfurled: the picture, then the title, a line and the
+            host in <code>.link-preview-body</code>. The app fetches the preview and decides whether to
+            show one; the picture's <code>alt</code> is empty because the title already names the link.
+            A <a href="/chat">chat message</a> carries the same card.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Media.Gallery" Title="A gallery of attachments" Demo="ex-demo--block">
-    <p>
-        <code>.gallery</code> is a breakpoint-free grid of thumbnails. Each tile is a real
-        <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code> directly inside it — never a
-        <code>&lt;div&gt;</code> with a click handler — and every frame is square whatever aspect
-        modifier it carries, so a row of mixed attachments lines up. Which is the point of the mix
-        here: two photographs somebody took at the dock and two files, in one grid, squared by the
-        same rule. What the lightbox below can show &mdash; the photographs and the
-        PDF &mdash; is a <code>.media-open</code> button, and its frame centres a file's
-        <code>.file-icon</code> as it centres a picture; the spreadsheet, which only downloads, is a
-        link with <code>download</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Lightbox">
+    <CatExample TExample="Examples.Media.Lightbox" Title="Looking at one large" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open a picture.</strong> <code>.lightbox</code> is a
+            <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> &mdash;
+            <a href="/modal"><code>ShowModalAsync</code></a> from C# &mdash; so the top layer, the
+            focus trap, <kbd>Escape</kbd> and the inert page behind it are the platform's. The
+            <code>.lightbox-stage</code> holds the picture as large as the viewport allows;
+            <code>.lightbox-head</code> carries the <code>.lightbox-title</code>, the
+            <code>.lightbox-meta</code> and the <code>.lightbox-actions</code> &mdash; download, open, close
+            &mdash; and <code>.lightbox-prev</code> / <code>.lightbox-next</code> go to the neighbours,
+            with the <code>.lightbox-caption</code> under it all. Which picture is in it is the app's
+            state, and so are the arrow keys: one dialog whose stage the app re-renders, or one per
+            attachment as here. A picture that opens one is a <code>.media-open</code> button.
+        </p>
+        <p>
+            <code>closedby="any"</code> closes it on a click on the stage beside the picture, as it
+            closes any other dialog on a click on its backdrop &mdash; a lightbox fills the screen, so
+            it has none. A press that starts or ends on the picture or a control closes nothing.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Media.TightGallery" Title="Pictures sharing one frame" Demo="ex-demo--block">
-    <p>
-        <code>.gallery--tight</code> packs pictures that belong to one thing &mdash; the photos in a
-        chat message, the ones on a card &mdash; two across with a hairline between them. The frame
-        around them has the corners, so the pictures have none. Three leave a slot; four fill it.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Media.LinkPreview" Title="A link preview" Demo="ex-demo--block">
-    <p>
-        <code>.link-preview</code> is a link unfurled: the picture, then the title, a line and the
-        host in <code>.link-preview-body</code>. The app fetches the preview and decides whether to
-        show one; the picture's <code>alt</code> is empty because the title already names the link.
-        A <a href="/chat">chat message</a> carries the same card.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Media.Lightbox" Title="Looking at one large" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open a picture.</strong> <code>.lightbox</code> is a
-        <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> &mdash;
-        <a href="/modal"><code>ShowModalAsync</code></a> from C# &mdash; so the top layer, the
-        focus trap, <kbd>Escape</kbd> and the inert page behind it are the platform's. The
-        <code>.lightbox-stage</code> holds the picture as large as the viewport allows;
-        <code>.lightbox-head</code> carries the <code>.lightbox-title</code>, the
-        <code>.lightbox-meta</code> and the <code>.lightbox-actions</code> &mdash; download, open, close
-        &mdash; and <code>.lightbox-prev</code> / <code>.lightbox-next</code> go to the neighbours,
-        with the <code>.lightbox-caption</code> under it all. Which picture is in it is the app's
-        state, and so are the arrow keys: one dialog whose stage the app re-renders, or one per
-        attachment as here. A picture that opens one is a <code>.media-open</code> button.
-    </p>
-    <p>
-        <code>closedby="any"</code> closes it on a click on the stage beside the picture, as it
-        closes any other dialog on a click on its backdrop &mdash; a lightbox fills the screen, so
-        it has none. A press that starts or ends on the picture or a control closes nothing.
-    </p>
-</CatExample>
-
-<CatSnippet Name="Media/LightboxDocument.html" Title="A document in it">
-    <p>
-        A PDF or a text file is a <code>.lightbox-frame</code> in the stage &mdash; an
-        <code>&lt;object&gt;</code> with a download link as its fallback, or an
-        <code>&lt;iframe&gt;</code> with a <code>title</code> &mdash; and the download link in
-        the actions is the way to keep it. Name the frame the way a screen reader would want the
-        tab it replaces named.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Media/LightboxDocument.html" Title="Document in the lightbox">
+        <p>
+            A PDF or a text file is a <code>.lightbox-frame</code> in the stage &mdash; an
+            <code>&lt;object&gt;</code> with a download link as its fallback, or an
+            <code>&lt;iframe&gt;</code> with a <code>title</code> &mdash; and the download link in
+            the actions is the way to keep it. Name the frame the way a screen reader would want the
+            tab it replaces named.
+        </p>
+    </CatSnippet>
+</CatGroup>

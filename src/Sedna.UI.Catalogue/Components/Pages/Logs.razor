@@ -7,164 +7,170 @@
     filters, searches and pages the lines; the pane shows the ones it renders.
 </CatHead>
 
-<CatExample TExample="Examples.Logs.LiveTail" Title="Live tail" Demo="ex-demo--block">
-    <p>
-        A <code>data-follow</code> pane sticks to the newest line and lets go when the reader scrolls
-        up. Scroll this one up: Sedna.UI.js marks the pane <code>data-follow-paused</code> and the
-        <code>.output-jump</code> button appears over its foot; <code>data-output-follow</code> on
-        the button follows again. <code>.output-panel</code> holds the head, the pane and the
-        button. <strong>Pausing is the app's</strong>: render the pane without
-        <code>data-follow</code> and it stops following, render it with the attribute again and it
-        jumps to the newest line. The pane also fires a bubbling <code>sedna-follow</code> event
-        with <code>detail.following</code> — <code>@@onsedna-follow</code> with a
-        <code>SednaFollowEventArgs</code> in Blazor — for an app that counts the lines not yet seen.
-    </p>
-</CatExample>
+<CatGroup Title="Reading a log">
+    <CatExample TExample="Examples.Logs.LiveTail" Title="Live tail" Demo="ex-demo--block">
+        <p>
+            A <code>data-follow</code> pane sticks to the newest line and lets go when the reader scrolls
+            up. Scroll this one up: Sedna.UI.js marks the pane <code>data-follow-paused</code> and the
+            <code>.output-jump</code> button appears over its foot; <code>data-output-follow</code> on
+            the button follows again. <code>.output-panel</code> holds the head, the pane and the
+            button. <strong>Pausing is the app's</strong>: render the pane without
+            <code>data-follow</code> and it stops following, render it with the attribute again and it
+            jumps to the newest line. The pane also fires a bubbling <code>sedna-follow</code> event
+            with <code>detail.following</code> — <code>@@onsedna-follow</code> with a
+            <code>SednaFollowEventArgs</code> in Blazor — for an app that counts the lines not yet seen.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.ApplicationLog" Title="Application log" Demo="ex-demo--block">
-    <p>
-        <code>.output--columns</code> lays each line out as <code>.output-time</code>,
-        <code>.output-level</code>, <code>.output-source</code> and <code>.output-msg</code>, aligned
-        down the pane. The level and source columns are <code>--output-level-width</code> and
-        <code>--output-source-width</code> on the pane. <code>.output-line--debug</code> and
-        <code>--info</code> join <code>--warn</code> and <code>--error</code>: info colours only
-        its level, because a pane of tinted info lines hides the warnings. The level icon is Remix
-        Icon, and <strong>the word stays beside it</strong>. <code>.output-id</code>,
-        <code>.output-num</code>, <code>.output-str</code> and <code>.output-key</code> highlight
-        what the app marked up; the library never parses a message. On a warn or error line they
-        take the line's colour.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.ApplicationLog" Title="Application log" Demo="ex-demo--block">
+        <p>
+            <code>.output--columns</code> lays each line out as <code>.output-time</code>,
+            <code>.output-level</code>, <code>.output-source</code> and <code>.output-msg</code>, aligned
+            down the pane. The level and source columns are <code>--output-level-width</code> and
+            <code>--output-source-width</code> on the pane. <code>.output-line--debug</code> and
+            <code>--info</code> join <code>--warn</code> and <code>--error</code>: info colours only
+            its level, because a pane of tinted info lines hides the warnings. The level icon is Remix
+            Icon, and <strong>the word stays beside it</strong>. <code>.output-id</code>,
+            <code>.output-num</code>, <code>.output-str</code> and <code>.output-key</code> highlight
+            what the app marked up; the library never parses a message. On a warn or error line they
+            take the line's colour.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.Plain" Title="Without highlighting" Demo="ex-demo--block">
-    <p>
-        The same columns with no level modifier and no token classes, for a log where colour would
-        claim more than the data does &mdash; an audit trail, where every entry matters equally.
-        Everything on this page is opt-in per line and per token.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.Plain" Title="Without highlighting" Demo="ex-demo--block">
+        <p>
+            The same columns with no level modifier and no token classes, for a log where colour would
+            claim more than the data does &mdash; an audit trail, where every entry matters equally.
+            Everything on this page is opt-in per line and per token.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.ExpandingRows" Title="Expanding rows" Demo="ex-demo--block">
-    <p>
-        A row with a stack trace, a request or the entry's fields is a <code>&lt;details&gt;</code>
-        with <code>.output-details</code> inside the line: the columns go in its
-        <code>&lt;summary&gt;</code> and the rest in <code>.output-trace</code>. The caret sits in the
-        row gutter, so expanding and plain rows line up. Opening a row in a following pane lets go of
-        the tail when the row grows past the bottom, so the trace is not scrolled away. The pane
-        stops at 320px and scrolls; <code>--output-max-height</code> on it sets another height, here
-        32rem for a pane of rows that open.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.ExpandingRows" Title="Expanding rows" Demo="ex-demo--block">
+        <p>
+            A row with a stack trace, a request or the entry's fields is a <code>&lt;details&gt;</code>
+            with <code>.output-details</code> inside the line: the columns go in its
+            <code>&lt;summary&gt;</code> and the rest in <code>.output-trace</code>. The caret sits in the
+            row gutter, so expanding and plain rows line up. Opening a row in a following pane lets go of
+            the tail when the row grows past the bottom, so the trace is not scrolled away. The pane
+            stops at 320px and scrolls; <code>--output-max-height</code> on it sets another height, here
+            32rem for a pane of rows that open.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.RowActions" Title="Row actions" Demo="ex-demo--block">
-    <p>
-        <code>.output-actions</code> is a strip at the end of the line that shows on hover and on
-        focus, and stays while its <a href="/menu"><code>.menu</code></a> is open. The buttons are
-        <code>.btn--ghost .btn--icon .btn--sm</code>, the copy button is <code>data-copy</code>, and
-        the menu is the usual <code>.menu-anchor</code> with <code>data-menu-toggle</code>. Put the
-        strip <strong>after</strong> the <code>&lt;details&gt;</code>, never inside its
-        <code>&lt;summary&gt;</code>. On a touch screen the strip is always shown and the line keeps
-        room for two buttons, so keep it to a copy button and a menu. An open menu holds a following pane still.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.RowActions" Title="Row actions" Demo="ex-demo--block">
+        <p>
+            <code>.output-actions</code> is a strip at the end of the line that shows on hover and on
+            focus, and stays while its <a href="/menu"><code>.menu</code></a> is open. The buttons are
+            <code>.btn--ghost .btn--icon .btn--sm</code>, the copy button is <code>data-copy</code>, and
+            the menu is the usual <code>.menu-anchor</code> with <code>data-menu-toggle</code>. Put the
+            strip <strong>after</strong> the <code>&lt;details&gt;</code>, never inside its
+            <code>&lt;summary&gt;</code>. On a touch screen the strip is always shown and the line keeps
+            room for two buttons, so keep it to a copy button and a menu. An open menu holds a following pane still.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Logs.Filters" Title="Level filters and wrapping" Demo="ex-demo--block">
-    <p>
-        The level filter is a set of <a href="/chip"><code>.chip</code></a> buttons in a
-        <a href="/toolbar"><code>.toolbar</code></a>: <code>aria-pressed</code> for the state and
-        <code>.chip--active</code> for the look, set together by the app, which then renders only
-        the matching lines. Wrapping is a <a href="/segmented"><code>.segmented</code></a> setting
-        that switches <code>.output--nowrap</code> on the pane.
-    </p>
-</CatExample>
+<CatGroup Title="Narrowing the view">
+    <CatExample TExample="Examples.Logs.Filters" Title="Level filters and wrapping" Demo="ex-demo--block">
+        <p>
+            The level filter is a set of <a href="/chip"><code>.chip</code></a> buttons in a
+            <a href="/toolbar"><code>.toolbar</code></a>: <code>aria-pressed</code> for the state and
+            <code>.chip--active</code> for the look, set together by the app, which then renders only
+            the matching lines. Wrapping is a <a href="/segmented"><code>.segmented</code></a> setting
+            that switches <code>.output--nowrap</code> on the pane.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.TimeRange" Title="A time range and auto-refresh" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; open it.</strong> The span of the log is a
-        <code>.form-trigger</code> opening a <code>.popover</code> of
-        <a href="/chip"><code>.chip</code></a> ranges and the reader's recent ones; the refresh
-        interval is a small <a href="/form-select"><code>.form-select</code></a> beside a refresh
-        button. The app fetches the lines for the range on its own timer. With a start and end of
-        the reader's choosing, a quick select and an interval it can start and stop, it is the
-        recipe on <a href="/form-datetime">Date and time</a>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.TimeRange" Title="Time range and auto-refresh" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; open it.</strong> The span of the log is a
+            <code>.form-trigger</code> opening a <code>.popover</code> of
+            <a href="/chip"><code>.chip</code></a> ranges and the reader's recent ones; the refresh
+            interval is a small <a href="/form-select"><code>.form-select</code></a> beside a refresh
+            button. The app fetches the lines for the range on its own timer. With a start and end of
+            the reader's choosing, a quick select and an interval it can start and stop, it is the
+            recipe on <a href="/form-datetime">Date and time</a>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.OneLineDense" Title="One line per entry, dense" Demo="ex-demo--block">
-    <p>
-        <code>.output--nowrap</code> keeps every entry on one line and cuts the message with an
-        ellipsis; the pane never scrolls sideways, so the row actions stay in view. Wrapping stays the
-        default because a cut line hides the part of a message that differs &mdash; offer an expanding
-        row for the whole entry. <code>.output--dense</code> tightens the rows for scanning a long
-        stretch.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.OneLineDense" Title="One line per entry, dense" Demo="ex-demo--block">
+        <p>
+            <code>.output--nowrap</code> keeps every entry on one line and cuts the message with an
+            ellipsis; the pane never scrolls sideways, so the row actions stay in view. Wrapping stays the
+            default because a cut line hides the part of a message that differs &mdash; offer an expanding
+            row for the whole entry. <code>.output--dense</code> tightens the rows for scanning a long
+            stretch.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Logs.Empty" Title="Nothing to show" Demo="ex-demo--block">
-    <p>
-        <code>.output-empty</code> is an <code>&lt;li&gt;</code> in the pane holding an
-        <a href="/empty-state"><code>.empty-state</code></a>, so the pane keeps its frame. Say
-        whether the log is empty or the filter emptied it, and offer the way back.
-    </p>
-</CatExample>
+<CatGroup Title="Empty and loading">
+    <CatExample TExample="Examples.Logs.Empty" Title="Nothing to show" Demo="ex-demo--block">
+        <p>
+            <code>.output-empty</code> is an <code>&lt;li&gt;</code> in the pane holding an
+            <a href="/empty-state"><code>.empty-state</code></a>, so the pane keeps its frame. Say
+            whether the log is empty or the filter emptied it, and offer the way back.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.Loading" Title="Loading" Demo="ex-demo--block">
-    <p>
-        The first load is <a href="/skeleton"><code>.skeleton-text</code></a> lines. Fetching more
-        around lines already shown is <code>.output-busy</code>, an <code>&lt;li&gt;</code> with a
-        <code>.spinner</code> and a few words, at the end it is loading into. Mark the pane
-        <code>aria-busy="true"</code> for both.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.Loading" Title="Loading" Demo="ex-demo--block">
+        <p>
+            The first load is <a href="/skeleton"><code>.skeleton-text</code></a> lines. Fetching more
+            around lines already shown is <code>.output-busy</code>, an <code>&lt;li&gt;</code> with a
+            <code>.spinner</code> and a few words, at the end it is loading into. Mark the pane
+            <code>aria-busy="true"</code> for both.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<h2 id="developer-output">Developer output <CatAnchor Id="developer-output" /></h2>
+<CatGroup Title="Developer output">
+    <CatExample TExample="Examples.Logs.Terminal" Title="Terminal" Demo="ex-demo--block">
+        <p>
+            <code>.output--terminal</code> is the pane as a shell shows it: each command an
+            <code>.output-line--prompt</code> holding <code>.output-prompt</code> &mdash; the app's
+            <code>$</code>, <code>&gt;</code> or <code>PS&gt;</code>, hidden from a screen reader and from a
+            selection &mdash; and <code>.output-cmd</code>. A command that wraps carries on under its own
+            first character, not under the prompt, and a command after earlier output stands apart from it.
+            Lines are not tinted on hover. Each command's copy button is the row's
+            <code>.output-actions</code>; the whole session is a <code>data-copy-target</code> in the head.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.Terminal" Title="Terminal" Demo="ex-demo--block">
-    <p>
-        <code>.output--terminal</code> is the pane as a shell shows it: each command an
-        <code>.output-line--prompt</code> holding <code>.output-prompt</code> &mdash; the app's
-        <code>$</code>, <code>&gt;</code> or <code>PS&gt;</code>, hidden from a screen reader and from a
-        selection &mdash; and <code>.output-cmd</code>. A command that wraps carries on under its own
-        first character, not under the prompt, and a command after earlier output stands apart from it.
-        Lines are not tinted on hover. Each command's copy button is the row's
-        <code>.output-actions</code>; the whole session is a <code>data-copy-target</code> in the head.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.StackTrace" Title="Stack trace" Demo="ex-demo--block">
+        <p>
+            An <code>.output-trace</code> read frame by frame: <code>.output-exception</code> says what was
+            thrown, <code>.output-frames</code> lists the <code>.output-frame</code>s, each the call and its
+            <code>.output-frame-loc</code> &mdash; a link where the app can open the file at that line, a
+            <code>&lt;span&gt;</code> where it cannot. The location stands at the frame's end and drops under
+            the call when the row is narrow. <code>.output-frame--external</code> is a frame in code the reader
+            does not own, drawn quieter, and a run of them folds into a closed
+            <code>details.output-frames-fold</code> so the frames that matter stand together.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.StackTrace" Title="Stack trace" Demo="ex-demo--block">
-    <p>
-        An <code>.output-trace</code> read frame by frame: <code>.output-exception</code> says what was
-        thrown, <code>.output-frames</code> lists the <code>.output-frame</code>s, each the call and its
-        <code>.output-frame-loc</code> &mdash; a link where the app can open the file at that line, a
-        <code>&lt;span&gt;</code> where it cannot. The location stands at the frame's end and drops under
-        the call when the row is narrow. <code>.output-frame--external</code> is a frame in code the reader
-        does not own, drawn quieter, and a run of them folds into a closed
-        <code>details.output-frames-fold</code> so the frames that matter stand together.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.TestResults" Title="Test results" Demo="ex-demo--block">
+        <p>
+            The run as a whole is a <a href="/bars"><code>.stack-bar</code></a> of <code>series-go</code>,
+            <code>series-danger</code> and <code>series-muted</code> with its legend in words. Each suite is a
+            <code>details.test-suite</code>, open where something failed, its summary the
+            <code>.test-suite-name</code>, the <code>.test-suite-count</code> and the
+            <code>.test-time</code>. Each test is a <code>.test-case</code> in <code>.test-cases</code>, under
+            its suite's icon. <code>--pass</code>, <code>--fail</code> and <code>--skip</code> colour the
+            icon, and <strong>the outcome is in words as well</strong>: the count on a suite, a
+            <code>.visually-hidden</code> word on a test. A failed test's message follows it in an
+            <code>.output-trace</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Logs.TestResults" Title="Test results" Demo="ex-demo--block">
-    <p>
-        The run as a whole is a <a href="/bars"><code>.stack-bar</code></a> of <code>series-go</code>,
-        <code>series-danger</code> and <code>series-muted</code> with its legend in words. Each suite is a
-        <code>details.test-suite</code>, open where something failed, its summary the
-        <code>.test-suite-name</code>, the <code>.test-suite-count</code> and the
-        <code>.test-time</code>. Each test is a <code>.test-case</code> in <code>.test-cases</code>, under
-        its suite's icon. <code>--pass</code>, <code>--fail</code> and <code>--skip</code> colour the
-        icon, and <strong>the outcome is in words as well</strong>: the count on a suite, a
-        <code>.visually-hidden</code> word on a test. A failed test's message follows it in an
-        <code>.output-trace</code>.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Logs.EnvironmentVariables" Title="Environment variables" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; show one.</strong> <a href="/card"><code>.kv</code></a> rows with a
-        <code>.kv-action</code> column. <code>.secret-value</code> draws a value as dots, not selectable,
-        until a <code>data-reveal</code> button whose <code>aria-controls</code> names it is pressed:
-        Sedna.UI.js marks the value <code>data-sedna-revealed</code> and the button
-        <code>aria-pressed</code>, and the button's two icons swap. Copy is <code>data-copy</code> per
-        value and works masked or not. The value is in the page either way; one the page must not hold
-        until the reader asks is the app's to fetch on the reveal.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Logs.EnvironmentVariables" Title="Environment variables" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; show one.</strong> <a href="/card"><code>.kv</code></a> rows with a
+            <code>.kv-action</code> column. <code>.secret-value</code> draws a value as dots, not selectable,
+            until a <code>data-reveal</code> button whose <code>aria-controls</code> names it is pressed:
+            Sedna.UI.js marks the value <code>data-sedna-revealed</code> and the button
+            <code>aria-pressed</code>, and the button's two icons swap. Copy is <code>data-copy</code> per
+            value and works masked or not. The value is in the page either way; one the page must not hold
+            until the reader asks is the app's to fetch on the reveal.
+        </p>
+    </CatExample>
+</CatGroup>

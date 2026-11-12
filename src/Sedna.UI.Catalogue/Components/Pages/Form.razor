@@ -6,111 +6,119 @@
     form. The controls themselves each have their own page under <strong>Inputs</strong>.
 </CatHead>
 
-<CatExample TExample="Examples.Form.Fields" Title="Fields" Demo="ex-demo--block">
-    <p>Label, control, hint. The hint explains the consequence, not the control.</p>
-</CatExample>
+<CatGroup Title="Fields and rows">
+    <CatExample TExample="Examples.Form.Fields" Title="Fields" Demo="ex-demo--block">
+        <p>Label, control, hint. The hint explains the consequence, not the control.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.TwoUpRows" Title="Two-up rows" Demo="ex-demo--block">
-    <p>
-        <code>.sedna-grid sedna-grid--sm sedna-grid--fit</code> lays fields out side by side and collapses to one column when there
-        is not room for two &mdash; no breakpoint to pick.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.TwoUpRows" Title="Two-up rows" Demo="ex-demo--block">
+        <p>
+            <code>.sedna-grid sedna-grid--sm sedna-grid--fit</code> lays fields out side by side and collapses to one column when there
+            is not room for two &mdash; no breakpoint to pick.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.FullRow" Title="A field across the whole row" Demo="ex-demo--block">
-    <p>
-        <code>.sedna-span-full</code> on a child of that grid — the long field
-        among the short ones: a description, a Markdown editor, a checkbox line, a hint that belongs
-        to the row rather than to one field. It works in
-        <a href="/grid">any grid</a>, down to a single-column phone, so there is no breakpoint and no
-        <code>style="grid-column:1 / -1"</code> in the markup.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.FullRow" Title="Full-row fields" Demo="ex-demo--block">
+        <p>
+            <code>.sedna-span-full</code> on a child of that grid — the long field
+            among the short ones: a description, a Markdown editor, a checkbox line, a hint that belongs
+            to the row rather than to one field. It works in
+            <a href="/grid">any grid</a>, down to a single-column phone, so there is no breakpoint and no
+            <code>style="grid-column:1 / -1"</code> in the markup.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Form.SectionsActions" Title="Sections and actions" Demo="ex-demo--block">
-    <p>
-        <code>.form-section</code> is a <code>&lt;fieldset&gt;</code> with the browser's border and
-        inset legend removed. Use the real element &mdash; the legend is announced with every control
-        in the group, which a heading above a <code>&lt;div&gt;</code> is not &mdash; and put the
-        fields in <code>.form-section-body</code>, because a <code>&lt;legend&gt;</code> is not a flex
-        item and lands somewhere different in every engine if the fieldset is the flex container.
-    </p>
-</CatExample>
+<CatGroup Title="Sections and actions">
+    <CatExample TExample="Examples.Form.SectionsActions" Title="Fieldset sections" Demo="ex-demo--block">
+        <p>
+            <code>.form-section</code> is a <code>&lt;fieldset&gt;</code> with the browser's border and
+            inset legend removed. Use the real element &mdash; the legend is announced with every control
+            in the group, which a heading above a <code>&lt;div&gt;</code> is not &mdash; and put the
+            fields in <code>.form-section-body</code>, because a <code>&lt;legend&gt;</code> is not a flex
+            item and lands somewhere different in every engine if the fieldset is the flex container.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.BoxedSettings" Title="Boxed sections" Demo="ex-demo--block">
-    <p>
-        <code>.form-section--box</code> frames a section and sets its legend into the frame &mdash; a
-        group box, for a page of settings where each part is read on its own. Any field goes inside,
-        a <a href="/form-check-list">check list</a> as well as a select. Boxes sit side by side in a
-        <a href="/grid"><code>.sedna-grid</code></a>, and the padding is the card's, so they tighten
-        with compact density.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.SectionTitle" Title="Sections without a fieldset" Demo="ex-demo--block">
+        <p>
+            <code>.form-section-title</code> on a plain heading, for a region rather than a set of related
+            controls. Same rule, without claiming a grouping that is not there &mdash; a
+            <code>&lt;legend&gt;</code> tells a screen reader these answers belong together.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.BoxedLegend" Title="What the frame carries" Demo="ex-demo--block">
-    <p>
-        The legend is a row: an icon, the title and a <code>.badge</code> on the frame's line.
-        <code>.form-section-action</code> puts a link, or a small button inside it, on the same line at
-        the far end &mdash; an action on the whole section rather than on one field.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.ActionsAlignment" Title="Action placement" Demo="ex-demo--block">
+        <p>
+            <code>.form-actions</code> wraps instead of overflowing, so three buttons on a phone stack
+            rather than pushing the commit button off-screen. <code>--split</code> puts a destructive
+            action where it cannot be hit by aiming for <strong>Save</strong>; <code>--start</code> aligns
+            the row to the leading edge, for a form embedded in a page rather than closing a dialog.
+            A form longer than the screen keeps the row in reach with <code>--sticky</code> or
+            <code>--save-bar</code>, on <a href="/form-saving">Saving and leaving</a>.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Form.BoxedCheckable" Title="A box a switch turns on" Demo="ex-demo--block">
-    <p>
-        A <code>.switch</code> or <code>.form-check</code> in the legend, and
-        <code>.choice-dependent</code> with <code>--dim</code> or <code>--hide</code> on the body: the
-        body follows the control as a <a href="/form-choice">dependent block</a> follows the option
-        above it. A dimmed body is inert, and its values still submit with the form.
-    </p>
-</CatExample>
+<CatGroup Title="Boxes">
+    <CatExample TExample="Examples.Form.BoxedSettings" Title="Boxed sections" Demo="ex-demo--block">
+        <p>
+            <code>.form-section--box</code> frames a section and sets its legend into the frame &mdash; a
+            group box, for a page of settings where each part is read on its own. Any field goes inside,
+            a <a href="/form-check-list">check list</a> as well as a select. Boxes sit side by side in a
+            <a href="/grid"><code>.sedna-grid</code></a>, and the padding is the card's, so they tighten
+            with compact density.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.BoxedFolding" Title="A box that folds" Demo="ex-demo--block">
-    <p>
-        A <code>&lt;details&gt;</code> with <code>.form-section--box</code>, and the title in a
-        <code>.form-section-legend</code> inside its <code>&lt;summary&gt;</code>. A
-        <code>.form-section-summary</code> says what is inside while the box is closed, so a reader
-        does not open it to find the settings unchanged.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.BoxedLegend" Title="Legend contents" Demo="ex-demo--block">
+        <p>
+            The legend is a row: an icon, the title and a <code>.badge</code> on the frame's line.
+            <code>.form-section-action</code> puts a link, or a small button inside it, on the same line at
+            the far end &mdash; an action on the whole section rather than on one field.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.BoxedStates" Title="A box in error, and a disabled box" Demo="ex-demo--block">
-    <p>
-        A <code>.form-error</code> straight under the legend turns the frame, for a rule about the
-        section as a whole &mdash; at least one day, at least one agent. <code>disabled</code> on the
-        fieldset disables every control in it, which the browser does without a script.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.BoxedCheckable" Title="Switched boxes" Demo="ex-demo--block">
+        <p>
+            A <code>.switch</code> or <code>.form-check</code> in the legend, and
+            <code>.choice-dependent</code> with <code>--dim</code> or <code>--hide</code> on the body: the
+            body follows the control as a <a href="/form-choice">dependent block</a> follows the option
+            above it. A dimmed body is inert, and its values still submit with the form.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.BoxedFilled" Title="Filled, and a box inside a box" Demo="ex-demo--block">
-    <p>
-        <code>--filled</code> tints the inside, for a box that has to stand out from the page around
-        it. A box nests in another's body for a part of a part.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.BoxedFolding" Title="Folding boxes" Demo="ex-demo--block">
+        <p>
+            A <code>&lt;details&gt;</code> with <code>.form-section--box</code>, and the title in a
+            <code>.form-section-legend</code> inside its <code>&lt;summary&gt;</code>. A
+            <code>.form-section-summary</code> says what is inside while the box is closed, so a reader
+            does not open it to find the settings unchanged.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.ActionsAlignment" Title="Where the actions sit" Demo="ex-demo--block">
-    <p>
-        <code>.form-actions</code> wraps instead of overflowing, so three buttons on a phone stack
-        rather than pushing the commit button off-screen. <code>--split</code> puts a destructive
-        action where it cannot be hit by aiming for <strong>Save</strong>; <code>--start</code> aligns
-        the row to the leading edge, for a form embedded in a page rather than closing a dialog.
-        A form longer than the screen keeps the row in reach with <code>--sticky</code> or
-        <code>--save-bar</code>, on <a href="/form-saving">Saving and leaving</a>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.BoxedStates" Title="Error and disabled boxes" Demo="ex-demo--block">
+        <p>
+            A <code>.form-error</code> straight under the legend turns the frame, for a rule about the
+            section as a whole &mdash; at least one day, at least one agent. <code>disabled</code> on the
+            fieldset disables every control in it, which the browser does without a script.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.SectionTitle" Title="A group that is not a fieldset" Demo="ex-demo--block">
-    <p>
-        <code>.form-section-title</code> on a plain heading, for a region rather than a set of related
-        controls. Same rule, without claiming a grouping that is not there &mdash; a
-        <code>&lt;legend&gt;</code> tells a screen reader these answers belong together.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Form.BoxedFilled" Title="Filled and nested boxes" Demo="ex-demo--block">
+        <p>
+            <code>--filled</code> tints the inside, for a box that has to stand out from the page around
+            it. A box nests in another's body for a part of a part.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Form.WholeForm" Title="A whole form" Demo="ex-demo--block">
-    <p>Every piece on this page at once, as a starting point to paste and cut down.</p>
-</CatExample>
+<CatGroup Title="Whole forms">
+    <CatExample TExample="Examples.Form.WholeForm" Title="Complete form" Demo="ex-demo--block">
+        <p>Every piece on this page at once, as a starting point to paste and cut down.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Form.SettingsCard" Title="A settings card" Demo="ex-demo--block">
-    <p>Fields in a card, actions in a footer row.</p>
-</CatExample>
+    <CatExample TExample="Examples.Form.SettingsCard" Title="Settings card" Demo="ex-demo--block">
+        <p>Fields in a card, actions in a footer row.</p>
+    </CatExample>
+</CatGroup>

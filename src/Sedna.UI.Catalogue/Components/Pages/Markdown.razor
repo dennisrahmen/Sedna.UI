@@ -7,85 +7,90 @@
     <code>sednaUi.md</code>.
 </CatHead>
 
-<CatExample TExample="Examples.Markdown.MarkdownBody" Title="`.markdown-body`" Demo="ex-demo--block">
-    <p>
-        Put it on the container holding rendered HTML. It normalises headings, lists, code,
-        quotes and links onto the tokens, and strips the first and last margin so it sits flush
-        in a card body.
-    </p>
-</CatExample>
+<CatGroup Title="Rendered Markdown">
+    <CatExample TExample="Examples.Markdown.MarkdownBody" Title="Rendered content" Demo="ex-demo--block">
+        <p>
+            Put <code>.markdown-body</code> on the container holding rendered HTML. It normalises
+            headings, lists, code, quotes and links onto the tokens, and strips the first and last
+            margin so it sits flush in a card body.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Markdown.MarkdownTable" Title="Tables and nested lists" Demo="ex-demo--block">
-    <p>
-        A table in rendered Markdown gets <a href="/table"><code>.table</code></a>'s own borders and
-        header treatment without the class, and nested lists indent one step per level. The HTML here
-        comes from somewhere else, so a long <code>&lt;code&gt;</code> breaks inside a word and a
-        wide table scrolls rather than widening the page.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Markdown.MarkdownTable" Title="Tables and nested lists" Demo="ex-demo--block">
+        <p>
+            A table in rendered Markdown gets <a href="/table"><code>.table</code></a>'s own borders and
+            header treatment without the class, and nested lists indent one step per level. The HTML here
+            comes from somewhere else, so a long <code>&lt;code&gt;</code> breaks inside a word and a
+            wide table scrolls rather than widening the page.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Markdown.MdEditor" Title="`.md-editor`" Demo="ex-demo--block">
-    <p>
-        <strong>Live below</strong> — type in it, use the toolbar, then switch to Preview. The
-        wiring is <code>data-md-view</code> on the root, <code>data-md-input</code> on the textarea,
-        <code>data-md-preview</code> on the preview pane, <code>data-md-cmd</code> on toolbar
-        buttons and <code>data-md-tab</code> on each radio of the
-        <a href="/segmented"><code>.segmented</code></a> Write/Preview switch;
-        <strong>the markup sits inert until <code>sednaUi.md.init()</code> runs</strong> — from C#,
-        <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which wires
-        every editor in the document and is idempotent per editor. In Blazor, bind the textarea with
-        <code>@@bind:event="oninput"</code> and let it own the value; toolbar edits dispatch a
-        bubbling <code>input</code> event so the binding picks them up.
-    </p>
-</CatExample>
+<CatGroup Title="Editor">
+    <CatExample TExample="Examples.Markdown.MdEditor" Title="Write and preview" Demo="ex-demo--block">
+        <p>
+            <strong>Live below</strong> — type in it, use the toolbar, then switch to Preview.
+            <code>.md-editor</code> is the toolbar, the textarea and the preview. The wiring is
+            <code>data-md-view</code> on the root, <code>data-md-input</code> on the textarea,
+            <code>data-md-preview</code> on the preview pane, <code>data-md-cmd</code> on toolbar
+            buttons and <code>data-md-tab</code> on each radio of the
+            <a href="/segmented"><code>.segmented</code></a> Write/Preview switch;
+            <strong>the markup sits inert until <code>sednaUi.md.init()</code> runs</strong> — from C#,
+            <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which wires
+            every editor in the document and is idempotent per editor. In Blazor, bind the textarea with
+            <code>@@bind:event="oninput"</code> and let it own the value; toolbar edits dispatch a
+            bubbling <code>input</code> event so the binding picks them up.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Markdown.MdMedia" Title="Images and videos" Demo="ex-demo--block">
-    <p>
-        <strong>Live below</strong> &mdash; switch to Preview. <code>![description](address)</code> is an image,
-        and the same with the address of a video file &mdash; <code>.mp4</code>, <code>.m4v</code>,
-        <code>.mov</code>, <code>.webm</code> or <code>.ogv</code> &mdash; is a video with controls that never
-        plays by itself. <code>data-md-cmd="image"</code> and <code>"video"</code> wrap the selection as the
-        description. Only <code>http</code>, <code>https</code> and relative addresses are kept; any other is
-        written as its description. An app that uploads a picture inserts the text with the address it uploaded
-        to, through <code>ISednaUi.InsertMarkdownAsync(textarea, text)</code> &mdash; the way <em>Inserting at the caret</em> below inserts a link.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Markdown.MdMedia" Title="Images and videos" Demo="ex-demo--block">
+        <p>
+            <strong>Live below</strong> &mdash; switch to Preview. <code>![description](address)</code> is an image,
+            and the same with the address of a video file &mdash; <code>.mp4</code>, <code>.m4v</code>,
+            <code>.mov</code>, <code>.webm</code> or <code>.ogv</code> &mdash; is a video with controls that never
+            plays by itself. <code>data-md-cmd="image"</code> and <code>"video"</code> wrap the selection as the
+            description. Only <code>http</code>, <code>https</code> and relative addresses are kept; any other is
+            written as its description. An app that uploads a picture inserts the text with the address it uploaded
+            to, through <code>ISednaUi.InsertMarkdownAsync(textarea, text)</code> &mdash; the way <em>Inserting at the caret</em> below inserts a link.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Markdown.EditorField" Title="As a form field" Demo="ex-demo--block">
-    <p>
-        <strong>Live below.</strong> The editor in place: a <code>.form-label</code> pointing at the
-        textarea's own id, a <code>.form-hint</code> reached by <code>aria-describedby</code>, and the
-        <a href="/form"><code>.form-actions</code></a> row. Label the textarea, not the
-        <code>.md-editor</code> wrapper — the textarea is the control — and leave out the
-        <code>data-md-cmd</code> buttons the field does not need.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Markdown.EditorField" Title="As a form field" Demo="ex-demo--block">
+        <p>
+            <strong>Live below.</strong> The editor in place: a <code>.form-label</code> pointing at the
+            textarea's own id, a <code>.form-hint</code> reached by <code>aria-describedby</code>, and the
+            <a href="/form"><code>.form-actions</code></a> row. Label the textarea, not the
+            <code>.md-editor</code> wrapper — the textarea is the control — and leave out the
+            <code>data-md-cmd</code> buttons the field does not need.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.MarkdownLinkPicker" Title="Inserting at the caret" Demo="ex-demo--block">
-    <p>
-        <strong>Live below</strong> — put the caret somewhere in the note, then link an order. The
-        picker is the app's own <a href="/modal"><code>.modal</code></a>, awaited with
-        <code>ShowModalAsync</code>, and <code>ISednaUi.InsertMarkdownAsync(textarea, text)</code>
-        puts what it returns where the caret was: the selection is replaced, the caret lands after
-        the text, focus returns to the textarea, and the bound value follows through the same
-        <code>input</code> event a toolbar command fires. Assigning the bound field instead would
-        put the text at the end. A textarea keeps its selection while a dialog has focus, so
-        nothing has to be remembered across the picker. From script, it is
-        <code>sednaUi.md.insert(textarea, text)</code>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.MarkdownLinkPicker" Title="Inserting at the caret" Demo="ex-demo--block">
+        <p>
+            <strong>Live below</strong> — put the caret somewhere in the note, then link an order. The
+            picker is the app's own <a href="/modal"><code>.modal</code></a>, awaited with
+            <code>ShowModalAsync</code>, and <code>ISednaUi.InsertMarkdownAsync(textarea, text)</code>
+            puts what it returns where the caret was: the selection is replaced, the caret lands after
+            the text, focus returns to the textarea, and the bound value follows through the same
+            <code>input</code> event a toolbar command fires. Assigning the bound field instead would
+            put the text at the end. A textarea keeps its selection while a dialog has focus, so
+            nothing has to be remembered across the picker. From script, it is
+            <code>sednaUi.md.insert(textarea, text)</code>.
+        </p>
+    </CatExample>
 
-<div class="callout callout--danger">
-    <i class="ri-shield-check-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">Sanitise server-side as well</span>
-        <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a fixed
-        set of constructs, with link hrefs restricted to <code>http:</code>, <code>https:</code>,
-        <code>mailto:</code> and root-relative paths, and image and video sources to <code>http:</code>,
-        <code>https:</code> and relative ones. It is not a spec-complete parser: for untrusted
-        input rendered to other users, sanitise server-side as well.
+    <div class="callout callout--danger">
+        <i class="ri-shield-check-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">Sanitise server-side as well</span>
+            <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a fixed
+            set of constructs, with link hrefs restricted to <code>http:</code>, <code>https:</code>,
+            <code>mailto:</code> and root-relative paths, and image and video sources to <code>http:</code>,
+            <code>https:</code> and relative ones. It is not a spec-complete parser: for untrusted
+            input rendered to other users, sanitise server-side as well.
+        </div>
     </div>
-</div>
+</CatGroup>
 
 @code {
     // The one thing on this page that genuinely needs the circuit. An interop call

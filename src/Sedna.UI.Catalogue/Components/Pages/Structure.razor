@@ -5,91 +5,97 @@
     block of code or output.
 </CatHead>
 
-<CatExample TExample="Examples.Structure.PageHead" Title="Page head" Demo="ex-demo--block">
-    <p>
-        Heading, an optional supporting line, and the actions that apply to the whole page. It
-        wraps rather than shrinking the title, so on a narrow screen the actions drop below the
-        heading, at the end edge, instead of truncating it.
-    </p>
-</CatExample>
+<CatGroup Title="Page head">
+    <CatExample TExample="Examples.Structure.PageHead" Title="Title and actions" Demo="ex-demo--block">
+        <p>
+            Heading, an optional supporting line, and the actions that apply to the whole page. It
+            wraps rather than shrinking the title, so on a narrow screen the actions drop below the
+            heading, at the end edge, instead of truncating it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Structure.PageHeadFold" Title="Actions that fold into a menu" Demo="ex-demo--block">
-    <p>
-        <code>.page-head-actions--fold</code> folds the actions into one menu button when the head is
-        narrower than 40rem &mdash; its own width, not the window&rsquo;s, so a head in a narrow column
-        folds on a wide screen too. Write the buttons and the menu both: below the step the buttons go
-        and the <code>.actions-more</code> menu comes. Mark the primary action
-        <code>.actions-keep</code> and it stays beside the menu. The head becomes a size container,
-        so inside a flex row it needs a width of its own.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Structure.PageHeadFold" Title="Actions folded into a menu" Demo="ex-demo--block">
+        <p>
+            <code>.page-head-actions--fold</code> folds the actions into one menu button when the head is
+            narrower than 40rem &mdash; its own width, not the window&rsquo;s, so a head in a narrow column
+            folds on a wide screen too. Write the buttons and the menu both: below the step the buttons go
+            and the <code>.actions-more</code> menu comes. Mark the primary action
+            <code>.actions-keep</code> and it stays beside the menu. The head becomes a size container,
+            so inside a flex row it needs a width of its own.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Structure.PageHeadLongLede" Title="Page head with a long supporting line" Demo="ex-demo--block">
-    <p>
-        The text takes the room the actions leave and wraps inside it, so a supporting line of two
-        sentences stays beside the button. The actions drop below only once that room is narrower
-        than 20rem.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Structure.PageHeadLongLede" Title="Long supporting line" Demo="ex-demo--block">
+        <p>
+            The text takes the room the actions leave and wraps inside it, so a supporting line of two
+            sentences stays beside the button. The actions drop below only once that room is narrower
+            than 20rem.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Structure.PageHeadCollapse" Title="A head that folds as the page scrolls" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; scroll it.</strong> <code>.page-head--collapse</code> keeps the title row
-        in view: over the first stretch of scrolling the supporting line folds away and the head
-        takes an edge, then it stays at the top of what scrolls the page. Nothing moves under it,
-        so the supporting line is held to one line. It is a scroll-driven animation and needs no
-        script; where the engine has none, and for a reader who asked for reduced motion, it is
-        the ordinary head and scrolls away with the page.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Structure.PageHeadCollapse" Title="Folding as the page scrolls" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; scroll it.</strong> <code>.page-head--collapse</code> keeps the title row
+            in view: over the first stretch of scrolling the supporting line folds away and the head
+            takes an edge, then it stays at the top of what scrolls the page. Nothing moves under it,
+            so the supporting line is held to one line. It is a scroll-driven animation and needs no
+            script; where the engine has none, and for a reader who asked for reduced motion, it is
+            the ordinary head and scrolls away with the page.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Structure.Dividers" Title="Dividers" Demo="ex-demo--block">
-    <p>
-        A rule between sections. Use it when two blocks are related but distinct, whitespace when
-        they are merely sequential, and a <a href="/card">card</a> when one of them is an object in
-        its own right.
-    </p>
-</CatExample>
+<CatGroup Title="Dividers and callouts">
+    <CatExample TExample="Examples.Structure.Dividers" Title="Dividers" Demo="ex-demo--block">
+        <p>
+            A rule between sections. Use it when two blocks are related but distinct, whitespace when
+            they are merely sequential, and a <a href="/card">card</a> when one of them is an object in
+            its own right.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Structure.Callouts" Title="Callouts" Demo="ex-demo--block">
-    <p>
-        An editorial aside inside prose &mdash; a note, a caveat, a worked example &mdash;
-        permanent, and about the <em>content</em>. Its two neighbours are about something else:
-        <a href="/alert"><code>.alert</code></a> is about the <em>page right now</em> and
-        <a href="/card"><code>.card-warning</code></a> about <em>one card's own data</em>, and an
-        alert that never goes away trains people to ignore alerts.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Structure.Callouts" Title="Callouts" Demo="ex-demo--block">
+        <p>
+            An editorial aside inside prose &mdash; a note, a caveat, a worked example &mdash;
+            permanent, and about the <em>content</em>. Its two neighbours are about something else:
+            <a href="/alert"><code>.alert</code></a> is about the <em>page right now</em> and
+            <a href="/card"><code>.card-warning</code></a> about <em>one card's own data</em>, and an
+            alert that never goes away trains people to ignore alerts.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Structure.CodeBlocks" Title="Code blocks" Demo="ex-demo--block">
-    <p>
-        For a command, a payload, a stack trace &mdash; anything the reader wants verbatim, with a
-        copy button that appears on hover and stays visible where there is no hover to speak of.
-        <strong>No syntax highlighting, and there will not be any</strong>; the block scrolls
-        sideways rather than wrapping, because a wrapped command no longer copies correctly by eye.
-    </p>
-</CatExample>
+<CatGroup Title="Code blocks">
+    <CatExample TExample="Examples.Structure.CodeBlocks" Title="Copyable block" Demo="ex-demo--block">
+        <p>
+            For a command, a payload, a stack trace &mdash; anything the reader wants verbatim, with a
+            copy button that appears on hover and stays visible where there is no hover to speak of.
+            <strong>No syntax highlighting, and there will not be any</strong>; the block scrolls
+            sideways rather than wrapping, because a wrapped command no longer copies correctly by eye.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Structure.FilesInACard" Title="Several files, in a card" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; switch files.</strong> When one thing is two files — a page and the dialog
-        it opens — put them in a <a href="/tabs">card with tabs</a>, one code block per panel. Add
-        <code>.code-block--flush</code> to each block: the card already draws the frame, and the block's
-        own border inside it is a second one.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Structure.FilesInACard" Title="Several files in a card" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; switch files.</strong> When one thing is two files — a page and the dialog
+            it opens — put them in a <a href="/tabs">card with tabs</a>, one code block per panel. Add
+            <code>.code-block--flush</code> to each block: the card already draws the frame, and the block's
+            own border inside it is a second one.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Structure.ClampedCodeBlock" Title="A long block, clamped" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; expand it.</strong> <code>.code-block--clamped</code> bounds the block to
-        <code>--code-clamp</code> (360px; 180px here) and scrolls inside it, and the
-        <code>.code-block-lip</code> fades the last visible line so the reader can see there is
-        more. The <code>.code-block-expand</code> button carries <code>data-code-expand</code>, and
-        the script removes the clamp and flips <code>aria-expanded</code>. The label sits in a
-        <code>&lt;span&gt;</code> so the icon survives the swap: <code>data-code-collapse</code>
-        is the wording once open and <code>data-code-expand-label</code> the wording on the way
-        back. Keep <code>tabindex="0"</code> on
-        the <code>&lt;pre&gt;</code>: a scroll container a keyboard cannot reach is a part of the
-        page a keyboard cannot read.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Structure.ClampedCodeBlock" Title="Clamped long block" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; expand it.</strong> <code>.code-block--clamped</code> bounds the block to
+            <code>--code-clamp</code> (360px; 180px here) and scrolls inside it, and the
+            <code>.code-block-lip</code> fades the last visible line so the reader can see there is
+            more. The <code>.code-block-expand</code> button carries <code>data-code-expand</code>, and
+            the script removes the clamp and flips <code>aria-expanded</code>. The label sits in a
+            <code>&lt;span&gt;</code> so the icon survives the swap: <code>data-code-collapse</code>
+            is the wording once open and <code>data-code-expand-label</code> the wording on the way
+            back. Keep <code>tabindex="0"</code> on
+            the <code>&lt;pre&gt;</code>: a scroll container a keyboard cannot reach is a part of the
+            page a keyboard cannot read.
+        </p>
+    </CatExample>
+</CatGroup>

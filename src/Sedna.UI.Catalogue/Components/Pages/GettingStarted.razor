@@ -6,102 +6,104 @@
     required.
 </CatHead>
 
-<h2 id="install">Install <CatAnchor Id="install" /></h2>
+<CatGroup Title="Install">
+    <CatSnippet Name="Index/Install.txt" Title="Add the package">
+        <p>Pin the version. Do not use a floating version range.</p>
+    </CatSnippet>
 
-<CatSnippet Name="Index/Install.txt" Title="Add the package">
-    <p>Pin the version. Do not use a floating version range.</p>
-</CatSnippet>
+    <CatSnippet Name="Index/HostPage.html" Title="Host page">
+        <p>
+            The order matters: <code>boot.js</code> in <code>&lt;head&gt;</code> so the stored theme is
+            applied before first paint, your own override file after the library stylesheet, and
+            <code>Sedna.UI.js</code> before <code>blazor.web.js</code> so <code>window.sednaUi</code>
+            exists before an interactive component can call into it. The viewport meta also needs
+            <code>viewport-fit=cover</code>, or every
+            <a href="/utility-safe-area">safe-area inset</a> reports <code>0px</code> on every device.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Index/HostPage.html" Title="Host page">
-    <p>
-        The order matters: <code>boot.js</code> in <code>&lt;head&gt;</code> so the stored theme is
-        applied before first paint, your own override file after the library stylesheet, and
-        <code>Sedna.UI.js</code> before <code>blazor.web.js</code> so <code>window.sednaUi</code>
-        exists before an interactive component can call into it. The viewport meta also needs
-        <code>viewport-fit=cover</code>, or every
-        <a href="/utility-safe-area">safe-area inset</a> reports <code>0px</code> on every device.
+    <CatSnippet Name="StatusBar/HostPage.html" Title="Reconnect status bar">
+        <p>
+            Blazor Server injects its own reconnect UI unless the host page supplies one. Add this inside
+            <code>&lt;body&gt;</code>, before the component that carries the render mode, and supply all
+            four rows — a state with no row renders as an empty bar. The
+            <a href="/status-bar">Status bar</a> page has the state table.
+        </p>
+    </CatSnippet>
+
+    <CatSnippet Name="Index/Registration.txt" Title="Registration">
+        <p>
+            Only needed for the C# side — <code>ISednaUi</code> wraps toasts, dialogs, the
+            clipboard, the palette, the search index and the settings the theme toggles write. The CSS
+            needs no registration at all.
+        </p>
+        <p>
+            Every member is a JavaScript call, so <strong>none of them can run during
+            prerendering</strong>: call them from an event handler or from
+            <code>OnAfterRenderAsync(firstRender: true)</code>.
+        </p>
+    </CatSnippet>
+</CatGroup>
+
+<CatGroup Title="Next steps">
+    <h3 id="branding">Brand stylesheet <CatAnchor Id="branding" /></h3>
+    <p class="cat-lede">
+        Your whole <code>css/brand.css</code>, loaded after the library. Nothing else changes.
     </p>
-</CatSnippet>
 
-<CatSnippet Name="StatusBar/HostPage.html" Title="The status bar">
-    <p>
-        Blazor Server injects its own reconnect UI unless the host page supplies one. Add this inside
-        <code>&lt;body&gt;</code>, before the component that carries the render mode, and supply all
-        four rows — a state with no row renders as an empty bar. The
-        <a href="/status-bar">Status bar</a> page has the state table.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Index/Rebrand.css" Title="Brand tokens">
+        <p>
+            <code>--brand-tint</code>, <code>--brand-ring</code>, <code>--brand-ring-soft</code>,
+            <code>--brand-ring-check</code> and <code>--brand-glow</code> are mixed from
+            <code>--brand</code> and follow it in both themes. Set them only to change the alpha the
+            library chose.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Index/Registration.txt" Title="Registration">
-    <p>
-        Only needed for the C# side — <code>ISednaUi</code> wraps toasts, dialogs, the
-        clipboard, the palette, the search index and the settings the theme toggles write. The CSS
-        needs no registration at all.
-    </p>
-    <p>
-        Every member is a JavaScript call, so <strong>none of them can run during
-        prerendering</strong>: call them from an event handler or from
-        <code>OnAfterRenderAsync(firstRender: true)</code>.
-    </p>
-</CatSnippet>
-
-<h2 id="branding">Branding <CatAnchor Id="branding" /></h2>
-<p class="cat-lede">
-    Your whole <code>css/brand.css</code>, loaded after the library. Nothing else changes.
-</p>
-
-<CatSnippet Name="Index/Rebrand.css" Title="Brand tokens">
-    <p>
-        <code>--brand-tint</code>, <code>--brand-ring</code>, <code>--brand-ring-soft</code>,
-        <code>--brand-ring-check</code> and <code>--brand-glow</code> are mixed from
-        <code>--brand</code> and follow it in both themes. Set them only to change the alpha the
-        library chose.
-    </p>
-</CatSnippet>
-
-<div class="callout callout--warn">
-    <i class="ri-error-warning-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">Redefine only tokens the library already declares</span>
-        Never declare a <code>--</code> name
-        it does not define — a later version may claim that name with a different meaning and
-        your app breaks on upgrade. If a value is missing,
-        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/CONTRIBUTING.md">request
-        it</CatLink> and use an app-prefixed variable until it ships. The full list is on the
-        <a href="/tokens">Tokens</a> page.
+    <div class="callout callout--warn">
+        <i class="ri-error-warning-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">Redefine only tokens the library already declares</span>
+            Never declare a <code>--</code> name
+            it does not define — a later version may claim that name with a different meaning and
+            your app breaks on upgrade. If a value is missing,
+            <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/CONTRIBUTING.md">request
+            it</CatLink> and use an app-prefixed variable until it ships. The full list is on the
+            <a href="/tokens">Tokens</a> page.
+        </div>
     </div>
-</div>
 
-<h2 id="the-frame">The frame <CatAnchor Id="the-frame" /></h2>
-<p class="cat-lede">
-    The shell, sidebar, header and user widget are CSS classes like everything else. There is no
-    <code>&lt;AppShell&gt;</code> and there will not be one — copy the markup from
-    <a href="/frame">Shell</a> and <a href="/nav">Sidebar and nav</a>.
-</p>
-
-<CatExample TExample="Examples.Interop.ActiveNavLink" Title="Which link is the current page" Demo="ex-demo--block">
-    <p>
-        The one thing markup cannot express. <code>Nav.CssClass(href)</code> appends
-        <code>active</code> and <code>Nav.AriaCurrent(href)</code> returns <code>"page"</code> or
-        null; matching drops the query string and the fragment, ignores a trailing slash, and
-        requires a prefix match to end on a path segment, so <strong>the link to the root needs
-        <code>NavLinkMatch.All</code></strong> or it is active everywhere.
+    <h3 id="the-frame">Frame markup <CatAnchor Id="the-frame" /></h3>
+    <p class="cat-lede">
+        The shell, sidebar, header and user widget are CSS classes like everything else. There is no
+        <code>&lt;AppShell&gt;</code> and there will not be one — copy the markup from
+        <a href="/frame">Shell</a> and <a href="/nav">Sidebar and nav</a>.
     </p>
-    <p>
-        <strong>Subscribe to <code>LocationChanged</code> in the component that renders the
-        links</strong>, not in the layout around it — a sidebar whose parameters are unchanged is
-        skipped on re-render and goes on showing the previous address. Call
-        <code>sednaUi.scrollPageTop</code> from the same handler, because <code>.page</code> is the
-        only scroll container.
-    </p>
-</CatExample>
 
-<h2 id="agents">For an AI agent <CatAnchor Id="agents" /></h2>
-<p class="cat-lede">
-    Add the <a href="/mcp-server">MCP server</a> —
-    <code>{ "type": "http", "url": "@CatalogueLinks.Mcp" }</code> — then copy
-    <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
-    <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
-    <code>CLAUDE.md</code>. The server answers questions; the rules file is what stops an agent
-    inventing a token name or wrapping a table in a component.
-</p>
+    <CatExample TExample="Examples.Interop.ActiveNavLink" Title="Current page link" Demo="ex-demo--block">
+        <p>
+            The one thing markup cannot express. <code>Nav.CssClass(href)</code> appends
+            <code>active</code> and <code>Nav.AriaCurrent(href)</code> returns <code>"page"</code> or
+            null; matching drops the query string and the fragment, ignores a trailing slash, and
+            requires a prefix match to end on a path segment, so <strong>the link to the root needs
+            <code>NavLinkMatch.All</code></strong> or it is active everywhere.
+        </p>
+        <p>
+            <strong>Subscribe to <code>LocationChanged</code> in the component that renders the
+            links</strong>, not in the layout around it — a sidebar whose parameters are unchanged is
+            skipped on re-render and goes on showing the previous address. Call
+            <code>sednaUi.scrollPageTop</code> from the same handler, because <code>.page</code> is the
+            only scroll container.
+        </p>
+    </CatExample>
+
+    <h3 id="agents">Agent setup <CatAnchor Id="agents" /></h3>
+    <p class="cat-lede">
+        Add the <a href="/mcp-server">MCP server</a> —
+        <code>{ "type": "http", "url": "@CatalogueLinks.Mcp" }</code> — then copy
+        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
+        <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
+        <code>CLAUDE.md</code>. The server answers questions; the rules file is what stops an agent
+        inventing a token name or wrapping a table in a component.
+    </p>
+</CatGroup>

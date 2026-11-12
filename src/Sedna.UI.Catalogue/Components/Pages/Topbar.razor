@@ -5,117 +5,123 @@
     with its menu.
 </CatHead>
 
-<CatExample TExample="Examples.Topbar.VersionTag" Title="Version tag" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.topbar-version</code> — which build the reader is looking at, in the topbar's right
-        cluster beside the status indicator. Put a version the app already knows in it: an
-        assembly informational version, a CI build number, a short commit sha; an
-        <code>&lt;a&gt;</code> to a release page carries the class as well as the
-        <code>&lt;span&gt;</code> does.
-    </p>
-</CatExample>
+<CatGroup Title="Header bar">
+    <CatExample TExample="Examples.Topbar.VersionTag" Title="Version tag" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.topbar-version</code> — which build the reader is looking at, in the topbar's right
+            cluster beside the status indicator. Put a version the app already knows in it: an
+            assembly informational version, a CI build number, a short commit sha; an
+            <code>&lt;a&gt;</code> to a release page carries the class as well as the
+            <code>&lt;span&gt;</code> does.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Topbar.BrandedHeader" Title="A header in the brand colour" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>--topbar-bg</code>, <code>--topbar-fg</code>, <code>--topbar-muted</code> and
-        <code>--topbar-hover</code> recolour the header and what sits straight on it: a
-        <code>.topbar-btn</code> and a neutral <code>.btn--ghost</code> that is a child of the bar or
-        of a <code>.topbar-section</code>. <code>--topbar-height</code> sets its height and the
-        sidebar brand's with it. <code>.topbar--sticky</code> keeps it at the top while the document
-        scrolls, for a page without the frame's own scroll container.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Topbar.BrandedHeader" Title="Brand colour" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>--topbar-bg</code>, <code>--topbar-fg</code>, <code>--topbar-muted</code> and
+            <code>--topbar-hover</code> recolour the header and what sits straight on it: a
+            <code>.topbar-btn</code> and a neutral <code>.btn--ghost</code> that is a child of the bar or
+            of a <code>.topbar-section</code>. <code>--topbar-height</code> sets its height and the
+            sidebar brand's with it. <code>.topbar--sticky</code> keeps it at the top while the document
+            scrolls, for a page without the frame's own scroll container.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Topbar.QuietText" Title="Quiet text in the header" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        Your own words in a <code>.topbar-section</code> &mdash; a context label, a line of state
-        &mdash; take <code>.text-muted</code> or <code>.eyebrow</code> like anywhere else, and they
-        paint in <code>--topbar-muted</code> there, so they follow a coloured header. The sidebar and
-        the bottom bar do the same with <code>--sidebar-muted</code> and
-        <code>--bottombar-muted</code>; a menu or a panel opened from the header is a surface of its
-        own and keeps the page's muted. Give a header your own colour, and set
-        <code>--topbar-muted</code> beside it at 4.5:1 or more.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Topbar.QuietText" Title="Quiet text" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            Your own words in a <code>.topbar-section</code> &mdash; a context label, a line of state
+            &mdash; take <code>.text-muted</code> or <code>.eyebrow</code> like anywhere else, and they
+            paint in <code>--topbar-muted</code> there, so they follow a coloured header. The sidebar and
+            the bottom bar do the same with <code>--sidebar-muted</code> and
+            <code>--bottombar-muted</code>; a menu or a panel opened from the header is a surface of its
+            own and keeps the page's muted. Give a header your own colour, and set
+            <code>--topbar-muted</code> beside it at 4.5:1 or more.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Topbar.HeaderSearch" Title="Header search" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <strong>Live — type in it.</strong> <code>.search</code> goes at the start of the topbar,
-        after the nav toggles and before <code>.topbar-spacer</code>, and is hidden below 720px.
-        <code>.topbar-btn--search</code> is the way in there: a topbar button that shows exactly
-        while the box is hidden and opens the app's own search &mdash; a page, a sheet, the palette.
-        Under <code>.layout--bottombar</code> it steps back below 560px, where the
-        <a href="/bottombar">bottom bar</a>'s end cell is the search. <code>data-search</code> hands the box to
-        <code>sednaUi.search</code>, which ranks against the index the app registered, implements the
-        keyboard and fills the result panel you wrote — below; narrow it with
-        <code>style="--search-max: 340px"</code> on the box, and keep the input's placeholder —
-        the clear button is shown by CSS on <code>:placeholder-shown</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Search">
+    <CatExample TExample="Examples.Topbar.HeaderSearch" Title="Search box" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <strong>Live — type in it.</strong> <code>.search</code> goes at the start of the topbar,
+            after the nav toggles and before <code>.topbar-spacer</code>, and is hidden below 720px.
+            <code>.topbar-btn--search</code> is the way in there: a topbar button that shows exactly
+            while the box is hidden and opens the app's own search &mdash; a page, a sheet, the palette.
+            Under <code>.layout--bottombar</code> it steps back below 560px, where the
+            <a href="/bottombar">bottom bar</a>'s end cell is the search. <code>data-search</code> hands the box to
+            <code>sednaUi.search</code>, which ranks against the index the app registered, implements the
+            keyboard and fills the result panel you wrote — below; narrow it with
+            <code>style="--search-max: 340px"</code> on the box, and keep the input's placeholder —
+            the clear button is shown by CSS on <code>:placeholder-shown</code>.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Topbar/SearchResults.html" Title="Result panel">
-    <p>
-        <strong>The panel is yours to write</strong>, once, outside <code>.topbar</code>, with a
-        <code>&lt;template&gt;</code> per row shape; <code>data-search="&lt;panel id&gt;"</code> on the
-        input names it. The script clones the templates, fills their <code>data-*</code> slots with
-        text and places the panel under the box, so the empty and the cut-off lines are in your
-        language. One <code>.search-item</code> per result — a <code>.search-item-title</code> and a
-        <code>.search-item-meta</code> line, with <code>.search-item--sel</code> where the keyboard
-        is and <code>.search-status</code> for the busy and empty line. Put
-        <code>.sedna-scroll</code> on the panel, use an <code>&lt;a&gt;</code> rather than a button
-        so middle-click and &ldquo;open in a new tab&rdquo; work, and keep
-        <code>role="option"</code> inside <code>role="listbox"</code> — that is what makes
-        <code>aria-selected</code> legal while the box keeps focus through
-        <code>aria-activedescendant</code>.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Topbar/SearchResults.html" Title="Result panel">
+        <p>
+            <strong>The panel is yours to write</strong>, once, outside <code>.topbar</code>, with a
+            <code>&lt;template&gt;</code> per row shape; <code>data-search="&lt;panel id&gt;"</code> on the
+            input names it. The script clones the templates, fills their <code>data-*</code> slots with
+            text and places the panel under the box, so the empty and the cut-off lines are in your
+            language. One <code>.search-item</code> per result — a <code>.search-item-title</code> and a
+            <code>.search-item-meta</code> line, with <code>.search-item--sel</code> where the keyboard
+            is and <code>.search-status</code> for the busy and empty line. Put
+            <code>.sedna-scroll</code> on the panel, use an <code>&lt;a&gt;</code> rather than a button
+            so middle-click and &ldquo;open in a new tab&rdquo; work, and keep
+            <code>role="option"</code> inside <code>role="listbox"</code> — that is what makes
+            <code>aria-selected</code> legal while the box keeps focus through
+            <code>aria-activedescendant</code>.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Topbar/AnchoredSearch.html" Title="A panel the app renders">
-    <p>
-        For an app searching a database itself: leave <code>data-search</code> off the input and
-        add <code>.search-panel--anchored</code>, which nests the panel under the box —
-        <code>.search</code> is already <code>position: relative</code>, so nothing is measured.
-        <strong>The trade:</strong> a nested panel joins <code>.topbar</code>'s stacking context at
-        z-index 60, so it sits <em>under</em> a modal backdrop however high its own z-index.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Topbar/AnchoredSearch.html" Title="Results the app renders">
+        <p>
+            For an app searching a database itself: leave <code>data-search</code> off the input and
+            add <code>.search-panel--anchored</code>, which nests the panel under the box —
+            <code>.search</code> is already <code>position: relative</code>, so nothing is measured.
+            <strong>The trade:</strong> a nested panel joins <code>.topbar</code>'s stacking context at
+            z-index 60, so it sits <em>under</em> a modal backdrop however high its own z-index.
+        </p>
+    </CatSnippet>
 
-<CatExample TExample="Examples.Interop.SearchRankFromCsharp" Title="The search's ranking, from C#" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; this ranks this site's own index.</strong> <code>RankSearchAsync</code> ranks what
-        <code>RegisterSearchAsync</code> registered against a query, in the browser, and answers every match best
-        first; the dropdown's own cut is not applied, and an empty query answers nothing. A page that was not found
-        can offer the pages nearest the words of its address. Register the index and close the panel after a
-        navigation with <code>CloseSearchAsync</code> from the layout, as <a href="/interop">From C#</a> shows.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.SearchRankFromCsharp" Title="Ranking from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; this ranks this site's own index.</strong> <code>RankSearchAsync</code> ranks what
+            <code>RegisterSearchAsync</code> registered against a query, in the browser, and answers every match best
+            first; the dropdown's own cut is not applied, and an empty query answers nothing. A page that was not found
+            can offer the pages nearest the words of its address. Register the index and close the panel after a
+            navigation with <code>CloseSearchAsync</code> from the layout, as <a href="/interop">From C#</a> shows.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Topbar.AppSwitcher" Title="App switcher" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <strong>Live &mdash; press the grid.</strong> A <code>.topbar-btn</code> with
-        <code>popovertarget</code> opens a <a href="/popover">popover</a> holding
-        <code>.app-switcher</code>: one <code>.app-switcher-item</code> link per app, with its mark in
-        <code>.app-switcher-icon</code> and its name under it. Mark the app the reader is in with
-        <code>aria-current="page"</code>. The platform opens it, closes it on an outside click and on
-        <kbd>Escape</kbd>, and a popover holding a switcher opens towards whichever side of the button
-        has room, so it works from either end of the header.
-    </p>
-</CatExample>
+<CatGroup Title="Menus">
+    <CatExample TExample="Examples.Topbar.AppSwitcher" Title="App switcher" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <strong>Live &mdash; press the grid.</strong> A <code>.topbar-btn</code> with
+            <code>popovertarget</code> opens a <a href="/popover">popover</a> holding
+            <code>.app-switcher</code>: one <code>.app-switcher-item</code> link per app, with its mark in
+            <code>.app-switcher-icon</code> and its name under it. Mark the app the reader is in with
+            <code>aria-current="page"</code>. The platform opens it, closes it on an outside click and on
+            <kbd>Escape</kbd>, and a popover holding a switcher opens towards whichever side of the button
+            has room, so it works from either end of the header.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Topbar.UserMenu" Title="User menu"Demo="ex-demo--block ex-demo--flush">
-    <p>
-        The panel is the library's one dropdown style, <code>.menu</code> — see
-        <a href="/menu">Menus</a> for its items, labels and separators. Only the anchoring belongs
-        to the frame, and <code>.user-widget</code> is <code>position: relative</code> so nothing
-        is measured; opening it, the outside click and <kbd>Escape</kbd> are your app's state,
-        <code>.menu-scrim</code> goes <em>immediately before</em> the panel because coming first in
-        the markup is what puts the panel above it (the demo omits it), and do not declare
-        <code>role="menu"</code> — the items are ordinary links and buttons that tab.
-    </p>
-    <p>
-        A choice the menu switches, such as the warehouse the reader works in, marks the one in use
-        with <code>aria-current="true"</code> and the library tints and ticks it. The panel always
-        opens under the header at its trailing edge; <code>--panel-placement</code>, which places the
-        panels anchored to a trigger, does not move it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Topbar.UserMenu" Title="User menu" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            The panel is the library's one dropdown style, <code>.menu</code> — see
+            <a href="/menu">Menus</a> for its items, labels and separators. Only the anchoring belongs
+            to the frame, and <code>.user-widget</code> is <code>position: relative</code> so nothing
+            is measured; opening it, the outside click and <kbd>Escape</kbd> are your app's state,
+            <code>.menu-scrim</code> goes <em>immediately before</em> the panel because coming first in
+            the markup is what puts the panel above it (the demo omits it), and do not declare
+            <code>role="menu"</code> — the items are ordinary links and buttons that tab.
+        </p>
+        <p>
+            A choice the menu switches, such as the warehouse the reader works in, marks the one in use
+            with <code>aria-current="true"</code> and the library tints and ticks it. The panel always
+            opens under the header at its trailing edge; <code>--panel-placement</code>, which places the
+            panels anchored to a trigger, does not move it.
+        </p>
+    </CatExample>
+</CatGroup>

@@ -13,73 +13,77 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Stat.EveryTone" Title="Every tone" Demo="ex-demo--block">
-    <p>Any tone tints a tile the same way, without moving its label or its figure.</p>
-</CatExample>
+<CatGroup Title="Tiles and rows">
+    <CatExample TExample="Examples.Stat.RowTiles" Title="Row of tiles" Demo="ex-demo--block">
+        <p>
+            The parts: a label, a value in <code>tabular-nums</code> so a polling dashboard does not
+            reflow, and a <code>.stat-delta</code> saying which way it moved.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Stat.RowTiles" Title="A row of tiles" Demo="ex-demo--block">
-    <p>
-        The parts: a label, a value in <code>tabular-nums</code> so a polling dashboard does not
-        reflow, and a <code>.stat-delta</code> saying which way it moved.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Stat.SmallValue" Title="Larger and smaller values" Demo="ex-demo--block">
+        <p>
+            <code>.stat--lg</code> steps the value up for a figure that is the point of the page, and <code>.stat--sm</code> steps the value down for a stat whose value is a timestamp, a range or
+            a name, so it fits its tile without leaving the row the reader compares it in. The label and
+            the unit keep their size, so the row still lines up.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Stat.SmallValue" Title="A wide value" Demo="ex-demo--block">
-    <p>
-        <code>.stat--lg</code> steps the value up for a figure that is the point of the page, and <code>.stat--sm</code> steps the value down for a stat whose value is a timestamp, a range or
-        a name, so it fits its tile without leaving the row the reader compares it in. The label and
-        the unit keep their size, so the row still lines up.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Stat.Variants" Title="Target, link and unavailable" Demo="ex-demo--block">
+        <p>
+            <code>.stat--lg</code> is the one figure a page leads with, at a larger value size.
+            <code>.stat-target</code> is the line saying what the number is measured against, and a bar
+            under it is a <a href="/progress"><code>.progress</code></a>, which the stat spaces from the
+            words above it as it does a sparkline, a meter, a stacked bar or a tracker. <code>a.stat</code> makes the
+            whole tile a link to the thing it counts; <code>.stat--unavailable</code> is for a figure
+            that could not be read &mdash; an em dash, never a zero.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Stat.Variants" Title="Target, link and unavailable" Demo="ex-demo--block">
-    <p>
-        <code>.stat--lg</code> is the one figure a page leads with, at a larger value size.
-        <code>.stat-target</code> is the line saying what the number is measured against, and a bar
-        under it is a <a href="/progress"><code>.progress</code></a>, which the stat spaces from the
-        words above it as it does a sparkline, a meter, a stacked bar or a tracker. <code>a.stat</code> makes the
-        whole tile a link to the thing it counts; <code>.stat--unavailable</code> is for a figure
-        that could not be read &mdash; an em dash, never a zero.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Stat.InsideCard" Title="Inside a card" Demo="ex-demo--block">
+        <p>
+            A <code>.stat-row</code> directly inside a <code>.card-body</code> gets a dividing rule
+            between tiles. When the card is too narrow for one line the row wraps, and a tile that
+            starts a line has no rule in front of it. <code>.stat-row--divided</code> does the same
+            for a row straight on the page.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Stat.Rolling" Title="Counting up to the figure" Demo="ex-demo--block">
-    <p>
-        <code>.stat-value--roll</code> counts up from zero when the tile first renders &mdash; for the
-        one figure a wall screen or a landing tile leads with, not for every tile on a page.
-        <code>--roll-to</code> is the figure as a plain integer, and the element's text stays the
-        figure the app wrote: a screen reader reads it from the start, the count is drawn over it and
-        never read, and when the count ends the text is what is left, formatted as written. A fraction
-        counts its whole part and lands on the fraction. A new value does not replay it; render a new
-        element, with <code>@@key</code> on the value, where it should. Under reduced motion and in
-        print the figure is simply there.
-    </p>
-</CatExample>
+<CatGroup Title="Tone and movement">
+    <CatExample TExample="Examples.Stat.EveryTone" Title="Every tone" Demo="ex-demo--block">
+        <p>Any tone tints a tile the same way, without moving its label or its figure.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Stat.Tones" Title="Over a threshold" Demo="ex-demo--block">
-    <p>
-        <code>.stat--warn</code> and <code>.stat--danger</code> tint a tile whose figure has crossed
-        a limit &mdash; amber at a soft limit, red at or near a hard one &mdash; and colour its value.
-        The tile keeps its size, so its label and value still line up with the tiles beside it. Say
-        which limit in a <code>.stat-target</code>: the tint shows that a line was crossed, not which.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Stat.Tones" Title="Over a threshold" Demo="ex-demo--block">
+        <p>
+            <code>.stat--warn</code> and <code>.stat--danger</code> tint a tile whose figure has crossed
+            a limit &mdash; amber at a soft limit, red at or near a hard one &mdash; and colour its value.
+            The tile keeps its size, so its label and value still line up with the tiles beside it. Say
+            which limit in a <code>.stat-target</code>: the tint shows that a line was crossed, not which.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Stat.InsideCard" Title="Inside a card" Demo="ex-demo--block">
-    <p>
-        A <code>.stat-row</code> directly inside a <code>.card-body</code> gets a dividing rule
-        between tiles. When the card is too narrow for one line the row wraps, and a tile that
-        starts a line has no rule in front of it. <code>.stat-row--divided</code> does the same
-        for a row straight on the page.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Stat.Deltas" Title="Which way it moved" Demo="ex-demo--block">
+        <p>
+            <code>--good</code>, <code>--bad</code>, <code>--warn</code> and the bare
+            <code>.stat-delta</code>. The modifier is <em>judgement</em>, not direction &mdash; more
+            open orders is up and bad, faster dispatch is down and good &mdash; so put a
+            <code>ri-arrow-up-line</code> or <code>ri-arrow-down-line</code> inside every delta to
+            carry the direction itself.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Stat.Deltas" Title="Which way it moved" Demo="ex-demo--block">
-    <p>
-        <code>--good</code>, <code>--bad</code>, <code>--warn</code> and the bare
-        <code>.stat-delta</code>. The modifier is <em>judgement</em>, not direction &mdash; more
-        open orders is up and bad, faster dispatch is down and good &mdash; so put a
-        <code>ri-arrow-up-line</code> or <code>ri-arrow-down-line</code> inside every delta to
-        carry the direction itself.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Stat.Rolling" Title="Counting up to the figure" Demo="ex-demo--block">
+        <p>
+            <code>.stat-value--roll</code> counts up from zero when the tile first renders &mdash; for the
+            one figure a wall screen or a landing tile leads with, not for every tile on a page.
+            <code>--roll-to</code> is the figure as a plain integer, and the element's text stays the
+            figure the app wrote: a screen reader reads it from the start, the count is drawn over it and
+            never read, and when the count ends the text is what is left, formatted as written. A fraction
+            counts its whole part and lands on the fraction. A new value does not replay it; render a new
+            element, with <code>@@key</code> on the value, where it should. Under reduced motion and in
+            print the figure is simply there.
+        </p>
+    </CatExample>
+</CatGroup>

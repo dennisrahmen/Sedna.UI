@@ -5,7 +5,7 @@
     circuit dropped, the session expired, something threw. One class family for every case.
 </CatHead>
 
-<CatExample TExample="Examples.StatusBar.StatusBar" Title="Status bar" Demo="ex-demo--block ex-demo--flush">
+<CatExample TExample="Examples.StatusBar.StatusBar" Title="Six states" Demo="ex-demo--block ex-demo--flush">
     <p>
         All six modifiers are shown together here; in an app one shows at a time. The bar's own
         controls are <code>.status-bar-action</code> — filled, and never a <code>.btn</code>, whose
@@ -27,7 +27,7 @@
     </table>
 </CatExample>
 
-<CatSnippet Name="StatusBar/HostPage.html" Title="The status bar in the host page">
+<CatSnippet Name="StatusBar/HostPage.html" Title="Reconnect rows in the host page">
     <p>
         Paste this into <code>App.razor</code>, inside <code>&lt;body&gt;</code> and before the
         component that carries the render mode; supply it, or Blazor injects an unstyled box of its
@@ -61,7 +61,7 @@
     </p>
 </CatSnippet>
 
-<CatSnippet Name="StatusBar/ErrorBarHostPage.html" Title="The unhandled-error bar">
+<CatSnippet Name="StatusBar/ErrorBarHostPage.html" Title="Unhandled-error bar">
     <p>
         <code>#blazor-error-ui</code> is the second place the bar mounts, and the framework reveals
         it by setting <code>display: block</code> inline. Put <code>.status-bar--error</code> on

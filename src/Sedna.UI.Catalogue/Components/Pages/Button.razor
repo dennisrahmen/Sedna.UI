@@ -19,145 +19,155 @@
     </table>
 </div>
 
-<CatExample TExample="Examples.Button.ToneMatrix" Title="Tone and emphasis" Demo="ex-demo--block">
-    <p>
-        A tone says what a button does — <code>.btn--brand</code>, <code>--go</code>, <code>--warn</code>,
-        <code>--danger</code>, <code>--info</code>, <code>--secret</code> — and an emphasis how loudly:
-        soft by default, <code>.btn--solid</code> filled, <code>.btn--ghost</code> with no fill until
-        hovered. Any tone takes any emphasis; a panel's one primary action is the filled one.
-    </p>
-</CatExample>
+<CatGroup Title="Tone and size">
+    <CatExample TExample="Examples.Button.ToneMatrix" Title="Tone and emphasis" Demo="ex-demo--block">
+        <p>
+            A tone says what a button does — <code>.btn--brand</code>, <code>--go</code>, <code>--warn</code>,
+            <code>--danger</code>, <code>--info</code>, <code>--secret</code> — and an emphasis how loudly:
+            soft by default, <code>.btn--solid</code> filled, <code>.btn--ghost</code> with no fill until
+            hovered. Any tone takes any emphasis; a panel's one primary action is the filled one.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Variants" Title="Variants" Demo="ex-demo--block">
-    <p>
-        The variants in the rows they belong in, each at the same height: one filled button per row,
-        the primary last, and a destructive action soft and on the far side with
-        <code>.sedna-push</code> after it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.Variants" Title="Variants in their rows" Demo="ex-demo--block">
+        <p>
+            The variants in the rows they belong in, each at the same height: one filled button per row,
+            the primary last, and a destructive action soft and on the far side with
+            <code>.sedna-push</code> after it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Sizes" Title="Three sizes" Demo="ex-demo--block">
-    <p>
-        <code>.btn--sm</code>, the default, and <code>.btn--lg</code>. Every control that can share a row
-        takes the same three heights &mdash; 28px, 36px and 44px &mdash; so a button, a link, an
-        icon button, a field and a chip line up; a <a href="/badge">badge</a> does not, because it
-        has its own type scale.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.Sizes" Title="Three sizes" Demo="ex-demo--block">
+        <p>
+            <code>.btn--sm</code>, the default, and <code>.btn--lg</code>. Every control that can share a row
+            takes the same three heights &mdash; 28px, 36px and 44px &mdash; so a button, a link, an
+            icon button, a field and a chip line up; a <a href="/badge">badge</a> does not, because it
+            has its own type scale.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Pending" Title="While its action runs">
-    <p>
-        <code>aria-busy="true"</code> while a save or a call is in flight. The label stays in the layout
-        and is painted out, so the button keeps its measured width and does not shrink under the
-        cursor; a ring in the variant's own ink spins in its place, and a second pointer click is
-        ignored. Leave <code>disabled</code> off — it drops focus and stops the state being
-        announced — and have the handler ignore a second <kbd>Enter</kbd> while the work runs.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.Ghost" Title="Ghost in a dense row">
+        <p>
+            <code>.btn--ghost</code> defers its border and fill until hover, for a dense row of
+            secondary actions &mdash; a table row's actions, a toolbar. It keeps the same box as a
+            bordered button, so a ghost and a solid button in one row still line up.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Button.IconOnly" Title="Icon-only">
-    <p>
-        <strong><code>.btn--icon</code> is not optional</strong> &mdash; a bare <code>.btn</code>
-        keeps its text padding, so one glyph sits in a box half again as wide as it is tall. Give
-        every icon-only button an <code>aria-label</code>; the glyph itself is a bundled
-        <a href="https://remixicon.com">Remix Icon</a>, linked from
-        <code>_content/Sedna.UI/lib/remixicon/remixicon.css</code> as
-        <code>ri-*</code> on an <code>&lt;i&gt;</code>.
-    </p>
-</CatExample>
+<CatGroup Title="States">
+    <CatExample TExample="Examples.Button.Pending" Title="Busy while its action runs">
+        <p>
+            <code>aria-busy="true"</code> while a save or a call is in flight. The label stays in the layout
+            and is painted out, so the button keeps its measured width and does not shrink under the
+            cursor; a ring in the variant's own ink spins in its place, and a second pointer click is
+            ignored. Leave <code>disabled</code> off — it drops focus and stops the state being
+            announced — and have the handler ignore a second <kbd>Enter</kbd> while the work runs.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Ghost" Title="Ghost">
-    <p>
-        <code>.btn--ghost</code> defers its border and fill until hover, for a dense row of
-        secondary actions &mdash; a table row's actions, a toolbar. It keeps the same box as a
-        bordered button, so a ghost and a solid button in one row still line up.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.DisabledWithHint" Title="Disabled with a reason">
+        <p>
+            A disabled button still takes the pointer, so a <code>data-tip</code> on it shows on hover and
+            says why it cannot be used. A <code>disabled</code> button is never focused, so a keyboard
+            reader cannot reach its hint; where the reason matters to them, use
+            <code>aria-disabled="true"</code>, which stays in the tab order and looks the same &mdash; and
+            have the handler ignore it.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Button.Bare" Title="In a line of text" Demo="ex-demo--block">
-    <p>
-        <code>.btn-bare</code> is a <code>&lt;button&gt;</code> with no background, border or
-        padding, taking its font and colour from the text around it — for an identifier that
-        <em>acts</em>: a record number that opens the record, a key with a copy button beside it, a
-        chevron that unfolds a section. <code>.btn-bare--link</code> colours it like a link, for one
-        that goes somewhere.
-    </p>
-    <p>
-        <strong>Write it without <code>.btn</code></strong> — it is the absence of the button's
-        chrome, not a variant of it, and both classes together bring the height and the hover fill
-        back. It keeps the library's focus ring, which is the declaration a hand-written inline reset
-        forgets: removing the border removes the browser's own outline with it. Tab through this
-        example to see it.
-    </p>
-</CatExample>
+<CatGroup Title="Label and shape">
+    <CatExample TExample="Examples.Button.IconOnly" Title="Icon-only">
+        <p>
+            <strong><code>.btn--icon</code> is not optional</strong> &mdash; a bare <code>.btn</code>
+            keeps its text padding, so one glyph sits in a box half again as wide as it is tall. Give
+            every icon-only button an <code>aria-label</code>; the glyph itself is a bundled
+            <a href="https://remixicon.com">Remix Icon</a>, linked from
+            <code>_content/Sedna.UI/lib/remixicon/remixicon.css</code> as
+            <code>ri-*</code> on an <code>&lt;i&gt;</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.NameThatIsReadBut" Title="A name that is read but not shown">
-    <p>
-        <code>.visually-hidden</code> takes text out of the rendering and leaves it in the
-        accessibility tree &mdash; here the button shows a count and the hidden span says what the
-        count is of. Do not reach for <code>display:none</code> or a zero-size box instead: both
-        drop the element from the accessibility tree too.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.NameThatIsReadBut" Title="Name read but not shown">
+        <p>
+            <code>.visually-hidden</code> takes text out of the rendering and leaves it in the
+            accessibility tree &mdash; here the button shows a count and the hidden span says what the
+            count is of. Do not reach for <code>display:none</code> or a zero-size box instead: both
+            drop the element from the accessibility tree too.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Link" Title="As a link">
-    <p>
-        <code>.btn</code> works on an <code>&lt;a&gt;</code> &mdash; it sets its own
-        <code>text-decoration</code> and colour, so no reset is needed.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.Wrap" Title="Label on two lines">
+        <p>
+            <code>.btn--wrap</code> lets the label wrap and starts it at the inline start, for a
+            picker whose choices are full-width buttons with a long name. A button is otherwise one line.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Wrap" Title="A label on two lines">
-    <p>
-        <code>.btn--wrap</code> lets the label wrap and starts it at the inline start, for a
-        picker whose choices are full-width buttons with a long name. A button is otherwise one line.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.Fill" Title="As wide as its container" Demo="ex-demo--block">
+        <p>
+            <code>.btn--fill</code> makes a lone action as wide as its container &mdash; one large touch
+            target under a list on a phone. It keeps its size tier's height, and a label too long for the
+            width wraps. <code>.tabs--fill</code> and <code>.segmented--fill</code> are the same modifier
+            for a row of options.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.Fill" Title="As wide as its container" Demo="ex-demo--block">
-    <p>
-        <code>.btn--fill</code> makes a lone action as wide as its container &mdash; one large touch
-        target under a list on a phone. It keeps its size tier's height, and a label too long for the
-        width wraps. <code>.tabs--fill</code> and <code>.segmented--fill</code> are the same modifier
-        for a row of options.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.Link" Title="As a link">
+        <p>
+            <code>.btn</code> works on an <code>&lt;a&gt;</code> &mdash; it sets its own
+            <code>text-decoration</code> and colour, so no reset is needed.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Button.DisabledWithHint" Title="A disabled button that says why">
-    <p>
-        A disabled button still takes the pointer, so a <code>data-tip</code> on it shows on hover and
-        says why it cannot be used. A <code>disabled</code> button is never focused, so a keyboard
-        reader cannot reach its hint; where the reason matters to them, use
-        <code>aria-disabled="true"</code>, which stays in the tab order and looks the same &mdash; and
-        have the handler ignore it.
-    </p>
-</CatExample>
+<CatGroup Title="In place">
+    <CatExample TExample="Examples.Button.Bare" Title="In a line of text" Demo="ex-demo--block">
+        <p>
+            <code>.btn-bare</code> is a <code>&lt;button&gt;</code> with no background, border or
+            padding, taking its font and colour from the text around it — for an identifier that
+            <em>acts</em>: a record number that opens the record, a key with a copy button beside it, a
+            chevron that unfolds a section. <code>.btn-bare--link</code> colours it like a link, for one
+            that goes somewhere.
+        </p>
+        <p>
+            <strong>Write it without <code>.btn</code></strong> — it is the absence of the button's
+            chrome, not a variant of it, and both classes together bring the height and the hover fill
+            back. It keeps the library's focus ring, which is the declaration a hand-written inline reset
+            forgets: removing the border removes the browser's own outline with it. Tab through this
+            example to see it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.FooterRow" Title="In a footer row" Demo="ex-demo--block">
-    <p>
-        A <a href="/card"><code>.card-foot</code></a> is end-aligned: Cancel before the primary,
-        primary last &mdash; the reading order ends on the action.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.FooterRow" Title="In a footer row" Demo="ex-demo--block">
+        <p>
+            A <a href="/card"><code>.card-foot</code></a> is end-aligned: Cancel before the primary,
+            primary last &mdash; the reading order ends on the action.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Button.FloatingActionButton" Title="Floating action button" Demo="ex-demo--block">
-    <p>
-        <code>.fab</code> is one page-level action, pinned to a corner on a screen too small to show
-        a toolbar; <code>.fab--icon</code> is the circular,
-        label-in-an-<code>aria-label</code> form. Shown here <code>position:static</code>; in an app
-        it is fixed to the corner and must stay below every overlay.
-    </p>
-</CatExample>
+<CatGroup Title="Floating">
+    <CatExample TExample="Examples.Button.FloatingActionButton" Title="Floating action button" Demo="ex-demo--block">
+        <p>
+            <code>.fab</code> is one page-level action, pinned to a corner on a screen too small to show
+            a toolbar; <code>.fab--icon</code> is the circular,
+            label-in-an-<code>aria-label</code> form. Shown here <code>position:static</code>; in an app
+            it is fixed to the corner and must stay below every overlay.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Button.SpeedDial" Title="Speed dial" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open it.</strong> <code>.fab-dial</code> on a <code>.menu-anchor</code>
-        takes the FAB's corner and fans a <code>.menu</code> of a few related actions out above the
-        button, each a pill on the button's end edge; the icon turns while it is open.
-        <code>data-menu-toggle</code> on the <code>.fab</code> gives it a menu's behaviour &mdash;
-        <code>aria-expanded</code>, <kbd>Escape</kbd> back to the button, the arrow keys between the
-        actions, a press outside closing it. Three to five actions; past that it is a
-        <a href="/menu">menu</a> or a <a href="/drawer">sheet of actions</a>. Shown here
-        <code>position:static</code>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Button.SpeedDial" Title="Speed dial" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open it.</strong> <code>.fab-dial</code> on a <code>.menu-anchor</code>
+            takes the FAB's corner and fans a <code>.menu</code> of a few related actions out above the
+            button, each a pill on the button's end edge; the icon turns while it is open.
+            <code>data-menu-toggle</code> on the <code>.fab</code> gives it a menu's behaviour &mdash;
+            <code>aria-expanded</code>, <kbd>Escape</kbd> back to the button, the arrow keys between the
+            actions, a press outside closing it. Three to five actions; past that it is a
+            <a href="/menu">menu</a> or a <a href="/drawer">sheet of actions</a>. Shown here
+            <code>position:static</code>.
+        </p>
+    </CatExample>
+</CatGroup>

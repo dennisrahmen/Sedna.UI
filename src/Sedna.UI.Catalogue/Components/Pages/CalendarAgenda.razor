@@ -17,94 +17,100 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Calendar.Agenda" Title="An agenda" Demo="ex-demo--block">
-    <p>
-        <code>.cal-agenda</code> is a list of days, each a <code>.cal-agenda-day</code> with a
-        <code>.cal-agenda-head</code> &mdash; the weekday, then the date at the end &mdash; and a
-        <code>.cal-agenda-events</code> of <code>.cal-agenda-event</code> rows: a
-        <code>.cal-agenda-time</code>, a <code>.cal-event-dot</code>, a <code>.cal-agenda-title</code> and a
-        line of <code>.cal-agenda-meta</code>. A row takes the event hues, <code>.cal-event--go</code> to
-        <code>--teal</code>, for its dot; <code>.cal-agenda-event--past</code> mutes one that is over. Today
-        is <code>aria-current="date"</code> on its day. A day with nothing on is a
-        <code>.cal-agenda-empty</code> in your own words &mdash; or leave the day out, which is yours to
-        choose. The headings stay pinned while their day scrolls under them.
-    </p>
-</CatExample>
+<CatGroup Title="Agenda">
+    <CatExample TExample="Examples.Calendar.Agenda" Title="Agenda list" Demo="ex-demo--block">
+        <p>
+            <code>.cal-agenda</code> is a list of days, each a <code>.cal-agenda-day</code> with a
+            <code>.cal-agenda-head</code> &mdash; the weekday, then the date at the end &mdash; and a
+            <code>.cal-agenda-events</code> of <code>.cal-agenda-event</code> rows: a
+            <code>.cal-agenda-time</code>, a <code>.cal-event-dot</code>, a <code>.cal-agenda-title</code> and a
+            line of <code>.cal-agenda-meta</code>. A row takes the event hues, <code>.cal-event--go</code> to
+            <code>--teal</code>, for its dot; <code>.cal-agenda-event--past</code> mutes one that is over. Today
+            is <code>aria-current="date"</code> on its day. A day with nothing on is a
+            <code>.cal-agenda-empty</code> in your own words &mdash; or leave the day out, which is yours to
+            choose. The headings stay pinned while their day scrolls under them.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.AgendaPanel" Title="An agenda in a narrow panel" Demo="ex-demo--block">
-    <p>
-        Under 30rem of its own width &mdash; a side panel, a phone &mdash; the time moves above the title
-        and the column goes, so the title keeps the width. The agenda measures itself, not the window, so
-        it does the same in a narrow card on a wide screen. Put it in a <code>.sedna-scroll</code> with a
-        height and each day's heading stays at the top while that day is in view. In a card,
-        <code>.cal-agenda--flush</code> gives up the agenda's own border and corners, so the card's are
-        the only frame &mdash; the same modifier every framed calendar view takes.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.AgendaPanel" Title="In a narrow panel" Demo="ex-demo--block">
+        <p>
+            Under 30rem of its own width &mdash; a side panel, a phone &mdash; the time moves above the title
+            and the column goes, so the title keeps the width. The agenda measures itself, not the window, so
+            it does the same in a narrow card on a wide screen. Put it in a <code>.sedna-scroll</code> with a
+            height and each day's heading stays at the top while that day is in view. In a card,
+            <code>.cal-agenda--flush</code> gives up the agenda's own border and corners, so the card's are
+            the only frame &mdash; the same modifier every framed calendar view takes.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Calendar.BusinessHours" Title="Business hours and background events" Demo="ex-demo--block">
-    <p>
-        <code>.cal-closed</code> hatches the hours outside business hours, at <code>--cal-start</code> for
-        <code>--cal-span</code> hours like a block, and <code>.cal-day-col--closed</code> a whole day.
-        <code>.cal-event--background</code> on a <code>.cal-block</code> is a stretch that is true of the
-        time rather than an appointment &mdash; a stock freeze, a maintenance window &mdash; drawn full
-        width in its hue, under the blocks. Both take no pointer, so what is under them stays clickable.
-        <strong>Say the hours and the meaning in words too</strong>: a hatch and a tint are not read out.
-    </p>
-</CatExample>
+<CatGroup Title="Closed hours and busy days">
+    <CatExample TExample="Examples.Calendar.BusinessHours" Title="Business hours and background events" Demo="ex-demo--block">
+        <p>
+            <code>.cal-closed</code> hatches the hours outside business hours, at <code>--cal-start</code> for
+            <code>--cal-span</code> hours like a block, and <code>.cal-day-col--closed</code> a whole day.
+            <code>.cal-event--background</code> on a <code>.cal-block</code> is a stretch that is true of the
+            time rather than an appointment &mdash; a stock freeze, a maintenance window &mdash; drawn full
+            width in its hue, under the blocks. Both take no pointer, so what is under them stays clickable.
+            <strong>Say the hours and the meaning in words too</strong>: a hatch and a tint are not read out.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.BackgroundDays" Title="Background events across days" Demo="ex-demo--block">
-    <p>
-        On a month, <code>.cal-event--background</code> is a pill with no lane: give it the days with
-        <code>grid-column</code> and no <code>grid-row</code>, write it before the events, and it tints the
-        whole of those days under them, its title in the day's head beside the number. In a
-        <a href="/calendar#a-resource-timeline">resource timeline</a> it covers the row the same way, its
-        title in the bottom row.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.BackgroundDays" Title="Background events across days" Demo="ex-demo--block">
+        <p>
+            On a month, <code>.cal-event--background</code> is a pill with no lane: give it the days with
+            <code>grid-column</code> and no <code>grid-row</code>, write it before the events, and it tints the
+            whole of those days under them, its title in the day's head beside the number. In a
+            <a href="/calendar#a-resource-timeline">resource timeline</a> it covers the row the same way, its
+            title in the bottom row.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.MoreEvents" Title="The rest of a busy day" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open "+2 more".</strong> Make the <code>.cal-more</code> a
-        <code>&lt;button&gt;</code> with <code>data-popover</code>, and write the popover: a
-        <code>.popover-title</code> naming the day, then every event of that day as a
-        <code>.cal-event-list</code> of the same pills, each on a line of its own. List them all, not only
-        the hidden ones &mdash; the reader asked to see the day. The button's label says how many more and
-        which day, because "+2 more" alone does not.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.MoreEvents" Title="Rest of a busy day" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open "+2 more".</strong> Make the <code>.cal-more</code> a
+            <code>&lt;button&gt;</code> with <code>data-popover</code>, and write the popover: a
+            <code>.popover-title</code> naming the day, then every event of that day as a
+            <code>.cal-event-list</code> of the same pills, each on a line of its own. List them all, not only
+            the hidden ones &mdash; the reader asked to see the day. The button's label says how many more and
+            which day, because "+2 more" alone does not.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Interop.CalendarMonthMove" Title="Move an event to another day" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; drag a pill, or focus one and press <kbd class="kbd">Space</kbd>.</strong> Each
-        <code>.cal-day</code> is a drop slot: <code>data-drag-zone</code> naming its date,
-        <code>data-drag-axis="slot"</code> and the calendar's <code>data-drag-group</code>. Each week's
-        <code>.cal-row-events</code> is the zone the pills come from, with <code>data-drag-accept=""</code>
-        so nothing lands back in it, and each pill is a <code>data-drag-item</code>. A pill dropped on top
-        of another day's pill still lands on that day.
-    </p>
-    <p>
-        <code>sedna-drop</code> names the day it landed on as <code>To</code> and the day it was picked up
-        from as <code>FromSlot</code>; move the event by the distance between them, and a four-day event
-        held by its third day keeps that day under the pointer. From the keyboard the arrows move it a day
-        across or a week down, by where the days are on screen, and the sentences the reader hears are
-        yours, in <code>data-drag-live</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Dragging events">
+    <CatExample TExample="Examples.Interop.CalendarMonthMove" Title="Move to another day" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; drag a pill, or focus one and press <kbd class="kbd">Space</kbd>.</strong> Each
+            <code>.cal-day</code> is a drop slot: <code>data-drag-zone</code> naming its date,
+            <code>data-drag-axis="slot"</code> and the calendar's <code>data-drag-group</code>. Each week's
+            <code>.cal-row-events</code> is the zone the pills come from, with <code>data-drag-accept=""</code>
+            so nothing lands back in it, and each pill is a <code>data-drag-item</code>. A pill dropped on top
+            of another day's pill still lands on that day.
+        </p>
+        <p>
+            <code>sedna-drop</code> names the day it landed on as <code>To</code> and the day it was picked up
+            from as <code>FromSlot</code>; move the event by the distance between them, and a four-day event
+            held by its third day keeps that day under the pointer. From the keyboard the arrows move it a day
+            across or a week down, by where the days are on screen, and the sentences the reader hears are
+            yours, in <code>data-drag-live</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.CalendarWeekEdit" Title="Move and resize on a time axis" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; drag a block to another time or day, or drag its bottom edge.</strong> A
-        <code>.cal-slots</code> in each <code>.cal-day-col</code>, written first, holds one
-        <code>.cal-slot</code> per half hour &mdash; <code>--cal-slot-hours</code> for another step &mdash;
-        each a drop slot naming its time. Slots in the closed hours are <code>aria-disabled="true"</code>,
-        which refuses a drop there. The column is the zone the blocks come from.
-    </p>
-    <p>
-        <code>.cal-resize</code> is the grip on a block's end: a <a href="/table-columns">resize handle</a>
-        on <code>--cal-height</code>, stepped by a slot's height, with <code>data-resize-key</code> naming
-        the event. <code>sedna-resize</code> gives the length in pixels; turn it into an end time and
-        render the block's new <code>--cal-span</code>. Focus the grip and the arrow keys do the same,
-        and keep its <code>aria-valuetext</code> saying the end time.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.CalendarWeekEdit" Title="Move and resize by time" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; drag a block to another time or day, or drag its bottom edge.</strong> A
+            <code>.cal-slots</code> in each <code>.cal-day-col</code>, written first, holds one
+            <code>.cal-slot</code> per half hour &mdash; <code>--cal-slot-hours</code> for another step &mdash;
+            each a drop slot naming its time. Slots in the closed hours are <code>aria-disabled="true"</code>,
+            which refuses a drop there. The column is the zone the blocks come from.
+        </p>
+        <p>
+            <code>.cal-resize</code> is the grip on a block's end: a <a href="/table-columns">resize handle</a>
+            on <code>--cal-height</code>, stepped by a slot's height, with <code>data-resize-key</code> naming
+            the event. <code>sedna-resize</code> gives the length in pixels; turn it into an end time and
+            render the block's new <code>--cal-span</code>. Focus the grip and the arrow keys do the same,
+            and keep its <code>aria-valuetext</code> saying the end time.
+        </p>
+    </CatExample>
+</CatGroup>
