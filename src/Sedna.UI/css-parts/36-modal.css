@@ -170,6 +170,10 @@ dialog.modal::backdrop {
 /* A bare paragraph's margin is reset at the weight of the element alone, so a classed
    one — a section hint, a field hint — keeps its own spacing inside a modal. */
 :where(.modal-body) p { margin: 0; }
+/* And the list, key/value list or heading that starts or ends the body adds no margin
+   to its padding, as in a card body. */
+:where(.modal-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.modal-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 .modal-footer {
     display: flex;
     flex-wrap: wrap;
@@ -227,6 +231,16 @@ dialog.modal::backdrop {
     margin: auto 0;
     animation: sedna-deck-in var(--motion-mid) ease;
 }
+/* A slide's heading and paragraphs are the app's words with the slide's spacing, as a
+   modal body's paragraphs are: no margin of the browser's, a step under the heading and
+   a wider one between paragraphs. A list or a key/value list keeps its margins between
+   them and drops them at the slide's edges. At the weight of the element alone, so a
+   classed block keeps its own. */
+:where(.deck-step) :is(h1, h2, h3, h4, h5, h6, p) { margin: 0; }
+:where(.deck-step) :is(h1, h2, h3, h4, h5, h6) + p { margin-block-start: var(--space-2); }
+:where(.deck-step) p + p { margin-block-start: var(--space-3); }
+:where(.deck-step) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.deck-step) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 @keyframes sedna-deck-in {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: none; }

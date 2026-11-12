@@ -17,7 +17,7 @@
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" }
     ],
     "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "check-the-tools-an-agent-ran" ],
-    "stamp": "291bdd4d71e3fa31"
+    "stamp": "94c405c8004f10db"
   },
   {
     "page": "/page-navigation",
@@ -32,18 +32,20 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#a-strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "e78a3e9a1e5a69b0"
+    "stamp": "7419be826884d547"
   },
   {
     "page": "/card",
-    "useFor": "One object on the page with its own title, its own actions or its own state: a record's fields, a table, a form, a widget the reader folds and resizes.",
+    "useFor": "One object on the page with its own title, its own actions or its own state: a record's fields, a table, a form, a widget the reader folds and resizes by its side, its bottom or its corner.",
     "combineWith": [
       { "page": "/table#with-a-toolbar-in-a-card", "how": "A table goes straight in the card with no .card-body, under a toolbar outside it." },
       { "page": "/badge#in-a-card-header-and-a-table-cell", "how": "The card's state in .card-head-right, in words as well as a tone." },
       { "page": "/grid#a-dashboard", "how": "Cards as the panels of a dashboard, .card--fill where a row should end on one line." },
       { "page": "/form#a-settings-card", "how": "A form section in the body and its Save in a .card-foot." },
       { "page": "/tabs#tabs-in-a-card", "how": "The tablist in a .card-head--tabs and the panels in the body." },
-      { "page": "/list", "how": "A list straight in the card meets its edges with no class." }
+      { "page": "/list", "how": "A list straight in the card meets its edges with no class." },
+      { "page": "/diff#a-diff-in-a-card", "how": "A panel with a frame of its own, a diff, a calendar or a code block, goes straight in the card with its --flush modifier, so the card draws the only frame." },
+      { "page": "/grid#a-panel-grid-the-reader-arranges", "how": "Resizable cards are the panels of a .panel-grid, their handles counting in cells." }
     ],
     "notFor": [
       { "text": "Records compared down columns", "instead": "/table" },
@@ -51,18 +53,19 @@
       { "text": "Laying cards out side by side", "instead": "/grid" },
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
-    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "d84d659151f36d93"
+    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
+    "stamp": "86e3a287ad25428b"
   },
   {
     "page": "/grid",
-    "useFor": "Placing the app's own markup: peers in as many columns as fit, panels of different widths on a 24-column dashboard, and a main column beside an aside.",
+    "useFor": "Placing the app's own markup: peers in as many columns as fit, panels of different widths on a 24-column dashboard, a main column beside an aside, and panels on cells the reader moves and resizes.",
     "combineWith": [
       { "page": "/card", "how": "The panels and tiles a grid places are cards; .card--fill makes a row of them end on one line." },
       { "page": "/stat#a-row-of-tiles", "how": "A .stat-row across the top of a dashboard, the panels below it." },
       { "page": "/filtering#filter-side-panel", "how": "The filter panel as the aside of a .sedna-split beside the results." },
       { "page": "/page-navigation#on-this-page", "how": "The contents as a sticky aside beside a long page." },
-      { "page": "/drag-drop#reorder-a-grid-of-tiles", "how": "A .drag-grid of resizable cards for panels the reader arranges." },
+      { "page": "/drag-drop#reorder-a-grid-of-tiles", "how": "A .drag-grid of resizable cards for panels the reader puts in order." },
+      { "page": "/drag-drop#keyboard", "how": "A .panel-grid is a drag zone with data-drag-axis=\"cells\", picked up and moved with the same keys and announced in the same live region." },
       { "page": "/form#two-up-rows", "how": "Fields side by side are a .sedna-grid--sm --fit, dropping to one column on its own." }
     ],
     "notFor": [
@@ -70,8 +73,8 @@
       { "text": "Spacing a row of controls", "instead": "/utility-layout#rows-and-columns" },
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
-    "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "69c0cc9609a8fdbd"
+    "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "place-panels-freely", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
+    "stamp": "0069259a0c7594ed"
   },
   {
     "page": "/list",
@@ -91,7 +94,7 @@
       { "text": "A list of files", "instead": "/files#a-list-of-files" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "af48f44e7846b1dd"
+    "stamp": "d24a52176ea99be6"
   },
   {
     "page": "/collections",
@@ -99,7 +102,8 @@
     "combineWith": [
       { "page": "/page-recipes#a-step-in-a-longer-task", "how": "The steps above the form of the current step, in the page head's place." },
       { "page": "/form-flow#one-field-to-a-page", "how": "Steps over a multi-page form, saying where in it the reader is." },
-      { "page": "/agent-steps#queue-and-todo", "how": "An accordion of the agent's queued work, one section per item." }
+      { "page": "/agent-steps#queue-and-todo", "how": "An accordion of the agent's queued work, one section per item." },
+      { "page": "/card", "how": "An accordion straight under a card head takes .accordion--flush, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "A record with no end", "instead": "/timeline" },
@@ -108,7 +112,7 @@
       { "text": "Groups of a long nav", "instead": "/nav-layouts#accordion-groups" }
     ],
     "goals": [ "see-the-step-they-are-on", "open-detail-on-demand", "answer-one-question-at-a-time", "do-a-task-in-steps" ],
-    "stamp": "511f6c7c548c7e3f"
+    "stamp": "213579abe4db6bb8"
   },
   {
     "page": "/tree",
@@ -125,7 +129,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "147f627534b31967"
+    "stamp": "ffa8ed82e5ee0f5a"
   },
   {
     "page": "/timeline",
@@ -144,7 +148,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "see-what-happened-to-a-record", "open-a-record-beside-the-list" ],
-    "stamp": "95095e834bba2b55"
+    "stamp": "dc2e1c115dfb781f"
   },
   {
     "page": "/tabs",
@@ -162,6 +166,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "a5e0f8b8adedb6a3"
+    "stamp": "b9027c489f0b6f54"
   }
 ]

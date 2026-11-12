@@ -147,6 +147,9 @@
    its items as separate pills lined up on the button's end edge, and the button's icon
    turns while it is open. Three to five actions; past that it is a menu or a sheet. */
 .menu-anchor.fab-dial {
+    /* Upward through the placement token every anchored panel reads (58-menu.css), so
+       the dial flips like any other upward menu where there is no room above it. */
+    --panel-placement: block-start;
     position: fixed;
     inset-block-end: calc(var(--space-8) + var(--safe-block-end));
     inset-block-end: calc(var(--space-8) + anchor-size(--sedna-bottombar block, var(--safe-block-end)));
@@ -157,10 +160,6 @@
 .fab-dial > .fab i { transition: transform var(--motion-fast) ease; }
 .fab-dial > .fab[aria-expanded="true"] i { transform: rotate(45deg); }
 .fab-dial > .menu {
-    position-area: block-start span-inline-start;
-    justify-self: end;
-    align-self: end;
-    position-try-fallbacks: flip-block;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -173,7 +172,6 @@
     border: none;
     box-shadow: none;
 }
-.fab-dial > .menu[hidden] { display: none; }
 .fab-dial > .menu > .menu-item {
     width: auto;
     padding: var(--space-4) var(--space-6);

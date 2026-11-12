@@ -232,6 +232,7 @@
     /* Selected and current states are backgrounds, which are flattened away. An
        outline is what is left that the mode still paints. */
     .nav-link.active,
+    .menu-item[aria-current]:not([aria-current="false"]),
     .tab[aria-selected="true"],
     .page-link[aria-current="page"],
     .page-toc-link[aria-current="location"],

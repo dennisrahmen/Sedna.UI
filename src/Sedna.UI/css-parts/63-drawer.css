@@ -196,6 +196,9 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .drawer-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 /* The only scrolling part, so the header and footer stay put. */
 .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-7) var(--space-8); }
+/* The block that starts or ends the body adds no margin to its padding, as in a card. */
+:where(.drawer-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.drawer-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 /* Drops the padding, for content drawn edge to edge inside the panel — a list of
    actions, a table that already has its own cell padding. `.card-body--flush`'s
    sibling, and the same reason: the gutter is a gap the content then paints over.

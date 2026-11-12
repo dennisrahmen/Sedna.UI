@@ -65,13 +65,19 @@ public class PdfPageTests(CatalogueAppFixture app)
                     const bar = frame.querySelector(':scope > .pdf-frame-bar');
                     const o = obj.getBoundingClientRect();
                     const barHeight = bar ? bar.getBoundingClientRect().height : 0;
-                    // The object fills the frame below the bar (the frame's 1px border aside).
-                    if (Math.abs(o.width - (f.width - 2)) > 1) out.push(`#${i} object width ${o.width} of ${f.width}`);
-                    if (Math.abs(o.height - (f.height - 2 - barHeight)) > 1) out.push(`#${i} object height ${o.height} of ${f.height} - ${barHeight}`);
+                    // The object fills the frame below the bar, inside the frame's own border,
+                    // which a --flush frame in a card does not draw.
+                    const cs = getComputedStyle(frame);
+                    const bx = parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+                    const by = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+                    if (Math.abs(o.width - (f.width - bx)) > 1) out.push(`#${i} object width ${o.width} of ${f.width}`);
+                    if (Math.abs(o.height - (f.height - by - barHeight)) > 1) out.push(`#${i} object height ${o.height} of ${f.height} - ${barHeight}`);
                     if (frame.classList.contains('pdf-frame--page')) {
                         if (Math.abs(f.height / f.width - 297 / 210) > 0.01) out.push(`#${i} page ratio ${f.height / f.width}`);
                     } else {
-                        const expected = Math.min(innerHeight * 0.8, 960);
+                        // The default height, or the one the app set with --pdf-height.
+                        const set = parseFloat(frame.style.getPropertyValue('--pdf-height'));
+                        const expected = Number.isNaN(set) ? Math.min(innerHeight * 0.8, 960) : set;
                         if (Math.abs(f.height - expected) > 1) out.push(`#${i} height ${f.height}, expected ${expected}`);
                     }
                     const fallback = obj.querySelector('.empty-state');

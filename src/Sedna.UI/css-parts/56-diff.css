@@ -55,6 +55,9 @@
     border-radius: var(--radius-surface);
     overflow: hidden;
 }
+/* Inside a surface that already draws the frame — a card, a tab panel of one — the diff
+   gives up its own border and corners, as `.code-block--flush` does. */
+.diff--flush { border: none; border-radius: 0; }
 .diff-head {
     display: flex;
     flex-wrap: wrap;

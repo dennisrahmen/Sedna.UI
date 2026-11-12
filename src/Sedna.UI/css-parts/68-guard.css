@@ -7,9 +7,9 @@
    covers one card. `disabled` greys content out, and the whole point of this is
    that the content reads — the reader is deciding whether to take it on.
 
-   Scoped to a positioned ancestor, which is the card:
+   It covers the element it is a child of, which is the card:
 
-     <article class="card" style="position: relative">
+     <article class="card">
        …the content, readable…
        <div class="guard">
          <div class="guard-card">
@@ -31,6 +31,11 @@
    z-index 1 is local stacking inside the card, not a rung on the documented
    scale — a guard belongs to one card and never rises over the page.
    ─────────────────────────────────────────────────────────────────────────── */
+/* Whatever holds a guard is what it covers, so the holder is positioned here and the app
+   writes no `position: relative`. At no specificity: an element that is already
+   positioned — sticky, fixed, a drawer — keeps its own position, and is already the box
+   the guard covers. */
+:where(:has(> .guard)) { position: relative; }
 .guard {
     position: absolute;
     inset: 0;

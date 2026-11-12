@@ -262,10 +262,6 @@
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
 }
-.editor-link[hidden],
-.editor-link [hidden],
-.editor-media[hidden],
-.editor-media [hidden] { display: none; }
 .editor-link .form-input,
 .editor-media .form-input { inline-size: 16rem; }
 /* The media form is the one with a second field; it wraps rather than leaving the frame. */
@@ -281,7 +277,6 @@
     padding: var(--space-3) var(--space-6);
     border-block-start: 1px solid var(--divider);
 }
-.editor-notice[hidden] { display: none; }
 
 /* ── The slash menu ──────────────────────────────────────────────────────────
    The app's `.menu` with `data-editor-slash`, which "/" opens at the caret to turn the
@@ -297,4 +292,3 @@
     max-block-size: min(18rem, 60vh);
     overflow-y: auto;
 }
-.editor-slash[hidden] { display: none; }

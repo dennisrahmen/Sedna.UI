@@ -10,7 +10,6 @@
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
-.progress[hidden] { display: none; }
 .progress-bar {
     display: block;
     height: 100%;

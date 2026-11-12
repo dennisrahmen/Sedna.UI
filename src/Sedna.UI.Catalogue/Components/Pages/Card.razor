@@ -92,7 +92,8 @@
 <CatExample TExample="Examples.Card.Guarded" Title="A guarded card" Demo="ex-demo--block">
     <p>
         A card the reader can read but must claim, accept or unlock before acting on.
-        <code>.guard</code> is absolute, so the card needs <code>position: relative</code>; put
+        <code>.guard</code> covers the element it is a child of &mdash; here the card, which the
+        library positions for it, so no <code>position: relative</code> is needed. Put
         <code>inert</code> on the guarded content, or it stays in the tab order behind the scrim.
     </p>
 </CatExample>
@@ -115,6 +116,18 @@
         keys and resets with <kbd>Home</kbd> or a double-click. <code>&#64;onsedna-resize</code> tells
         you the height to keep. <code>--grid-max</code> on the <code>.sedna-grid</code> caps how
         many columns the widgets take, by the grid's own width.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Card.ResizeCorner" Title="Wider, taller, or both from the corner" Demo="ex-demo--block">
+    <p>
+        <code>.card-resize--inline</code> is the handle on the side, writing <code>--card-width</code> with
+        <code>aria-orientation="vertical"</code>; <code>.card-resize--corner</code> names both properties,
+        the width first, and moves the two at once. The corner is for the pointer and is
+        <code>aria-hidden</code>: from the keyboard the reader has the two edges, and the corner keeps
+        to their <code>aria-valuemin</code> and <code>aria-valuemax</code> and keeps their
+        <code>aria-valuenow</code> current. A card is never wider than what holds it. The corner sends one
+        <code>sedna-resize</code> for each property it changed.
     </p>
 </CatExample>
 

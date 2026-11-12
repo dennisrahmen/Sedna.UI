@@ -1,0 +1,128 @@
+[
+  {
+    "name": "A gap above a panel closes",
+    "columns": 12,
+    "panels": [ ["orders", 0, 2, 6, 2] ],
+    "moved": null,
+    "expect": [ ["orders", 0, 0, 6, 2] ]
+  },
+  {
+    "name": "A panel moved onto another sends it down below",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 4], ["returns", 6, 0, 6, 4] ],
+    "moved": ["orders", 6, 0, 6, 4],
+    "expect": [ ["orders", 6, 0, 6, 4], ["returns", 6, 4, 6, 4] ]
+  },
+  {
+    "name": "A panel moved onto a neighbour on its row takes its place",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 2], ["returns", 6, 0, 6, 2] ],
+    "moved": ["returns", 0, 0, 6, 2],
+    "expect": [ ["returns", 0, 0, 6, 2], ["orders", 0, 2, 6, 2] ]
+  },
+  {
+    "name": "Moved up to the row of the panel above, it goes above",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 12, 2], ["dispatch", 0, 2, 12, 3] ],
+    "moved": ["dispatch", 0, 0, 12, 3],
+    "expect": [ ["dispatch", 0, 0, 12, 3], ["orders", 0, 3, 12, 2] ]
+  },
+  {
+    "name": "Moved down to the row of the panel below, it goes below",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 12, 2], ["dispatch", 0, 2, 12, 3] ],
+    "moved": ["orders", 0, 2, 12, 2],
+    "expect": [ ["dispatch", 0, 0, 12, 3], ["orders", 0, 3, 12, 2] ]
+  },
+  {
+    "name": "Moved down by less than that, it floats back",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 12, 2], ["dispatch", 0, 2, 12, 3] ],
+    "moved": ["orders", 0, 1, 12, 2],
+    "expect": [ ["orders", 0, 0, 12, 2], ["dispatch", 0, 2, 12, 3] ]
+  },
+  {
+    "name": "A wide panel moved up sends every panel it covers down",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 4, 2], ["dispatch", 4, 0, 4, 2], ["returns", 8, 0, 4, 2], ["uptime", 0, 2, 12, 2] ],
+    "moved": ["uptime", 0, 0, 12, 2],
+    "expect": [ ["uptime", 0, 0, 12, 2], ["orders", 0, 2, 4, 2], ["dispatch", 4, 2, 4, 2], ["returns", 8, 2, 4, 2] ]
+  },
+  {
+    "name": "A panel moved into an empty column floats to the top of it",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 4], ["returns", 0, 4, 6, 2] ],
+    "moved": ["returns", 6, 4, 6, 2],
+    "expect": [ ["orders", 0, 0, 6, 4], ["returns", 6, 0, 6, 2] ]
+  },
+  {
+    "name": "A panel moved along an empty row keeps its row",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 4, 2], ["returns", 8, 0, 4, 2] ],
+    "moved": ["orders", 4, 0, 4, 2],
+    "expect": [ ["orders", 4, 0, 4, 2], ["returns", 8, 0, 4, 2] ]
+  },
+  {
+    "name": "A panel made wider sends the neighbour it now covers down",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 3], ["returns", 6, 0, 6, 3] ],
+    "moved": ["orders", 0, 0, 8, 3],
+    "expect": [ ["orders", 0, 0, 8, 3], ["returns", 6, 3, 6, 3] ]
+  },
+  {
+    "name": "A panel made taller sends the one below it further down",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 2], ["returns", 0, 2, 6, 2] ],
+    "moved": ["orders", 0, 0, 6, 5],
+    "expect": [ ["orders", 0, 0, 6, 5], ["returns", 0, 5, 6, 2] ]
+  },
+  {
+    "name": "A panel made shorter lets the one below it float up",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 4], ["returns", 0, 4, 6, 2] ],
+    "moved": ["orders", 0, 0, 6, 2],
+    "expect": [ ["orders", 0, 0, 6, 2], ["returns", 0, 2, 6, 2] ]
+  },
+  {
+    "name": "A panel floats only as far as a panel above it in any column it covers",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 2], ["dispatch", 6, 0, 6, 6], ["uptime", 0, 4, 12, 2] ],
+    "moved": null,
+    "expect": [ ["orders", 0, 0, 6, 2], ["dispatch", 6, 0, 6, 6], ["uptime", 0, 6, 12, 2] ]
+  },
+  {
+    "name": "Two panels on one place are taken apart",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 3], ["returns", 0, 0, 6, 2] ],
+    "moved": null,
+    "expect": [ ["orders", 0, 0, 6, 3], ["returns", 0, 3, 6, 2] ]
+  },
+  {
+    "name": "A panel outside the grid is brought in",
+    "columns": 12,
+    "panels": [ ["orders", 10, 0, 4, 2], ["uptime", -3, -2, 20, 0] ],
+    "moved": null,
+    "expect": [ ["uptime", 0, 0, 12, 1], ["orders", 8, 1, 4, 2] ]
+  },
+  {
+    "name": "A new panel takes its place and the rest make room",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 12, 2] ],
+    "moved": ["returns", 0, 0, 6, 2],
+    "expect": [ ["returns", 0, 0, 6, 2], ["orders", 0, 2, 12, 2] ]
+  },
+  {
+    "name": "A second panel with an id already seen is left out",
+    "columns": 12,
+    "panels": [ ["orders", 0, 0, 6, 2], ["orders", 6, 0, 6, 2] ],
+    "moved": null,
+    "expect": [ ["orders", 0, 0, 6, 2] ]
+  },
+  {
+    "name": "One column stacks every panel",
+    "columns": 1,
+    "panels": [ ["orders", 0, 0, 3, 1], ["returns", 2, 0, 1, 2] ],
+    "moved": null,
+    "expect": [ ["orders", 0, 0, 1, 1], ["returns", 0, 1, 1, 2] ]
+  }
+]

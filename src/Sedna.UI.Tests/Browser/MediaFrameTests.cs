@@ -141,4 +141,56 @@ public class MediaFrameTests : ScriptTestBase
         Assert.Equal("none", painted[^1][1]);
         Assert.Empty(errors);
     }
+
+    [Fact]
+    public void Only_the_frame_itself_sets_how_a_frame_lays_out()
+    {
+        // `.media-open > .media-frame { display: block }` took the frame's centring away
+        // wherever a picture opened large, so a `.file-icon` in a gallery tile sat in the
+        // corner and the tile became a link to avoid it. What holds a frame says nothing
+        // about how the frame lays out what it holds.
+        var css = Assets.StripComments(Assets.Css);
+        var rules = Regex.Matches(css, @"(?<sel>[^{}]+)\{(?<body>[^{}]*)\}")
+            .Where(m => Regex.IsMatch(m.Groups["body"].Value, @"(?<![\w-])(?:display|align-items|justify-content)\s*:"))
+            .SelectMany(m => m.Groups["sel"].Value.Split(',').Select(Assets.Squash))
+            .Where(sel => Regex.IsMatch(sel, @"\.media-frame(?![\w-])\s*$") && sel != ".media-frame")
+            .ToList();
+
+        Assert.True(rules.Count == 0, "These change how a .media-frame lays out what it holds: " + string.Join(" | ", rules));
+    }
+
+    [Fact]
+    public async Task A_frame_centres_a_file_icon_wherever_it_is()
+    {
+        if (NoBrowser) return;
+        const string Icon = """<span class="media-frame" data-f><span class="file-icon file-icon--lg file-icon--pdf"><i class="ri-file-pdf-2-line"></i></span></span>""";
+        var (page, errors) = await OpenStyled($"""
+            <div style="width:480px">
+              <div data-in="alone">{Icon}</div>
+              <button class="media-open" type="button" data-in="media-open">{Icon}</button>
+              <div class="gallery">
+                <button class="media-open" type="button" data-in="gallery button">{Icon}</button>
+                <a href="#" data-in="gallery link">{Icon}</a>
+              </div>
+              <div class="gallery gallery--tight">
+                <button class="media-open" type="button" data-in="tight gallery">{Icon}</button>
+              </div>
+            </div>
+            """);
+
+        var offsets = await page.EvaluateAsync<Dictionary<string, double>>("""
+            () => Object.fromEntries([...document.querySelectorAll('[data-in]')].map(holder => {
+                const f = holder.querySelector('[data-f]').getBoundingClientRect();
+                const i = holder.querySelector('.file-icon').getBoundingClientRect();
+                return [holder.dataset.in, Math.max(
+                    Math.abs((f.left + f.right) / 2 - (i.left + i.right) / 2),
+                    Math.abs((f.top + f.bottom) / 2 - (i.top + i.bottom) / 2))];
+            }))
+            """);
+
+        Assert.Equal(5, offsets.Count);
+        foreach (var (holder, off) in offsets)
+            Assert.True(off < 1, $"{Engine}: in {holder}, the file icon is {off:0.0}px off the frame's centre.");
+        Assert.Empty(errors);
+    }
 }

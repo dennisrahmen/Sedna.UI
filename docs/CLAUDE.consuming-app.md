@@ -96,7 +96,7 @@ must act on lives only in a toast: it goes inline, in an `.alert`, or in the not
 
 ### State the markup cannot express
 
-Three helpers render attributes from the app's own state — never a component:
+These helpers compute from the app's own state — never a component:
 
 - **A sorted table:** `SednaSort` — `aria-sort="@_sort.AriaSort("due")"` on each sortable header,
   `_sort = _sort.Toggle("due")` on its `.th-sort` button.
@@ -104,6 +104,12 @@ Three helpers render attributes from the app's own state — never a component:
 - **Tabs selected from C#:** `data-tabs="managed"` on the tablist, `@attributes="SednaTabs.Tab(key, _tab)"`
   on each tab and `SednaTabs.Panel(key, _tab)` on each panel. Never plain `data-tabs` with C# selection:
   two things would write `aria-selected`.
+- **A dashboard the reader arranges:** a `.panel-grid` with `data-drag-zone`, `data-drag-axis="cells"`
+  and `data-arrange` while arranging; each panel writes `--panel-x`, `--panel-y`, `--panel-w` and
+  `--panel-h` inline from the stored `SednaPanel`s, rendered in the order they come. `sedna-drop` and
+  `sedna-resize` carry `Panels`, the whole arrangement: store it and render it back. Settle anything
+  the app changes itself — a panel added, a stored layout loaded — with `SednaPanels.Arrange`, and never
+  write collision logic of your own.
 
 ### Tables, filters and pagers
 
@@ -205,7 +211,9 @@ rhythm and `.lede` stays tight under its heading; `--page-gap: 0` on `.page` tur
 and `.sedna-mt-0` flushes one child.
 
 Inside a `.card-body` the rhythm is yours, because its content is: a `.kv` stack is tight on purpose
-and a form is not. Reach for `.sedna-col` with a gap step rather than a margin per child. Sub-sections
+and a form is not. The bare paragraph, list, `<dl>` or heading that starts or ends a card body, a card
+section, a modal body, a drawer body or a slide brings no margin of its own, so it needs no
+`.sedna-mt-0` or `.sedna-mb-0`. Reach for `.sedna-col` with a gap step rather than a margin per child. Sub-sections
 of one body — details, then attachments, then history — are `.card-section`, which draws the hairline
 between them and spaces them with the card's own gutter; a second `.card-body` ends the first body's
 layout at the seam instead.
@@ -214,11 +222,33 @@ layout at the seam instead.
 
 Where a library class has one value an app reasonably wants to change, that value is a custom property
 on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-width`, `--modal-max-height`, `--drawer-width`,
-`--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
+`--scroll-max`, `--output-max-height`, `--skeleton-width` / `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
 `--prose-measure`, `--deck-height`, `--form-combo-panel-width`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
+
+The same goes for a border, a corner, a position or a padding written inline beside a library class.
+A panel that draws its own frame — `.code-block`, `.diff`, `.accordion`, `.pdf-frame`,
+`.media-player`, `.cal-agenda`, `.cal-month`, `.cal-week`, `.cal-timeline` — takes its `--flush`
+modifier inside a card, never `style="border: 0; border-radius: 0"`. A `.guard` positions the element
+it covers itself, so its card needs no `position: relative`; `.mochi-host--room` keeps clear the room a
+perch reaches into, so the page around Mochi needs no padding for it; and a `.palette` that is not a
+`<dialog>` draws the same panel, so it needs no card around it.
+
+The `hidden` attribute hides an element whatever library class it carries — an `.alert`, a `.toast`,
+a `.menu-item`. Hide with the attribute; never write a `[hidden]` rule for a library class.
+
+**Where a dropdown opens is a knob too.** `--panel-placement` — `block-end` (below, the default),
+`block-start` (above), `inline-end` or `inline-start` (beside) — places every panel anchored to a
+trigger: a `.menu` in `.menu-anchor`, a `.popover`, a `.form-combo-panel`, a mention list and a
+`.form-select`'s drop-down, each still turning round where its side has no room. Set it on the element
+the panel sits in or on anything above it — a bar pinned to the foot of a pane sets
+`style="--panel-placement: block-start"` once — never on the panel, and never write `position-area`
+for a library panel yourself.
+
+**A menu marks its current item itself.** `aria-current="true"` on the `.menu-item` that holds the value
+in use tints it and draws the tick; do not write a tick or a "Current" note of your own.
 
 ### Check the classes this app uses
 

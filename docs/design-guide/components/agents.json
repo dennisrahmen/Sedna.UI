@@ -30,7 +30,7 @@
       { "text": "Work with a known figure of done", "instead": "/progress#progress-bar" }
     ],
     "goals": [ "show-what-an-agent-is-doing", "highlight-what-the-agent-is-on", "show-an-answer-being-written", "mark-ai-generated-content", "show-how-sure-the-agent-is", "show-context-usage", "mark-ai-generated-values" ],
-    "stamp": "f465845d7387f848"
+    "stamp": "df5d76fd2b82bf15"
   },
   {
     "page": "/agent-avatar",
@@ -65,7 +65,7 @@
       { "text": "A guided tour of the page", "instead": "/spotlight" }
     ],
     "goals": [ "give-the-agent-a-character", "perch-a-mascot-on-the-page" ],
-    "stamp": "acf74daed4051f58"
+    "stamp": "a23a6b486527cacd"
   },
   {
     "page": "/agent-steps",
@@ -84,7 +84,7 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "210281ba4051885b"
+    "stamp": "11530660aa821c08"
   },
   {
     "page": "/agent-chat",
@@ -103,7 +103,7 @@
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "95657734e56a86ec"
+    "stamp": "b955e06a4b307153"
   },
   {
     "page": "/assistant-panels",
@@ -119,7 +119,7 @@
       { "text": "The conversation itself", "instead": "/agent-chat" }
     ],
     "goals": [ "dock-an-assistant", "keep-generated-work-open" ],
-    "stamp": "68a5daadab5aa3a1"
+    "stamp": "86bf5d7a7c78b94e"
   },
   {
     "page": "/voice",
@@ -135,6 +135,6 @@
       { "text": "A typed conversation with an agent", "instead": "/agent-chat" }
     ],
     "goals": [ "talk-to-an-agent", "pick-a-microphone" ],
-    "stamp": "ebff5ee90e0f7ca9"
+    "stamp": "060c11719760f2d9"
   }
 ]

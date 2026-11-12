@@ -91,6 +91,9 @@
     padding: var(--card-pad-block) var(--card-pad-inline);
 }
 .artifact-body--flush { padding: 0; }
+/* The block that starts or ends the body adds no margin to its padding, as in a card. */
+:where(.artifact-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.artifact-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 
 /* In a drawer the drawer is the frame: the artifact fills it, on its surface. */
 .drawer > .artifact {

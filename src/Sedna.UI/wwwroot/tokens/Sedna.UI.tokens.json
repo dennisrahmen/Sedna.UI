@@ -396,6 +396,7 @@
         "--page-banner-pad-block": "var(--space-5)",
         "--list-lines": "1",
         "--kv-key-width": "30%",
+        "--panel-placement": "block-end",
         "--agent-from": "var(--coral-500)",
         "--agent-to": "var(--orbit-400)",
         "--level": "initial",

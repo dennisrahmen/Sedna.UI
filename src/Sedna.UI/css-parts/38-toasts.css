@@ -149,9 +149,6 @@
 /* The semantic families again, carried on the leading rule and the icon. */
 
 
-/* The first toast of a new stack waits a moment with `hidden` (51-toast.js says why), and
-   `.toast` sets display of its own, which outranks the UA's [hidden]. */
-.toast[hidden] { display: none; }
 
 /* ── The pile, the limit, the swipe ─────────────────────────────────────────
    `.toast-stack--pile` lays every toast in one place: the newest, last in the source,

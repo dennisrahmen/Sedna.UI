@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "edc90d065b0ac12d"
+    "stamp": "ee1ce02e2cae707e"
   },
   {
     "page": "/table-editing",
@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "6f40e6f684f31757"
+    "stamp": "ff047719df9684b7"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "131175e9d2241ca8"
+    "stamp": "174c6e0c8e22d416"
   },
   {
     "page": "/stat",
@@ -104,7 +104,7 @@
       { "text": "A figure over time", "instead": "/chart" }
     ],
     "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
-    "stamp": "375b0d6655046e10"
+    "stamp": "6683b2db7078e5b1"
   },
   {
     "page": "/bars",
@@ -121,7 +121,7 @@
       { "text": "Which way a figure is going", "instead": "/sparkline" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period", "show-test-results", "show-a-password" ],
-    "stamp": "1d1e190b632029b6"
+    "stamp": "33ddbd4804d02f1f"
   },
   {
     "page": "/sparkline",
@@ -135,7 +135,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "show-a-key-figure", "show-a-trend" ],
-    "stamp": "98d04e2195c0eef6"
+    "stamp": "b6c05284575f20ac"
   },
   {
     "page": "/tracker",
@@ -152,7 +152,7 @@
       { "text": "Entries that each need words", "instead": "/timeline" }
     ],
     "goals": [ "show-status-history", "show-activity-over-time" ],
-    "stamp": "c17a7e2421693d10"
+    "stamp": "9f1315cdfe25718f"
   },
   {
     "page": "/calendar",
@@ -161,7 +161,8 @@
       { "page": "/calendar-agenda", "how": "The agenda is the same events as a list, and business hours, background events and dragging are added there." },
       { "page": "/popover", "how": "A day's markers and its +N more open a popover listing every event." },
       { "page": "/hover-hints", "how": "A pill too short for its title, a marker or a holiday carries its name in a data-tip." },
-      { "page": "/form-datetime#a-typeable-date-with-a-calendar", "how": "A typed date field beside a button that opens the date picker drawn on this grid." }
+      { "page": "/form-datetime#a-typeable-date-with-a-calendar", "how": "A typed date field beside a button that opens the date picker drawn on this grid." },
+      { "page": "/card", "how": "A month, a week or a timeline straight in a card takes its --flush modifier, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "A date typed into a form field", "instead": "/form-datetime" },
@@ -170,7 +171,7 @@
       { "text": "Activity per day with no events", "instead": "/tracker#a-calendar-of-activity" }
     ],
     "goals": [ "see-a-schedule", "pick-a-date" ],
-    "stamp": "cbdb0cbe3716f36a"
+    "stamp": "1ef6ee0907808cbf"
   },
   {
     "page": "/calendar-agenda",
@@ -179,14 +180,15 @@
       { "page": "/calendar", "how": "The month, week and timeline the agenda lists and the drags happen on." },
       { "page": "/drag-drop", "how": "Moving an event is the library's drag and drop: a drop event the app answers by changing the date." },
       { "page": "/popover", "how": "The rest of a busy day, opened from its +N more." },
-      { "page": "/utility-scroll#vertical", "how": "An agenda in a scroller with a height keeps each day's heading pinned." }
+      { "page": "/utility-scroll#vertical", "how": "An agenda in a scroller with a height keeps each day's heading pinned." },
+      { "page": "/card", "how": "An agenda straight in a card, or in a scroller in one, takes .cal-agenda--flush, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "Appointments on a grid of days", "instead": "/calendar" },
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "538b934a23f09dcf"
+    "stamp": "8276639ad2deea40"
   },
   {
     "page": "/pager",
@@ -221,7 +223,7 @@
       { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "plot-data", "recover-from-a-failed-load" ],
-    "stamp": "9448c2176f306964"
+    "stamp": "8333509257a86ef9"
   },
   {
     "page": "/graph",
@@ -239,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "fd3a8692f8996157"
+    "stamp": "c2d80b24c7629caa"
   },
   {
     "page": "/graph-layouts",
@@ -254,7 +256,7 @@
       { "text": "A strict parent and child hierarchy read in order", "instead": "/tree" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart" ],
-    "stamp": "129b1a989fb7d691"
+    "stamp": "2582e4ef5fa64d31"
   },
   {
     "page": "/graph-exploring",
@@ -270,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "79461dc8e2157322"
+    "stamp": "43cebeb4d863475f"
   },
   {
     "page": "/graph-plugins",
@@ -285,7 +287,7 @@
       { "text": "Reordering items in a list by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "explore-a-network", "draw-links-between-records" ],
-    "stamp": "92312fcceada6acc"
+    "stamp": "8bbef4167ab882bc"
   },
   {
     "page": "/graph-gallery",
@@ -300,7 +302,7 @@
       { "text": "A chart of figures", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
-    "stamp": "8265114642052604"
+    "stamp": "0a33d0f9e123334c"
   },
   {
     "page": "/graph-blazor",
@@ -315,7 +317,7 @@
       { "text": "A run whose steps change state", "instead": "/workflow-run" }
     ],
     "goals": [ "explore-a-network", "draw-links-between-records", "watch-a-run-live" ],
-    "stamp": "f6a6328a04500a6f"
+    "stamp": "b88dbda8e554df86"
   },
   {
     "page": "/workflow",
@@ -333,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "b616edd8cdc54e9b"
+    "stamp": "5d13d6d35f2cdbe8"
   },
   {
     "page": "/workflow-run",
@@ -348,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "d8022a1da995949a"
+    "stamp": "4797975e630e75d8"
   }
 ]

@@ -345,7 +345,7 @@
 
     <div class="card-body">
         <div class="output-head"><i class="ri-webhook-line"></i><span>What the automation sent</span></div>
-        <ul class="output output--columns output--dense" data-follow aria-label="Events from the automation" style="max-height: 168px">
+        <ul class="output output--columns output--dense" data-follow aria-label="Events from the automation" style="--output-max-height: 168px">
             @foreach (var e in _log)
             {
                 <li class="output-line"><span class="output-time">@e.At</span><span class="output-level">@e.Kind</span><span class="output-source">@e.Step</span><span class="output-msg">@e.What</span></li>

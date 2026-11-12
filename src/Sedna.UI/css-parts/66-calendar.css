@@ -64,6 +64,11 @@
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* Inside a surface that already draws the frame — a card, a drawer's flush body — the
+   calendar gives up its own border and corners so the frame's are the only ones, as
+   `.code-block--flush` does. `--flush` is the same on every framed calendar view:
+   `.cal-agenda`, `.cal-month`, `.cal-week` and `.cal-timeline`. */
+.cal-month--flush { border: none; border-radius: 0; }
 /* Each day column starts at a line named `day`, so a layer can say "from the first
    day" and mean it with or without a week-number column in front. */
 .cal-weekdays,
@@ -377,6 +382,8 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* In a card: see `.cal-month--flush`. */
+.cal-week--flush { border: none; border-radius: 0; }
 .cal-week-head,
 .cal-week-body {
     display: grid;
@@ -556,6 +563,8 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* In a card: see `.cal-month--flush`. */
+.cal-timeline--flush { border: none; border-radius: 0; }
 .cal-timeline-head,
 .cal-timeline-row {
     display: grid;

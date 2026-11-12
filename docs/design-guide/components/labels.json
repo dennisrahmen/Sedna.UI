@@ -16,7 +16,7 @@
       { "text": "A count on a navigation link", "instead": "/nav#nav-items" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "ec93f665cece56b9"
+    "stamp": "53c0f181c53de50b"
   },
   {
     "page": "/chip",
@@ -51,6 +51,6 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "5a59f47a4fc61ccf"
+    "stamp": "7ecd524098cbbe4d"
   }
 ]

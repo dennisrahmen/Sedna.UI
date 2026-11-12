@@ -271,8 +271,8 @@
     opacity: 0.5;
     vector-effect: non-scaling-stroke;
 }
-/* Under a stat's value, and in a table cell, where the row's height is the box. */
-.stat > .sparkline { margin-top: var(--space-2); }
+/* In a table cell, where the row's height is the box. Under a stat's value it takes the
+   stat's spacing for a drawing (54-stat.css). */
 .table td > .sparkline { width: 96px; height: 24px; }
 
 /* ── Against a previous value ───────────────────────────────────────────────

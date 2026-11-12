@@ -30,6 +30,11 @@
 .stat--sm .stat-value { font-size: var(--text-6); }
 /* A figure that is the point of the page — one tile on its own, a wall screen. */
 .stat--lg .stat-value { font-size: var(--text-10); }
+/* The value still loading is a `.skeleton-title` exactly as tall as the figure's line,
+   at each size, so the tile does not move when the number lands. */
+.stat > .skeleton-title { font-size: var(--text-9); --skeleton-height: round(1.2em, 2px); }
+.stat--sm > .skeleton-title { font-size: var(--text-6); }
+.stat--lg > .skeleton-title { font-size: var(--text-10); }
 
 /* A unit or denominator that should not compete with the number. */
 .stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
@@ -59,12 +64,18 @@
 
 /* ── Against a target ───────────────────────────────────────────────────────
    A number is rarely interesting on its own. `.stat-target` is the line that says what
-   it is being measured against — "62 of 80", "of a 120 cap" — and `.stat-bar` is the
+   it is being measured against — "62 of 80", "of a 120 cap" — and a `.progress` is the
    optional filled track under it.
 
-   The bar is a `.progress` with no extra rules: a stat against a target IS progress
+   The bar is a `.progress` with no class of its own: a stat against a target IS progress
    towards it, and a second track class would drift from the first. */
 .stat-target { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* A drawing under the words — the bar against a target, a sparkline of the trend, a
+   meter, a stacked bar, a tracker — stands a step further from the line above it than
+   the lines of text stand from each other, so the tile reads as its words, then its
+   picture. Every one the library draws, so none needs a margin utility in a stat. */
+.stat > :is(.progress, .meter, .stack-bar, .tracker, .sparkline) { margin-top: var(--space-2); }
 
 /* ── A stat that opens something ────────────────────────────────────────────
    For a tile that leads to the thing it counts. An <a>, so it is a real link. The

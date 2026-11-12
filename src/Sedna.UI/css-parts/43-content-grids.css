@@ -281,3 +281,93 @@
     .sedna-split--stack-lg > .split-resize { display: none; }
     .sedna-split--stack-lg.sedna-split--aside-first > .sedna-split-aside { order: -1; }
 }
+
+/* ── .panel-grid: panels on cells, placed by the app ───────────────────────
+   A dashboard whose panels each have a place of their own: a column, a row, a width
+   and a height in cells, set inline from the arrangement the app stores —
+   `style="--panel-x: 0; --panel-y: 0; --panel-w: 8; --panel-h: 4"`, counted from 0 at the
+   inline start and the top. `--panel-cols` (12) columns share the width; a row is
+   `--panel-row` (3rem) tall, and `--grid-gap` lies between them both ways. Nothing
+   flows: a panel stays where it is put, so the app keeps them from overlapping —
+   `sednaUi.panels.arrange` and `SednaPanels.Arrange` settle any arrangement into one
+   that does.
+
+   As a drag zone with `data-drag-axis="cells"`, the reader arranges it while it carries
+   `data-arrange`: a panel moves by its `[data-drag-handle]` and resizes by its
+   `.card-resize` handles, which show only then, over cells drawn faintly on the grid.
+   While a panel is carried the grid marks the cell it would land on, from the
+   `--panel-drop-*` the script writes; the other panels make room through
+   `--panel-preview-*`, which the script writes and clears and which are read before the
+   app's own values. 26-panels.js says how.
+
+   Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
+   their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
+.panel-grid {
+    --panel-cols: 12;
+    --panel-row: 3rem;
+    --grid-gap: var(--space-7);
+    --panel-drop-x: 0;
+    --panel-drop-y: 0;
+    --panel-drop-w: 1;
+    --panel-drop-h: 1;
+    container: panel-grid / inline-size;
+    display: grid;
+    grid-template-columns: repeat(var(--panel-cols), minmax(0, 1fr));
+    grid-auto-rows: var(--panel-row);
+    gap: var(--grid-gap);
+}
+:where(.panel-grid > *) {
+    --panel-x: 0;
+    --panel-y: 0;
+    --panel-w: 1;
+    --panel-h: 1;
+    --panel-preview-x: initial;
+    --panel-preview-y: initial;
+    --panel-preview-w: initial;
+    --panel-preview-h: initial;
+    --panel-stacked: 0;
+}
+.panel-grid > * {
+    grid-column: calc(var(--panel-preview-x, var(--panel-x)) + 1) / span var(--panel-preview-w, var(--panel-w));
+    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1) / span var(--panel-preview-h, var(--panel-h));
+    min-inline-size: 0;
+    min-block-size: 0;
+}
+/* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
+.panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
+
+/* Arranging: the cells, a tint each with the gap left clear — one tile per cell, tinted in
+   the quarter of a conic gradient that lies above and before the gap's corner. */
+.panel-grid[data-arrange] {
+    background-image: conic-gradient(
+        at calc(100% - var(--grid-gap)) calc(100% - var(--grid-gap)),
+        transparent 75%, var(--surface-soft) 0);
+    background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
+    border-radius: var(--radius-surface);
+}
+/* Not arranging, a panel is content: its own handles are not there. A handle of a zone
+   nested inside a panel — a list in it the reader reorders — is that zone's. */
+.panel-grid:not([data-arrange]) [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
+.panel-grid:not([data-arrange]) > * > [data-resize] { display: none; }
+
+/* The cell a carried panel would land on. */
+.panel-grid[data-drop-over]::before {
+    content: "";
+    grid-column: calc(var(--panel-drop-x) + 1) / span var(--panel-drop-w);
+    grid-row: calc(var(--panel-drop-y) + 1) / span var(--panel-drop-h);
+    border: 2px dashed var(--brand);
+    border-radius: var(--radius-surface);
+    background: var(--brand-tint);
+    pointer-events: none;
+}
+
+@container panel-grid (width < 560px) {
+    .panel-grid > * {
+        --panel-stacked: 1;
+        grid-column: span var(--panel-cols);
+        grid-row: auto / span var(--panel-h);
+        order: calc(var(--panel-y) * 1000 + var(--panel-x));
+    }
+    .panel-grid [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
+    .panel-grid > * > [data-resize] { display: none; }
+}
