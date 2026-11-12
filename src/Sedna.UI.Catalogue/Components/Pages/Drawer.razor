@@ -15,106 +15,112 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Drawer.Drawer" Title="From each edge" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open one.</strong> Each is a <code>&lt;dialog class="drawer"&gt;</code>
-        opened with <code>showModal()</code>, so it slides in from its edge, <kbd>Escape</kbd>
-        closes it, focus stays inside it, and <code>::backdrop</code> dims the page with no
-        <code>.drawer-scrim</code> in the markup at all. <code>.drawer--start</code> comes from the
-        other edge and <code>.sheet</code> from the bottom, with <code>.sheet-handle</code> inside
-        the header's own top padding; <code>.drawer-body</code> is the only scrolling part, and
-        <code>data-sheet</code> on a <code>&lt;dialog&gt;</code> opts the handle into the drag
-        (the script carries <code>.sheet--dragging</code> for its duration) — a close button is
-        still what makes a sheet dismissible.
-    </p>
-</CatExample>
+<CatGroup Title="Drawers">
+    <CatExample TExample="Examples.Drawer.Drawer" Title="From each edge" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open one.</strong> Each is a <code>&lt;dialog class="drawer"&gt;</code>
+            opened with <code>showModal()</code>, so it slides in from its edge, <kbd>Escape</kbd>
+            closes it, focus stays inside it, and <code>::backdrop</code> dims the page with no
+            <code>.drawer-scrim</code> in the markup at all. <code>.drawer--start</code> comes from the
+            other edge and <code>.sheet</code> from the bottom, with <code>.sheet-handle</code> inside
+            the header's own top padding; <code>.drawer-body</code> is the only scrolling part, and
+            <code>data-sheet</code> on a <code>&lt;dialog&gt;</code> opts the handle into the drag
+            (the script carries <code>.sheet--dragging</code> for its duration) — a close button is
+            still what makes a sheet dismissible.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Drawer.SnapPoints" Title="A sheet that rests at half height" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open it, then drag the handle.</strong> <code>data-sheet-snap="50%"</code>
-        beside <code>data-sheet</code> lists heights the sheet also rests at, each the share of the
-        sheet that shows; its full height is always one. It opens at the first one listed, a drag
-        lets go at the nearest &mdash; a flick goes on to the next in its direction &mdash; and a
-        drag down past the lowest closes it. The script writes <code>data-sheet-at</code> with the
-        share it rests at. Write the handle as a <code>&lt;button data-sheet-expand&gt;</code> with
-        an <code>aria-label</code> and it is the keyboard's way too: it steps to the next height up,
-        from the full one back to the first, and carries <code>aria-expanded</code> while the sheet
-        is full. With reduced motion it moves without sliding.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Drawer.RecordDetail" Title="Record detail" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open it.</strong> The commonest use: the row stays on screen behind the
+            panel, so the reader keeps their place in the list, and the header carries the
+            <a href="/avatar"><code>.list-row</code></a> lockup with <code>--flush</code> because the
+            header already supplies the padding. Everything that scrolls goes in
+            <code>.drawer-body</code>, and <code>aria-labelledby</code> points at the title rather than
+            the panel — the title is what a screen reader announces when focus enters.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Drawer.NonModal" Title="Beside the page, not over it" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open it, then use the page.</strong> <code>data-modeless</code> on a
-        <code>&lt;dialog class="drawer"&gt;</code> or a <code>.sheet</code> makes
-        <code>sednaUi.modal.show(id)</code> &mdash; and <code>ISednaUi.ShowModalAsync(id)</code>, with
-        its <code>CancellationToken</code>, and <code>ISednaOverlays.ShowAsync</code> &mdash; open it
-        with <code>show()</code>: no backdrop, no focus trap, and the page behind stays usable. It is
-        awaited the same way, and <kbd>Escape</kbd> with the focus inside it closes it, asking first
-        when it carries <code>data-close-guard</code>. Use it for a panel the reader works beside
-        &mdash; filters next to the list they filter.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Drawer.WideDrawer" Title="Custom width" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open it.</strong> A drawer is 420px, which is enough for a form and
+            too little for a picture or a wide table. Set <code>--drawer-width</code> on the drawer to
+            any length: <code>560px</code> here, or <code>max(420px, 33vw)</code> for one that grows
+            with the window. The viewport still caps it, so it is edge to edge on a phone. A <code>.sheet</code> takes the same knob, and its default is 480px.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Drawer.RecordDetail" Title="A record's detail" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open it.</strong> The commonest use: the row stays on screen behind the
-        panel, so the reader keeps their place in the list, and the header carries the
-        <a href="/avatar"><code>.list-row</code></a> lockup with <code>--flush</code> because the
-        header already supplies the padding. Everything that scrolls goes in
-        <code>.drawer-body</code>, and <code>aria-labelledby</code> points at the title rather than
-        the panel — the title is what a screen reader announces when focus enters.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.OverlayFromCsharp" Title="Opened from C#" Demo="ex-demo--block" Companion="Interop/ReassignOrder.razor">
+        <p>
+            <strong>Live — open it.</strong> <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code>
+            renders your component, opens the <code>&lt;dialog&gt;</code> it wrote and completes with
+            what it closed with — <code>Overlay.CloseAsync(result)</code>, or the default for
+            <kbd>Escape</kbd> and <code>CancelAsync()</code>. The component takes a cascading
+            <code>SednaOverlay</code> and puts its <code>Id</code> on the dialog; every element and word
+            on screen is still in your file, and the drawer is removed only once it has slid out. Place
+            <code>&lt;SednaOverlayHost /&gt;</code> once in the layout. The same works for a
+            <code>.modal</code> or a <code>.sheet</code>, and <code>ISednaUi.ShowModalAsync(id)</code>
+            opens any of the three when the dialog is already in the page.
+        </p>
+        <p>
+            <strong>The <code>&lt;dialog&gt;</code> has to be in the component's first render</strong>,
+            because it is opened as soon as the component has rendered once. Load data inside it,
+            behind a <a href="/skeleton"><code>.skeleton</code></a>. Use a nullable result, such as
+            <code>bool?</code>, where cancelled has to differ from a real <code>false</code>.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Drawer.WideDrawer" Title="A wider drawer" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open it.</strong> A drawer is 420px, which is enough for a form and
-        too little for a picture or a wide table. Set <code>--drawer-width</code> on the drawer to
-        any length: <code>560px</code> here, or <code>max(420px, 33vw)</code> for one that grows
-        with the window. The viewport still caps it, so it is edge to edge on a phone. A <code>.sheet</code> takes the same knob, and its default is 480px.
-    </p>
-</CatExample>
+<CatGroup Title="Sheets">
+    <CatExample TExample="Examples.Drawer.SnapPoints" Title="Half-height sheet" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open it, then drag the handle.</strong> <code>data-sheet-snap="50%"</code>
+            beside <code>data-sheet</code> lists heights the sheet also rests at, each the share of the
+            sheet that shows; its full height is always one. It opens at the first one listed, a drag
+            lets go at the nearest &mdash; a flick goes on to the next in its direction &mdash; and a
+            drag down past the lowest closes it. The script writes <code>data-sheet-at</code> with the
+            share it rests at. Write the handle as a <code>&lt;button data-sheet-expand&gt;</code> with
+            an <code>aria-label</code> and it is the keyboard's way too: it steps to the next height up,
+            from the full one back to the first, and carries <code>aria-expanded</code> while the sheet
+            is full. With reduced motion it moves without sliding.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Drawer.ActionSheet" Title="A sheet of actions" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open it.</strong> A sheet whose body is a <a href="/list">list</a> of
-        actions, the phone form of a <a href="/menu">menu</a>: each row is a
-        <code>&lt;button class="list-row"&gt;</code> filling the <code>&lt;li&gt;</code>, so the
-        whole row is the target and the count is announced. The body is
-        <code>.drawer-body--flush</code> so the rows meet the sheet's edges; reach for a sheet
-        rather than a menu when the actions need a second line each, or when a 36px menu row is a
-        small target on a touch screen.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Drawer.ActionSheet" Title="Action sheet" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open it.</strong> A sheet whose body is a <a href="/list">list</a> of
+            actions, the phone form of a <a href="/menu">menu</a>: each row is a
+            <code>&lt;button class="list-row"&gt;</code> filling the <code>&lt;li&gt;</code>, so the
+            whole row is the target and the count is announced. The body is
+            <code>.drawer-body--flush</code> so the rows meet the sheet's edges; reach for a sheet
+            rather than a menu when the actions need a second line each, or when a 36px menu row is a
+            small target on a touch screen.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Interop.OverlayFromCsharp" Title="A drawer as its own component" Demo="ex-demo--block" Companion="Interop/ReassignOrder.razor">
-    <p>
-        <strong>Live — open it.</strong> <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code>
-        renders your component, opens the <code>&lt;dialog&gt;</code> it wrote and completes with
-        what it closed with — <code>Overlay.CloseAsync(result)</code>, or the default for
-        <kbd>Escape</kbd> and <code>CancelAsync()</code>. The component takes a cascading
-        <code>SednaOverlay</code> and puts its <code>Id</code> on the dialog; every element and word
-        on screen is still in your file, and the drawer is removed only once it has slid out. Place
-        <code>&lt;SednaOverlayHost /&gt;</code> once in the layout. The same works for a
-        <code>.modal</code> or a <code>.sheet</code>, and <code>ISednaUi.ShowModalAsync(id)</code>
-        opens any of the three when the dialog is already in the page.
-    </p>
-    <p>
-        <strong>The <code>&lt;dialog&gt;</code> has to be in the component's first render</strong>,
-        because it is opened as soon as the component has rendered once. Load data inside it,
-        behind a <a href="/skeleton"><code>.skeleton</code></a>. Use a nullable result, such as
-        <code>bool?</code>, where cancelled has to differ from a real <code>false</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Beside the page">
+    <CatExample TExample="Examples.Drawer.NonModal" Title="Modeless drawer" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open it, then use the page.</strong> <code>data-modeless</code> on a
+            <code>&lt;dialog class="drawer"&gt;</code> or a <code>.sheet</code> makes
+            <code>sednaUi.modal.show(id)</code> &mdash; and <code>ISednaUi.ShowModalAsync(id)</code>, with
+            its <code>CancellationToken</code>, and <code>ISednaOverlays.ShowAsync</code> &mdash; open it
+            with <code>show()</code>: no backdrop, no focus trap, and the page behind stays usable. It is
+            awaited the same way, and <kbd>Escape</kbd> with the focus inside it closes it, asking first
+            when it carries <code>data-close-guard</code>. Use it for a panel the reader works beside
+            &mdash; filters next to the list they filter.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Drawer/DrawerScrimForm.html" Title="A drawer that is not modal">
-    <p>
-        <code>.drawer-scrim</code> and <code>.drawer-scrim--open</code> are for a drawer the reader
-        can deliberately leave open while working on the page behind it; its closed state is
-        <code>visibility: hidden</code> rather than a translate off-screen, or <kbd>Tab</kbd> walks
-        the reader into a panel they cannot see. A drawer <em>with</em> a scrim is modal in
-        behaviour, so make it a <code>&lt;dialog&gt;</code> instead and the dismissal, the focus
-        trap and <kbd>Escape</kbd> stop being yours to write.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Drawer/DrawerScrimForm.html" Title="Drawer scrim">
+        <p>
+            <code>.drawer-scrim</code> and <code>.drawer-scrim--open</code> are for a drawer the reader
+            can deliberately leave open while working on the page behind it; its closed state is
+            <code>visibility: hidden</code> rather than a translate off-screen, or <kbd>Tab</kbd> walks
+            the reader into a panel they cannot see. A drawer <em>with</em> a scrim is modal in
+            behaviour, so make it a <code>&lt;dialog&gt;</code> instead and the dismissal, the focus
+            trap and <kbd>Escape</kbd> stop being yours to write.
+        </p>
+    </CatSnippet>
+</CatGroup>

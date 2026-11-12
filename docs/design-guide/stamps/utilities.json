@@ -11,7 +11,7 @@
     "src/Sedna.UI/css-parts/80-utilities.css": "7018485e687d8612"
   },
   "/utility-safe-area": {
-    "src/Sedna.UI.Catalogue/Components/Pages/UtilitySafeArea.razor": "a7a4f60c9094ccd4",
+    "src/Sedna.UI.Catalogue/Components/Pages/UtilitySafeArea.razor": "3abc470d549908e7",
     "src/Sedna.UI.Catalogue/Examples/UtilitySafeArea/SafeArea.razor": "88c2966e83da7716",
     "src/Sedna.UI.Catalogue/Examples/UtilitySafeArea/TopAndSides.razor": "58079b59ee733f39",
     "src/Sedna.UI/css-parts/80-utilities.css": "7018485e687d8612"

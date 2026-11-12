@@ -18,125 +18,131 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.FormSelect.Dropdown" Title="The drop-down" Demo="ex-demo--block">
-    <p>A plain <code>&lt;select class="form-select"&gt;</code>. Nothing has to be added to the markup.</p>
-</CatExample>
+<CatGroup Title="Drop-downs">
+    <CatExample TExample="Examples.FormSelect.Dropdown" Title="Plain select" Demo="ex-demo--block">
+        <p>A plain <code>&lt;select class="form-select"&gt;</code>. Nothing has to be added to the markup.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.Placement" Title="A drop-down that opens upward" Demo="ex-demo--block">
-    <p>
-        <strong>Live.</strong> The drop-down opens below the select. In a bar at the foot of a pane,
-        <code>--panel-placement: block-start</code> on the bar opens it above, and
-        <code>inline-end</code> or <code>inline-start</code> beside it &mdash; the token every
-        anchored panel reads, with the <a href="/menu#where-it-opens">menu's</a> four values. A list
-        placed above or beside turns round where that side has no room; one below stays below and
-        scrolls inside itself.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.Placement" Title="List that opens upward" Demo="ex-demo--block">
+        <p>
+            <strong>Live.</strong> The drop-down opens below the select. In a bar at the foot of a pane,
+            <code>--panel-placement: block-start</code> on the bar opens it above, and
+            <code>inline-end</code> or <code>inline-start</code> beside it &mdash; the token every
+            anchored panel reads, with the <a href="/menu#where-it-opens">menu's</a> four values. A list
+            placed above or beside turns round where that side has no room; one below stays below and
+            scrolls inside itself.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.OptionContent" Title="Options with content" Demo="ex-demo--block">
-    <p>
-        An <code>&lt;option&gt;</code> may hold real markup &mdash; an icon, a second line, a trailing
-        code. <strong>Add a <code>&lt;button&gt;</code> holding
-        <code>&lt;selectedcontent&gt;&lt;/selectedcontent&gt;</code> as the select's first child</strong>
-        and the closed box shows a clone of whichever option is chosen. Leave it out and the browser
-        supplies its own, which runs every text node together. A browser without base
-        appearance — Safari — shows the option's whole text in the list and in the closed
-        box, so the <code>.option-sep</code> between label and hint is what keeps it
-        readable there: <code>Frankfurt · eu-central-1</code>. Base appearance hides it.
-    </p>
-    <p>
-        The clone is the browser's to make and Blazor's render does not trigger it, so
-        <code>Sedna.UI.js</code> repairs it on load and after every render &mdash;
-        <code>sednaUi.select.refresh()</code> on the <a href="/script">script page</a>. The submitted
-        value is the option's text run together and trimmed, so keep <code>value</code> explicit.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.OptionContent" Title="Options with content" Demo="ex-demo--block">
+        <p>
+            An <code>&lt;option&gt;</code> may hold real markup &mdash; an icon, a second line, a trailing
+            code. <strong>Add a <code>&lt;button&gt;</code> holding
+            <code>&lt;selectedcontent&gt;&lt;/selectedcontent&gt;</code> as the select's first child</strong>
+            and the closed box shows a clone of whichever option is chosen. Leave it out and the browser
+            supplies its own, which runs every text node together. A browser without base
+            appearance — Safari — shows the option's whole text in the list and in the closed
+            box, so the <code>.option-sep</code> between label and hint is what keeps it
+            readable there: <code>Frankfurt · eu-central-1</code>. Base appearance hides it.
+        </p>
+        <p>
+            The clone is the browser's to make and Blazor's render does not trigger it, so
+            <code>Sedna.UI.js</code> repairs it on load and after every render &mdash;
+            <code>sednaUi.select.refresh()</code> on the <a href="/script">script page</a>. The submitted
+            value is the option's text run together and trimmed, so keep <code>value</code> explicit.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.Groups" Title="Groups and separators" Demo="ex-demo--block">
-    <p>
-        Give a group a <code>&lt;legend&gt;</code> as well as its <code>label</code>. The attribute's
-        heading is drawn by the browser outside this document and cannot be themed &mdash; it is what a
-        fallback browser shows, and the <code>&lt;legend&gt;</code> is what this one does.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.Groups" Title="Groups and separators" Demo="ex-demo--block">
+        <p>
+            Give a group a <code>&lt;legend&gt;</code> as well as its <code>label</code>. The attribute's
+            heading is drawn by the browser outside this document and cannot be themed &mdash; it is what a
+            fallback browser shows, and the <code>&lt;legend&gt;</code> is what this one does.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormSelect.ListBox" Title="List box and multiple" Demo="ex-demo--block">
-    <p>
-        Two different controls the CSS treats alike: <code>multiple</code> takes several answers,
-        <code>size</code> on its own still takes one and merely shows the options without opening.
-    </p>
-    <p>
-        A chosen row is a brand <strong>tint</strong> as well as brand text, and the tick is on the
-        trailing edge. All three matter more here than in a dropdown: several rows are chosen at
-        once, so the set of them has to be visible as a set — and colour alone carries nothing for a
-        reader going by lightness. Pointing at a chosen row deepens the tint instead of replacing it
-        with the neutral hover, which used to erase the state under the pointer.
-    </p>
-</CatExample>
+<CatGroup Title="List boxes">
+    <CatExample TExample="Examples.FormSelect.ListBox" Title="List box and multiple" Demo="ex-demo--block">
+        <p>
+            Two different controls the CSS treats alike: <code>multiple</code> takes several answers,
+            <code>size</code> on its own still takes one and merely shows the options without opening.
+        </p>
+        <p>
+            A chosen row is a brand <strong>tint</strong> as well as brand text, and the tick is on the
+            trailing edge. All three matter more here than in a dropdown: several rows are chosen at
+            once, so the set of them has to be visible as a set — and colour alone carries nothing for a
+            reader going by lightness. Pointing at a chosen row deepens the tint instead of replacing it
+            with the neutral hover, which used to erase the state under the pointer.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.ListBoxGroups" Title="Sections in a list box" Demo="ex-demo--block">
-    <p>
-        The same <code>&lt;optgroup&gt;</code> plus <code>&lt;legend&gt;</code> as a dropdown, which
-        is worth more in a list box: the whole list is on screen, so the headings are what stop forty
-        rows reading as one column. Mind the arithmetic — <code>size</code> counts rows and a heading
-        is a row.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.ListBoxGroups" Title="Sections in a list box" Demo="ex-demo--block">
+        <p>
+            The same <code>&lt;optgroup&gt;</code> plus <code>&lt;legend&gt;</code> as a dropdown, which
+            is worth more in a list box: the whole list is on screen, so the headings are what stop forty
+            rows reading as one column. Mind the arithmetic — <code>size</code> counts rows and a heading
+            is a row.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.ListBoxContent" Title="Rows with content" Demo="ex-demo--block">
-    <p>
-        <code>.option-text</code> and <code>.option-hint</code>, exactly as in the dropdown above.
-        A list box keeps the second line where the closed box drops it, because there is no closed
-        box &mdash; which is the case for choosing a list box over a dropdown when each option needs
-        a sentence to tell it from its neighbour.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.ListBoxContent" Title="Rows with content" Demo="ex-demo--block">
+        <p>
+            <code>.option-text</code> and <code>.option-hint</code>, exactly as in the dropdown above.
+            A list box keeps the second line where the closed box drops it, because there is no closed
+            box &mdash; which is the case for choosing a list box over a dropdown when each option needs
+            a sentence to tell it from its neighbour.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.Transfer" Title="Moving rows between two lists" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; pick a group and press the arrow.</strong> For choosing a set out of a
-        long list, where a column of checkboxes is unreadable and a <code>multiple</code> select
-        alone never answers <em>what have I chosen so far</em>. The right-hand list is that answer,
-        and it is an ordinary <code>multiple</code> select, so a form posts it with no help.
-    </p>
-    <p>
-        <code>.transfer</code> is the three-column grid and <code>.transfer-actions</code> the column
-        of buttons; <code>data-transfer</code> plus <code>data-transfer-from</code> /
-        <code>-to</code> / <code>-add</code> / <code>-remove</code> is what
-        <code><a href="/script">sednaUi.transfer</a></code> reads. Both selects get a bubbling
-        <code>change</code> after every move &mdash; which is all a Blazor
-        <code>@@onchange</code> needs &mdash; and insertion is alphabetical only where the
-        destination was already sorted: re-ordering a list whose order means something would
-        destroy it silently.
-    </p>
-    <p>
-        Selection is left to the platform, and that is the point: a plain click takes one row and
-        drops the previous, Ctrl or Shift extends. Here selection is a <em>staging</em> act &mdash;
-        these are the ones I am about to move &mdash; and the answer is which list a row ends up in.
-        So nothing arrives selected and the destination's own selection is cleared: rows that landed
-        selected accumulated into a highlight the reader never made, and the next Remove acted on
-        all of it. The first row moved is scrolled into view instead.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.Transfer" Title="Moving rows between two lists" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; pick a group and press the arrow.</strong> For choosing a set out of a
+            long list, where a column of checkboxes is unreadable and a <code>multiple</code> select
+            alone never answers <em>what have I chosen so far</em>. The right-hand list is that answer,
+            and it is an ordinary <code>multiple</code> select, so a form posts it with no help.
+        </p>
+        <p>
+            <code>.transfer</code> is the three-column grid and <code>.transfer-actions</code> the column
+            of buttons; <code>data-transfer</code> plus <code>data-transfer-from</code> /
+            <code>-to</code> / <code>-add</code> / <code>-remove</code> is what
+            <code><a href="/script">sednaUi.transfer</a></code> reads. Both selects get a bubbling
+            <code>change</code> after every move &mdash; which is all a Blazor
+            <code>@@onchange</code> needs &mdash; and insertion is alphabetical only where the
+            destination was already sorted: re-ordering a list whose order means something would
+            destroy it silently.
+        </p>
+        <p>
+            Selection is left to the platform, and that is the point: a plain click takes one row and
+            drops the previous, Ctrl or Shift extends. Here selection is a <em>staging</em> act &mdash;
+            these are the ones I am about to move &mdash; and the answer is which list a row ends up in.
+            So nothing arrives selected and the destination's own selection is cleared: rows that landed
+            selected accumulated into a highlight the reader never made, and the next Remove acted on
+            all of it. The first row moved is scrolled into view instead.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormSelect.States" Title="Disabled and required" Demo="ex-demo--block">
-    <p>
-        A disabled <code>&lt;option&gt;</code> should say why in its own text, or it reads as a bug. A
-        <code>required</code> select needs an empty first option, or the first real one counts as an
-        answer the reader never gave.
-    </p>
-</CatExample>
+<CatGroup Title="States and sizes">
+    <CatExample TExample="Examples.FormSelect.States" Title="Disabled and required" Demo="ex-demo--block">
+        <p>
+            A disabled <code>&lt;option&gt;</code> should say why in its own text, or it reads as a bug. A
+            <code>required</code> select needs an empty first option, or the first real one counts as an
+            answer the reader never gave.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.Sizes" Title="Three sizes" Demo="ex-demo--block">
-    <p>
-        <code>.form-select--sm</code> and <code>-lg</code> &mdash; the select's own tier, not the
-        input's, because a painted caret needs its room back at every size.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.Sizes" Title="Three sizes" Demo="ex-demo--block">
+        <p>
+            <code>.form-select--sm</code> and <code>-lg</code> &mdash; the select's own tier, not the
+            input's, because a painted caret needs its room back at every size.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormSelect.InAToolbar" Title="Beside a filter field" Demo="ex-demo--block">
-    <p>
-        <code>.sedna-w-fit</code> is what keeps a filter dropdown the width of its value instead of the
-        width of the bar. The heights agree because the tiers do.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormSelect.InAToolbar" Title="Beside a filter field" Demo="ex-demo--block">
+        <p>
+            <code>.sedna-w-fit</code> is what keeps a filter dropdown the width of its value instead of the
+            width of the bar. The heights agree because the tiers do.
+        </p>
+    </CatExample>
+</CatGroup>

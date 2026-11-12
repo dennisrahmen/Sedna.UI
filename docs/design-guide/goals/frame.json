@@ -7,7 +7,7 @@
       { "page": "/frame#full-shell", "role": "primary" },
       { "page": "/nav", "role": "part" },
       { "page": "/topbar", "role": "part" },
-      { "page": "/structure#page-head", "role": "part" }
+      { "page": "/structure#title-and-actions", "role": "part" }
     ],
     "how": ".layout holds the .sidebar and a .content column, .content holds the .topbar and one .page, and .page is the only part that scrolls. The frame is markup written once in the app's layout, and every page is the content of .page.",
     "avoid": "Wrapping the frame in components of the app's own, which hides the markup every page relies on and lets two layouts drift apart."
@@ -18,7 +18,7 @@
     "phrases": [ "side nav", "sidebar menu", "navigation menu", "left navigation", "vertical navigation" ],
     "answer": [
       { "page": "/nav#nav-items", "role": "primary" },
-      { "page": "/nav#the-active-link", "role": "part" },
+      { "page": "/nav#active-link", "role": "part" },
       { "page": "/frame#full-shell", "role": "part" }
     ],
     "how": "A .nav in the .sidebar, one .nav-link per page with an icon and its label, sections under a .nav-section-label and folding groups as .nav-group. ActiveLink marks the current page with .active and aria-current.",
@@ -65,7 +65,7 @@
     "goal": "Let the user move between the main places from a tab bar on a phone",
     "phrases": [ "bottom navigation", "tab bar", "bottom nav", "mobile navigation bar", "bottom tabs" ],
     "answer": [
-      { "page": "/bottombar#bottom-bar", "role": "primary" },
+      { "page": "/bottombar#line-under-the-current-item", "role": "primary" },
       { "page": "/bottombar#on-a-phone-only", "role": "part" },
       { "page": "/bottombar#menu-first", "role": "part" },
       { "page": "/drawer", "role": "part" }
@@ -78,7 +78,7 @@
     "goal": "Let the user reach a record's main actions with a thumb on a phone",
     "phrases": [ "bottom app bar", "mobile action bar", "bottom toolbar", "thumb reach actions" ],
     "answer": [
-      { "page": "/bottombar#actions", "role": "primary" }
+      { "page": "/bottombar#actions-on-a-record", "role": "primary" }
     ],
     "how": "A .bottombar with role=\"toolbar\" and buttons rather than links, with no current item: the actions used most, and the rest behind the --end cell.",
     "avoid": "Mixing places and actions in one bar, so one press navigates and the next changes the record."
@@ -88,9 +88,9 @@
     "goal": "Let the user search the whole app from the header",
     "phrases": [ "global search", "header search", "site search", "search box in the header", "omnibox" ],
     "answer": [
-      { "page": "/topbar#header-search", "role": "primary" },
-      { "page": "/topbar#result-panel", "role": "part" },
-      { "page": "/topbar#a-panel-the-app-renders", "role": "part" },
+      { "page": "/search#search-box", "role": "primary" },
+      { "page": "/search#result-panel", "role": "part" },
+      { "page": "/search#results-the-app-renders", "role": "part" },
       { "page": "/page-recipes#search-results", "role": "part" }
     ],
     "how": "A .search at the start of the topbar whose data-search names a .search-panel the app writes once, outside the topbar, with a template per row; sednaUi.search ranks the app's registered index and fills it. A search of a database leaves data-search off and renders an anchored panel of its own.",
@@ -103,7 +103,7 @@
     "answer": [
       { "page": "/topbar#user-menu", "role": "primary" },
       { "page": "/menu#anchored-under-a-trigger", "role": "part" },
-      { "page": "/page-recipes#an-account-page", "role": "part" }
+      { "page": "/page-recipes#account-page", "role": "part" }
     ],
     "how": "A .user-widget at the end of the topbar, its trigger the avatar, the name and the e-mail, and a .menu under it with the account's links and Sign out after a separator.",
     "avoid": "Declaring role=\"menu\" on it: its items are ordinary links and buttons that tab."
@@ -134,8 +134,8 @@
     "goal": "Let the user know the connection to the server dropped and get it back",
     "phrases": [ "reconnect ui", "connection lost", "reconnecting banner", "circuit disconnected", "components-reconnect-modal" ],
     "answer": [
-      { "page": "/status-bar#the-status-bar-in-the-host-page", "role": "primary" },
-      { "page": "/status-bar#status-bar", "role": "part" },
+      { "page": "/status-bar#reconnect-rows-in-the-host-page", "role": "primary" },
+      { "page": "/status-bar#six-states", "role": "part" },
       { "page": "/common-pages#session-expired", "role": "part" }
     ],
     "how": "One .status-bar row per state inside #components-reconnect-modal in the host page; Blazor sets the state class on the container and the matching row shows. Resume and Retry are plain onclick handlers that fall back to a reload.",
@@ -146,7 +146,7 @@
     "goal": "Let the user know an unexpected error stopped the app and reload it",
     "phrases": [ "blazor-error-ui", "unhandled error bar", "unexpected error message", "error reload bar" ],
     "answer": [
-      { "page": "/status-bar#the-unhandled-error-bar", "role": "primary" },
+      { "page": "/status-bar#unhandled-error-bar", "role": "primary" },
       { "page": "/common-pages#something-went-wrong", "role": "part" }
     ],
     "how": "A .status-bar--error strip inside #blazor-error-ui with a Reload action and a dismiss button, both plain onclick handlers because the circuit is gone by then.",
@@ -170,7 +170,7 @@
     "goal": "Let the user know a service is new and still changing",
     "phrases": [ "beta banner", "phase banner", "preview notice", "alpha label" ],
     "answer": [
-      { "page": "/banner#phase", "role": "primary" },
+      { "page": "/banner#service-phase", "role": "primary" },
       { "page": "/badge", "role": "part" }
     ],
     "how": ".page-banner--phase with a .badge naming the phase, one line on what it means for the reader, and a link to tell the team. It has no tint, because it stays for the life of the phase.",
@@ -192,7 +192,7 @@
     "goal": "Let the user accept or reject cookies",
     "phrases": [ "cookie banner", "cookie consent", "gdpr banner", "cookie notice", "privacy consent" ],
     "answer": [
-      { "page": "/banner#asking", "role": "primary" },
+      { "page": "/banner#asking-for-consent", "role": "primary" },
       { "page": "/banner#after-choosing", "role": "part" }
     ],
     "how": "A neutral .page-banner first under the topbar until the reader chooses: accept and reject side by side and looking the same, and a link to the page that lists the cookies. After the choice the same region says what was chosen and where to change it.",
@@ -237,8 +237,8 @@
     "goal": "Let the user read a screen nobody operates from across the room",
     "phrases": [ "kiosk mode", "wall display", "tv dashboard", "information radiator", "big screen view" ],
     "answer": [
-      { "page": "/frame#a-wall-screen", "role": "primary" },
-      { "page": "/workflow-run#on-a-wall-screen-or-a-tablet", "role": "part" }
+      { "page": "/frame#wall-screens", "role": "primary" },
+      { "page": "/workflow-run#on-a-wall-screen-or-tablet", "role": "part" }
     ],
     "how": ".kiosk takes the whole viewport, never scrolls and scales one canvas about 1280px wide to every screen; .kiosk-strip, .kiosk-stage and .kiosk-side keep their areas, and the app moves whatever moves.",
     "avoid": "Putting a wall screen in the ordinary frame, whose sidebar and scrolling nobody there can use."
@@ -249,7 +249,7 @@
     "phrases": [ "responsive layout", "responsive sidebar", "mobile layout", "sidebar on small screens" ],
     "answer": [
       { "page": "/frame#narrow-screens", "role": "primary" },
-      { "page": "/frame#on-a-phone-the-document-scrolls", "role": "part" },
+      { "page": "/frame#document-scrolling-on-phones", "role": "part" },
       { "page": "/bottombar#on-a-phone-only", "role": "part" },
       { "page": "/nav#collapsed-rail", "role": "part" }
     ],
@@ -271,7 +271,7 @@
     "goal": "Let the user find the footer at the bottom of a short page",
     "phrases": [ "page footer", "sticky footer", "footer at the bottom", "build info footer" ],
     "answer": [
-      { "page": "/frame#a-footer-at-the-bottom-of-a-short-page", "role": "primary" },
+      { "page": "/frame#footer-on-a-short-page", "role": "primary" },
       { "page": "/empty-state#page-level", "role": "part" }
     ],
     "how": ".page--fill makes the page a flex column, so a .page-foot sits at the bottom of a short page and under the content of a long one, and a lone .empty-state--page centres between the top and the foot.",
@@ -282,7 +282,7 @@
     "goal": "Let the user sign in with an e-mail and a password or a passkey",
     "phrases": [ "login page", "sign-in form", "log in screen", "authentication page", "sign in with a passkey" ],
     "answer": [
-      { "page": "/page-recipes#a-sign-in-page", "role": "primary" },
+      { "page": "/page-recipes#sign-in-page", "role": "primary" },
       { "page": "/frame#auth-layout", "role": "part" }
     ],
     "how": "The content of .auth-layout: the brand, one .auth-card with the fields and Sign in, and the account line in .auth-foot. A failed attempt says so above the fields without naming the one that was wrong, and autocomplete lets a password manager fill both.",
@@ -307,7 +307,7 @@
     "answer": [
       { "page": "/common-pages#not-found", "role": "primary" },
       { "page": "/frame#full-shell", "role": "part" },
-      { "page": "/pager#breadcrumbs", "role": "part" }
+      { "page": "/breadcrumbs#breadcrumb-trail", "role": "part" }
     ],
     "how": "The frame stays, since the reader is signed in, and one .empty-state--page sits at the top of .page under the trail. It names the reference that was not found and offers to search for it.",
     "avoid": "Dropping the frame, which takes away the nav the reader would carry on with."
@@ -362,9 +362,9 @@
     "goal": "Let the user see at a glance how things stand and what needs them",
     "phrases": [ "overview page", "home dashboard", "dashboard page", "summary page", "home page" ],
     "answer": [
-      { "page": "/page-recipes#an-overview", "role": "primary" },
-      { "page": "/stat#a-row-of-tiles", "role": "part" },
-      { "page": "/grid#a-dashboard", "role": "part" }
+      { "page": "/page-recipes#overview", "role": "primary" },
+      { "page": "/stat#row-of-tiles", "role": "part" },
+      { "page": "/grid#two-independent-columns", "role": "part" }
     ],
     "how": "The figures first, as a .stat-row in one card; the charts on a .sedna-grid-24 under them; then the lists that send the reader somewhere, each panel ending in a link to the page it summarises. A control for the period goes in the page head.",
     "avoid": "A period control inside one card, which reads as that card's alone when it applies to the whole page."
@@ -374,11 +374,11 @@
     "goal": "Let the user find one record among many on a list page",
     "phrases": [ "table page", "list page", "index page", "crud list page" ],
     "answer": [
-      { "page": "/page-recipes#a-list-page", "role": "primary" },
+      { "page": "/page-recipes#list-page", "role": "primary" },
       { "page": "/toolbar#filters-and-a-count", "role": "part" },
-      { "page": "/table#with-a-toolbar-in-a-card", "role": "part" },
-      { "page": "/pager#pagination", "role": "part" },
-      { "page": "/chip#what-is-applied-under-the-toolbar", "role": "part" }
+      { "page": "/table#toolbar-in-a-card", "role": "part" },
+      { "page": "/pager#numbered-pages", "role": "part" },
+      { "page": "/chip#applied-filters", "role": "part" }
     ],
     "how": "Page head, toolbar, the chips of what is applied, the table in a card and the pager, each a child of .page so its rhythm spaces them. The toolbar's count and the pager agree.",
     "avoid": "Swapping the table for an empty page when a filter finds nothing: the table keeps its head and one .tr-empty row."
@@ -388,11 +388,11 @@
     "goal": "Let the user read one record and act on it",
     "phrases": [ "entity view", "detail page", "record overview", "item details page", "single record view" ],
     "answer": [
-      { "page": "/page-recipes#a-detail-page", "role": "primary" },
-      { "page": "/pager#breadcrumbs", "role": "part" },
-      { "page": "/tabs#a-strip-of-links", "role": "part" },
+      { "page": "/page-recipes#detail-page", "role": "primary" },
+      { "page": "/breadcrumbs#breadcrumb-trail", "role": "part" },
+      { "page": "/tabs#strip-of-links", "role": "part" },
       { "page": "/card#key-value-rows", "role": "part" },
-      { "page": "/grid#sedna-split", "role": "part" }
+      { "page": "/grid#main-column-and-aside", "role": "part" }
     ],
     "how": "A breadcrumb back to the list, a head naming the record with its state, an alert for the one thing to know before acting, tabs as links, and a .sedna-split with the fields and lines in the main column and the people and history in the aside.",
     "avoid": "Laying one record's fields out as a table, when they read top to bottom as .kv rows."
@@ -402,8 +402,8 @@
     "goal": "Let the user create something new or change it in a form of its own",
     "phrases": [ "edit page", "create page", "new record page", "crud form page", "add item page" ],
     "answer": [
-      { "page": "/page-recipes#a-create-or-edit-page", "role": "primary" },
-      { "page": "/form#a-whole-form", "role": "part" },
+      { "page": "/page-recipes#create-or-edit-page", "role": "primary" },
+      { "page": "/form#complete-form", "role": "part" },
       { "page": "/form-validation", "role": "part" },
       { "page": "/form-saving#actions-that-stay-in-reach", "role": "part" }
     ],
@@ -415,7 +415,7 @@
     "goal": "Let the user do a task that takes several decisions, one step at a time",
     "phrases": [ "wizard", "wizard page", "multi-step wizard", "setup wizard", "guided steps" ],
     "answer": [
-      { "page": "/page-recipes#a-step-in-a-longer-task", "role": "primary" },
+      { "page": "/page-recipes#step-in-a-longer-task", "role": "primary" },
       { "page": "/collections#steps", "role": "part" },
       { "page": "/form-flow#task-list", "role": "part" }
     ],
@@ -427,8 +427,8 @@
     "goal": "Let the user work through records one after another beside their list",
     "phrases": [ "two pane layout", "master detail", "master-detail layout", "inbox layout", "list detail view" ],
     "answer": [
-      { "page": "/page-recipes#a-list-beside-its-record", "role": "primary" },
-      { "page": "/grid#sedna-split", "role": "part" },
+      { "page": "/page-recipes#list-beside-its-record", "role": "primary" },
+      { "page": "/grid#main-column-and-aside", "role": "part" },
       { "page": "/list", "role": "part" }
     ],
     "how": "The list is the .sedna-split's aside and keeps its place while the record beside it changes, the open one marked aria-current. Each half is a card with its own head, so the record's actions plainly belong to it.",
@@ -440,7 +440,7 @@
     "phrases": [ "search page", "search results page", "results by type", "full search results" ],
     "answer": [
       { "page": "/page-recipes#search-results", "role": "primary" },
-      { "page": "/tabs#a-strip-of-links", "role": "part" },
+      { "page": "/tabs#strip-of-links", "role": "part" },
       { "page": "/toolbar", "role": "part" },
       { "page": "/pager", "role": "part" }
     ],
@@ -452,10 +452,10 @@
     "goal": "Let the user change how the app behaves for them",
     "phrases": [ "options page", "settings page", "preferences page", "user preferences" ],
     "answer": [
-      { "page": "/page-recipes#a-settings-page", "role": "primary" },
+      { "page": "/page-recipes#settings-page", "role": "primary" },
       { "page": "/page-navigation#on-this-page", "role": "part" },
       { "page": "/form#boxed-sections", "role": "part" },
-      { "page": "/form-saving#the-save-bar", "role": "part" }
+      { "page": "/form-saving#save-bar", "role": "part" }
     ],
     "how": "One boxed .form-section per subject beside a .page-toc that marks the one in view; what most readers never change folds away, and a save bar shows only while the form differs from what was saved.",
     "avoid": "A switch that waits for Save: a switch applies at once, and a choice that waits is a checkbox."
@@ -465,7 +465,7 @@
     "goal": "Let the user see and change what the app knows about them",
     "phrases": [ "account page", "profile page", "my account", "active sessions", "sign out other devices" ],
     "answer": [
-      { "page": "/page-recipes#an-account-page", "role": "primary" },
+      { "page": "/page-recipes#account-page", "role": "primary" },
       { "page": "/card#key-value-rows", "role": "part" },
       { "page": "/avatar", "role": "part" }
     ],

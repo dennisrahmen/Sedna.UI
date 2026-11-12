@@ -1,7 +1,7 @@
 @page "/pager"
 
 <CatHead Title="Pagination">
-    Moving through a long result set, and saying where the current page sits.
+    Moving through a long result set a page at a time. The trail that says where a page sits is on <a href="/breadcrumbs">breadcrumbs</a>.
 </CatHead>
 
 <div class="callout callout--info">
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Pager.Pagination" Title="Pagination" Demo="ex-demo--block">
+<CatExample TExample="Examples.Pager.Pagination" Title="Numbered pages" Demo="ex-demo--block">
     <p>
         Wrap it in <code>&lt;nav aria-label="Pagination"&gt;</code> and put
         <code>aria-current="page"</code> on the current one. The class colours it;
@@ -36,7 +36,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Pager.UnderATable" Title="Under the table it pages" Demo="ex-demo--block">
+<CatExample TExample="Examples.Pager.UnderATable" Title="Under its table" Demo="ex-demo--block">
     <p>
         The pager follows the card that holds the table, outside it, and keeps a toolbar's distance
         from it with no class or wrapper of its own &mdash; in a tab panel or a card body as much as
@@ -45,7 +45,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Pager.PaginationViewState" Title="When the page is view state" Demo="ex-demo--block">
+<CatExample TExample="Examples.Pager.PaginationViewState" Title="Pages as view state" Demo="ex-demo--block">
     <p>
         Where the page number is view state rather than a location — a Blazor Server table whose
         page, sort and filters live in the circuit — use
@@ -56,7 +56,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Interop.PagerFromCsharp" Title="Which numbers to show, from C#" Demo="ex-demo--block">
+<CatExample TExample="Examples.Interop.PagerFromCsharp" Title="Page numbers from C#" Demo="ex-demo--block">
     <p>
         <strong>Live — page through it.</strong> <code>SednaPager.Window(current, total)</code>
         returns the slots to render — page numbers and <code>.page-gap</code>s — so the markup stays
@@ -66,16 +66,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumbs" Demo="ex-demo--block">
-    <p>
-        For where a page sits when the sidebar cannot show it — a record three levels inside a
-        section; if the sidebar already highlights the page, a breadcrumb earns nothing. The last
-        item is the current page: mark it <code>aria-current="page"</code> and leave it a
-        <code>&lt;span&gt;</code>, not a link to where you already are.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Pager.PagerCompact" Title="Prev, next and the range" Demo="ex-demo--block">
+<CatExample TExample="Examples.Pager.PagerCompact" Title="Previous and next only" Demo="ex-demo--block">
     <p>
         For a result whose length is not known, and for a pager that has to live inside a
         <a href="/toolbar">toolbar</a> row. <code>.page-count</code> is what makes it usable without
@@ -85,11 +76,4 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Pager.BreadcrumbAbovePageHead" Title="Above the page head" Demo="ex-demo--block">
-    <p>
-        Where a breadcrumb belongs: above the heading, so the trail is read before the title it leads
-        to, with <a href="/structure"><code>.page-head</code></a> carrying the title, the supporting
-        line and the actions that apply to the whole page. One <code>&lt;h1&gt;</code> per page and
-        it is this one — the breadcrumb is navigation, not a heading level.
-    </p>
-</CatExample>
+

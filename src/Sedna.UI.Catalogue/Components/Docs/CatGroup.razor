@@ -1,0 +1,29 @@
+@* A topic on a long page: a heading, an optional sentence, and the examples that belong to it.
+   The page's contents nest the examples under the topic, the way .page-toc nests a section's
+   subsections, and the examples' headings drop a level so the outline matches what the reader
+   sees. The id is the title's slug, like an example's. *@
+<section class="cat-group">
+    <h2 id="@Anchor">@Title<CatAnchor Id="@Anchor" /></h2>
+    <CascadingValue Value="true" Name="@InGroupName" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
+</section>
+
+@code {
+    /// <summary>
+    /// The cascading name an example reads to know its heading is one level down.
+    /// </summary>
+    public const string InGroupName = "CatGroup";
+
+    /// <summary>
+    /// A short topic name in sentence case: "Splits", "Rows of fixed height".
+    /// </summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+
+    /// <summary>
+    /// One sentence about the topic, if it needs one, then the examples.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string Anchor => Slug.From(Title);
+}

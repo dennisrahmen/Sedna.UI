@@ -71,7 +71,7 @@ public class FormSavingTests(CatalogueAppFixture app)
         if (app.NoBrowser) return;
         var page = await OpenAt("/form-saving");
         var leave = page.Locator("#leave-unsaved");
-        var link = page.Locator("a[href='/form#where-the-actions-sit']").First;
+        var link = page.Locator("a[href='/form#action-placement']").First;
 
         await page.Locator("#uc-dock").FillAsync("Dock 4");
         await page.WaitForFunctionAsync($"() => document.querySelector('{Form}').hasAttribute('data-dirty')");
@@ -99,7 +99,7 @@ public class FormSavingTests(CatalogueAppFixture app)
         if (app.NoBrowser) return;
         var page = await OpenAt("/form-saving");
 
-        await page.Locator("a[href='/form#where-the-actions-sit']").First.ClickAsync();
+        await page.Locator("a[href='/form#action-placement']").First.ClickAsync();
         await AtPath(page, "/form");
 
         await page.Context.CloseAsync();

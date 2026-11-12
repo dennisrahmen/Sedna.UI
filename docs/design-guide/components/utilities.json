@@ -9,9 +9,9 @@
       { "page": "/avatar#sizes-and-fallbacks", "how": ".sedna-shrink-0 on an avatar or a badge that keeps its size beside text that gives way." }
     ],
     "notFor": [
-      { "text": "Placing panels on a page", "instead": "/grid#a-dashboard" },
-      { "text": "A main column beside an aside", "instead": "/grid#sedna-split" },
-      { "text": "A list of records with rules between the rows", "instead": "/list#list" },
+      { "text": "Placing panels on a page", "instead": "/grid#two-independent-columns" },
+      { "text": "A main column beside an aside", "instead": "/grid#main-column-and-aside" },
+      { "text": "A list of records with rules between the rows", "instead": "/list#rows-that-open-or-act" },
       { "text": "Filters and actions above a list", "instead": "/toolbar#filters-and-actions" }
     ],
     "goals": [],
@@ -22,12 +22,12 @@
     "useFor": "Changing the gap inside a row or a column, and adding or removing a top or bottom margin on one element.",
     "combineWith": [
       { "page": "/utility-layout#rows-and-columns", "how": "The gap steps override the 8px gap of a .sedna-row or a .sedna-col." },
-      { "page": "/frame#the-rhythm-between-page-sections", "how": ".sedna-mt-0 flushes one child of .page out of the page's own rhythm." }
+      { "page": "/frame#spacing-between-sections", "how": ".sedna-mt-0 flushes one child of .page out of the page's own rhythm." }
     ],
     "notFor": [
       { "text": "Padding inside a card", "instead": "/card#head-and-body" },
       { "text": "Space between the fields of a form", "instead": "/form#fields" },
-      { "text": "Columns of a layout", "instead": "/grid#sedna-grid" }
+      { "text": "Columns of a layout", "instead": "/grid#tracks-of-a-set-width" }
     ],
     "goals": [],
     "stamp": "c77527ecbbbd96bb"
@@ -42,7 +42,7 @@
     "notFor": [
       { "text": "A column of figures in a table", "instead": "/table#sortable-numeric-and-selected" },
       { "text": "The title and second line of a list row", "instead": "/list#line-count" },
-      { "text": "A long code block", "instead": "/structure#a-long-block-clamped" },
+      { "text": "A long code block", "instead": "/code-blocks#clamped-long-block" },
       { "text": "Prose the app did not write", "instead": "/prose" }
     ],
     "goals": [ "read-long-text-in-part" ],
@@ -52,13 +52,13 @@
     "page": "/utility-visibility",
     "useFor": "Text read by a screen reader and not drawn, a block that is present but unavailable or reloading, and what reaches paper.",
     "combineWith": [
-      { "page": "/button#a-name-that-is-read-but-not-shown", "how": ".visually-hidden finishes a button's name where the screen shows only a count or a short word." },
-      { "page": "/badge#the-ai-label-on-a-generated-value", "how": "The sparkle-only AI label is named by a .visually-hidden span." },
+      { "page": "/button#name-read-but-not-shown", "how": ".visually-hidden finishes a button's name where the screen shows only a count or a short word." },
+      { "page": "/badge#ai-label-on-a-value", "how": "The sparkle-only AI label is named by a .visually-hidden span." },
       { "page": "/card#head-and-body", "how": ".sedna-busy with aria-busy=\"true\" on a card whose content is reloading." }
     ],
     "notFor": [
-      { "text": "A button that cannot be used", "instead": "/button#a-disabled-button-that-says-why" },
-      { "text": "A region loading for the first time", "instead": "/skeleton#lines-and-a-title" },
+      { "text": "A button that cannot be used", "instead": "/button#disabled-with-a-reason" },
+      { "text": "A region loading for the first time", "instead": "/skeleton#lines-and-titles" },
       { "text": "A link that jumps past the navigation", "instead": "/frame#skip-link" }
     ],
     "goals": [ "print-a-page" ],
@@ -69,9 +69,9 @@
     "useFor": "A block that scrolls on its own instead of growing the page, down or sideways, with the cut edge faded.",
     "combineWith": [
       { "page": "/table#sticky-header", "how": "A scroller with a height around a .table--sticky keeps the headings in view while the rows scroll." },
-      { "page": "/structure#code-blocks", "how": "A log in a .code-block takes .sedna-scroll and its own --scroll-max." },
-      { "page": "/calendar-agenda#an-agenda-in-a-narrow-panel", "how": "An agenda in a scroller with a height keeps each day's heading pinned." },
-      { "page": "/drag-drop#scrolling-while-dragging", "how": "A row held near the edge of a scroller scrolls it while it is dragged." }
+      { "page": "/code-blocks#copyable-block", "how": "A log in a .code-block takes .sedna-scroll and its own --scroll-max." },
+      { "page": "/calendar-agenda#in-a-narrow-panel", "how": "An agenda in a scroller with a height keeps each day's heading pinned." },
+      { "page": "/drag-drop#scroll-while-dragging", "how": "A row held near the edge of a scroller scrolls it while it is dragged." }
     ],
     "notFor": [
       { "text": "A table wide because of its many columns", "instead": "/table#pinned-column" },
@@ -89,10 +89,10 @@
       { "page": "/card#head-and-body", "how": "The class goes on the element that carries the background, here the bar's card body, not on a wrapper." }
     ],
     "notFor": [
-      { "text": "The phone's bottom bar of places", "instead": "/bottombar#bottom-bar" },
+      { "text": "The phone's bottom bar of places", "instead": "/bottombar#line-under-the-current-item" },
       { "text": "The app's own frame", "instead": "/frame#full-shell" }
     ],
     "goals": [ "keep-a-bar-clear-of-the-notch" ],
-    "stamp": "738da14193898b46"
+    "stamp": "a09ea82f5e5bd030"
   }
 ]

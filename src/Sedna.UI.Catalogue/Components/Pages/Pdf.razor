@@ -5,7 +5,7 @@
     browser has no viewer. Nothing is loaded for it: no script and no PDF engine.
 </CatHead>
 
-<CatExample TExample="Examples.Pdf.Frame" Title="A PDF in the page" Demo="ex-demo--block">
+<CatExample TExample="Examples.Pdf.Frame" Title="Frame with a bar" Demo="ex-demo--block">
     <p>
         <code>.pdf-frame</code> holds a <code>.pdf-frame-bar</code> — the file's
         <code>.pdf-frame-name</code> and your actions, open in a new tab and download — and an
@@ -34,7 +34,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Pdf.InACard" Title="A PDF in a card" Demo="ex-demo--block">
+<CatExample TExample="Examples.Pdf.InACard" Title="Inside a card" Demo="ex-demo--block">
     <p>
         In a card the head names the document and carries its actions, so the frame needs no bar.
         <code>.pdf-frame--flush</code> gives up the frame's own border and corners, so the card's are
@@ -42,7 +42,7 @@
     </p>
 </CatExample>
 
-<CatSnippet Name="Pdf/Iframe.html" Title="An iframe, where every reader has a viewer">
+<CatSnippet Name="Pdf/Iframe.html" Title="Iframe on managed machines">
     <p>
         An <code>&lt;iframe&gt;</code> works in the same frame, but it has no fallback: where there is no
         viewer it downloads the file or stays empty. Use it only where you know every reader's browser —

@@ -1,20 +1,30 @@
 @* The contents of the page, beside it: the library's .page-toc, its links bare fragments so
    Sedna.UI.js moves the reader and focus to the heading, and data-spy marking the section in
    view. The layout renders it for every page with more than one section; the sections come
-   from PageContents, read from the page's own source. *@
+   from PageContents, read from the page's own source, and a CatGroup's examples are a list
+   inside its item, as .page-toc nests a section's subsections. *@
 @using Sedna.UI.Catalogue.Navigation
 
 <nav class="page-toc" aria-label="On this page" data-spy>
     <p class="page-toc-title">On this page</p>
-    <ol class="page-toc-list">
-        @foreach (var section in Sections)
-        {
-            <li><a class="page-toc-link" href="#@section.Id">@section.Title</a></li>
-        }
-    </ol>
+    @List(Sections)
 </nav>
 
 @code {
+    private static RenderFragment List(IReadOnlyList<PageSection> sections) =>
+        @<ol class="page-toc-list">
+            @foreach (var section in sections)
+            {
+                <li>
+                    <a class="page-toc-link" href="#@section.Id">@section.Title</a>
+                    @if (section.Children.Count > 0)
+                    {
+                        @List(section.Children)
+                    }
+                </li>
+            }
+        </ol>;
+
     /// The sections to list, in the order the page shows them.
     [Parameter, EditorRequired] public IReadOnlyList<PageSection> Sections { get; set; } = [];
 }

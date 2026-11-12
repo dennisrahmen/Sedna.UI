@@ -6,75 +6,81 @@
     reader can be &ldquo;on&rdquo; one of them, it is steps.
 </CatHead>
 
-<CatExample TExample="Examples.Timeline.Basic" Title="Timeline" Demo="ex-demo--block">
-    <p>
-        Two spans per entry: <code>.timeline-when</code> and <code>.timeline-what</code>.
-        <code>data-kind</code> — <code>go</code>, <code>warn</code>, <code>danger</code>,
-        <code>info</code> — colours a marker for an entry that mattered.
-    </p>
-</CatExample>
+<CatGroup Title="Markers">
+    <CatExample TExample="Examples.Timeline.Basic" Title="Dot markers" Demo="ex-demo--block">
+        <p>
+            Two spans per entry: <code>.timeline-when</code> and <code>.timeline-what</code>.
+            <code>data-kind</code> — <code>go</code>, <code>warn</code>, <code>danger</code>,
+            <code>info</code> — colours a marker for an entry that mattered.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Timeline.IconMarkers" Title="Icon markers" Demo="ex-demo--block">
-    <p>
-        A <code>.timeline-mark</code> child replaces the dot, for a record where the marker
-        <strong>is</strong> the information — a robot for &ldquo;the agent worked it&rdquo;, a lock
-        for &ldquo;it needs a person&rdquo;. The gutter is set by the <strong>list</strong>, so one
-        marked entry widens every row and the connector stays straight.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Timeline.IconMarkers" Title="Icon markers" Demo="ex-demo--block">
+        <p>
+            A <code>.timeline-mark</code> child replaces the dot, for a record where the marker
+            <strong>is</strong> the information — a robot for &ldquo;the agent worked it&rdquo;, a lock
+            for &ldquo;it needs a person&rdquo;. The gutter is set by the <strong>list</strong>, so one
+            marked entry widens every row and the connector stays straight.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Timeline.Live" Title="The entry still happening" Demo="ex-demo--block">
-    <p>
-        <code>data-state="current"</code> marks the head of a live record — a job still running, a
-        reply still being drafted.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Timeline.Thread" Title="Avatar markers" Demo="ex-demo--block">
+        <p>
+            <code>.timeline-mark--bare</code> drops the tile's chrome and hands the avatar the marker's
+            diameter, so the two cannot disagree about size. Do not put a <code>data-kind</code> on a
+            bare entry — the fill is painted over by whatever is in the marker;
+            <code>.avatar--muted</code> is the honest marker for an actor that is not a person.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Timeline.Rich" Title="Entries with a body" Demo="ex-demo--block">
-    <p>
-        <code>.timeline-body</code> is the supporting block under the headline — the error a retry
-        returned, the fields that changed, the chips for what it touched. A marker is opaque, and
-        <code>--timeline-surface</code> reads <code>--surface-here</code>, so a timeline in a card,
-        a modal or a drawer is right already; on a surface <em>your</em> app paints, set
-        <code>--timeline-surface</code> on the list.
-    </p>
-</CatExample>
+<CatGroup Title="Entries">
+    <CatExample TExample="Examples.Timeline.Live" Title="Entry in progress" Demo="ex-demo--block">
+        <p>
+            <code>data-state="current"</code> marks the head of a live record — a job still running, a
+            reply still being drafted.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Timeline.Aside" Title="Timestamps in a gutter" Demo="ex-demo--block">
-    <p>
-        <code>.timeline--aside</code> moves the &ldquo;when&rdquo; into a right-aligned column of
-        its own — reach for it when the reader scans <em>by time</em>, because a column of times can
-        be read down. The gutter is <code>--timeline-aside</code>; <strong>not for a narrow
-        column</strong>, where the entry text then wraps to three words a line.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Timeline.Rich" Title="Entries with a body" Demo="ex-demo--block">
+        <p>
+            <code>.timeline-body</code> is the supporting block under the headline — the error a retry
+            returned, the fields that changed, the chips for what it touched. A marker is opaque, and
+            <code>--timeline-surface</code> reads <code>--surface-here</code>, so a timeline in a card,
+            a modal or a drawer is right already; on a surface <em>your</em> app paints, set
+            <code>--timeline-surface</code> on the list.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Timeline.Grouped" Title="Breaks and a foot" Demo="ex-demo--block">
-    <p>
-        <code>.timeline-group</code> is a day, a release or a shift, and is an
-        <code>&lt;li&gt;</code> in the same list rather than a heading between two, so the record
-        stays one list. <code>.timeline-more</code> is the foot a record with no end needs; put a
-        link or a <code>.btn--ghost</code> inside it, because the <code>&lt;li&gt;</code> is a row,
-        not a control.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Timeline.Grouped" Title="Breaks and a foot" Demo="ex-demo--block">
+        <p>
+            <code>.timeline-group</code> is a day, a release or a shift, and is an
+            <code>&lt;li&gt;</code> in the same list rather than a heading between two, so the record
+            stays one list. <code>.timeline-more</code> is the foot a record with no end needs; put a
+            link or a <code>.btn--ghost</code> inside it, because the <code>&lt;li&gt;</code> is a row,
+            not a control.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Timeline.Thread" Title="Avatar markers" Demo="ex-demo--block">
-    <p>
-        <code>.timeline-mark--bare</code> drops the tile's chrome and hands the avatar the marker's
-        diameter, so the two cannot disagree about size. Do not put a <code>data-kind</code> on a
-        bare entry — the fill is painted over by whatever is in the marker;
-        <code>.avatar--muted</code> is the honest marker for an actor that is not a person.
-    </p>
-</CatExample>
+<CatGroup Title="Layout and size">
+    <CatExample TExample="Examples.Timeline.Aside" Title="Timestamps in a gutter" Demo="ex-demo--block">
+        <p>
+            <code>.timeline--aside</code> moves the &ldquo;when&rdquo; into a right-aligned column of
+            its own — reach for it when the reader scans <em>by time</em>, because a column of times can
+            be read down. The gutter is <code>--timeline-aside</code>; <strong>not for a narrow
+            column</strong>, where the entry text then wraps to three words a line.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Timeline.Tuning" Title="Sizing it" Demo="ex-demo--block">
-    <p>
-        Five variables size the component, and every offset is derived from them:
-        <code>--timeline-line</code> (the connector's width), <code>--timeline-dot</code> and
-        <code>--timeline-marker</code> (the two marker diameters), <code>--timeline-lead</code>
-        (the height of the row a marker centres in) and <code>--timeline-gap</code> (the space
-        under an entry). Keep a diameter <strong>odd</strong> against a 1px line, or the marker
-        centres on a half pixel and the circle antialiases into a smudge.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Timeline.Tuning" Title="Sizing variables" Demo="ex-demo--block">
+        <p>
+            Five variables size the component, and every offset is derived from them:
+            <code>--timeline-line</code> (the connector's width), <code>--timeline-dot</code> and
+            <code>--timeline-marker</code> (the two marker diameters), <code>--timeline-lead</code>
+            (the height of the row a marker centres in) and <code>--timeline-gap</code> (the space
+            under an entry). Keep a diameter <strong>odd</strong> against a 1px line, or the marker
+            centres on a half pixel and the circle antialiases into a smudge.
+        </p>
+    </CatExample>
+</CatGroup>

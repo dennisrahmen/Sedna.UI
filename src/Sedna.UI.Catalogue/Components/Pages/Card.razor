@@ -22,149 +22,157 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Card.HeadBody" Title="Head and body" Demo="ex-demo--block">
-    <p>Group multiple right-hand items in <code>.card-head-right</code> so they share a gap.</p>
-</CatExample>
+<CatGroup Title="Card parts">
+    <CatExample TExample="Examples.Card.HeadBody" Title="Head and body" Demo="ex-demo--block">
+        <p>Group multiple right-hand items in <code>.card-head-right</code> so they share a gap.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.BodyOnly" Title="Body only" Demo="ex-demo--block">
-    <p>Drop the head when the content names itself.</p>
-</CatExample>
+    <CatExample TExample="Examples.Card.BodyOnly" Title="Body only" Demo="ex-demo--block">
+        <p>Drop the head when the content names itself.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.BodyFlush" Title="Body without padding" Demo="ex-demo--block">
-    <p>
-        <code>.card-body--flush</code> drops the padding, for content drawn edge to edge inside the
-        card &mdash; a canvas, a chart, a map. It is the sibling of
-        <a href="/list"><code>.list-row--flush</code></a>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Card.BodyFlush" Title="Body without padding" Demo="ex-demo--block">
+        <p>
+            <code>.card-body--flush</code> drops the padding, for content drawn edge to edge inside the
+            card &mdash; a canvas, a chart, a map. It is the sibling of
+            <a href="/list"><code>.list-row--flush</code></a>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.Elevation" Title="A card in a card in a card" Demo="ex-demo--block">
-    <p>
-        <code>.card</code> takes <code>--surface-raised-1</code>, a card inside one takes
-        <code>-2</code> and a card inside that takes <code>-3</code>, with nothing in the markup
-        saying which level it is; a fourth level stays at the third. The levels resolve through the
-        theme's own base ramp, so <a href="/branding#switch">Graphite</a> takes all three neutral.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Card.Foot" Title="Head, body and foot" Demo="ex-demo--block">
+        <p>
+            <code>.card-foot</code> is the row a card ends with &mdash; the actions that decide what
+            happens to the content above them. Use it instead of a <code>.card-body</code> holding
+            <a href="/form"><code>.form-actions</code></a>, and put a note or a destructive action on
+            the far side with <code>.card-foot--split</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.Foot" Title="Head, body and foot" Demo="ex-demo--block">
-    <p>
-        <code>.card-foot</code> is the row a card ends with &mdash; the actions that decide what
-        happens to the content above them. Use it instead of a <code>.card-body</code> holding
-        <a href="/form"><code>.form-actions</code></a>, and put a note or a destructive action on
-        the far side with <code>.card-foot--split</code>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Card.FootStart" Title="Foot aligned to the start" Demo="ex-demo--block">
+        <p>
+            <code>.card-foot--start</code> aligns the row to the leading edge, for a work card rather
+            than a form: the primary action first and its secondaries after it, with one trailing control
+            pushed to the far end by <code>.sedna-push</code>. It is also what a status line in place of
+            the actions needs — right-aligned text reads as a mistake. Use <code>--split</code> only for
+            two groups, because it spreads whatever it holds across the whole card.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Card.FootStart" Title="A foot read left to right" Demo="ex-demo--block">
-    <p>
-        <code>.card-foot--start</code> aligns the row to the leading edge, for a work card rather
-        than a form: the primary action first and its secondaries after it, with one trailing control
-        pushed to the far end by <code>.sedna-push</code>. It is also what a status line in place of
-        the actions needs — right-aligned text reads as a mistake. Use <code>--split</code> only for
-        two groups, because it spreads whatever it holds across the whole card.
-    </p>
-</CatExample>
+<CatGroup Title="Inside a card">
+    <CatExample TExample="Examples.Card.Sections" Title="Sections inside one body" Demo="ex-demo--block">
+        <p>
+            <code>.card-section</code> divides sub-sections of one body with a hairline and the card's
+            own spacing. The rule is drawn only above a section that has something before it, so a
+            section you do not render takes its divider with it. Prefer it to a second
+            <code>.card-body</code>, which ends the first body's layout at the seam, and to a
+            <a href="/structure"><code>.divider</code></a>, whose margins are sized for a page.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.Sections" Title="Sections inside one body" Demo="ex-demo--block">
-    <p>
-        <code>.card-section</code> divides sub-sections of one body with a hairline and the card's
-        own spacing. The rule is drawn only above a section that has something before it, so a
-        section you do not render takes its divider with it. Prefer it to a second
-        <code>.card-body</code>, which ends the first body's layout at the seam, and to a
-        <a href="/structure"><code>.divider</code></a>, whose margins are sized for a page.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Card.Elevation" Title="Nested cards" Demo="ex-demo--block">
+        <p>
+            <code>.card</code> takes <code>--surface-raised-1</code>, a card inside one takes
+            <code>-2</code> and a card inside that takes <code>-3</code>, with nothing in the markup
+            saying which level it is; a fourth level stays at the third. The levels resolve through the
+            theme's own base ramp, so <a href="/branding#switch">Graphite</a> takes all three neutral.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.TableCard" Title="A table in a card" Demo="ex-demo--block">
-    <p>No <code>.card-body</code> &mdash; the table brings its own cell padding.</p>
-</CatExample>
+    <CatExample TExample="Examples.Card.TableCard" Title="Table in a card" Demo="ex-demo--block">
+        <p>No <code>.card-body</code> &mdash; the table brings its own cell padding.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.KeyValueRows" Title="Key/value rows" Demo="ex-demo--block">
-    <p>
-        <code>.kv</code> pushes label and value apart; the value takes the monospace token, so
-        numbers and IDs align down the column. A value that is prose &mdash; a name, a role, a
-        date &mdash; takes <code>.kv--text</code> on the row: the body font, broken only between
-        words. In a narrow row the key keeps its words, up to half the row, and the value wraps.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Card.KeyValueRows" Title="Key/value rows" Demo="ex-demo--block">
+        <p>
+            <code>.kv</code> pushes label and value apart; the value takes the monospace token, so
+            numbers and IDs align down the column. A value that is prose &mdash; a name, a role, a
+            date &mdash; takes <code>.kv--text</code> on the row: the body font, broken only between
+            words. In a narrow row the key keeps its words, up to half the row, and the value wraps.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.Guarded" Title="A guarded card" Demo="ex-demo--block">
-    <p>
-        A card the reader can read but must claim, accept or unlock before acting on.
-        <code>.guard</code> covers the element it is a child of &mdash; here the card, which the
-        library positions for it, so no <code>position: relative</code> is needed. Put
-        <code>inert</code> on the guarded content, or it stays in the tab order behind the scrim.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="Caveat about its content" Demo="ex-demo--block">
+        <p>
+            <code>.card-warning</code> pins an amber strip to the card's bottom edge &mdash; a stale
+            figure, a degraded source, a partial result.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Card.GuardedTall" Title="A guarded card over taller content" Demo="ex-demo--block">
-    <p>
-        The prompt is centred, not stretched: over a card taller than it, the guard card
-        hovers in the middle and the blurred content stays visible above and below it.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Card.Widgets" Title="Widgets the reader arranges" Demo="ex-demo--block">
-    <p>
-        <code>.card-head-lead</code> is a slot before the title for a grip or an icon; the title
-        then takes the room up to <code>.card-head-right</code>. <code>.card--folded</code> shows
-        the head alone — toggle it from your own button and say so with <code>aria-expanded</code>.
-        <code>.card--resizable</code> holds the height in <code>--card-height</code>, keeps the head
-        and scrolls the body; its <code>.card-resize</code> handle is a
-        <code>[data-resize="--card-height"]</code> separator the reader drags, moves with the arrow
-        keys and resets with <kbd>Home</kbd> or a double-click. <code>&#64;onsedna-resize</code> tells
-        you the height to keep. <code>--grid-max</code> on the <code>.sedna-grid</code> caps how
-        many columns the widgets take, by the grid's own width.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Card.ResizeCorner" Title="Wider, taller, or both from the corner" Demo="ex-demo--block">
-    <p>
-        <code>.card-resize--inline</code> is the handle on the side, writing <code>--card-width</code> with
-        <code>aria-orientation="vertical"</code>; <code>.card-resize--corner</code> names both properties,
-        the width first, and moves the two at once. The corner is for the pointer and is
-        <code>aria-hidden</code>: from the keyboard the reader has the two edges, and the corner keeps
-        to their <code>aria-valuemin</code> and <code>aria-valuemax</code> and keeps their
-        <code>aria-valuenow</code> current. A card is never wider than what holds it. The corner sends one
-        <code>sedna-resize</code> for each property it changed.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Card.ResizeHandleOutside" Title="A handle outside the card, in steps" Demo="ex-demo--block">
-    <p>
-        A handle resizes its parent unless <code>data-resize-on</code> names another element by id &mdash;
-        here the handle sits after the card, in markup the card does not own. <code>data-resize-step</code>
-        snaps a drag, and sets an arrow key's step, to that many pixels instead of 8: one log line.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Interop.CardFoldFromCsharp" Title="A ceiling, and a fold by dragging" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; drag a handle, or drag one nearly shut.</strong> A handle on
-        <code>--card-max-height</code> instead of <code>--card-height</code> makes the reader's height a
-        ceiling: the card follows its content and only scrolls past it, so a short list does not
-        leave a tall empty card, and a drag starts from the card's real height.
-        <code>data-resize-fold</code> on the handle is a threshold: dragged below it &mdash; or an
-        arrow key towards smaller at the minimum &mdash; the handle folds instead, puts the height back
-        and says <code>Folded</code> on <code>&#64;onsedna-resize</code>, and you toggle
-        <code>.card--folded</code>. A split pane's handle folds the same way.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Card.CaveatAboutCardSOwn" Title="A caveat about the card's own content" Demo="ex-demo--block">
-    <p>
-        <code>.card-warning</code> pins an amber strip to the card's bottom edge &mdash; a stale
-        figure, a degraded source, a partial result.
-    </p>
-</CatExample>
-
-<div class="callout callout--info">
-    <i class="ri-layout-row-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">Cards side by side</span>
-        In a row of cards, <code>.card--fill</code> lets the body take the spare height, so every foot
-        and <code>.card-warning</code> in the row ends on one line. It is shown on a whole dashboard
-        under <a href="/grid">Grid and layout</a>.
+    <div class="callout callout--info">
+        <i class="ri-layout-row-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">Cards side by side</span>
+            In a row of cards, <code>.card--fill</code> lets the body take the spare height, so every foot
+            and <code>.card-warning</code> in the row ends on one line. It is shown on a whole dashboard
+            under <a href="/grid">Grid and layout</a>.
+        </div>
     </div>
-</div>
+</CatGroup>
+
+<CatGroup Title="Guards">
+    <CatExample TExample="Examples.Card.Guarded" Title="Guarded card" Demo="ex-demo--block">
+        <p>
+            A card the reader can read but must claim, accept or unlock before acting on.
+            <code>.guard</code> covers the element it is a child of &mdash; here the card, which the
+            library positions for it, so no <code>position: relative</code> is needed. Put
+            <code>inert</code> on the guarded content, or it stays in the tab order behind the scrim.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Card.GuardedTall" Title="Over taller content" Demo="ex-demo--block">
+        <p>
+            The prompt is centred, not stretched: over a card taller than it, the guard card
+            hovers in the middle and the blurred content stays visible above and below it.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Resizing">
+    <CatExample TExample="Examples.Card.Widgets" Title="Widgets the reader arranges" Demo="ex-demo--block">
+        <p>
+            <code>.card-head-lead</code> is a slot before the title for a grip or an icon; the title
+            then takes the room up to <code>.card-head-right</code>. <code>.card--folded</code> shows
+            the head alone — toggle it from your own button and say so with <code>aria-expanded</code>.
+            <code>.card--resizable</code> holds the height in <code>--card-height</code>, keeps the head
+            and scrolls the body; its <code>.card-resize</code> handle is a
+            <code>[data-resize="--card-height"]</code> separator the reader drags, moves with the arrow
+            keys and resets with <kbd>Home</kbd> or a double-click. <code>&#64;onsedna-resize</code> tells
+            you the height to keep. <code>--grid-max</code> on the <code>.sedna-grid</code> caps how
+            many columns the widgets take, by the grid's own width.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Card.ResizeCorner" Title="Width, height or both" Demo="ex-demo--block">
+        <p>
+            <code>.card-resize--inline</code> is the handle on the side, writing <code>--card-width</code> with
+            <code>aria-orientation="vertical"</code>; <code>.card-resize--corner</code> names both properties,
+            the width first, and moves the two at once. The corner is for the pointer and is
+            <code>aria-hidden</code>: from the keyboard the reader has the two edges, and the corner keeps
+            to their <code>aria-valuemin</code> and <code>aria-valuemax</code> and keeps their
+            <code>aria-valuenow</code> current. A card is never wider than what holds it. The corner sends one
+            <code>sedna-resize</code> for each property it changed.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Card.ResizeHandleOutside" Title="Handle outside the card" Demo="ex-demo--block">
+        <p>
+            A handle resizes its parent unless <code>data-resize-on</code> names another element by id &mdash;
+            here the handle sits after the card, in markup the card does not own. <code>data-resize-step</code>
+            snaps a drag, and sets an arrow key's step, to that many pixels instead of 8: one log line.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.CardFoldFromCsharp" Title="Height ceiling and fold" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; drag a handle, or drag one nearly shut.</strong> A handle on
+            <code>--card-max-height</code> instead of <code>--card-height</code> makes the reader's height a
+            ceiling: the card follows its content and only scrolls past it, so a short list does not
+            leave a tall empty card, and a drag starts from the card's real height.
+            <code>data-resize-fold</code> on the handle is a threshold: dragged below it &mdash; or an
+            arrow key towards smaller at the minimum &mdash; the handle folds instead, puts the height back
+            and says <code>Folded</code> on <code>&#64;onsedna-resize</code>, and you toggle
+            <code>.card--folded</code>. A split pane's handle folds the same way.
+        </p>
+    </CatExample>
+</CatGroup>

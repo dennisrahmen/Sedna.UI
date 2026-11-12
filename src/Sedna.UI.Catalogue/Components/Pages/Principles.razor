@@ -1,0 +1,26 @@
+@page "/principles"
+@using Sedna.UI.Catalogue.Guide
+@inject DesignGuide Guide
+
+@* docs/design-guide/principles.md, rendered under the topics PrincipleTopics files its sections
+   in. The words are the file's, so the page, get_guide("principles") and GitHub say the same; the
+   Markdown comes out as this page's own elements, its tables as the library's table in a card. *@
+
+@* The lede is principles.md's opening paragraph. *@
+<CatHead Title="Principles" Tier="@CatHead.Site">
+    @((MarkupString)GuideMarkdown.InlineHtml(Guide.Intro))
+</CatHead>
+
+@* Laid out as a CatGroup would, written as its markup because every heading comes from data;
+   PageContents nests the same sections from PrincipleTopics. *@
+@foreach (var (topic, sections) in PrincipleTopics.Of(Guide))
+{
+    <section class="cat-group">
+        <h2 id="@Slug.From(topic)">@topic<CatAnchor Id="@Slug.From(topic)" /></h2>
+        @foreach (var section in sections)
+        {
+            <h3 id="@section.Id">@section.Title<CatAnchor Id="@section.Id" /></h3>
+            @((MarkupString)GuideMarkdown.ToHtml(section.Markdown))
+        }
+    </section>
+}

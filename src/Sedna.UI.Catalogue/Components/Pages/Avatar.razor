@@ -5,105 +5,113 @@
     the name on its own.
 </CatHead>
 
-<CatExample TExample="Examples.Avatar.Avatars" Title="Sizes and fallbacks" Demo="ex-demo--block">
-    <p>
-        Three sizes &mdash; <code>.avatar--sm</code>, the default and <code>.avatar--lg</code> &mdash;
-        holding an <code>&lt;img&gt;</code>, initials or a Remix Icon, in that order of preference;
-        <code>.avatar--muted</code> is for an actor with no person behind it, and
-        <code>.avatar--viz-1</code> to <code>.avatar--viz-6</code> give each person in a group
-        their own hue from the series tokens &mdash; set the colour with the class, not a
-        <code>style</code>, or the initials keep the brand ink and vanish on the fill.
-        <strong>An avatar is never the only carrier of a name:</strong> put the name in text beside
-        it, in an <code>alt</code>, or in a <code>.visually-hidden</code> span.
-    </p>
-</CatExample>
+<CatGroup Title="Sizes and groups">
+    <CatExample TExample="Examples.Avatar.Avatars" Title="Sizes and fallbacks" Demo="ex-demo--block">
+        <p>
+            Three sizes &mdash; <code>.avatar--sm</code>, the default and <code>.avatar--lg</code> &mdash;
+            holding an <code>&lt;img&gt;</code>, initials or a Remix Icon, in that order of preference;
+            <code>.avatar--muted</code> is for an actor with no person behind it, and
+            <code>.avatar--viz-1</code> to <code>.avatar--viz-6</code> give each person in a group
+            their own hue from the series tokens &mdash; set the colour with the class, not a
+            <code>style</code>, or the initials keep the brand ink and vanish on the fill.
+            <strong>An avatar is never the only carrier of a name:</strong> put the name in text beside
+            it, in an <code>alt</code>, or in a <code>.visually-hidden</code> span.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Avatar.AvatarGroup" Title="Group" Demo="ex-demo--block">
-    <p>
-        Overlapping, for &ldquo;these several people&rdquo;. The counter at the end is
-        <code>.avatar-more</code> and not an <code>.avatar</code> &mdash; it is a number, not one
-        more person.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Avatar.AvatarGroup" Title="Overlapping group" Demo="ex-demo--block">
+        <p>
+            Overlapping, for &ldquo;these several people&rdquo;. The counter at the end is
+            <code>.avatar-more</code> and not an <code>.avatar</code> &mdash; it is a number, not one
+            more person.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Avatar.AvatarPair" Title="Pair" Demo="ex-demo--block">
-    <p>
-        <code>.avatar-pair</code> stacks two people corner to corner inside one avatar's square, so
-        in a list a pair's name starts where a single person's does and the column of names stays
-        straight &mdash; an <code>.avatar-group</code> there would be as wide as its count.
-        <a href="/chat">Chat</a>'s conversation list uses it for a group. Put the size class on the
-        pair, not on the avatars inside it; at <code>.avatar--sm</code> one initial fits. Name the
-        pair once, on the wrapper, and hide the avatars inside from a screen reader.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Avatar.AvatarPair" Title="Pair in one square" Demo="ex-demo--block">
+        <p>
+            <code>.avatar-pair</code> stacks two people corner to corner inside one avatar's square, so
+            in a list a pair's name starts where a single person's does and the column of names stays
+            straight &mdash; an <code>.avatar-group</code> there would be as wide as its count.
+            <a href="/chat">Chat</a>'s conversation list uses it for a group. Put the size class on the
+            pair, not on the avatars inside it; at <code>.avatar--sm</code> one initial fits. Name the
+            pair once, on the wrapper, and hide the avatars inside from a screen reader.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Avatar.Presence" Title="Presence" Demo="ex-demo--block">
-    <p>
-        <code>.avatar-presence</code> around an avatar puts the state on its corner:
-        <code>--online</code>, <code>--away</code>, <code>--busy</code>,
-        <code>--do-not-disturb</code>, <code>--meeting</code> (in a meeting or a call),
-        <code>--presenting</code>, <code>--out-of-office</code>, <code>--offline</code> or
-        <code>--unknown</code>. <strong>Every state is a different shape</strong>, not only a
-        different colour, so it survives the colour-blind palette and forced colours &mdash; do not
-        restyle one into a plain dot. The mark grows with <code>.avatar--lg</code>. It is the
-        state's only carrier for the eye and none for a screen reader: name it, on the wrapper's
-        <code>aria-label</code> or in the text beside it.
-    </p>
-</CatExample>
+<CatGroup Title="Presence">
+    <CatExample TExample="Examples.Avatar.Presence" Title="Presence mark" Demo="ex-demo--block">
+        <p>
+            <code>.avatar-presence</code> around an avatar puts the state on its corner:
+            <code>--online</code>, <code>--away</code>, <code>--busy</code>,
+            <code>--do-not-disturb</code>, <code>--meeting</code> (in a meeting or a call),
+            <code>--presenting</code>, <code>--out-of-office</code>, <code>--offline</code> or
+            <code>--unknown</code>. <strong>Every state is a different shape</strong>, not only a
+            different colour, so it survives the colour-blind palette and forced colours &mdash; do not
+            restyle one into a plain dot. The mark grows with <code>.avatar--lg</code>. It is the
+            state's only carrier for the eye and none for a screen reader: name it, on the wrapper's
+            <code>aria-label</code> or in the text beside it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Avatar.PresenceLabel" Title="Presence as text, and last seen" Demo="ex-demo--block">
-    <p>
-        <code>.avatar-presence--label</code> puts the same mark in front of text: in a list row, a
-        people picker or a profile card, where the state is written out and can carry a time
-        &mdash; &ldquo;in a meeting until 11:30&rdquo;. Offline has nothing more to say than when
-        the person was last there, so say that instead, in a <code>&lt;time&gt;</code>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Avatar.PresenceLabel" Title="Presence in words" Demo="ex-demo--block">
+        <p>
+            <code>.avatar-presence--label</code> puts the same mark in front of text: in a list row, a
+            people picker or a profile card, where the state is written out and can carry a time
+            &mdash; &ldquo;in a meeting until 11:30&rdquo;. Offline has nothing more to say than when
+            the person was last there, so say that instead, in a <code>&lt;time&gt;</code>.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Avatar.Rings" Title="Rings" Demo="ex-demo--block">
-    <p>
-        <code>.avatar--ring-warn</code> says an administrator is acting as this person, and
-        <code>.avatar--ring</code>, in the brand colour, marks the selected person or the one
-        speaking. The ring stands a gap off the avatar and the gap is transparent, so it reads on a
-        card, on the page and over a selected row; it works at every size, on an
-        <code>.avatar-pair</code>, and under a presence mark. A ring is never the only carrier:
-        write &ldquo;Acting as&rdquo; beside it. Do not ring an avatar inside an
-        <code>.avatar-group</code>, whose cut-out clips it.
-    </p>
-</CatExample>
+<CatGroup Title="Rings">
+    <CatExample TExample="Examples.Avatar.Rings" Title="Ring tones" Demo="ex-demo--block">
+        <p>
+            <code>.avatar--ring-warn</code> says an administrator is acting as this person, and
+            <code>.avatar--ring</code>, in the brand colour, marks the selected person or the one
+            speaking. The ring stands a gap off the avatar and the gap is transparent, so it reads on a
+            card, on the page and over a selected row; it works at every size, on an
+            <code>.avatar-pair</code>, and under a presence mark. A ring is never the only carrier:
+            write &ldquo;Acting as&rdquo; beside it. Do not ring an avatar inside an
+            <code>.avatar-group</code>, whose cut-out clips it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Avatar.ActingAsRow" Title="Acting as, in a list" Demo="ex-demo--block">
-    <p>
-        The person being acted as, in an administrator's user list: the ring on the avatar and a
-        <a href="/badge"><code>.badge--warn</code></a> that says so in words.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Avatar.ActingAsRow" Title="Acting as in a list" Demo="ex-demo--block">
+        <p>
+            The person being acted as, in an administrator's user list: the ring on the avatar and a
+            <a href="/badge"><code>.badge--warn</code></a> that says so in words.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Avatar.ActingAsTopbar" Title="Acting as, in the topbar" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        While an administrator acts as somebody, the <a href="/topbar">user widget</a> shows that
-        person, with <code>.avatar--ring-warn</code> on <code>.user-avatar</code> and the badge in
-        place of the e-mail line &mdash; frame classes as they are, nothing added to the frame.
-        The menu says who is really signed in and offers the way back. On a phone the topbar
-        drops the name and the badge, so name the state on the trigger's
-        <code>aria-label</code> as well.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Avatar.ActingAsTopbar" Title="Acting as in the topbar" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            While an administrator acts as somebody, the <a href="/topbar">user widget</a> shows that
+            person, with <code>.avatar--ring-warn</code> on <code>.user-avatar</code> and the badge in
+            place of the e-mail line &mdash; frame classes as they are, nothing added to the frame.
+            The menu says who is really signed in and offers the way back. On a phone the topbar
+            drops the name and the badge, so name the state on the trigger's
+            <code>aria-label</code> as well.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Avatar.Lockup" Title="Name with a subtext" Demo="ex-demo--block">
-    <p>
-        An avatar, a name and a second line, with something trailing. There is no
-        <code>.person</code> class for this: it is <a href="/list"><code>.list-row</code></a>
-        with <code>.list-main</code>, <code>.list-title</code>, <code>.list-sub</code> and
-        <code>.list-meta</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Name and avatar">
+    <CatExample TExample="Examples.Avatar.Lockup" Title="Name with a subtext" Demo="ex-demo--block">
+        <p>
+            An avatar, a name and a second line, with something trailing. There is no
+            <code>.person</code> class for this: it is <a href="/list"><code>.list-row</code></a>
+            with <code>.list-main</code>, <code>.list-title</code>, <code>.list-sub</code> and
+            <code>.list-meta</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Avatar.LockupInATable" Title="In a table cell" Demo="ex-demo--block">
-    <p>
-        <code>.list-row--flush</code> drops the row's own padding for the places that already
-        provide it &mdash; a table cell, a card header, a form row. The access column is a
-        <a href="/menu"><code>.value-trigger</code></a>: use it where a
-        <code>&lt;select&gt;</code> would be wrong because the options need icons or a description.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Avatar.LockupInATable" Title="Name in a table cell" Demo="ex-demo--block">
+        <p>
+            <code>.list-row--flush</code> drops the row's own padding for the places that already
+            provide it &mdash; a table cell, a card header, a form row. The access column is a
+            <a href="/menu"><code>.value-trigger</code></a>: use it where a
+            <code>&lt;select&gt;</code> would be wrong because the options need icons or a description.
+        </p>
+    </CatExample>
+</CatGroup>

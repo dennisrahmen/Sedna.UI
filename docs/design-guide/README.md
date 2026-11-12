@@ -60,7 +60,7 @@ An array of the goals whose `primary` answer is a page in the group.
   "goal": "Let the user scan and compare many records in columns",
   "phrases": [ "data table", "data grid", "show records in a table" ],
   "answer": [
-    { "page": "/table#with-a-toolbar-in-a-card", "role": "primary" },
+    { "page": "/table#toolbar-in-a-card", "role": "primary" },
     { "page": "/toolbar", "role": "part" }
   ],
   "how": "One to three sentences: the composition, and why it works.",
@@ -69,7 +69,7 @@ An array of the goals whose `primary` answer is a page in the group.
 ```
 
 - `id` — kebab-case, unique across every file. It is the goal's address: `get_guide("compare-records")`
-  and `/design-guide#compare-records`.
+  and `/design-guide?group=data#compare-records`.
 - `goal` — starts `Let the user `, no full stop.
 - `phrases` — at least three, lowercase: what a developer or an agent would type. Plain words,
   synonyms, and the names other libraries use — "data grid", "snackbar", "dropdown", "modal",
@@ -144,7 +144,7 @@ against, and `--all` restamps everything — only after every entry has been rea
 | `DesignGuideTests.The_app_embeds_the_guide_on_disk` | the catalogue's embedded copy differs from these files |
 | `GuideReferenceTests` | a page or an anchor anywhere in the guide is not on the site |
 | `GuideStampTests` | a stamp does not match its sources |
-| `GuidePageTests` | a page does not show its entry, or the design guide page lacks a goal or a section |
+| `GuidePageTests` | a page does not show its entry, an area of the design guide page lacks one of its goals, or the principles page lacks a section |
 | `McpGuideTests` | a phrase or a goal's sentence does not bring its goal back as the first goal and among the first three hits of `search`, or `get_guide` and `get_page` disagree with the files |
 | `GuideSearchTests` (browser) | a phrase does not bring its goal back as the first goal in the topbar search, inside the rows its panel shows |
 

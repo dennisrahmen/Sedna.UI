@@ -16,115 +16,121 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.FormNumeric.Range" Title="Range" Demo="ex-demo--block">
-    <p>
-        <code>appearance: none</code> removes the whole native widget, track included, so both are
-        drawn here.
-    </p>
-    <p>
-        A range gives no readout. Put the value in text beside it with
-        <code>.form-range-value</code> — the thumb position is not a number, and it is unreadable to a
-        screen reader on its own. The readout is fixed-width and tabular, so the track does not shift
-        while dragging.
-    </p>
-</CatExample>
+<CatGroup Title="Ranges">
+    <CatExample TExample="Examples.FormNumeric.Range" Title="One thumb" Demo="ex-demo--block">
+        <p>
+            <code>appearance: none</code> removes the whole native widget, track included, so both are
+            drawn here.
+        </p>
+        <p>
+            A range gives no readout. Put the value in text beside it with
+            <code>.form-range-value</code> — the thumb position is not a number, and it is unreadable to a
+            screen reader on its own. The readout is fixed-width and tabular, so the track does not shift
+            while dragging.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.DualRange" Title="Two thumbs" Demo="ex-demo--block">
-    <p>
-        A span is two native ranges in one <code>.form-range-box</code>, the low end first. Each keeps
-        its own label, keyboard and form value; the box draws one track for both, with the fill
-        between the thumbs, and only the thumbs take the pointer. Give the two the same
-        <code>min</code>, <code>max</code> and <code>step</code>.
-    </p>
-    <p>
-        <code>Sedna.UI.js</code> keeps the low end at or below the high end. A thumb pushed past the
-        other is put back level with it before any binding reads the <code>input</code> event, and
-        nothing else is dispatched. It writes where each value stands as a ratio of the track into
-        <code>--range-start</code> and <code>--range-end</code> on the box; nothing is measured.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.DualRange" Title="Two thumbs" Demo="ex-demo--block">
+        <p>
+            A span is two native ranges in one <code>.form-range-box</code>, the low end first. Each keeps
+            its own label, keyboard and form value; the box draws one track for both, with the fill
+            between the thumbs, and only the thumbs take the pointer. Give the two the same
+            <code>min</code>, <code>max</code> and <code>step</code>.
+        </p>
+        <p>
+            <code>Sedna.UI.js</code> keeps the low end at or below the high end. A thumb pushed past the
+            other is put back level with it before any binding reads the <code>input</code> event, and
+            nothing else is dispatched. It writes where each value stands as a ratio of the track into
+            <code>--range-start</code> and <code>--range-end</code> on the box; nothing is measured.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.Bubble" Title="Value bubble" Demo="ex-demo--block">
-    <p>
-        <code>.form-range-bubble</code> is an <code>&lt;output&gt;</code> the app writes inside the box,
-        its <code>for</code> naming its range; it rides above that range's thumb from
-        <code>--range-at</code>. With <code>data-range-value</code> on the output, or on an element inside
-        it, the script writes the value there, so a unit around the number stays the app's. Leave the
-        attribute off where a binding writes the text — the two would fight over one node.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.Bubble" Title="Value bubble" Demo="ex-demo--block">
+        <p>
+            <code>.form-range-bubble</code> is an <code>&lt;output&gt;</code> the app writes inside the box,
+            its <code>for</code> naming its range; it rides above that range's thumb from
+            <code>--range-at</code>. With <code>data-range-value</code> on the output, or on an element inside
+            it, the script writes the value there, so a unit around the number stays the app's. Leave the
+            attribute off where a binding writes the text — the two would fight over one node.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.Ticks" Title="Ticks" Demo="ex-demo--block">
-    <p>
-        <code>.form-range-ticks</code> shows the range's own <code>&lt;datalist&gt;</code>: one
-        <code>&lt;option&gt;</code> per mark, spread evenly from <code>min</code> to <code>max</code>, its
-        text the label under the mark. An empty option is a mark without a label. Point the range's
-        <code>list</code> at it, and the platform snaps a dragged thumb to the marks as well.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.Ticks" Title="Ticks" Demo="ex-demo--block">
+        <p>
+            <code>.form-range-ticks</code> shows the range's own <code>&lt;datalist&gt;</code>: one
+            <code>&lt;option&gt;</code> per mark, spread evenly from <code>min</code> to <code>max</code>, its
+            text the label under the mark. An empty option is a mark without a label. Point the range's
+            <code>list</code> at it, and the platform snaps a dragged thumb to the marks as well.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.Vertical" Title="Vertical" Demo="ex-demo--block">
-    <p>
-        <code>.form-range-box--vertical</code> stands the box on end through its writing mode, so the
-        track, the fill, the ticks and the keyboard all turn with it. It runs from the bottom up in
-        either direction, <code>--range-length</code> tall; the labels and the bubble stay upright.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.Vertical" Title="Vertical" Demo="ex-demo--block">
+        <p>
+            <code>.form-range-box--vertical</code> stands the box on end through its writing mode, so the
+            track, the fill, the ticks and the keyboard all turn with it. It runs from the bottom up in
+            either direction, <code>--range-length</code> tall; the labels and the bubble stay upright.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.RangeStates" Title="Range states" Demo="ex-demo--block">
-    <p>
-        <code>disabled</code> dims the whole box. <code>aria-invalid="true"</code> and
-        <code>data-state="warn"</code> go on the input, where a screen reader reads them, and colour its
-        thumb and the fill as a rejected or an unusual field's edge; the message is the field's own
-        <code>.form-error</code> or <code>.form-warning</code>. <code>aria-readonly="true"</code> keeps the
-        value where the app put it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.RangeRtl" Title="Right to left" Demo="ex-demo--block">
+        <p>
+            A horizontal range runs from the right under <code>dir="rtl"</code>, and the fill, the bubbles
+            and the ticks follow it with no class of their own. The switch in the header turns any page.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormNumeric.RangeSizes" Title="Range sizes" Demo="ex-demo--block">
-    <p>
-        <code>.form-range--sm</code> and <code>.form-range--lg</code> size the thumb and the track, on a
-        range alone or in a box. In a span, size both inputs.
-    </p>
-</CatExample>
+<CatGroup Title="Range states and sizes">
+    <CatExample TExample="Examples.FormNumeric.RangeStates" Title="Range states" Demo="ex-demo--block">
+        <p>
+            <code>disabled</code> dims the whole box. <code>aria-invalid="true"</code> and
+            <code>data-state="warn"</code> go on the input, where a screen reader reads them, and colour its
+            thumb and the fill as a rejected or an unusual field's edge; the message is the field's own
+            <code>.form-error</code> or <code>.form-warning</code>. <code>aria-readonly="true"</code> keeps the
+            value where the app put it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.RangeRtl" Title="Right to left" Demo="ex-demo--block">
-    <p>
-        A horizontal range runs from the right under <code>dir="rtl"</code>, and the fill, the bubbles
-        and the ticks follow it with no class of their own. The switch in the header turns any page.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.RangeSizes" Title="Range sizes" Demo="ex-demo--block">
+        <p>
+            <code>.form-range--sm</code> and <code>.form-range--lg</code> size the thumb and the track, on a
+            range alone or in a box. In a span, size both inputs.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormNumeric.Stepper" Title="Stepper" Demo="ex-demo--block">
-    <p>
-        For a value adjusted one at a time. The native spinner is tiny, inconsistent between engines,
-        and invisible until hover in some — so it is removed and replaced with two real buttons, which
-        are also a usable size on touch.
-    </p>
-    <p>
-        Give each button an <code>aria-label</code>: <code>+</code> and <code>&minus;</code> are
-        announced as &ldquo;plus&rdquo; and &ldquo;minus&rdquo; without saying what of. Hiding the
-        native spinner needs both the Firefox property and the WebKit pseudo-element; neither implies
-        the other.
-    </p>
-</CatExample>
+<CatGroup Title="Steppers">
+    <CatExample TExample="Examples.FormNumeric.Stepper" Title="Plus and minus buttons" Demo="ex-demo--block">
+        <p>
+            For a value adjusted one at a time. The native spinner is tiny, inconsistent between engines,
+            and invisible until hover in some — so it is removed and replaced with two real buttons, which
+            are also a usable size on touch.
+        </p>
+        <p>
+            Give each button an <code>aria-label</code>: <code>+</code> and <code>&minus;</code> are
+            announced as &ldquo;plus&rdquo; and &ldquo;minus&rdquo; without saying what of. Hiding the
+            native spinner needs both the Firefox property and the WebKit pseudo-element; neither implies
+            the other.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.DisabledStates" Title="Disabled" Demo="ex-demo--block">
-    <p>
-        <code>disabled</code> on a range keeps its readout, so the value still reads. A stepper is
-        three controls: put <code>disabled</code> on the input and on both buttons, or the buttons
-        stay live beside a field that cannot change.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.DisabledStates" Title="Disabled controls" Demo="ex-demo--block">
+        <p>
+            <code>disabled</code> on a range keeps its readout, so the value still reads. A stepper is
+            three controls: put <code>disabled</code> on the input and on both buttons, or the buttons
+            stay live beside a field that cannot change.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormNumeric.Sizes" Title="Three sizes" Demo="ex-demo--block">
-    <p>
-        The stepper takes its tier from its children: <code>.btn--sm</code> on both buttons and
-        <code>.form-input--sm</code> on the input.
-    </p>
-    <p>
-        Every row here is one <a href="/concepts">control height</a>, so the stepper, the date field
-        and the button beside them agree at each size. Mixing tiers within a row is the one thing that
-        makes a filter bar look assembled by accident.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormNumeric.Sizes" Title="Stepper sizes" Demo="ex-demo--block">
+        <p>
+            The stepper takes its tier from its children: <code>.btn--sm</code> on both buttons and
+            <code>.form-input--sm</code> on the input.
+        </p>
+        <p>
+            Every row here is one <a href="/concepts">control height</a>, so the stepper, the date field
+            and the button beside them agree at each size. Mixing tiers within a row is the one thing that
+            makes a filter bar look assembled by accident.
+        </p>
+    </CatExample>
+</CatGroup>

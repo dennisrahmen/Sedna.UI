@@ -25,14 +25,14 @@
                 prompt, reading and writing this page's fields: write the
                 <code>&lt;dialog class="modal" id="…"&gt;</code> in the page and await
                 <code>ISednaUi.ShowModalAsync(id)</code>. See
-                <a href="/modal#opening-one-from-c">Opening one from C#</a>.
+                <a href="/modal#opened-from-c">Opened from C#</a>.
             </li>
             <li>
                 <strong>Its own <code>.razor</code> file</strong> — its own parameters, state, loading or
                 validation, or opened from more than one page: present it with
                 <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code>, with one
                 <code>&lt;SednaOverlayHost /&gt;</code> in the layout. See
-                <a href="/modal#a-modal-that-is-its-own-component">A modal that is its own component</a>.
+                <a href="/modal#component-of-its-own">Component of its own</a>.
             </li>
         </ul>
         Do not render a dialog component inline in a page and open it through an <code>@@ref</code>:
@@ -41,163 +41,173 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Modal.DialogModal" Title="A real modal" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open it.</strong> The whole panel is wrapped in
-        <code>&lt;form method="dialog"&gt;</code>, which is what makes every button in it close the
-        dialog with no JavaScript at all — <code>value</code> becomes
-        <code>dialog.returnValue</code>. Point <code>aria-labelledby</code> at the heading, or a
-        screen reader announces &ldquo;dialog&rdquo; and stops.
-    </p>
-</CatExample>
+<CatGroup Title="Opening a modal">
+    <CatExample TExample="Examples.Modal.DialogModal" Title="Native dialog" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open it.</strong> The whole panel is wrapped in
+            <code>&lt;form method="dialog"&gt;</code>, which is what makes every button in it close the
+            dialog with no JavaScript at all — <code>value</code> becomes
+            <code>dialog.returnValue</code>. Point <code>aria-labelledby</code> at the heading, or a
+            screen reader announces &ldquo;dialog&rdquo; and stops.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.ShowModalFromCsharp" Title="Opening one from C#" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open it.</strong> <code>ISednaUi.ShowModalAsync(id)</code> is the one line of
-        script the example above needs, without an inline <code>onclick</code> and without injecting
-        <code>IJSRuntime</code>. It completes when the dialog closes, with its
-        <code>returnValue</code> — what <code>CloseModalAsync(id, returnValue)</code> passed, or
-        <code>null</code> for <kbd>Escape</kbd> — so the result reads as ordinary C# control flow.
-        This route is for a dialog that is part of the page's own markup; a dialog with a file of its
-        own is the next example.
-    </p>
-    <p>
-        <strong>Both</strong> routes out call <code>CloseModalAsync</code>, and the form is a plain
-        <code>&lt;form&gt;</code> rather than <code>&lt;form method="dialog"&gt;</code>: closing the
-        dialog is that attribute's <em>default action</em>, and Blazor's event delegator
-        preventDefaults a <code>submit</code> with an <code>@@onsubmit</code> handler so the form
-        does not navigate. Submit and it is cancelled with it, so the dialog stays open and nothing is
-        logged. Handling it in C# is the honest shape here anyway — the work can fail, and a dialog
-        that has already closed cannot show why.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.ShowModalFromCsharp" Title="Opened from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open it.</strong> <code>ISednaUi.ShowModalAsync(id)</code> is the one line of
+            script the example above needs, without an inline <code>onclick</code> and without injecting
+            <code>IJSRuntime</code>. It completes when the dialog closes, with its
+            <code>returnValue</code> — what <code>CloseModalAsync(id, returnValue)</code> passed, or
+            <code>null</code> for <kbd>Escape</kbd> — so the result reads as ordinary C# control flow.
+            This route is for a dialog that is part of the page's own markup; a dialog with a file of its
+            own is the next example.
+        </p>
+        <p>
+            <strong>Both</strong> routes out call <code>CloseModalAsync</code>, and the form is a plain
+            <code>&lt;form&gt;</code> rather than <code>&lt;form method="dialog"&gt;</code>: closing the
+            dialog is that attribute's <em>default action</em>, and Blazor's event delegator
+            preventDefaults a <code>submit</code> with an <code>@@onsubmit</code> handler so the form
+            does not navigate. Submit and it is cancelled with it, so the dialog stays open and nothing is
+            logged. Handling it in C# is the honest shape here anyway — the work can fail, and a dialog
+            that has already closed cannot show why.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.ModalFromComponent" Title="A modal that is its own component" Demo="ex-demo--block" Companion="Interop/EditWebhook.razor">
-    <p>
-        <strong>Live — open it.</strong> An edit form, a wizard, anything with its own parameters,
-        state or validation is a component of its own, and
-        <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code> presents it: it renders the
-        component into the one <code>&lt;SednaOverlayHost /&gt;</code> in your layout, opens the
-        <code>&lt;dialog class="modal"&gt;</code> the component wrote, and completes with the typed
-        result it closed with — <code>Overlay.CloseAsync(result)</code>, or <code>null</code> for
-        <kbd>Escape</kbd> and <code>Overlay.CancelAsync()</code>. The page that opens it renders
-        nothing for it, and the component is removed when it closes, so every opening starts fresh.
-    </p>
-    <p>
-        The component takes a cascading <code>SednaOverlay</code>, puts its <code>Id</code> on the
-        <code>&lt;dialog&gt;</code>, and renders that dialog on its first render. The same call
-        presents a <a href="/drawer#a-drawer-as-its-own-component">drawer or a sheet</a>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.ModalFromComponent" Title="Component of its own" Demo="ex-demo--block" Companion="Interop/EditWebhook.razor">
+        <p>
+            <strong>Live — open it.</strong> An edit form, a wizard, anything with its own parameters,
+            state or validation is a component of its own, and
+            <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code> presents it: it renders the
+            component into the one <code>&lt;SednaOverlayHost /&gt;</code> in your layout, opens the
+            <code>&lt;dialog class="modal"&gt;</code> the component wrote, and completes with the typed
+            result it closed with — <code>Overlay.CloseAsync(result)</code>, or <code>null</code> for
+            <kbd>Escape</kbd> and <code>Overlay.CancelAsync()</code>. The page that opens it renders
+            nothing for it, and the component is removed when it closes, so every opening starts fresh.
+        </p>
+        <p>
+            The component takes a cascading <code>SednaOverlay</code>, puts its <code>Id</code> on the
+            <code>&lt;dialog&gt;</code>, and renders that dialog on its first render. The same call
+            presents a <a href="/drawer#opened-from-c">drawer or a sheet</a>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Modal.ConfirmDialog" Title="The panel" Demo="ex-demo--block">
-    <p>
-        The three rows on their own: a <code>.modal</code> is an ordinary bordered panel until
-        something puts it in the top layer.
-    </p>
-</CatExample>
+    <CatSnippet Name="Modal/BackdropForm.html" Title="Backdrop without a dialog">
+        <p>
+            <code>.modal-backdrop</code> dims and centres a panel inside the page instead, at z-index
+            500, for markup that cannot be a <code>&lt;dialog&gt;</code> — you are already inside a form
+            and cannot nest another, or the panel has to stay in the page's own stacking context. Then
+            <code>role="dialog"</code>, <code>aria-modal="true"</code>, <kbd>Escape</kbd>, keeping
+            <kbd>Tab</kbd> inside the panel, making the rest of the page unreachable and putting focus
+            back where it came from are all on you. A <a href="/drawer">drawer</a> sits below at
+            480/490, so a modal opened from inside one still covers it.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatExample TExample="Examples.Modal.DestructiveConfirm" Title="Destructive confirm" Demo="ex-demo--block">
-    <p>
-        Name the consequence in the body, and make the confirming button the destructive one. Put
-        Cancel first in source order — <code>showModal()</code> focuses the first focusable element,
-        so the safe choice is the one that takes focus. A dialog that is its own component and hands
-        back a typed result is <a href="/drawer#a-drawer-as-its-own-component"><code>ISednaOverlays</code></a>.
-    </p>
-</CatExample>
+<CatGroup Title="Panel and widths">
+    <CatExample TExample="Examples.Modal.ConfirmDialog" Title="Header, body and footer" Demo="ex-demo--block">
+        <p>
+            The three rows on their own: a <code>.modal</code> is an ordinary bordered panel until
+            something puts it in the top layer.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="A confirmation, from C#" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open it.</strong> A confirmation is a <code>.modal--sm</code> you write, not
-        something the library draws, so the question, the button labels and the language are
-        yours. Wrap it in <code>&lt;form method="dialog"&gt;</code> with a <code>value</code> on each
-        button and compare what <code>ShowModalAsync</code> returns with the one value that means
-        yes: <kbd>Escape</kbd> comes back as <code>null</code>. Leave <code>@@onsubmit</code> off
-        this form — a Blazor submit handler cancels the submit, and closing the dialog is that
-        submit's default action.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Modal.ScrollingBody" Title="Scrolling body" Demo="ex-demo--block">
+        <p>
+            <strong>The body scrolls on its own; there is nothing to add.</strong> The cap is
+            <code>--modal-max-height</code>, <code>calc(100dvh - 2 * var(--space-8))</code> by default
+            and 240px here so the demo fits the page. <strong>One thing is still markup:</strong> a body
+            that scrolls and holds nothing focusable needs <code>tabindex="0"</code> with a
+            <code>role</code> and a name, as this one has, so a keyboard reader can scroll it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.OverlayCloseGuard" Title="Asking before it closes" Demo="ex-demo--block" Companion="Interop/ReplyToOrder.razor">
-    <p>
-        <strong>Live — write something, then press <kbd>Escape</kbd>.</strong>
-        <code>data-close-guard</code> stops <kbd>Escape</kbd> closing a dialog that holds unsaved
-        work — and a swipe down on a <code>.sheet</code> — and raises <code>cancel</code> instead.
-        <code>@@oncancel</code> asks, then calls <code>Overlay.CancelAsync()</code>; point the close
-        button and Cancel at the same handler. It holds however often <kbd>Escape</kbd> is
-        pressed, which a dialog refusing <code>cancel</code> on its own does not: the browser gives
-        up on the refusal after a few presses in a row.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Modal.Widths" Title="Widths" Demo="ex-demo--block">
+        <p>
+            <code>.modal--sm</code> is 360px, <code>.modal--lg</code> 760px and <code>.modal--xl</code> 1140px,
+            against the default 480px; <code>.modal--full</code> takes the window's width less a margin at
+            each side and the safe-area insets. Pick by how wide the content has to be, not by how
+            important the dialog is. Any other width is <code>--modal-width</code> on the dialog —
+            <code>style="--modal-width: min(1200px, 96vw)"</code>; the panel never grows past the window.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Modal.ScrollingBody" Title="Scrolling body" Demo="ex-demo--block">
-    <p>
-        <strong>The body scrolls on its own; there is nothing to add.</strong> The cap is
-        <code>--modal-max-height</code>, <code>calc(100dvh - 2 * var(--space-8))</code> by default
-        and 240px here so the demo fits the page. <strong>One thing is still markup:</strong> a body
-        that scrolls and holds nothing focusable needs <code>tabindex="0"</code> with a
-        <code>role</code> and a name, as this one has, so a keyboard reader can scroll it.
-    </p>
-</CatExample>
+<CatGroup Title="Confirmations">
+    <CatExample TExample="Examples.Modal.DestructiveConfirm" Title="Destructive confirm" Demo="ex-demo--block">
+        <p>
+            Name the consequence in the body, and make the confirming button the destructive one. Put
+            Cancel first in source order — <code>showModal()</code> focuses the first focusable element,
+            so the safe choice is the one that takes focus. A dialog that is its own component and hands
+            back a typed result is <a href="/drawer#opened-from-c"><code>ISednaOverlays</code></a>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Modal.Widths" Title="Widths" Demo="ex-demo--block">
-    <p>
-        <code>.modal--sm</code> is 360px, <code>.modal--lg</code> 760px and <code>.modal--xl</code> 1140px,
-        against the default 480px; <code>.modal--full</code> takes the window's width less a margin at
-        each side and the safe-area insets. Pick by how wide the content has to be, not by how
-        important the dialog is. Any other width is <code>--modal-width</code> on the dialog —
-        <code>style="--modal-width: min(1200px, 96vw)"</code>; the panel never grows past the window.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.ConfirmFromCsharp" Title="Confirmation from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open it.</strong> A confirmation is a <code>.modal--sm</code> you write, not
+            something the library draws, so the question, the button labels and the language are
+            yours. Wrap it in <code>&lt;form method="dialog"&gt;</code> with a <code>value</code> on each
+            button and compare what <code>ShowModalAsync</code> returns with the one value that means
+            yes: <kbd>Escape</kbd> comes back as <code>null</code>. Leave <code>@@onsubmit</code> off
+            this form — a Blazor submit handler cancels the submit, and closing the dialog is that
+            submit's default action.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Modal.Deck" Title="A first-run deck" Demo="ex-demo--block">
-    <p>
-        A short sequence of slides in a modal, with progress dots and Back/Next — the other half of
-        first-run beside <a href="/spotlight">spotlight</a>, which needs a page the reader has
-        already seen. Sequencing stays yours, and the step element has to be <strong>keyed on the
-        step number</strong>, or Blazor reuses the node and the entrance animation stops after slide
-        one; <code>--deck-height</code> fixes the body's height so the footer does not jump between
-        slides. Make each dot a <code>&lt;button&gt;</code> that jumps to its step, mark the current
-        one with <code>aria-current="step"</code>, which is what
-        <code>.deck-dot--active</code> follows, and put the position in words as well — a row of
-        circles is not announced as one.
-    </p>
-</CatExample>
+<CatGroup Title="Closing">
+    <CatExample TExample="Examples.Interop.OverlayCloseGuard" Title="Asking before it closes" Demo="ex-demo--block" Companion="Interop/ReplyToOrder.razor">
+        <p>
+            <strong>Live — write something, then press <kbd>Escape</kbd>.</strong>
+            <code>data-close-guard</code> stops <kbd>Escape</kbd> closing a dialog that holds unsaved
+            work — and a swipe down on a <code>.sheet</code> — and raises <code>cancel</code> instead.
+            <code>@@oncancel</code> asks, then calls <code>Overlay.CancelAsync()</code>; point the close
+            button and Cancel at the same handler. It holds however often <kbd>Escape</kbd> is
+            pressed, which a dialog refusing <code>cancel</code> on its own does not: the browser gives
+            up on the refusal after a few presses in a row.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Modal.DeckProgress" Title="Dots that only show the position">
-    <p>
-        Where the dots are not controls &mdash; a setup the reader cannot skip through &mdash; they are
-        plain <code>&lt;span class="deck-dot"&gt;</code>s and <code>.deck-dot--active</code> marks the
-        current one, with the position in the group's accessible name.
-    </p>
-</CatExample>
+    <CatSnippet Name="Modal/ClosedByAny.html" Title="Closing on a backdrop click">
+        <p>
+            <code>closedby="any"</code> on the <code>&lt;dialog&gt;</code> closes it on a click on the
+            backdrop, as <kbd>Escape</kbd> does — the platform's own light dismiss, in every browser
+            this library supports, with nothing to script and no <code>target === dialog</code> test
+            to get wrong: the press and the release both have to land on the backdrop, so a drag that
+            starts in a field and ends beside the dialog closes nothing. It works the same on a
+            <a href="/drawer">drawer or a sheet</a>, modal or not, and on a
+            <a href="/media">lightbox</a>, where the stage beside the picture stands in for the backdrop.
+        </p>
+        <p>
+            With <code>data-close-guard</code> the click is a close request like <kbd>Escape</kbd>: the
+            dialog stays open and raises <code>cancel</code>, every time, so your
+            <code>&#64;oncancel</code> decides &mdash; save a pending note and close, or route it to the
+            same outcome as the Cancel button.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatSnippet Name="Modal/ClosedByAny.html" Title="Closed by a click beside it">
-    <p>
-        <code>closedby="any"</code> on the <code>&lt;dialog&gt;</code> closes it on a click on the
-        backdrop, as <kbd>Escape</kbd> does — the platform's own light dismiss, in every browser
-        this library supports, with nothing to script and no <code>target === dialog</code> test
-        to get wrong: the press and the release both have to land on the backdrop, so a drag that
-        starts in a field and ends beside the dialog closes nothing. It works the same on a
-        <a href="/drawer">drawer or a sheet</a>, modal or not, and on a
-        <a href="/media">lightbox</a>, where the stage beside the picture stands in for the backdrop.
-    </p>
-    <p>
-        With <code>data-close-guard</code> the click is a close request like <kbd>Escape</kbd>: the
-        dialog stays open and raises <code>cancel</code>, every time, so your
-        <code>&#64;oncancel</code> decides &mdash; save a pending note and close, or route it to the
-        same outcome as the Cancel button.
-    </p>
-</CatSnippet>
+<CatGroup Title="First-run decks">
+    <CatExample TExample="Examples.Modal.Deck" Title="Slides with progress dots" Demo="ex-demo--block">
+        <p>
+            A short sequence of slides in a modal, with progress dots and Back/Next — the other half of
+            first-run beside <a href="/spotlight">spotlight</a>, which needs a page the reader has
+            already seen. Sequencing stays yours, and the step element has to be <strong>keyed on the
+            step number</strong>, or Blazor reuses the node and the entrance animation stops after slide
+            one; <code>--deck-height</code> fixes the body's height so the footer does not jump between
+            slides. Make each dot a <code>&lt;button&gt;</code> that jumps to its step, mark the current
+            one with <code>aria-current="step"</code>, which is what
+            <code>.deck-dot--active</code> follows, and put the position in words as well — a row of
+            circles is not announced as one.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Modal/BackdropForm.html" Title="Without a dialog">
-    <p>
-        <code>.modal-backdrop</code> dims and centres a panel inside the page instead, at z-index
-        500, for markup that cannot be a <code>&lt;dialog&gt;</code> — you are already inside a form
-        and cannot nest another, or the panel has to stay in the page's own stacking context. Then
-        <code>role="dialog"</code>, <code>aria-modal="true"</code>, <kbd>Escape</kbd>, keeping
-        <kbd>Tab</kbd> inside the panel, making the rest of the page unreachable and putting focus
-        back where it came from are all on you. A <a href="/drawer">drawer</a> sits below at
-        480/490, so a modal opened from inside one still covers it.
-    </p>
-</CatSnippet>
+    <CatExample TExample="Examples.Modal.DeckProgress" Title="Dots that only show position">
+        <p>
+            Where the dots are not controls &mdash; a setup the reader cannot skip through &mdash; they are
+            plain <code>&lt;span class="deck-dot"&gt;</code>s and <code>.deck-dot--active</code> marks the
+            current one, with the position in the group's accessible name.
+        </p>
+    </CatExample>
+</CatGroup>

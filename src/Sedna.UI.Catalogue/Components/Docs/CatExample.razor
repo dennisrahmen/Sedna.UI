@@ -7,9 +7,15 @@
 @typeparam TExample where TExample : IComponent
 
 <section class="cat-ex" data-example>
-    <h2 id="@Anchor">
-        <CatTitle Text="@Title" /><CatAnchor Id="@Anchor" />
-    </h2>
+    @* Inside a CatGroup the example is a subsection, one heading level down. *@
+    @if (InGroup)
+    {
+        <h3 id="@Anchor">@Title<CatAnchor Id="@Anchor" /></h3>
+    }
+    else
+    {
+        <h2 id="@Anchor">@Title<CatAnchor Id="@Anchor" /></h2>
+    }
     @ChildContent
     @if (Shell is null && !AuthShell)
     {
@@ -98,7 +104,9 @@
 
     private string? CompanionFile => Companion is null ? null : Path.GetFileName(Companion);
 
-    private string Anchor => Slug.From(CatTitle.Plain(Title));
+    [CascadingParameter(Name = CatGroup.InGroupName)] private bool InGroup { get; set; }
+
+    private string Anchor => Slug.From(Title);
 
     private string Source => ExampleSource.For(typeof(TExample));
 

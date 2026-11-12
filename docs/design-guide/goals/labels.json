@@ -4,9 +4,9 @@
     "goal": "Let the user see a record's state at a glance",
     "phrases": [ "status badge", "status pill", "status label", "state indicator" ],
     "answer": [
-      { "page": "/badge#semantic", "role": "primary" },
+      { "page": "/badge#semantic-tones", "role": "primary" },
       { "page": "/badge#with-an-icon", "role": "part" },
-      { "page": "/badge#in-a-card-header-and-a-table-cell", "role": "part" }
+      { "page": "/badge#card-headers-and-table-cells", "role": "part" }
     ],
     "how": "A .badge whose word says the state and whose tone says what it means: go for done, warn for waiting, danger for failed. It sits in .card-head-right beside a record's title, or in a column of its own in a table.",
     "avoid": "A tone with no word, or a semantic tone on a category: a red pill says danger whether or not the data does."
@@ -16,7 +16,7 @@
     "goal": "Let the user tell apart categories that have no ranking",
     "phrases": [ "category tag", "colour coded label", "type label", "categorical colours" ],
     "answer": [
-      { "page": "/badge#categorical", "role": "primary" },
+      { "page": "/badge#categorical-hues", "role": "primary" },
       { "page": "/badge#tone-and-emphasis", "role": "part" }
     ],
     "how": ".badge--cyan, --orange and --teal mean nothing but different, for a type, a queue or a source. Reach for them only after the semantic set does not fit.",
@@ -27,7 +27,7 @@
     "goal": "Let the user see where an item ranks on a scale of severity",
     "phrases": [ "priority badge", "severity level", "p1 p2 p3", "criticality label" ],
     "answer": [
-      { "page": "/badge#severity-an-ordered-scale", "role": "primary" }
+      { "page": "/badge#severity-scale", "role": "primary" }
     ],
     "how": ".badge--sev-1 to --sev-5 is an ordered ramp from critical to planning, and the label carries the rank in words, P2 and High, so the order does not rest on colour.",
     "avoid": "A bare coloured pill for a rank: the reader cannot tell P2 from P3 by hue alone."
@@ -37,8 +37,8 @@
     "goal": "Let the user see which values an AI filled in, and put one back",
     "phrases": [ "ai generated label", "ai badge", "mark ai content", "sparkle icon" ],
     "answer": [
-      { "page": "/badge#the-ai-label-on-a-generated-value", "role": "primary" },
-      { "page": "/popover#popover", "role": "part" },
+      { "page": "/badge#ai-label-on-a-value", "role": "primary" },
+      { "page": "/popover#from-a-button", "role": "part" },
       { "page": "/agent-status#confidence", "role": "part" }
     ],
     "how": "A .badge-ai button after the value opens a popover saying which agent, from what, how sure, and what was there before, with Revert to the original at its foot. .badge-ai--icon is the sparkle alone, named by a visually hidden span.",
@@ -49,8 +49,8 @@
     "goal": "Let the user see the filters in force and remove each one",
     "phrases": [ "filter chips", "applied filters", "active filters", "removable chips", "dismissible tags" ],
     "answer": [
-      { "page": "/chip#what-is-applied-under-the-toolbar", "role": "primary" },
-      { "page": "/chip#a-set-of-filters", "role": "part" },
+      { "page": "/chip#applied-filters", "role": "primary" },
+      { "page": "/chip#filter-sets", "role": "part" },
       { "page": "/toolbar#filters-and-a-count", "role": "part" }
     ],
     "how": "A .chip-set under the toolbar with one .chip--active per filter in force, each with a .chip-dismiss button named after the value it removes, then Clear all. The toolbar changes the filters; the chips say what is applied.",
@@ -72,8 +72,8 @@
     "goal": "Let the user see at a glance who is involved",
     "phrases": [ "avatar group", "stacked avatars", "facepile", "participants" ],
     "answer": [
-      { "page": "/avatar#group", "role": "primary" },
-      { "page": "/avatar#pair", "role": "part" }
+      { "page": "/avatar#overlapping-group", "role": "primary" },
+      { "page": "/avatar#pair-in-one-square", "role": "part" }
     ],
     "how": ".avatar-group overlaps the avatars and ends with an .avatar-more count. In a list whose names must line up, two people are an .avatar-pair inside one avatar's square, named once on the wrapper.",
     "avoid": "Ringing an avatar inside a group, whose cut-out clips the ring."
@@ -83,8 +83,8 @@
     "goal": "Let the user see whether a person is available",
     "phrases": [ "online status", "presence indicator", "availability status", "last seen" ],
     "answer": [
-      { "page": "/avatar#presence", "role": "primary" },
-      { "page": "/avatar#presence-as-text-and-last-seen", "role": "part" }
+      { "page": "/avatar#presence-mark", "role": "primary" },
+      { "page": "/avatar#presence-in-words", "role": "part" }
     ],
     "how": ".avatar-presence puts the state on the avatar's corner as a shape as well as a colour, and the wrapper's aria-label or the text beside it names it. Where there is room the state is written out, with a time: in a meeting until 11:30, or last seen.",
     "avoid": "Restyling a presence mark into a plain dot, which loses the shape that carries it for colour-blind readers and forced colours."
@@ -95,7 +95,7 @@
     "phrases": [ "log in as a user", "impersonation", "acting as another user", "impersonate" ],
     "answer": [
       { "page": "/avatar#acting-as-in-the-topbar", "role": "primary" },
-      { "page": "/avatar#rings", "role": "part" },
+      { "page": "/avatar#ring-tones", "role": "part" },
       { "page": "/avatar#acting-as-in-a-list", "role": "part" },
       { "page": "/topbar#user-menu", "role": "part" }
     ],
@@ -108,8 +108,8 @@
     "phrases": [ "user list", "member list", "people list", "person with email" ],
     "answer": [
       { "page": "/avatar#name-with-a-subtext", "role": "primary" },
-      { "page": "/avatar#in-a-table-cell", "role": "part" },
-      { "page": "/list#list", "role": "part" }
+      { "page": "/avatar#name-in-a-table-cell", "role": "part" },
+      { "page": "/list#rows-that-open-or-act", "role": "part" }
     ],
     "how": "Each person is a .list-row: the avatar, .list-main with the name as .list-title and the e-mail or role as .list-sub, and a state in .list-meta. In a table cell the same lockup is .list-row--flush.",
     "avoid": "Writing a person class of the app's own for the lockup, which the list row already is."

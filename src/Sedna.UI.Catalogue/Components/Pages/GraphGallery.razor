@@ -20,184 +20,190 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.GraphGallery.OrgChart" Title="An org chart" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>dagre</code> from the top, <code>data-graph-nodes="box"</code> so every name is read, and
-        <code>data-graph-curve="taxi"</code> for the right angles an org chart is expected to have. The
-        role, or a team's size, goes in <code>data-meta</code>, which a box writes under the name. Links carry no label,
-        so <code>data-graph-edge-labels="none"</code> keeps the sentences off the canvas.
-    </p>
-    <p>
-        A dotted-line report is one more link with <code>data-line="dotted"</code>. Draw it between
-        adjacent levels: a hierarchy layout weighs every link the same, so a link that skips a level pulls
-        the record it starts from down a rank. The search marks people and teams rather than hiding the rest, and
-        both downloads take the whole chart, not just the part in view.
-    </p>
-</CatExample>
+<CatGroup Title="People and ideas">
+    <CatExample TExample="Examples.GraphGallery.OrgChart" Title="Org chart" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>dagre</code> from the top, <code>data-graph-nodes="box"</code> so every name is read, and
+            <code>data-graph-curve="taxi"</code> for the right angles an org chart is expected to have. The
+            role, or a team's size, goes in <code>data-meta</code>, which a box writes under the name. Links carry no label,
+            so <code>data-graph-edge-labels="none"</code> keeps the sentences off the canvas.
+        </p>
+        <p>
+            A dotted-line report is one more link with <code>data-line="dotted"</code>. Draw it between
+            adjacent levels: a hierarchy layout weighs every link the same, so a link that skips a level pulls
+            the record it starts from down a rank. The search marks people and teams rather than hiding the rest, and
+            both downloads take the whole chart, not just the part in view.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.ServiceMap" Title="A service map with health" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        One <code>data-group</code> per team, laid out as <code>islands</code> and outlined with
-        <code>data-graph-hulls</code>. The record whose id is the group's name is the team itself: it
-        anchors its island and gives the outline its colour. Health is the tone &mdash;
-        <code>go</code>, <code>warn</code>, <code>danger</code> &mdash; and the team's colour is a second
-        one, <code>data-tone-team</code>, which the <strong>Health / Team</strong> switch chooses between.
-        The words are in <code>data-meta</code> as well, so the tooltip, the search and the announcements
-        say the status too.
-    </p>
-    <p>
-        The team chips are the legend for the islands and the filter at once. <code>data-hub</code> on
-        the services that are failing writes their names in bold and puts them first when names compete
-        for room, and <code>data-graph-spacing="compact"</code> keeps each island tight enough for every
-        name to fit beside it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.KnowledgeGraph" Title="Knowledge graph" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Notes, tasks, people and tags, each kind with its own shape as well as its own colour, filed into
+            one island per project. People and tags belong to no project, so they sit between the islands
+            they join. The kind chips are the legend and the switch, and <strong>Done tasks</strong> shows or
+            hides the records marked <code>data-muted</code>.
+        </p>
+        <p>
+            Select a record and the side panel lists what it touches, one row per neighbour cloned from the
+            app's <code>&lt;template data-graph-neighbour&gt;</code>; a row selects that neighbour, so the
+            reader can walk the graph from the keyboard alone. Right-click a record, or press
+            <kbd class="kbd">Shift</kbd> + <kbd class="kbd">F10</kbd> on it, for the menu. Names give way to
+            each other at this size &mdash; zoom in, point at a record or search to read the rest.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.NetworkTopology" Title="A network by site and rack" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Sites and racks are records too, and <code>data-parent</code> draws a host inside its rack and a
-        rack inside its site. <code>fcose</code> is the layout that understands nested groups, and
-        <code>data-graph-collapse</code> lets a reader fold a rack or a whole site away &mdash; with the
-        cue on the group, or all at once from the toolbar.
-    </p>
-    <p>
-        Addresses are in <code>data-meta</code>, so typing <kbd class="kbd">198.51</kbd> into the search
-        marks the south site. The tooltip is the app's own <code>.graph-tip</code>, filled from
-        <code>data-role</code> and <code>data-meta</code>; any <code>data-*</code> on a record is a field
-        a slot can name.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.MindMap" Title="Mind map" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>rings</code> around the <code>data-root</code> topic, the branches weighted larger with
+            <code>data-weight</code> and named in bold with <code>data-hub</code>, each branch in a tone its
+            links repeat. <code>data-graph-spacing="compact"</code> keeps each branch's ideas close to it and
+            leaves room between the branches for every name. Keep ideas short: a name that would run into
+            another is left out until the reader zooms in.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.GraphGallery.KnowledgeGraph" Title="A knowledge graph" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Notes, tasks, people and tags, each kind with its own shape as well as its own colour, filed into
-        one island per project. People and tags belong to no project, so they sit between the islands
-        they join. The kind chips are the legend and the switch, and <strong>Done tasks</strong> shows or
-        hides the records marked <code>data-muted</code>.
-    </p>
-    <p>
-        Select a record and the side panel lists what it touches, one row per neighbour cloned from the
-        app's <code>&lt;template data-graph-neighbour&gt;</code>; a row selects that neighbour, so the
-        reader can walk the graph from the keyboard alone. Right-click a record, or press
-        <kbd class="kbd">Shift</kbd> + <kbd class="kbd">F10</kbd> on it, for the menu. Names give way to
-        each other at this size &mdash; zoom in, point at a record or search to read the rest.
-    </p>
-</CatExample>
+<CatGroup Title="Systems and networks">
+    <CatExample TExample="Examples.GraphGallery.ServiceMap" Title="Service map with health" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            One <code>data-group</code> per team, laid out as <code>islands</code> and outlined with
+            <code>data-graph-hulls</code>. The record whose id is the group's name is the team itself: it
+            anchors its island and gives the outline its colour. Health is the tone &mdash;
+            <code>go</code>, <code>warn</code>, <code>danger</code> &mdash; and the team's colour is a second
+            one, <code>data-tone-team</code>, which the <strong>Health / Team</strong> switch chooses between.
+            The words are in <code>data-meta</code> as well, so the tooltip, the search and the announcements
+            say the status too.
+        </p>
+        <p>
+            The team chips are the legend for the islands and the filter at once. <code>data-hub</code> on
+            the services that are failing writes their names in bold and puts them first when names compete
+            for room, and <code>data-graph-spacing="compact"</code> keeps each island tight enough for every
+            name to fit beside it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.StateMachine" Title="A state machine" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>dagre</code> left to right, boxes, arrows, and the event on every transition with
-        <code>data-graph-edge-labels="always"</code>. The start and the two ends are
-        <code>data-display="dot"</code> in a graph of boxes; the failure is <code>danger</code>, the
-        exceptions are dashed, and <code>data-root</code> rings the state this order is in.
-        <code>data-graph-drag="false"</code> keeps a diagram people learn by its shape from being pulled
-        apart.
-    </p>
-    <p>
-        Keep event names short. A transition's label sits between two states on a link no longer than the
-        gap between them, and a long one covers its own arrow.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.NetworkTopology" Title="Network by site and rack" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Sites and racks are records too, and <code>data-parent</code> draws a host inside its rack and a
+            rack inside its site. <code>fcose</code> is the layout that understands nested groups, and
+            <code>data-graph-collapse</code> lets a reader fold a rack or a whole site away &mdash; with the
+            cue on the group, or all at once from the toolbar.
+        </p>
+        <p>
+            Addresses are in <code>data-meta</code>, so typing <kbd class="kbd">198.51</kbd> into the search
+            marks the south site. The tooltip is the app's own <code>.graph-tip</code>, filled from
+            <code>data-role</code> and <code>data-meta</code>; any <code>data-*</code> on a record is a field
+            a slot can name.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.AutomationRun" Title="An automation flow, mid-run" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        A flow as an automation tool exports it, drawn with <code>dagre</code> across, and a run on top of it:
-        <code>data-state</code> on each record says how far the run has got. Set it on records only &mdash; a
-        link takes its target's state, so data flowing into the step that is running marches along its link.
-        The chat and phone branches were not taken, and a link out of a skipped step is skipped too, so they
-        stay quiet all the way into <em>Classify</em> while the link from the email runs.
-    </p>
-    <p>
-        The state is drawn around a record and its tone is left alone, so the step kinds stay readable as the
-        run moves through them. Say the state in words as well &mdash; here in <code>data-meta</code>, which the
-        box, the tooltip and the announcement repeat. Re-render the list with new states, or send them with
-        <a href="/graph-blazor"><code>SetDataAsync</code></a>, and only what changed is redrawn, where it stands.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.BlastRadius" Title="Incident blast radius" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            The failing store is the root, and <code>data-graph-focus</code> with
+            <code>data-graph-focus-depth="2"</code> starts on everything within two hops of it. The hop radios
+            are <code>data-graph-option="depth"</code>; <strong>Show the whole map</strong> is
+            <code>data-graph-action="unfocus"</code>, and <strong>Return to the failure</strong> is a
+            <code>focus</code> action with the record's id as its <code>value</code>. <code>dagre</code> puts
+            the callers above what they call, so the failure is at the bottom and the damage climbs.
+        </p>
+        <p>
+            The stats line counts what is in view against the whole, in the app's words. It sits in the card's
+            body rather than in the graph, and <code>data-graph-frame</code> on the card is what ties it and
+            the controls to this graph.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.FlowEditor" Title="A flow being edited" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> A record with <code>data-placeholder</code> is where the next step can go: unfilled,
-        dashed, with a plus and your words. One click opens it, so your handler of <code>sedna-graph-open</code>
-        adds the step to your data. A <code>&lt;template data-graph-edge-tool&gt;</code> inside the graph puts a
-        copy of your button on the middle of every link, and keeps it there as the view moves;
-        <code>data-graph-edge-tool="flow"</code> gives it only to the links of that kind, so the dashed way to the
-        placeholder has none.
-    </p>
-    <p>
-        Pressing it dispatches <code>sedna-graph-edge</code> with the link and the button's <code>value</code>, and
-        your app removes the link from its data. This page has no app behind it, so
-        <code>data-graph-managed</code> removes it instead. The state of a run is drawn the same way on a flow like
-        this one &mdash; see the automation above.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.LargeMap" Title="Large map" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Every service at once, as <code>islands</code>: one per domain, each shaped by its own springs with
+            the domain's record at the centre, and the domains of one <code>data-cluster</code> packed side by
+            side. At this size the
+            shape is the point, so names are placed the way a map places them &mdash; the domains first, the
+            rest as zooming makes room. The minimap keeps the reader's place, and switching every platform off
+            shows the app's own <code>.graph-empty--filtered</code>.
+        </p>
+        <p>
+            The records here are markup so the example stays one file. A real map of this size comes from
+            <code>data-graph-src</code>, which the browser fetches itself, or from
+            <a href="/graph-blazor"><code>SetDataAsync</code></a>; a list rendered by Blazor is held in the
+            circuit and diffed on every change.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.GraphGallery.DependencyTree" Title="A dependency tree" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Versions in <code>data-meta</code>, deprecated packages <code>data-muted</code> behind a
-        <code>data-graph-show="muted"</code> checkbox, and build-only packages behind a chip on their own
-        field, <code>data-scope</code>. The two radios are <code>data-graph-option="direction"</code>, so
-        the same tree reads down or across without a script.
-    </p>
-    <p>
-        A package two others depend on is one record with two links in, which is what makes it a graph and
-        not a tree &mdash; <code>log-core</code> here. The advisory is a <code>danger</code> tone and an
-        icon and words in the box, never the colour alone.
-    </p>
-</CatExample>
+<CatGroup Title="Flows and dependencies">
+    <CatExample TExample="Examples.GraphGallery.StateMachine" Title="State machine" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>dagre</code> left to right, boxes, arrows, and the event on every transition with
+            <code>data-graph-edge-labels="always"</code>. The start and the two ends are
+            <code>data-display="dot"</code> in a graph of boxes; the failure is <code>danger</code>, the
+            exceptions are dashed, and <code>data-root</code> rings the state this order is in.
+            <code>data-graph-drag="false"</code> keeps a diagram people learn by its shape from being pulled
+            apart.
+        </p>
+        <p>
+            Keep event names short. A transition's label sits between two states on a link no longer than the
+            gap between them, and a long one covers its own arrow.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.DataLineage" Title="Data lineage" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Sources, staging, models, marts and reports, left to right with
-        <code>data-graph-curve="round-taxi"</code>. Each record carries two colourings: its layer as
-        <code>data-tone</code> and its freshness as <code>data-tone-freshness</code>. Switch to
-        <strong>Freshness</strong> and the failed load shows how far it reached &mdash; the two legends
-        are both on screen, because a legend is markup and the switch does not rewrite it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.AutomationRun" Title="Automation flow, mid-run" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            A flow as an automation tool exports it, drawn with <code>dagre</code> across, and a run on top of it:
+            <code>data-state</code> on each record says how far the run has got. Set it on records only &mdash; a
+            link takes its target's state, so data flowing into the step that is running marches along its link.
+            The chat and phone branches were not taken, and a link out of a skipped step is skipped too, so they
+            stay quiet all the way into <em>Classify</em> while the link from the email runs.
+        </p>
+        <p>
+            The state is drawn around a record and its tone is left alone, so the step kinds stay readable as the
+            run moves through them. Say the state in words as well &mdash; here in <code>data-meta</code>, which the
+            box, the tooltip and the announcement repeat. Re-render the list with new states, or send them with
+            <a href="/graph-blazor"><code>SetDataAsync</code></a>, and only what changed is redrawn, where it stands.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.MindMap" Title="A mind map" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>rings</code> around the <code>data-root</code> topic, the branches weighted larger with
-        <code>data-weight</code> and named in bold with <code>data-hub</code>, each branch in a tone its
-        links repeat. <code>data-graph-spacing="compact"</code> keeps each branch's ideas close to it and
-        leaves room between the branches for every name. Keep ideas short: a name that would run into
-        another is left out until the reader zooms in.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.FlowEditor" Title="Flow being edited" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> A record with <code>data-placeholder</code> is where the next step can go: unfilled,
+            dashed, with a plus and your words. One click opens it, so your handler of <code>sedna-graph-open</code>
+            adds the step to your data. A <code>&lt;template data-graph-edge-tool&gt;</code> inside the graph puts a
+            copy of your button on the middle of every link, and keeps it there as the view moves;
+            <code>data-graph-edge-tool="flow"</code> gives it only to the links of that kind, so the dashed way to the
+            placeholder has none.
+        </p>
+        <p>
+            Pressing it dispatches <code>sedna-graph-edge</code> with the link and the button's <code>value</code>, and
+            your app removes the link from its data. This page has no app behind it, so
+            <code>data-graph-managed</code> removes it instead. The state of a run is drawn the same way on a flow like
+            this one &mdash; see the automation above.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.BlastRadius" Title="The blast radius of an incident" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        The failing store is the root, and <code>data-graph-focus</code> with
-        <code>data-graph-focus-depth="2"</code> starts on everything within two hops of it. The hop radios
-        are <code>data-graph-option="depth"</code>; <strong>Show the whole map</strong> is
-        <code>data-graph-action="unfocus"</code>, and <strong>Return to the failure</strong> is a
-        <code>focus</code> action with the record's id as its <code>value</code>. <code>dagre</code> puts
-        the callers above what they call, so the failure is at the bottom and the damage climbs.
-    </p>
-    <p>
-        The stats line counts what is in view against the whole, in the app's words. It sits in the card's
-        body rather than in the graph, and <code>data-graph-frame</code> on the card is what ties it and
-        the controls to this graph.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.DependencyTree" Title="Dependency tree" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Versions in <code>data-meta</code>, deprecated packages <code>data-muted</code> behind a
+            <code>data-graph-show="muted"</code> checkbox, and build-only packages behind a chip on their own
+            field, <code>data-scope</code>. The two radios are <code>data-graph-option="direction"</code>, so
+            the same tree reads down or across without a script.
+        </p>
+        <p>
+            A package two others depend on is one record with two links in, which is what makes it a graph and
+            not a tree &mdash; <code>log-core</code> here. The advisory is a <code>danger</code> tone and an
+            icon and words in the box, never the colour alone.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.GraphGallery.LargeMap" Title="A large map" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Every service at once, as <code>islands</code>: one per domain, each shaped by its own springs with
-        the domain's record at the centre, and the domains of one <code>data-cluster</code> packed side by
-        side. At this size the
-        shape is the point, so names are placed the way a map places them &mdash; the domains first, the
-        rest as zooming makes room. The minimap keeps the reader's place, and switching every platform off
-        shows the app's own <code>.graph-empty--filtered</code>.
-    </p>
-    <p>
-        The records here are markup so the example stays one file. A real map of this size comes from
-        <code>data-graph-src</code>, which the browser fetches itself, or from
-        <a href="/graph-blazor"><code>SetDataAsync</code></a>; a list rendered by Blazor is held in the
-        circuit and diffed on every change.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.GraphGallery.DataLineage" Title="Data lineage" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Sources, staging, models, marts and reports, left to right with
+            <code>data-graph-curve="round-taxi"</code>. Each record carries two colourings: its layer as
+            <code>data-tone</code> and its freshness as <code>data-tone-freshness</code>. Switch to
+            <strong>Freshness</strong> and the failed load shows how far it reached &mdash; the two legends
+            are both on screen, because a legend is markup and the switch does not rewrite it.
+        </p>
+    </CatExample>
+</CatGroup>
 
 <h2 id="choosing">Which one to start from <CatAnchor Id="choosing" /></h2>
 

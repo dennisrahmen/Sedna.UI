@@ -58,11 +58,16 @@ internal static class CatalogueRanker
     /// <param name="identifier">An exact-matchable name — a class, an id, a route.</param>
     /// <param name="shortFields">Title-length text. Subsequence runs here and nowhere else.</param>
     /// <param name="longFields">Blurbs and markup. Whole-word matching only.</param>
+    /// <param name="sentence">
+    /// The prose about the candidate, when it has one: a candidate whose prose names every term
+    /// wins a tie against one that only carries them.
+    /// </param>
     public static (int Score, string MatchedOn)? Score(
         IReadOnlyList<string> terms,
         string identifier,
         IEnumerable<string> shortFields,
-        IEnumerable<string> longFields)
+        IEnumerable<string> longFields,
+        string? sentence = null)
     {
         if (terms.Count == 0) return (1, "everything");
 
@@ -90,7 +95,13 @@ internal static class CatalogueRanker
             if (tier > bestTier) (bestTier, best) = (tier, where);
         }
 
-        return (total / terms.Count, best ?? "name");
+        // A tie-break, never a tier: where every term also stands in the prose about it, the
+        // candidate documents what was asked rather than only using it, so of six examples that
+        // carry an attribute, the one that explains it comes first.
+        var prose = sentence is null ? null : Normalise(sentence);
+        var documented = prose is not null && terms.All(t => IsWord(prose, t)) ? 1 : 0;
+
+        return (total / terms.Count + documented, best ?? "name");
     }
 
     private static (int Tier, string Where) BestFor(

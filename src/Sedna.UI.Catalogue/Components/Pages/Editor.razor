@@ -6,217 +6,227 @@
     holds the value; the library ships the engine and loads it the first time a page shows an editor.
 </CatHead>
 
-<CatExample TExample="Examples.Editor.Note" Title="An editor" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; type, format, add a link with <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd>.</strong>
-        <code>[data-editor]</code> on the <code>.editor</code> frame makes it one. The document is edited in
-        <code>[data-editor-body]</code>; put <code>.prose</code> on it so what is typed looks like what is later
-        shown. <code>textarea[data-editor-value]</code> is the field: the editor loads from it and writes every
-        change back to it, as HTML, so a form posts it and a Blazor binding reads it. Keep it
-        <code>hidden</code>. The editable element takes the textarea's label, its placeholder and its state.
-    </p>
-    <p>
-        A button with <code>data-editor-format</code> toggles its format on the selection and shows, with
-        <code>aria-pressed</code>, what the text under the caret has. A button pressed with the pointer leaves
-        the focus and the selection in the document.
-    </p>
-</CatExample>
+<CatGroup Title="Editors">
+    <CatExample TExample="Examples.Editor.Note" Title="Note editor" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type, format, add a link with <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd>.</strong>
+            <code>[data-editor]</code> on the <code>.editor</code> frame makes it one. The document is edited in
+            <code>[data-editor-body]</code>; put <code>.prose</code> on it so what is typed looks like what is later
+            shown. <code>textarea[data-editor-value]</code> is the field: the editor loads from it and writes every
+            change back to it, as HTML, so a form posts it and a Blazor binding reads it. Keep it
+            <code>hidden</code>. The editable element takes the textarea's label, its placeholder and its state.
+        </p>
+        <p>
+            A button with <code>data-editor-format</code> toggles its format on the selection and shows, with
+            <code>aria-pressed</code>, what the text under the caret has. A button pressed with the pointer leaves
+            the focus and the selection in the document.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Editor.Everything" Title="Every control" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>The formats an editor accepts are the ones its toolbar offers.</strong> Paste a page in here:
-        what it had beyond these is cut away, so the document never holds what the reader could not have
-        written. A format with a <code>value</code> sets that value &mdash; a heading level, a kind of list,
-        an alignment &mdash; and a <code>&lt;select&gt;</code> sets the option chosen, with
-        <code>""</code> for a paragraph. <code>data-editor-action</code> buttons undo, redo, indent,
-        outdent and clear the formatting; undo and redo are <code>disabled</code> while there is nothing to do.
-    </p>
-    <p>
-        The toolbar is one tab stop: <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd>, <kbd class="kbd">Home</kbd>
-        and <kbd class="kbd">End</kbd> move between its buttons, <kbd class="kbd">Alt</kbd> + <kbd class="kbd">F10</kbd>
-        in the document goes to it and <kbd class="kbd">Esc</kbd> comes back. <kbd class="kbd">Tab</kbd> in the
-        document leaves it, as from a textarea &mdash; except in a list or a code block, where it indents.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Editor.Everything" Title="Every control" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>The formats an editor accepts are the ones its toolbar offers.</strong> Paste a page in here:
+            what it had beyond these is cut away, so the document never holds what the reader could not have
+            written. A format with a <code>value</code> sets that value &mdash; a heading level, a kind of list,
+            an alignment &mdash; and a <code>&lt;select&gt;</code> sets the option chosen, with
+            <code>""</code> for a paragraph. <code>data-editor-action</code> buttons undo, redo, indent,
+            outdent and clear the formatting; undo and redo are <code>disabled</code> while there is nothing to do.
+        </p>
+        <p>
+            The toolbar is one tab stop: <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd>, <kbd class="kbd">Home</kbd>
+            and <kbd class="kbd">End</kbd> move between its buttons, <kbd class="kbd">Alt</kbd> + <kbd class="kbd">F10</kbd>
+            in the document goes to it and <kbd class="kbd">Esc</kbd> comes back. <kbd class="kbd">Tab</kbd> in the
+            document leaves it, as from a textarea &mdash; except in a list or a code block, where it indents.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Editor.Slash" Title="The slash menu" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; type <kbd class="kbd">/</kbd> at the start of a line.</strong> Write a
-        <code>.menu.editor-slash</code> with <code>data-editor-slash</code> inside the editor, one
-        <code>.menu-item</code> per kind of block with <code>data-editor-block</code> and a <code>value</code>, as
-        a toolbar button names its format. What follows the <kbd class="kbd">/</kbd> filters it; the focus stays in
-        the document, which points at the lit item. <kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd>
-        choose, <kbd class="kbd">Enter</kbd> turns the line into it and removes what was typed,
-        <kbd class="kbd">Esc</kbd> closes it.
-    </p>
-    <p>
-        The menu offers only what the toolbar does: an item whose format the editor does not accept is never
-        shown. <code>paragraph</code> takes every block format off the line. Give the items
-        <code>tabindex="-1"</code>, so the menu is never a Tab stop.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Editor.Comment" Title="Comment field" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Four buttons, four formats: a comment cannot be given a heading or a list, however it is pasted in.
+            <code>--editor-max-height</code> on the frame caps how tall the document grows before it scrolls, and
+            the textarea's <code>placeholder</code> is what an empty one says.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Editor.Comment" Title="A short one" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Four buttons, four formats: a comment cannot be given a heading or a list, however it is pasted in.
-        <code>--editor-max-height</code> on the frame caps how tall the document grows before it scrolls, and
-        the textarea's <code>placeholder</code> is what an empty one says.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Editor.ReadOnly" Title="Read-only" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>readonly</code> or <code>disabled</code> on the textarea stops the editing, dims the toolbar and
+            marks the document <code>aria-readonly</code>. The editor follows the attribute when it changes, so a
+            Blazor binding to <code>disabled</code> needs no call.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Editor.ReadOnly" Title="Read-only" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>readonly</code> or <code>disabled</code> on the textarea stops the editing, dims the toolbar and
-        marks the document <code>aria-readonly</code>. The editor follows the attribute when it changes, so a
-        Blazor binding to <code>disabled</code> needs no call.
-    </p>
-</CatExample>
+<CatGroup Title="Menus and links">
+    <CatExample TExample="Examples.Editor.Slash" Title="Slash menu" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type <kbd class="kbd">/</kbd> at the start of a line.</strong> Write a
+            <code>.menu.editor-slash</code> with <code>data-editor-slash</code> inside the editor, one
+            <code>.menu-item</code> per kind of block with <code>data-editor-block</code> and a <code>value</code>, as
+            a toolbar button names its format. What follows the <kbd class="kbd">/</kbd> filters it; the focus stays in
+            the document, which points at the lit item. <kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd>
+            choose, <kbd class="kbd">Enter</kbd> turns the line into it and removes what was typed,
+            <kbd class="kbd">Esc</kbd> closes it.
+        </p>
+        <p>
+            The menu offers only what the toolbar does: an item whose format the editor does not accept is never
+            shown. <code>paragraph</code> takes every block format off the line. Give the items
+            <code>tabindex="-1"</code>, so the menu is never a Tab stop.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Editor.Media" Title="Images and videos" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; put the caret on a line and use the image or video button.</strong>
-        <code>data-editor-format="image"</code> and <code>"video"</code> open your own form,
-        <code>.editor-media[data-editor-media]</code>, written once inside the editor and placed at the caret
-        like the link form: <code>[data-editor-media-url]</code> takes the address,
-        <code>[data-editor-media-alt]</code> the description &mdash; an image's <code>alt</code>, a video's
-        <code>aria-label</code> &mdash; and <code>[data-editor-media-save]</code> inserts. The form says which it
-        is for in <code>data-editor-media-kind</code>, and shows an element marked
-        <code>data-editor-media-for="image"</code> or <code>"video"</code> only for that kind. Opened on an image
-        or a video, it is filled with it, and Insert replaces it.
+    <h3 id="link-form">Link form <CatAnchor Id="link-form" /></h3>
+    <p class="cat-lede">
+        Your own form, written once inside the editor as <code>.editor-link[data-editor-link]</code>, which the
+        script opens beneath the text it is for &mdash; from a <code>data-editor-format="link"</code> button or
+        <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd>. It is filled with the address of the link under
+        the caret, and <code>[data-editor-link-remove]</code> shows only then. <kbd class="kbd">Enter</kbd> saves,
+        <kbd class="kbd">Esc</kbd> closes, and <code>[data-editor-link-cancel]</code> closes too. With no text
+        selected, the address is written as the link's text. Only <code>http</code>, <code>https</code>,
+        <code>mailto</code>, <code>tel</code> and <code>sms</code> addresses are kept.
     </p>
-    <p>
-        An image sits in its line as <code>&lt;img src alt&gt;</code>; a video is a block of its own,
-        <code>&lt;video controls src&gt;</code>, which never plays by itself. Both are formats like any other: an
-        editor whose toolbar offers neither cuts them out of what is pasted. Only <code>http</code>,
-        <code>https</code> and relative addresses are kept &mdash; a <code>data:</code> image is dropped, and a
-        file pasted or dropped into the document is not inlined. <strong>Uploading is the app's</strong>: put the
-        file where it can be fetched, and hand the editor its address.
-    </p>
-</CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Editor.FileNotice" Title="When a pasted picture is not taken" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; paste or drop a screenshot into the note.</strong> The editor never inlines a file,
-        so in a field that takes no pictures one would vanish without a word. Write the words once, inside the
-        editor, as <code>.editor-notice[data-editor-file-notice]</code> with <code>hidden</code>: a strip at the
-        foot of the frame, coloured by <code>.form-warning</code> and announced by <code>role="alert"</code>.
-        The editor shows it when a pasted or dropped file is not taken, and hides it at the next change to the
-        document.
-    </p>
-    <p>
-        Taken means the app cancelled <code>sedna-editor-file</code> &mdash;
-        <code>@@onsedna-editor-file:preventDefault</code> beside the handler that uploads it, or
-        <code>preventDefault()</code> in a listener. A file that is not an image or a video the editor knows
-        sends no event and always shows the notice. An editor without the notice is unchanged.
-    </p>
-</CatExample>
+<CatGroup Title="Media">
+    <CatExample TExample="Examples.Editor.Media" Title="Images and videos" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; put the caret on a line and use the image or video button.</strong>
+            <code>data-editor-format="image"</code> and <code>"video"</code> open your own form,
+            <code>.editor-media[data-editor-media]</code>, written once inside the editor and placed at the caret
+            like the link form: <code>[data-editor-media-url]</code> takes the address,
+            <code>[data-editor-media-alt]</code> the description &mdash; an image's <code>alt</code>, a video's
+            <code>aria-label</code> &mdash; and <code>[data-editor-media-save]</code> inserts. The form says which it
+            is for in <code>data-editor-media-kind</code>, and shows an element marked
+            <code>data-editor-media-for="image"</code> or <code>"video"</code> only for that kind. Opened on an image
+            or a video, it is filled with it, and Insert replaces it.
+        </p>
+        <p>
+            An image sits in its line as <code>&lt;img src alt&gt;</code>; a video is a block of its own,
+            <code>&lt;video controls src&gt;</code>, which never plays by itself. Both are formats like any other: an
+            editor whose toolbar offers neither cuts them out of what is pasted. Only <code>http</code>,
+            <code>https</code> and relative addresses are kept &mdash; a <code>data:</code> image is dropped, and a
+            file pasted or dropped into the document is not inlined. <strong>Uploading is the app's</strong>: put the
+            file where it can be fetched, and hand the editor its address.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.EditorImagePicker" Title="Your own picker for images" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; put the caret in the report, then add a photo.</strong> Before the media form opens,
-        the editor sends <code>sedna-editor-media</code> with <code>{ kind, src, alt }</code>. Cancel it with
-        <code>@@onsedna-editor-media:preventDefault</code> and the form stays shut: open your own dialog &mdash;
-        an upload, a media library &mdash; and answer with
-        <code>ISednaEditors.InsertImageAsync(id, url, alt)</code> or <code>InsertVideoAsync(id, url, label)</code>,
-        which put the media where the caret was and answer null when the address is not one the editor keeps.
-        From script, it is <code>insertImage(url, alt)</code> and <code>insertVideo(url, label)</code> on the
-        editor's handle.
+    <CatExample TExample="Examples.Editor.FileNotice" Title="Refused pictures" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; paste or drop a screenshot into the note.</strong> The editor never inlines a file,
+            so in a field that takes no pictures one would vanish without a word. Write the words once, inside the
+            editor, as <code>.editor-notice[data-editor-file-notice]</code> with <code>hidden</code>: a strip at the
+            foot of the frame, coloured by <code>.form-warning</code> and announced by <code>role="alert"</code>.
+            The editor shows it when a pasted or dropped file is not taken, and hides it at the next change to the
+            document.
+        </p>
+        <p>
+            Taken means the app cancelled <code>sedna-editor-file</code> &mdash;
+            <code>@@onsedna-editor-file:preventDefault</code> beside the handler that uploads it, or
+            <code>preventDefault()</code> in a listener. A file that is not an image or a video the editor knows
+            sends no event and always shows the notice. An editor without the notice is unchanged.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.EditorImagePicker" Title="Your own image picker" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; put the caret in the report, then add a photo.</strong> Before the media form opens,
+            the editor sends <code>sedna-editor-media</code> with <code>{ kind, src, alt }</code>. Cancel it with
+            <code>@@onsedna-editor-media:preventDefault</code> and the form stays shut: open your own dialog &mdash;
+            an upload, a media library &mdash; and answer with
+            <code>ISednaEditors.InsertImageAsync(id, url, alt)</code> or <code>InsertVideoAsync(id, url, label)</code>,
+            which put the media where the caret was and answer null when the address is not one the editor keeps.
+            From script, it is <code>insertImage(url, alt)</code> and <code>insertVideo(url, label)</code> on the
+            editor's handle.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Forms and Blazor">
+    <CatSnippet Name="Editor/InAForm.html" Title="In a form">
+        <p>
+            The textarea is the field, so a form works as it would with a textarea: it posts the document under the
+            textarea's <code>name</code>, a reset puts it back, and without the script the textarea shows in the frame
+            instead, still posting. <code>required</code> is held by the editor, because a browser refuses to submit
+            over a hidden field it cannot focus: an empty one stops the submit, is marked <code>aria-invalid</code>
+            and takes the focus. The HTML is the editor's own, cut down to the formats it accepts &mdash; a
+            convenience, not a sanitiser: what arrives at the server is still the server's to check.
+        </p>
+    </CatSnippet>
+
+    <CatExample TExample="Examples.Interop.EditorBinding" Title="In Blazor" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type, then use the template.</strong> <code>@@bind</code> on the textarea is the whole
+            binding: the editor sends the textarea's <code>input</code> at each change and <code>change</code> when
+            it loses the focus after one, so <code>@@bind</code> and <code>@@bind:event="oninput"</code> both work,
+            and a value set in C# is loaded into the document. <code>@@onsedna-editor-change</code> adds the text,
+            its length and whether it is empty, for a counter or a send button that waits for something to send.
+        </p>
+        <p>
+            <code>ISednaEditors</code>, registered by <code>AddSednaUi()</code>, is for what a binding cannot do &mdash;
+            type at the reader's caret, focus the document, switch it off &mdash; by the editor element's id. None of
+            it runs while the page prerenders: call it from a handler, or after the first render.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.EditorStateFromCsharp" Title="State from C#" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; send the step for review, then paste a screenshot into it.</strong>
+            <code>GetStateAsync</code> reads what the document holds when the app needs to know &mdash; its HTML, its
+            text, its length and whether it is empty &mdash; and <code>SetEnabledAsync</code> stops the reader editing,
+            or lets them again; a page that renders the textarea's <code>disabled</code> needs neither call.
+            <code>InsertVideoAsync(id, url, label)</code> puts a video where the caret was, here from a button of the
+            app's own: <code>data-editor-formats</code> names <code>video</code>, which the toolbar does not offer.
+        </p>
+        <p>
+            A file pasted or dropped into the document is never inlined. The editor sends
+            <code>@@onsedna-editor-file</code> with an id, a name, a type and a size for each, and keeps the last few;
+            <code>@@onsedna-editor-file:preventDefault</code> says the app took them, so a
+            <code>[data-editor-file-notice]</code> stays hidden;
+            <code>OpenFileAsync(id, fileId)</code> opens one as a stream reference, which
+            <code>OpenReadStreamAsync(maxAllowedSize)</code> reads. This one counts the bytes and lists the file as an
+            attachment. An app uploads them there, and answers an image meant for the text with
+            <code>InsertImageAsync</code> once it has its address.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Reference">
+    <h3 id="controls">Controls <CatAnchor Id="controls" /></h3>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead><tr><th>Control</th><th>Does</th></tr></thead>
+            <tbody>
+                <tr><td><code>data-editor-format="bold"</code>, <code>italic</code>, <code>underline</code>, <code>strike</code>, <code>code</code></td><td>Toggles the format on the selection.</td></tr>
+                <tr><td><code>data-editor-format="script"</code> with <code>value="sub"</code> or <code>"super"</code></td><td>Subscript, superscript.</td></tr>
+                <tr><td><code>data-editor-format="header"</code> with <code>value="1"</code>&ndash;<code>"6"</code>, or on a <code>&lt;select&gt;</code></td><td>A heading level; <code>""</code> is a paragraph.</td></tr>
+                <tr><td><code>data-editor-format="list"</code> with <code>value="bullet"</code>, <code>"ordered"</code> or <code>"check"</code></td><td>A list.</td></tr>
+                <tr><td><code>data-editor-format="blockquote"</code>, <code>"code-block"</code></td><td>A quote, a code block.</td></tr>
+                <tr><td><code>data-editor-format="align"</code> with <code>value="center"</code>, <code>"right"</code> or <code>"justify"</code></td><td>Alignment; no value is the start edge.</td></tr>
+                <tr><td><code>data-editor-format="link"</code></td><td>Opens the link form.</td></tr>
+                <tr><td><code>data-editor-format="image"</code>, <code>"video"</code></td><td>Sends <code>sedna-editor-media</code>, then opens the media form.</td></tr>
+                <tr><td><code>data-editor-action="undo"</code>, <code>"redo"</code>, <code>"indent"</code>, <code>"outdent"</code>, <code>"clean"</code></td><td>Undo, redo, one level in or out, and removing the formatting from the selection.</td></tr>
+                <tr><td><code>data-editor-formats="bold italic link"</code> on the editor</td><td>The formats it accepts, instead of the ones its toolbar offers.</td></tr>
+                <tr><td><code>data-editor-eager</code> on the editor</td><td>Starts it at once, rather than when it scrolls near.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 id="events">Events <CatAnchor Id="events" /></h3>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead><tr><th>Event</th><th>Detail</th></tr></thead>
+            <tbody>
+                <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
+                <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
+                <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt }</code>, cancelable, before the media form opens: the image or video under the caret, or empty strings.</td></tr>
+                <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, cancelable, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>, and cancel the event to say the app took them &mdash; otherwise the editor's <code>[data-editor-file-notice]</code> shows.</td></tr>
+                <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="cat-lede">
+        <code>data-editor-state</code> on the editor is <code>loading</code>, then <code>ready</code>, or
+        <code>error</code> when the markup has no textarea or no body. The reference is <code>docs/editor.md</code>.
     </p>
-</CatExample>
-
-<h2 id="link-form">The link form <CatAnchor Id="link-form" /></h2>
-<p class="cat-lede">
-    Your own form, written once inside the editor as <code>.editor-link[data-editor-link]</code>, which the
-    script opens beneath the text it is for &mdash; from a <code>data-editor-format="link"</code> button or
-    <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd>. It is filled with the address of the link under
-    the caret, and <code>[data-editor-link-remove]</code> shows only then. <kbd class="kbd">Enter</kbd> saves,
-    <kbd class="kbd">Esc</kbd> closes, and <code>[data-editor-link-cancel]</code> closes too. With no text
-    selected, the address is written as the link's text. Only <code>http</code>, <code>https</code>,
-    <code>mailto</code>, <code>tel</code> and <code>sms</code> addresses are kept.
-</p>
-
-<CatSnippet Name="Editor/InAForm.html" Title="In a form">
-    <p>
-        The textarea is the field, so a form works as it would with a textarea: it posts the document under the
-        textarea's <code>name</code>, a reset puts it back, and without the script the textarea shows in the frame
-        instead, still posting. <code>required</code> is held by the editor, because a browser refuses to submit
-        over a hidden field it cannot focus: an empty one stops the submit, is marked <code>aria-invalid</code>
-        and takes the focus. The HTML is the editor's own, cut down to the formats it accepts &mdash; a
-        convenience, not a sanitiser: what arrives at the server is still the server's to check.
-    </p>
-</CatSnippet>
-
-<CatExample TExample="Examples.Interop.EditorBinding" Title="In Blazor" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; type, then use the template.</strong> <code>@@bind</code> on the textarea is the whole
-        binding: the editor sends the textarea's <code>input</code> at each change and <code>change</code> when
-        it loses the focus after one, so <code>@@bind</code> and <code>@@bind:event="oninput"</code> both work,
-        and a value set in C# is loaded into the document. <code>@@onsedna-editor-change</code> adds the text,
-        its length and whether it is empty, for a counter or a send button that waits for something to send.
-    </p>
-    <p>
-        <code>ISednaEditors</code>, registered by <code>AddSednaUi()</code>, is for what a binding cannot do &mdash;
-        type at the reader's caret, focus the document, switch it off &mdash; by the editor element's id. None of
-        it runs while the page prerenders: call it from a handler, or after the first render.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Interop.EditorStateFromCsharp" Title="State, review and files, from C#" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; send the step for review, then paste a screenshot into it.</strong>
-        <code>GetStateAsync</code> reads what the document holds when the app needs to know &mdash; its HTML, its
-        text, its length and whether it is empty &mdash; and <code>SetEnabledAsync</code> stops the reader editing,
-        or lets them again; a page that renders the textarea's <code>disabled</code> needs neither call.
-        <code>InsertVideoAsync(id, url, label)</code> puts a video where the caret was, here from a button of the
-        app's own: <code>data-editor-formats</code> names <code>video</code>, which the toolbar does not offer.
-    </p>
-    <p>
-        A file pasted or dropped into the document is never inlined. The editor sends
-        <code>@@onsedna-editor-file</code> with an id, a name, a type and a size for each, and keeps the last few;
-        <code>@@onsedna-editor-file:preventDefault</code> says the app took them, so a
-        <code>[data-editor-file-notice]</code> stays hidden;
-        <code>OpenFileAsync(id, fileId)</code> opens one as a stream reference, which
-        <code>OpenReadStreamAsync(maxAllowedSize)</code> reads. This one counts the bytes and lists the file as an
-        attachment. An app uploads them there, and answers an image meant for the text with
-        <code>InsertImageAsync</code> once it has its address.
-    </p>
-</CatExample>
-
-<h2 id="controls">Controls <CatAnchor Id="controls" /></h2>
-<div class="sedna-scroll-x">
-    <table class="table">
-        <thead><tr><th>Control</th><th>Does</th></tr></thead>
-        <tbody>
-            <tr><td><code>data-editor-format="bold"</code>, <code>italic</code>, <code>underline</code>, <code>strike</code>, <code>code</code></td><td>Toggles the format on the selection.</td></tr>
-            <tr><td><code>data-editor-format="script"</code> with <code>value="sub"</code> or <code>"super"</code></td><td>Subscript, superscript.</td></tr>
-            <tr><td><code>data-editor-format="header"</code> with <code>value="1"</code>&ndash;<code>"6"</code>, or on a <code>&lt;select&gt;</code></td><td>A heading level; <code>""</code> is a paragraph.</td></tr>
-            <tr><td><code>data-editor-format="list"</code> with <code>value="bullet"</code>, <code>"ordered"</code> or <code>"check"</code></td><td>A list.</td></tr>
-            <tr><td><code>data-editor-format="blockquote"</code>, <code>"code-block"</code></td><td>A quote, a code block.</td></tr>
-            <tr><td><code>data-editor-format="align"</code> with <code>value="center"</code>, <code>"right"</code> or <code>"justify"</code></td><td>Alignment; no value is the start edge.</td></tr>
-            <tr><td><code>data-editor-format="link"</code></td><td>Opens the link form.</td></tr>
-            <tr><td><code>data-editor-format="image"</code>, <code>"video"</code></td><td>Sends <code>sedna-editor-media</code>, then opens the media form.</td></tr>
-            <tr><td><code>data-editor-action="undo"</code>, <code>"redo"</code>, <code>"indent"</code>, <code>"outdent"</code>, <code>"clean"</code></td><td>Undo, redo, one level in or out, and removing the formatting from the selection.</td></tr>
-            <tr><td><code>data-editor-formats="bold italic link"</code> on the editor</td><td>The formats it accepts, instead of the ones its toolbar offers.</td></tr>
-            <tr><td><code>data-editor-eager</code> on the editor</td><td>Starts it at once, rather than when it scrolls near.</td></tr>
-        </tbody>
-    </table>
-</div>
-
-<h2 id="events">Events <CatAnchor Id="events" /></h2>
-<div class="sedna-scroll-x">
-    <table class="table">
-        <thead><tr><th>Event</th><th>Detail</th></tr></thead>
-        <tbody>
-            <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
-            <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
-            <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt }</code>, cancelable, before the media form opens: the image or video under the caret, or empty strings.</td></tr>
-            <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, cancelable, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>, and cancel the event to say the app took them &mdash; otherwise the editor's <code>[data-editor-file-notice]</code> shows.</td></tr>
-            <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
-        </tbody>
-    </table>
-</div>
-
-<p class="cat-lede">
-    <code>data-editor-state</code> on the editor is <code>loading</code>, then <code>ready</code>, or
-    <code>error</code> when the markup has no textarea or no body. The reference is <code>docs/editor.md</code>.
-</p>
+</CatGroup>

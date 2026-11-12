@@ -22,79 +22,85 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Skeleton.Lines" Title="Lines and a title" Demo="ex-demo--block">
-    <p>
-        <code>.skeleton-text</code> is a line of text and <code>.skeleton-title</code> a heading;
-        <code>.skeleton-avatar</code> is the small circle beside one. Vary the widths &mdash;
-        identical bars read as a table rather than a paragraph. Every shape is sized by the same two
-        knobs on the element, <code>--skeleton-width</code> and <code>--skeleton-height</code>, and a
-        circle by <code>--skeleton-size</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Text and rows">
+    <CatExample TExample="Examples.Skeleton.Lines" Title="Lines and titles" Demo="ex-demo--block">
+        <p>
+            <code>.skeleton-text</code> is a line of text and <code>.skeleton-title</code> a heading;
+            <code>.skeleton-avatar</code> is the small circle beside one. Vary the widths &mdash;
+            identical bars read as a table rather than a paragraph. Every shape is sized by the same two
+            knobs on the element, <code>--skeleton-width</code> and <code>--skeleton-height</code>, and a
+            circle by <code>--skeleton-size</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Skeleton.ListRows" Title="List rows" Demo="ex-demo--block">
-    <p>
-        The real <code>.list</code> markup with placeholders where the content goes, so the rows
-        are exactly the height the rows will be. <code>.skeleton-badge</code> is the pill a row
-        ends with.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Skeleton.ListRows" Title="List rows" Demo="ex-demo--block">
+        <p>
+            The real <code>.list</code> markup with placeholders where the content goes, so the rows
+            are exactly the height the rows will be. <code>.skeleton-badge</code> is the pill a row
+            ends with.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Skeleton.TableRows" Title="Table rows" Demo="ex-demo--block">
-    <p>
-        The header is real &mdash; the reader knows the columns before the rows &mdash; and each
-        cell holds one line sized to what the column usually holds. Three rows are enough to say
-        &ldquo;a table&rdquo;; a screen of them says &ldquo;broken&rdquo;.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Skeleton.TableRows" Title="Table rows" Demo="ex-demo--block">
+        <p>
+            The header is real &mdash; the reader knows the columns before the rows &mdash; and each
+            cell holds one line sized to what the column usually holds. Three rows are enough to say
+            &ldquo;a table&rdquo;; a screen of them says &ldquo;broken&rdquo;.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Skeleton.Form" Title="A form" Demo="ex-demo--block">
-    <p>
-        <code>.skeleton-control</code> is one control height &mdash; a field or a button &mdash;
-        so a form of placeholders lays out on the same grid as the form it stands in for.
-    </p>
-</CatExample>
+<CatGroup Title="Controls">
+    <CatExample TExample="Examples.Skeleton.Form" Title="Form fields" Demo="ex-demo--block">
+        <p>
+            <code>.skeleton-control</code> is one control height &mdash; a field or a button &mdash;
+            so a form of placeholders lays out on the same grid as the form it stands in for.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Skeleton.ControlSizes" Title="The other control heights" Demo="ex-demo--block">
-    <p>
-        <code>.skeleton-control--sm</code> stands in for a <code>.btn--sm</code> or a small field and
-        <code>.skeleton-control--lg</code> for a <code>.btn--lg</code>, so the row keeps its height
-        when the real controls arrive. Shown here above the controls each one stands in for.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Skeleton.ControlSizes" Title="Small and large controls" Demo="ex-demo--block">
+        <p>
+            <code>.skeleton-control--sm</code> stands in for a <code>.btn--sm</code> or a small field and
+            <code>.skeleton-control--lg</code> for a <code>.btn--lg</code>, so the row keeps its height
+            when the real controls arrive. Shown here above the controls each one stands in for.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Skeleton.Stats" Title="Stat tiles" Demo="ex-demo--block">
-    <p>
-        Label, value, delta: the value is a <code>.skeleton-title</code>, the tallest bar, because
-        the figure is what the reader is waiting for. Inside a <code>.stat</code> it is exactly as
-        tall as the figure's line, at <code>.stat--sm</code> and <code>.stat--lg</code> too, with no
-        height to set. The first line takes
-        <code>.sedna-mt-0</code> and the last <code>.sedna-mb-0</code>, so the bars keep the
-        spacing between them and lose it at the tile&rsquo;s edges, as the list rows and the form do.
-    </p>
-</CatExample>
+<CatGroup Title="Figures and surfaces">
+    <CatExample TExample="Examples.Skeleton.Stats" Title="Stat tiles" Demo="ex-demo--block">
+        <p>
+            Label, value, delta: the value is a <code>.skeleton-title</code>, the tallest bar, because
+            the figure is what the reader is waiting for. Inside a <code>.stat</code> it is exactly as
+            tall as the figure's line, at <code>.stat--sm</code> and <code>.stat--lg</code> too, with no
+            height to set. The first line takes
+            <code>.sedna-mt-0</code> and the last <code>.sedna-mb-0</code>, so the bars keep the
+            spacing between them and lose it at the tile&rsquo;s edges, as the list rows and the form do.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Skeleton.Chart" Title="A chart" Demo="ex-demo--block">
-    <p>
-        <code>.skeleton-bars</code> is a row of bars at different heights &mdash; each is
-        <code>--bar</code> &mdash; so the box reads as a chart and not as a paragraph.
-        <code>--skeleton-height</code> is the box's height, as it is for a block.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Skeleton.Chart" Title="Charts" Demo="ex-demo--block">
+        <p>
+            <code>.skeleton-bars</code> is a row of bars at different heights &mdash; each is
+            <code>--bar</code> &mdash; so the box reads as a chart and not as a paragraph.
+            <code>--skeleton-height</code> is the box's height, as it is for a block.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Skeleton.Media" Title="A picture, and a circle of any size" Demo="ex-demo--block">
-    <p>
-        <code>.skeleton-image</code> is a 16:9 box for a picture that is loading &mdash; the ratio of the <a href="/media"><code>.media-frame</code></a> it turns into, and read from <code>--media-ratio</code> like it &mdash; and
-        <code>.skeleton-circle</code> a circle of <code>--skeleton-size</code> &mdash; an avatar in
-        another tier, a status dot, a logo tile.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Skeleton.Media" Title="Pictures and circles" Demo="ex-demo--block">
+        <p>
+            <code>.skeleton-image</code> is a 16:9 box for a picture that is loading &mdash; the ratio of the <a href="/media"><code>.media-frame</code></a> it turns into, and read from <code>--media-ratio</code> like it &mdash; and
+            <code>.skeleton-circle</code> a circle of <code>--skeleton-size</code> &mdash; an avatar in
+            another tier, a status dot, a logo tile.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Skeleton.Blocks" Title="A surface that has not arrived" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.skeleton-block</code> is the shape of a <em>surface</em> &mdash; a card of settings,
-        a table of rows, a graph. It is 8rem, with <code>.skeleton-block--sm</code> at 4rem for a
-        field or a row and <code>.skeleton-block--lg</code> at 12rem for a document or a table;
-        between the steps, set <code>--skeleton-height</code>, as the third card does.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Skeleton.Blocks" Title="Surface blocks" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.skeleton-block</code> is the shape of a <em>surface</em> &mdash; a card of settings,
+            a table of rows, a graph. It is 8rem, with <code>.skeleton-block--sm</code> at 4rem for a
+            field or a row and <code>.skeleton-block--lg</code> at 12rem for a document or a table;
+            between the steps, set <code>--skeleton-height</code>, as the third card does.
+        </p>
+    </CatExample>
+</CatGroup>

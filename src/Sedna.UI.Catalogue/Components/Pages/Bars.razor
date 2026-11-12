@@ -24,141 +24,151 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Bars.BarList" Title="A list of bars" Demo="ex-demo--block">
-    <p>
-        <code>.bar-list</code> is rows of label, bar and value, for comparing a few things down a
-        column. The fill is <code>--value</code>, a percentage of the widest; the value is text
-        as well as a bar, because the number is what the reader takes away and the bar is for the
-        comparison. <code>aria-current="true"</code> on a row is the one the figure above is
-        about, and <code>--bar-list-label</code> on the list widens the label column.
-    </p>
-</CatExample>
+<CatGroup Title="Bar lists">
+    <CatExample TExample="Examples.Bars.BarList" Title="Values to compare" Demo="ex-demo--block">
+        <p>
+            <code>.bar-list</code> is rows of label, bar and value, for comparing a few things down a
+            column. The fill is <code>--value</code>, a percentage of the widest; the value is text
+            as well as a bar, because the number is what the reader takes away and the bar is for the
+            comparison. <code>aria-current="true"</code> on a row is the one the figure above is
+            about, and <code>--bar-list-label</code> on the list widens the label column.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.BarListStacked" Title="A list of bars in parts" Demo="ex-demo--block">
-    <p>
-        A <code>.bar-list-fill</code> holding <code>.stack-bar-segment</code>s keeps its
-        <code>--value</code> as the row's length against the widest, and the segments split that
-        length &mdash; each segment's <code>--value</code> is its share of the row, in the same
-        <code>series-*</code> colours a <code>.stack-bar</code> above it uses. Give the fill
-        <code>role="img"</code> and a label with the numbers.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.BarListStacked" Title="Values in parts" Demo="ex-demo--block">
+        <p>
+            A <code>.bar-list-fill</code> holding <code>.stack-bar-segment</code>s keeps its
+            <code>--value</code> as the row's length against the widest, and the segments split that
+            length &mdash; each segment's <code>--value</code> is its share of the row, in the same
+            <code>series-*</code> colours a <code>.stack-bar</code> above it uses. Give the fill
+            <code>role="img"</code> and a label with the numbers.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.BarListSemantic" Title="Bars that mean something" Demo="ex-demo--block">
-    <p>
-        The same list with the semantic families on the fills. Here the rows are outcomes, so
-        the colour is a judgement the reader already makes &mdash; and <code>.series-muted</code>
-        is for the part that is not yet anything.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.BarListSemantic" Title="Values that mean something" Demo="ex-demo--block">
+        <p>
+            The same list with the semantic families on the fills. Here the rows are outcomes, so
+            the colour is a judgement the reader already makes &mdash; and <code>.series-muted</code>
+            is for the part that is not yet anything.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Bars.StackBar" Title="One bar in parts" Demo="ex-demo--block">
-    <p>
-        <code>.stack-bar</code> is one bar whose segments add up: the states an order book is in,
-        the share each carrier has. Each <code>.stack-bar-segment</code> is <code>--value</code>,
-        and where they do not reach 100% the track shows through &mdash; the honest picture of a
-        total that is not fully accounted for. The bar is one picture, so it takes
-        <code>role="img"</code> and a label that says the numbers; the
-        <code>.stack-bar-legend</code> under it is the same numbers for the eye, each key with a
-        <code>.stack-bar-swatch</code> in the segment's colour. <code>.stack-bar--sm</code> and <code>.meter--sm</code> are the thin track for a table cell; <code>.stack-bar--lg</code> is the
-        taller track for a bar that is the point of a card, and <code>.meter--lg</code> the same
-        for a meter.
-    </p>
-</CatExample>
+<CatGroup Title="Stack bars">
+    <CatExample TExample="Examples.Bars.StackBar" Title="One bar in parts" Demo="ex-demo--block">
+        <p>
+            <code>.stack-bar</code> is one bar whose segments add up: the states an order book is in,
+            the share each carrier has. Each <code>.stack-bar-segment</code> is <code>--value</code>,
+            and where they do not reach 100% the track shows through &mdash; the honest picture of a
+            total that is not fully accounted for. The bar is one picture, so it takes
+            <code>role="img"</code> and a label that says the numbers; the
+            <code>.stack-bar-legend</code> under it is the same numbers for the eye, each key with a
+            <code>.stack-bar-swatch</code> in the segment's colour. <code>.stack-bar--sm</code> and <code>.meter--sm</code> are the thin track for a table cell; <code>.stack-bar--lg</code> is the
+            taller track for a bar that is the point of a card, and <code>.meter--lg</code> the same
+            for a meter.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.StackBarMarked" Title="A target on a bar in parts, and its totals" Demo="ex-demo--block">
-    <p>
-        <code>.stack-bar-figure</code> holds a <code>.stack-bar</code> with the marks and labels a
-        bare bar has no room for. A target is the meter's own <code>.meter-mark</code> at
-        <code>--at</code>, with its <code>.meter-mark-label</code> over the bar and a
-        <code>data-tip</code> that says the whole target on hover. The
-        <code>.stack-bar-labels</code> line under the bar puts a <code>.stack-bar-label</code> on each
-        boundary, at the running total's <code>--at</code>, and a <code>.stack-bar-total</code> at the
-        end. The bar's label says every number, so the line of labels is <code>aria-hidden</code>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.StackBarMarked" Title="Target and totals" Demo="ex-demo--block">
+        <p>
+            <code>.stack-bar-figure</code> holds a <code>.stack-bar</code> with the marks and labels a
+            bare bar has no room for. A target is the meter's own <code>.meter-mark</code> at
+            <code>--at</code>, with its <code>.meter-mark-label</code> over the bar and a
+            <code>data-tip</code> that says the whole target on hover. The
+            <code>.stack-bar-labels</code> line under the bar puts a <code>.stack-bar-label</code> on each
+            boundary, at the running total's <code>--at</code>, and a <code>.stack-bar-total</code> at the
+            end. The bar's label says every number, so the line of labels is <code>aria-hidden</code>.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Bars.Meter" Title="A value against its thresholds" Demo="ex-demo--block">
-    <p>
-        <code>.meter</code> differs from a <a href="/progress">progress bar</a> in what the marks
-        say: progress ends at 100% and is done, a meter has a line the reader does not want the
-        fill to cross. Each <code>.meter-mark</code> is at <code>--at</code>, and
-        <code>.meter-mark-label</code> names it; <code>--labelled</code> on the meter reserves the
-        line under the track for those labels, and <code>.meter-scale</code> is the pair of end
-        values under that. Where two marks sit close, <code>.meter-mark--above</code> moves one
-        label over the track. The fill's colour is the app's judgement of the value &mdash; a series
-        modifier &mdash; and the marks stay neutral.
-    </p>
-</CatExample>
+<CatGroup Title="Meters">
+    <CatExample TExample="Examples.Bars.Meter" Title="Value against thresholds" Demo="ex-demo--block">
+        <p>
+            <code>.meter</code> differs from a <a href="/progress">progress bar</a> in what the marks
+            say: progress ends at 100% and is done, a meter has a line the reader does not want the
+            fill to cross. Each <code>.meter-mark</code> is at <code>--at</code>, and
+            <code>.meter-mark-label</code> names it; <code>--labelled</code> on the meter reserves the
+            line under the track for those labels, and <code>.meter-scale</code> is the pair of end
+            values under that. Where two marks sit close, <code>.meter-mark--above</code> moves one
+            label over the track. The fill's colour is the app's judgement of the value &mdash; a series
+            modifier &mdash; and the marks stay neutral.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.MeterSizes" Title="Three thicknesses" Demo="ex-demo--block">
-    <p>
-        <code>.meter--sm</code> is the track for a dense list of hosts, the bare <code>.meter</code>
-        the default, and <code>.meter--lg</code> a single figure that is the point of the card. A
-        mark without a label still shows the line; the label is in the accessible name.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.MeterSizes" Title="Three thicknesses" Demo="ex-demo--block">
+        <p>
+            <code>.meter--sm</code> is the track for a dense list of hosts, the bare <code>.meter</code>
+            the default, and <code>.meter--lg</code> a single figure that is the point of the card. A
+            mark without a label still shows the line; the label is in the accessible name.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.MeterRow" Title="Meters in a table" Demo="ex-demo--block">
-    <p>
-        Without labels, a meter is a cell: the mark is still the cap, the fill's family says
-        how close each queue is, and the figures in the next column are the numbers. Give the
-        column a width, or the meters shrink to the longest name.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.MeterRow" Title="Meters in a table" Demo="ex-demo--block">
+        <p>
+            Without labels, a meter is a cell: the mark is still the cap, the fill's family says
+            how close each queue is, and the figures in the next column are the numbers. Give the
+            column a width, or the meters shrink to the longest name.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Bars.BarListCompared" Title="This year against last" Demo="ex-demo--block">
-    <p>
-        Use a comparison where the question is &ldquo;better or worse than before&rdquo; rather than
-        &ldquo;how much&rdquo;: this year against last, this month against the one before. A
-        <code>.bar-previous</code> goes first in the track, at its own <code>--value</code>, and the
-        fill after it paints over it. Where the previous value was higher its hatch sticks out past
-        the fill; where it was lower the fill covers the hatch and the line at its end is still
-        there. <code>.bar-list-previous</code> puts the previous figure beside the current one, and a
-        <code>.stack-bar-legend</code> with a <code>.stack-bar-swatch--previous</code> says which is
-        which &mdash; without it a reader takes the hatch for a second series. Give each track
-        <code>role="img"</code> and a label that states both values, with the period each belongs to.
-    </p>
-</CatExample>
+<CatGroup Title="Against before">
+    <CatExample TExample="Examples.Bars.BarListCompared" Title="This year against last" Demo="ex-demo--block">
+        <p>
+            Use a comparison where the question is &ldquo;better or worse than before&rdquo; rather than
+            &ldquo;how much&rdquo;: this year against last, this month against the one before. A
+            <code>.bar-previous</code> goes first in the track, at its own <code>--value</code>, and the
+            fill after it paints over it. Where the previous value was higher its hatch sticks out past
+            the fill; where it was lower the fill covers the hatch and the line at its end is still
+            there. <code>.bar-list-previous</code> puts the previous figure beside the current one, and a
+            <code>.stack-bar-legend</code> with a <code>.stack-bar-swatch--previous</code> says which is
+            which &mdash; without it a reader takes the hatch for a second series. Give each track
+            <code>role="img"</code> and a label that states both values, with the period each belongs to.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.BarListDelta" Title="Month against month, with the change" Demo="ex-demo--block">
-    <p>
-        When the change matters more than the old figure, put a <code>.stat-delta</code> in the value
-        column instead of <code>.bar-list-previous</code>. The arrow carries the direction and the
-        modifier the judgement, exactly as under a stat, and a change too small to judge takes
-        no modifier. The hatch is neutral whatever series the fill is; give
-        <code>.bar-previous</code> the fill's <code>.series-*</code> only where both bars must share
-        a hue.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.BarListDelta" Title="Change since last month" Demo="ex-demo--block">
+        <p>
+            When the change matters more than the old figure, put a <code>.stat-delta</code> in the value
+            column instead of <code>.bar-list-previous</code>. The arrow carries the direction and the
+            modifier the judgement, exactly as under a stat, and a change too small to judge takes
+            no modifier. The hatch is neutral whatever series the fill is; give
+            <code>.bar-previous</code> the fill's <code>.series-*</code> only where both bars must share
+            a hue.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.MeterCompared" Title="A meter or a progress bar against before" Demo="ex-demo--block">
-    <p>
-        <code>.bar-previous</code> works the same way as the first child of a <code>.meter</code> or a
-        <code>.progress</code>: disk now against a week ago, a sprint against the last one on the
-        same day. On a meter the previous value's line sits beside the threshold marks, so keep the
-        legend. A <code>.stack-bar</code> takes no previous value: its parts are shares of one
-        total, and two totals compare better as two stack bars, one above the other.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.MeterCompared" Title="Meter against last week" Demo="ex-demo--block">
+        <p>
+            <code>.bar-previous</code> works the same way as the first child of a <code>.meter</code> or a
+            <code>.progress</code>: disk now against a week ago, a sprint against the last one on the
+            same day. On a meter the previous value's line sits beside the threshold marks, so keep the
+            legend. A <code>.stack-bar</code> takes no previous value: its parts are shares of one
+            total, and two totals compare better as two stack bars, one above the other.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Bars.Gauge" Title="A value on a dial" Demo="ex-demo--block">
-    <p>
-        <code>.gauge</code> is a half circle for a figure read against its range; <code>.gauge--arc</code>
-        is three quarters of a circle with the figure in the middle. The arc is
-        <code>--value</code>, as on a meter, and glides to a new one. Its colour is the same series
-        modifier, the brand by default. The figure is the app's text in a <code>.gauge-value</code>,
-        with an optional one-word <code>.gauge-label</code> under it; give the gauge
-        <code>role="img"</code> and a label that says the figure and what it is measured against.
-        Use a gauge where one figure is the point of a tile &mdash; a row of figures to compare reads
-        better as a <code>.bar-list</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Gauges">
+    <CatExample TExample="Examples.Bars.Gauge" Title="Value on a dial" Demo="ex-demo--block">
+        <p>
+            <code>.gauge</code> is a half circle for a figure read against its range; <code>.gauge--arc</code>
+            is three quarters of a circle with the figure in the middle. The arc is
+            <code>--value</code>, as on a meter, and glides to a new one. Its colour is the same series
+            modifier, the brand by default. The figure is the app's text in a <code>.gauge-value</code>,
+            with an optional one-word <code>.gauge-label</code> under it; give the gauge
+            <code>role="img"</code> and a label that says the figure and what it is measured against.
+            Use a gauge where one figure is the point of a tile &mdash; a row of figures to compare reads
+            better as a <code>.bar-list</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Bars.GaugeSizes" Title="Three sizes of gauge" Demo="ex-demo--block">
-    <p>
-        <code>.gauge--sm</code>, the bare <code>.gauge</code> and <code>.gauge--lg</code> each scale
-        the ring, its thickness and the figure together, so a figure and a one-word caption fit inside
-        a half circle at every size.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Bars.GaugeSizes" Title="Gauge sizes" Demo="ex-demo--block">
+        <p>
+            <code>.gauge--sm</code>, the bare <code>.gauge</code> and <code>.gauge--lg</code> each scale
+            the ring, its thickness and the figure together, so a figure and a one-word caption fit inside
+            a half circle at every size.
+        </p>
+    </CatExample>
+</CatGroup>

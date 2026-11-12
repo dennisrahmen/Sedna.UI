@@ -25,7 +25,7 @@ public class LargeTableBlazorTests(CatalogueAppFixture app)
 
     private static ILocator Example(IPage page, string title) =>
         page.Locator("section[data-example]")
-            .Filter(new() { Has = page.Locator("h2", new() { HasTextString = title }) })
+            .Filter(new() { Has = page.Locator("h2, h3", new() { HasTextString = title }) })
             .Locator(".ex-demo");
 
     [Fact]
@@ -34,7 +34,7 @@ public class LargeTableBlazorTests(CatalogueAppFixture app)
         if (app.NoBrowser) return;
         var errors = new List<string>();
         var page = await Open(errors);
-        var demo = Example(page, "A tree grid from Blazor");
+        var demo = Example(page, "Tree grid from Blazor");
         var year = demo.Locator("tr[data-value='2024']");
         var cell = year.Locator("td").First;
 

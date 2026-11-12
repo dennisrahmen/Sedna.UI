@@ -5,165 +5,172 @@
     act on is an <a href="/alert">alert</a>, which stays until the state changes.
 </CatHead>
 
-<h2 id="when-not">When not to use a toast <CatAnchor Id="when-not" /></h2>
-<div class="callout callout--warn">
-    <i class="ri-error-warning-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">A toast can be missed, so nothing important may live only in one</span>
-        A toast appears away from where the reader is looking and goes again on its own. A screen
-        reader announces it once, politely, and may not announce it at all while something else is
-        being read; a reader using a screen magnifier is usually looking at another part of the
-        screen and never sees it. So:
-        <ul>
-            <li>Information the reader needs, or something that stays true &mdash; read-only mode, a
-                failed connection, a validation error &mdash; goes <strong>inline</strong>, beside what
-                it is about, or in an <a href="/alert">alert</a> banner that stays until the state
-                changes.</li>
-            <li>Something the reader must act on goes in the page or in a <a href="/modal">dialog</a>.
-                A toast can carry an action as a shortcut, never as the only way to it.</li>
-            <li>Something the reader should be able to come back to goes in the
-                <a href="/notifications">notification inbox</a>; a toast may announce it as it
-                arrives.</li>
-        </ul>
-        A toast is for a receipt: confirmation of something the reader just did, that would change
-        nothing if they missed it.
+<CatGroup Title="When to use a toast">
+    <h3 id="when-not">When not to use one <CatAnchor Id="when-not" /></h3>
+    <div class="callout callout--warn">
+        <i class="ri-error-warning-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">A toast can be missed, so nothing important may live only in one</span>
+            A toast appears away from where the reader is looking and goes again on its own. A screen
+            reader announces it once, politely, and may not announce it at all while something else is
+            being read; a reader using a screen magnifier is usually looking at another part of the
+            screen and never sees it. So:
+            <ul>
+                <li>Information the reader needs, or something that stays true &mdash; read-only mode, a
+                    failed connection, a validation error &mdash; goes <strong>inline</strong>, beside what
+                    it is about, or in an <a href="/alert">alert</a> banner that stays until the state
+                    changes.</li>
+                <li>Something the reader must act on goes in the page or in a <a href="/modal">dialog</a>.
+                    A toast can carry an action as a shortcut, never as the only way to it.</li>
+                <li>Something the reader should be able to come back to goes in the
+                    <a href="/notifications">notification inbox</a>; a toast may announce it as it
+                    arrives.</li>
+            </ul>
+            A toast is for a receipt: confirmation of something the reader just did, that would change
+            nothing if they missed it.
+        </div>
     </div>
-</div>
 
-<CatExample TExample="Examples.Toast.MoreTones" Title="Brand and secret" Demo="ex-demo--block ex-demo--pad">
-    <p>Beside go, warn, danger and info, a toast takes <code>brand</code> and <code>secret</code>, from script as <code>kind</code> too.</p>
-</CatExample>
+    <CatExample TExample="Examples.Toast.ToastOrAlert" Title="Toast or alert" Demo="ex-demo--block">
+        <p>
+            The same event, told both ways. A toast is a receipt for something that already happened and
+            needs nothing from the reader; an <a href="/alert">alert</a> stays until the state changes,
+            and is where an action the reader <em>must</em> take belongs. A notification card can offer
+            one, but a toast can be dismissed, so nothing that has to happen may depend on it.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Toast.ToastTriggers" Title="Raising one">
-    <p>
-        <strong>Live.</strong> <code>sednaUi.toast(message, options)</code> renders the stack and the
-        toast, stacks a second under the first, and removes it after its timeout;
-        <code>timeout: 0</code> keeps it until dismissed, which is what a failure wants. From C# it
-        is <code>ToastAsync</code>. <code>kind</code> is <code>go</code>, <code>warn</code>,
-        <code>danger</code> or <code>info</code>, and <code>info</code> is the default. Each button
-        here takes the colour of what it does, not of the toast it raises.
+<CatGroup Title="Raising a toast">
+    <CatExample TExample="Examples.Toast.ToastTriggers" Title="Tones and timeout">
+        <p>
+            <strong>Live.</strong> <code>sednaUi.toast(message, options)</code> renders the stack and the
+            toast, stacks a second under the first, and removes it after its timeout;
+            <code>timeout: 0</code> keeps it until dismissed, which is what a failure wants. From C# it
+            is <code>ToastAsync</code>. <code>kind</code> is <code>go</code>, <code>warn</code>,
+            <code>danger</code> or <code>info</code>, and <code>info</code> is the default. Each button
+            here takes the colour of what it does, not of the toast it raises.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Toast.MoreTones" Title="Brand and secret tones" Demo="ex-demo--block ex-demo--pad">
+        <p>Beside go, warn, danger and info, a toast takes <code>brand</code> and <code>secret</code>, from script as <code>kind</code> too.</p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Toast.Pile" Title="Several at once" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Several toasts at once can take over a corner of the screen. Pile them, cap how many show, and
+            let a pointer swipe one away. All three are the library's stack; nothing changes in what you
+            write.
+        </p>
+        <p>
+            <strong>Live.</strong> <code>sednaUi.configure({ toastPile: true })</code> &mdash;
+            <code>SednaUiOptions.ToastPile</code> from C# &mdash; gives the stack
+            <code>.toast-stack--pile</code>: the newest toast in front and the two before it peeking out
+            above. The pointer or the focus on the stack opens it out, and while it is open no toast in
+            it runs out. <code>toastLimit: 3</code> (<code>ToastLimit</code>) shows the newest three;
+            older ones wait out of sight with their timers held and come back as the ones in front go.
+            A stack you write takes <code>.toast-stack--pile</code> too and opens the same way.
+        </p>
+        <p>
+            A toast with a close button can be swiped toward the edge the stack sits on &mdash; the
+            inline end, so leftward in a right-to-left page; a short swipe springs back. The close
+            button stays the way to do it without a pointer. With reduced motion the pile opens and a
+            toast springs back in one step.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Work that ends later">
+    <CatExample TExample="Examples.Interop.ToastHandleFromCsharp" Title="Upload from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live — upload it.</strong> <code>ToastAsync</code> returns a
+            <code>SednaToast</code>: show <em>Uploading…</em> with <code>timeoutMs: 0</code>, and when the
+            work ends <code>ReplaceAsync</code> the outcome into the same toast, in place. The button is
+            <code>aria-busy</code> while the work runs, and a failure is written on the page beside it
+            as well, where it stays until an upload succeeds.
+            <code>DismissAsync</code> removes it early. A toast the reader already closed is not an error:
+            replacing it shows a new one, because the outcome still has to reach them. The close button's
+            name is <code>SednaUiOptions.ToastDismissLabel</code> — the one word the library writes
+            itself — or <code>dismissLabel</code> for one toast.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Toast.PromiseToast" Title="Save from script" Demo="ex-demo--block">
+        <p>
+            <strong>Live.</strong> Work that ends later is one toast, not two: present a toast for the
+            running work from your own <code>&lt;template&gt;</code> &mdash; a <code>.spinner</code>
+            where the icon goes, no close button, <code>timeout: 0</code> &mdash; and when the promise
+            settles, <code>sednaUi.toast.replace(id, message, options)</code> turns it into the outcome
+            in place. A failure the reader has to act on is never only in the toast: show it on the page
+            too, beside the work, as an <a href="/alert">alert</a> that stays until a save succeeds. The
+            alert sits in a wrapper carrying <code>hidden</code>, because <code>.alert</code>&rsquo;s own
+            display outranks the attribute. From C#, <code>PresentToastAsync</code> then
+            <code>ReplaceAsync</code> on the handle it returns does the same.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Toasts you write">
+    <p class="cat-lede">
+        A notification that arrives while the reader is elsewhere &mdash; a task assigned, a value to
+        check &mdash; is a toast with something to author: a body that opens the record, buttons of its
+        own. Write it once in a <code>&lt;template&gt;</code> and present it in the library's stack, so it
+        has the top layer above an open modal, the hold on its timer and one corner shared with every
+        other toast. Never position a second stack of your own: it collides with this one and loses all
+        three.
     </p>
-</CatExample>
 
-<CatExample TExample="Examples.Interop.ToastHandleFromCsharp" Title="Work that ends later" Demo="ex-demo--block">
-    <p>
-        <strong>Live — upload it.</strong> <code>ToastAsync</code> returns a
-        <code>SednaToast</code>: show <em>Uploading…</em> with <code>timeoutMs: 0</code>, and when the
-        work ends <code>ReplaceAsync</code> the outcome into the same toast, in place. The button is
-        <code>aria-busy</code> while the work runs, and a failure is written on the page beside it
-        as well, where it stays until an upload succeeds.
-        <code>DismissAsync</code> removes it early. A toast the reader already closed is not an error:
-        replacing it shows a new one, because the outcome still has to reach them. The close button's
-        name is <code>SednaUiOptions.ToastDismissLabel</code> — the one word the library writes
-        itself — or <code>dismissLabel</code> for one toast.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Toast.NotificationCard" Title="Notification card" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> <code>sednaUi.toast.present(templateId, data, options)</code> clones
+            the template's first element into the stack and fills its <code>data-*</code> slots with text
+            from <code>data</code> &mdash; <code>title</code> fills <code>[data-title]</code> &mdash; and
+            <code>href</code> becomes the <code>href</code> of its <code>[data-href]</code> link. A body
+            that is the thing to click is an <code>a.toast-body</code> or a
+            <code>button.toast-body</code>, so <kbd>Tab</kbd> reaches it apart from the close button;
+            <code>.toast-actions</code> holds buttons under the text. A control with
+            <code>data-toast-value</code> ends the toast with that value, which
+            <code>sednaUi.toast.result(id)</code> resolves with; a <code>.toast-close</code> ends it with
+            <code>null</code>, as a dismissal or the timeout do. A link still navigates.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Toast.PromiseToast" Title="One toast from saving to saved" Demo="ex-demo--block">
-    <p>
-        <strong>Live.</strong> Work that ends later is one toast, not two: present a toast for the
-        running work from your own <code>&lt;template&gt;</code> &mdash; a <code>.spinner</code>
-        where the icon goes, no close button, <code>timeout: 0</code> &mdash; and when the promise
-        settles, <code>sednaUi.toast.replace(id, message, options)</code> turns it into the outcome
-        in place. A failure the reader has to act on is never only in the toast: show it on the page
-        too, beside the work, as an <a href="/alert">alert</a> that stays until a save succeeds. The
-        alert sits in a wrapper carrying <code>hidden</code>, because <code>.alert</code>&rsquo;s own
-        display outranks the attribute. From C#, <code>PresentToastAsync</code> then
-        <code>ReplaceAsync</code> on the handle it returns does the same.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.NotificationsFromCsharp" Title="Cards from C#, with +N more" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; press it five times.</strong> <code>PresentToastAsync</code> returns a
+            <code>SednaToast</code>, and <code>ResultAsync</code> waits for what the reader did with it
+            &mdash; <code>"open"</code>, <code>"read"</code>, or <code>null</code> &mdash; for as long as
+            that takes, the way <code>ShowModalAsync</code> waits for a dialog. Three cards show at once;
+            the rest fold into one card whose count <code>ReplaceFromTemplateAsync</code> moves in place,
+            keeping its position and the wait already on it. A template that is not there answers
+            <code>null</code> rather than throwing into the circuit.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<h2 id="pile">A pile, a limit and a swipe <CatAnchor Id="pile" /></h2>
-<p class="cat-lede">
-    Several toasts at once can take over a corner of the screen. Pile them, cap how many show, and
-    let a pointer swipe one away. All three are the library's stack; nothing changes in what you
-    write.
-</p>
+<CatGroup Title="Markup and API">
+    <CatExample TExample="Examples.Toast.Toast" Title="Stack markup" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            You do not write this for <code>sednaUi.toast</code>, and a toast you write goes in a
+            <code>&lt;template&gt;</code> for <code>toast.present</code>. It is here for an app that
+            renders a stack inside its own page, such as a server-rendered one. <strong>The stack carries the live region, and on this path it is yours to
+            write:</strong> <code>role="status"</code> plus <code>aria-live="polite"</code> on
+            <code>.toast-stack</code>, or a toast an app rendered is never announced at all. Do not put
+            <code>role="alert"</code> on an individual toast — two live regions announce the same text
+            twice, and a failure that has to interrupt gets <code>aria-live="assertive"</code> on the
+            stack while it is showing.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Toast.Pile" Title="Piled, and opened by the pointer" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> <code>sednaUi.configure({ toastPile: true })</code> &mdash;
-        <code>SednaUiOptions.ToastPile</code> from C# &mdash; gives the stack
-        <code>.toast-stack--pile</code>: the newest toast in front and the two before it peeking out
-        above. The pointer or the focus on the stack opens it out, and while it is open no toast in
-        it runs out. <code>toastLimit: 3</code> (<code>ToastLimit</code>) shows the newest three;
-        older ones wait out of sight with their timers held and come back as the ones in front go.
-        A stack you write takes <code>.toast-stack--pile</code> too and opens the same way.
-    </p>
-    <p>
-        A toast with a close button can be swiped toward the edge the stack sits on &mdash; the
-        inline end, so leftward in a right-to-left page; a short swipe springs back. The close
-        button stays the way to do it without a pointer. With reduced motion the pile opens and a
-        toast springs back in one step.
-    </p>
-</CatExample>
-
-<h2 id="yours">A toast you write <CatAnchor Id="yours" /></h2>
-<p class="cat-lede">
-    A notification that arrives while the reader is elsewhere &mdash; a task assigned, a value to
-    check &mdash; is a toast with something to author: a body that opens the record, buttons of its
-    own. Write it once in a <code>&lt;template&gt;</code> and present it in the library's stack, so it
-    has the top layer above an open modal, the hold on its timer and one corner shared with every
-    other toast. Never position a second stack of your own: it collides with this one and loses all
-    three.
-</p>
-
-<CatExample TExample="Examples.Toast.NotificationCard" Title="A notification card" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> <code>sednaUi.toast.present(templateId, data, options)</code> clones
-        the template's first element into the stack and fills its <code>data-*</code> slots with text
-        from <code>data</code> &mdash; <code>title</code> fills <code>[data-title]</code> &mdash; and
-        <code>href</code> becomes the <code>href</code> of its <code>[data-href]</code> link. A body
-        that is the thing to click is an <code>a.toast-body</code> or a
-        <code>button.toast-body</code>, so <kbd>Tab</kbd> reaches it apart from the close button;
-        <code>.toast-actions</code> holds buttons under the text. A control with
-        <code>data-toast-value</code> ends the toast with that value, which
-        <code>sednaUi.toast.result(id)</code> resolves with; a <code>.toast-close</code> ends it with
-        <code>null</code>, as a dismissal or the timeout do. A link still navigates.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Interop.NotificationsFromCsharp" Title="Notifications from C#, with +N more" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; press it five times.</strong> <code>PresentToastAsync</code> returns a
-        <code>SednaToast</code>, and <code>ResultAsync</code> waits for what the reader did with it
-        &mdash; <code>"open"</code>, <code>"read"</code>, or <code>null</code> &mdash; for as long as
-        that takes, the way <code>ShowModalAsync</code> waits for a dialog. Three cards show at once;
-        the rest fold into one card whose count <code>ReplaceFromTemplateAsync</code> moves in place,
-        keeping its position and the wait already on it. A template that is not there answers
-        <code>null</code> rather than throwing into the circuit.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Toast.Toast" Title="The markup" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        You do not write this for <code>sednaUi.toast</code>, and a toast you write goes in a
-        <code>&lt;template&gt;</code> for <code>toast.present</code>. It is here for an app that
-        renders a stack inside its own page, such as a server-rendered one. <strong>The stack carries the live region, and on this path it is yours to
-        write:</strong> <code>role="status"</code> plus <code>aria-live="polite"</code> on
-        <code>.toast-stack</code>, or a toast an app rendered is never announced at all. Do not put
-        <code>role="alert"</code> on an individual toast — two live regions announce the same text
-        twice, and a failure that has to interrupt gets <code>aria-live="assertive"</code> on the
-        stack while it is showing.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Toast.ToastOrAlert" Title="Toast or alert" Demo="ex-demo--block">
-    <p>
-        The same event, told both ways. A toast is a receipt for something that already happened and
-        needs nothing from the reader; an <a href="/alert">alert</a> stays until the state changes,
-        and is where an action the reader <em>must</em> take belongs. A notification card can offer
-        one, but a toast can be dismissed, so nothing that has to happen may depend on it.
-    </p>
-</CatExample>
-
-<CatSnippet Name="Toast/ToastApi.txt" Title="The API">
-    <p>
-        The JavaScript call returns a function that removes that toast early, whose
-        <code>id</code> also names it for <code>toast.dismiss(id)</code> and
-        <code>toast.replace(id, message, options)</code>. <code>toast.present</code> and
-        <code>toast.result</code> are a toast you write and how it ended. <code>dismissLabel</code> names the close
-        button, and <code>configure({ toastDismissLabel })</code> sets it once for every toast;
-        <code>configure({ toastPile, toastLimit })</code> sets the stack's shape.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Toast/ToastApi.txt" Title="Script API">
+        <p>
+            The JavaScript call returns a function that removes that toast early, whose
+            <code>id</code> also names it for <code>toast.dismiss(id)</code> and
+            <code>toast.replace(id, message, options)</code>. <code>toast.present</code> and
+            <code>toast.result</code> are a toast you write and how it ended. <code>dismissLabel</code> names the close
+            button, and <code>configure({ toastDismissLabel })</code> sets it once for every toast;
+            <code>configure({ toastPile, toastLimit })</code> sets the stack's shape.
+        </p>
+    </CatSnippet>
+</CatGroup>

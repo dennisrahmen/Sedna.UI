@@ -56,7 +56,23 @@ internal static partial class GuideMarkdown
     public static string Absolute(string markdown) =>
         LinkTarget().Replace(markdown, m => $"]({Link(m.Groups[1].Value, forSite: false)})");
 
-    /// <summary>The Markdown as HTML for the design guide page.</summary>
+    /// <summary>
+    /// The first sentence of the first paragraph, as plain text: what a principle's tile says.
+    /// </summary>
+    public static string Summary(string markdown)
+    {
+        ArgumentNullException.ThrowIfNull(markdown);
+        var paragraph = markdown.Replace("\r\n", "\n", StringComparison.Ordinal).Split("\n\n")
+            .Select(p => p.Trim())
+            .FirstOrDefault(p => p.Length > 0 && !p.StartsWith('|') && !p.StartsWith("- ", StringComparison.Ordinal) && !p.StartsWith('#'))
+            ?? string.Empty;
+        var plain = Regex.Replace(paragraph, @"\[([^\]]+)\]\([^)]+\)", "$1");
+        plain = Regex.Replace(plain.Replace("**", string.Empty, StringComparison.Ordinal).Replace("`", string.Empty, StringComparison.Ordinal), @"\s+", " ");
+        var end = plain.IndexOf(". ", StringComparison.Ordinal);
+        return end < 0 ? plain : plain[..(end + 1)];
+    }
+
+    /// <summary>The Markdown as HTML for the principles page.</summary>
     public static string ToHtml(string markdown)
     {
         var html = new StringBuilder();
@@ -69,7 +85,8 @@ internal static partial class GuideMarkdown
 
             if (line.StartsWith("### ", StringComparison.Ordinal))
             {
-                html.Append("<h3>").Append(InlineHtml(line[4..].Trim())).Append("</h3>\n");
+                // A heading inside a principle, which is itself an h3 under its topic.
+                html.Append("<h4>").Append(InlineHtml(line[4..].Trim())).Append("</h4>\n");
                 i++;
             }
             else if (line.StartsWith('|'))
@@ -126,7 +143,9 @@ internal static partial class GuideMarkdown
         if (rows.Count < 2 || !Regex.IsMatch(rows[1], @"^\|(\s*:?-+:?\s*\|)+\s*$"))
             throw new FormatException($"A table needs a header row and a |---| row under it: {rows[0]}");
 
-        html.Append("<table>\n<thead><tr>");
+        // The library's own table in a card, scrolling sideways on a narrow screen, as the Cards
+        // page's table in a card does.
+        html.Append("<div class=\"card\"><div class=\"sedna-scroll-x\"><table class=\"table\">\n<thead><tr>");
         foreach (var cell in Cells(rows[0])) html.Append("<th>").Append(InlineHtml(cell)).Append("</th>");
         html.Append("</tr></thead>\n<tbody>\n");
         foreach (var row in rows.Skip(2))
@@ -135,7 +154,7 @@ internal static partial class GuideMarkdown
             foreach (var cell in Cells(row)) html.Append("<td>").Append(InlineHtml(cell)).Append("</td>");
             html.Append("</tr>\n");
         }
-        html.Append("</tbody>\n</table>\n");
+        html.Append("</tbody>\n</table></div></div>\n");
     }
 
     /// <summary>One line of inline Markdown as HTML, everything else escaped.</summary>

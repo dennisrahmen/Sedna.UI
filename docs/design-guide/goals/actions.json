@@ -6,7 +6,7 @@
     "answer": [
       { "page": "/button#tone-and-emphasis", "role": "primary" },
       { "page": "/button#in-a-footer-row", "role": "part" },
-      { "page": "/form#where-the-actions-sit", "role": "part" }
+      { "page": "/form#action-placement", "role": "part" }
     ],
     "how": "One filled button per region, in the tone of what it does: brand when it is neutral, go when it sends something outward. Every other action in the region is soft or ghost, and in an end-aligned row the primary comes last.",
     "avoid": "Two filled buttons in one row, or a filled delete beside the primary: the destructive action takes the soft or ghost variant on the far side."
@@ -17,7 +17,7 @@
     "phrases": [ "icon button", "icon-only button", "button with just an icon", "square icon button" ],
     "answer": [
       { "page": "/button#icon-only", "role": "primary" },
-      { "page": "/button#ghost", "role": "part" },
+      { "page": "/button#ghost-in-a-dense-row", "role": "part" },
       { "page": "/hover-hints#on-any-control", "role": "part" }
     ],
     "how": ".btn--icon makes the box square around one glyph, an aria-label names the button, and a data-tip says what it does where the icon alone does not. In a dense row of secondary actions it is .btn--ghost as well.",
@@ -28,7 +28,7 @@
     "goal": "Let the user see that the action they pressed is still running",
     "phrases": [ "busy button", "loading button", "button with a spinner", "pending button state" ],
     "answer": [
-      { "page": "/button#while-its-action-runs", "role": "primary" }
+      { "page": "/button#busy-while-its-action-runs", "role": "primary" }
     ],
     "how": "aria-busy=\"true\" on the button while the call is in flight: the label is painted out but keeps its width, a ring spins in its place, and a second click is ignored. The handler ignores a second Enter until the work is done.",
     "avoid": "Setting disabled while it runs, which drops focus and stops the state being announced."
@@ -38,7 +38,7 @@
     "goal": "Let the user find out why an action is unavailable",
     "phrases": [ "disabled button tooltip", "why is this button disabled", "explain a disabled button", "greyed out button" ],
     "answer": [
-      { "page": "/button#a-disabled-button-that-says-why", "role": "primary" },
+      { "page": "/button#disabled-with-a-reason", "role": "primary" },
       { "page": "/hover-hints#on-any-control", "role": "part" }
     ],
     "how": "A data-tip on the button says what it is waiting for. Where a keyboard reader needs the reason, aria-disabled=\"true\" keeps the button in the tab order with the same look, and the handler ignores it.",
@@ -60,7 +60,7 @@
     "goal": "Let the user reach a few actions on the same thing as one control",
     "phrases": [ "button group", "joined buttons", "grouped buttons", "zoom in and out buttons" ],
     "answer": [
-      { "page": "/button-group#button-group", "role": "primary" },
+      { "page": "/button-group#joined-buttons", "role": "primary" },
       { "page": "/button-group#three-sizes", "role": "part" }
     ],
     "how": ".btn-group shares one border between neighbours so the buttons read as one control, and role=\"group\" with an aria-label says what they act on. Every button in it takes the same size class.",
@@ -71,7 +71,7 @@
     "goal": "Let the user run an action or pick a variant of it from one control",
     "phrases": [ "send options", "split button", "button with variants", "button with a menu" ],
     "answer": [
-      { "page": "/button-group#a-split-button-that-opens-a-menu", "role": "primary" },
+      { "page": "/button-group#split-button-with-a-menu", "role": "primary" },
       { "page": "/button-group#split-button", "role": "part" },
       { "page": "/menu#anchored-under-a-trigger", "role": "part" }
     ],
@@ -84,9 +84,9 @@
     "phrases": [ "filter bar", "search box above a table", "search a list", "quick filter", "list search field" ],
     "answer": [
       { "page": "/toolbar#filters-and-a-count", "role": "primary" },
-      { "page": "/toolbar#a-wider-search-box", "role": "part" },
-      { "page": "/toolbar#a-search-that-takes-the-room", "role": "part" },
-      { "page": "/chip#what-is-applied-under-the-toolbar", "role": "part" }
+      { "page": "/toolbar#wider-search-box", "role": "part" },
+      { "page": "/toolbar#search-that-takes-the-room", "role": "part" },
+      { "page": "/chip#applied-filters", "role": "part" }
     ],
     "how": "A .toolbar above the list: the search and one or two selects in .toolbar-filters, the count of what is left at the trailing end. A search whose placeholder is a sentence takes .toolbar-input--wide or --grow.",
     "avoid": "A third child in the toolbar, which space-between floats into the middle: everything belongs to the filters or the actions."
@@ -109,7 +109,7 @@
     "phrases": [ "overflow menu", "collapse buttons into a menu", "responsive toolbar", "priority plus" ],
     "answer": [
       { "page": "/toolbar#actions-that-fold-into-a-menu", "role": "primary" },
-      { "page": "/structure#actions-that-fold-into-a-menu", "role": "part" },
+      { "page": "/structure#actions-folded-into-a-menu", "role": "part" },
       { "page": "/menu#anchored-under-a-trigger", "role": "part" }
     ],
     "how": ".toolbar-actions--fold hides every child but .actions-more and those marked .actions-keep once the toolbar is narrow, and the menu behind .actions-more holds the same actions. The page head folds the same way by its own width.",
@@ -140,7 +140,7 @@
     "goal": "Let the user type to find an item in a long menu",
     "phrases": [ "searchable menu", "menu with a search field", "filter menu items", "type to filter a menu" ],
     "answer": [
-      { "page": "/menu#a-menu-that-filters", "role": "primary" }
+      { "page": "/menu#filtering-as-you-type", "role": "primary" }
     ],
     "how": "An input with data-menu-filter at the top of the panel narrows the items as the reader types, hides a label with nothing left under it, and shows the app's .menu-empty row when nothing matches.",
     "avoid": "Filtering a menu of values the reader picks from, which is a searchable select."
@@ -150,8 +150,8 @@
     "goal": "Let the user change a status or an access level in place from a menu",
     "phrases": [ "inline status picker", "change status in a table", "value trigger", "role picker in a table" ],
     "answer": [
-      { "page": "/menu#a-value-trigger-in-a-table-cell", "role": "primary" },
-      { "page": "/avatar#in-a-table-cell", "role": "part" }
+      { "page": "/menu#value-trigger-in-a-table-cell", "role": "primary" },
+      { "page": "/avatar#name-in-a-table-cell", "role": "part" }
     ],
     "how": "A .value-trigger shows the current value and opens a menu whose options carry an icon or a description; .col-control gives its column a floor. Name each trigger after the record it changes and the value it holds, and mark that option aria-current in its menu, which tints it and draws its tick.",
     "avoid": "A value trigger where a plain list of values would do, which is a select."
@@ -161,9 +161,9 @@
     "goal": "Let the user open the detail behind a figure, a state or a term",
     "phrases": [ "popover", "info popup", "click for details", "definition popup", "explain a value" ],
     "answer": [
-      { "page": "/popover#popover", "role": "primary" },
-      { "page": "/popover#four-shapes", "role": "part" },
-      { "page": "/popover#opened-from-something-that-is-not-a-button", "role": "part" }
+      { "page": "/popover#from-a-button", "role": "primary" },
+      { "page": "/popover#four-content-shapes", "role": "part" },
+      { "page": "/popover#from-any-element", "role": "part" }
     ],
     "how": "A .popover with the popover attribute, opened by a popovertarget button, which also anchors it: the platform gives it the top layer, light dismiss and Escape. Inside, a title and a sentence, .kv rows, or a small table in .popover--flush.",
     "avoid": "Putting a list of actions in a popover, which is a menu."
@@ -173,9 +173,9 @@
     "goal": "Let the user glance at a record by resting on its link",
     "phrases": [ "hover card", "preview on hover", "rich tooltip", "peek card" ],
     "answer": [
-      { "page": "/popover#a-hover-card", "role": "primary" },
-      { "page": "/popover#one-card-for-many-triggers-filled-for-each", "role": "part" },
-      { "page": "/popover#a-hover-card-beside-a-click-of-its-own", "role": "part" }
+      { "page": "/popover#hover-and-long-press", "role": "primary" },
+      { "page": "/popover#one-card-for-many-triggers", "role": "part" },
+      { "page": "/popover#beside-a-click-of-its-own", "role": "part" }
     ],
     "how": "data-popover-hover beside data-popover opens the card after a short rest or on focus and keeps it while the pointer moves onto it; a long press opens it on touch. A list of many triggers renders one card and fills it for the one reached.",
     "avoid": "Putting what the reader needs only in a hover card, which a reader who never rests there does not see."
@@ -186,7 +186,7 @@
     "phrases": [ "drag to reorder", "drag and drop list", "drag handle", "reorder items" ],
     "answer": [
       { "page": "/drag-drop#reorder-a-list", "role": "primary" },
-      { "page": "/drag-drop#the-states", "role": "part" }
+      { "page": "/drag-drop#states", "role": "part" }
     ],
     "how": "data-drag-zone on the list, data-drag-item on each row and data-drag-handle on its grip; Space picks a row up and the arrow keys move it. The script reports the move as sedna-drop and the app moves the row in its own list.",
     "avoid": "Leaving out the live region and its sentences, so a keyboard drag happens in silence."
@@ -198,7 +198,7 @@
     "answer": [
       { "page": "/drag-drop#move-cards-between-lanes", "role": "primary" },
       { "page": "/drag-drop#carry-a-selection", "role": "part" },
-      { "page": "/drag-drop#a-nested-zone-that-takes-only-some-items", "role": "part" }
+      { "page": "/drag-drop#nest-zones-by-type", "role": "part" }
     ],
     "how": "A .drag-board of .drag-lane sections whose zones share a data-drag-group, with one sedna-drop handler on the board naming From and To. Each lane writes its .drag-empty once and its count in its head.",
     "avoid": "A board with no keyboard route: the arrows across a lane move the card to the next one, and the announcements say where it went."
@@ -209,7 +209,7 @@
     "phrases": [ "rearrange tiles", "drag dashboard widgets", "reorder a grid", "drag tiles" ],
     "answer": [
       { "page": "/drag-drop#reorder-a-grid-of-tiles", "role": "primary" },
-      { "page": "/grid#panels-the-reader-arranges", "role": "part" }
+      { "page": "/panel-grid#panels-the-reader-reorders", "role": "part" }
     ],
     "how": ".drag-grid with data-drag-axis=\"grid\" counts positions in reading order, so the index is the same whatever the column count, and the arrow keys move a tile across and between rows.",
     "avoid": "Storing a tile's position as a column and a row in a .drag-grid, whose column count follows its width: tiles that keep a place of their own are a .panel-grid."
@@ -219,11 +219,11 @@
     "goal": "Let the user open a menu or a list upward from a bar pinned to the foot of a pane",
     "phrases": [ "menu opens upward", "dropup menu", "open menu above the button", "panel placement", "menu beside the trigger" ],
     "answer": [
-      { "page": "/menu#a-bar-at-the-foot-of-a-pane", "role": "primary" },
+      { "page": "/menu#opening-up-from-a-footer-bar", "role": "primary" },
       { "page": "/menu#where-it-opens", "role": "part" },
       { "page": "/popover#where-it-opens", "role": "part" },
-      { "page": "/form-combo#a-list-that-opens-upward", "role": "part" },
-      { "page": "/form-select#a-drop-down-that-opens-upward", "role": "part" }
+      { "page": "/form-combo#panel-that-opens-upward", "role": "part" },
+      { "page": "/form-select#list-that-opens-upward", "role": "part" }
     ],
     "how": "--panel-placement on the bar, block-start for above or inline-end and inline-start for beside, reaches every panel anchored to a trigger inside it: menus, popovers, combo fields and selects. Each still turns round where its side has no room, and a menu is a sheet on a phone whatever it says.",
     "avoid": "Writing position-area for a library panel in the app's own CSS, which loses the flip and the sheet."

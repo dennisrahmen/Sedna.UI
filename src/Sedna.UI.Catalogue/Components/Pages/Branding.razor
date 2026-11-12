@@ -10,295 +10,301 @@
     <a href="@CatalogueLinks.BrandingDoc">docs/BRANDING.md</a>.
 </CatHead>
 
-<h2 id="switch">Switch it live <CatAnchor Id="switch" /></h2>
+<CatGroup Title="Themes">
+    <h3 id="switch">Switch it live <CatAnchor Id="switch" /></h3>
 
-<p class="cat-lede">
-    Four registered themes, applied by flipping <code>data-theme</code> and
-    <code>data-variant</code> on <code>&lt;html&gt;</code> for the rest of this site.
-    <strong>Forest</strong> moves both halves, brand and base ramp; <strong>Cobalt</strong> moves the
-    brand only; <strong>Graphite</strong> the base only. A brand hue landing within ~15° of a
-    semantic family has to move that family — which is why Forest also moves <code>go</code> and
-    Cobalt moves <code>orbit</code>. Cobalt moves <code>indigo</code> as well, because its blue
-    brand is the first series colour and indigo the sixth.
-</p>
-
-<div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 34px">
-    <fieldset class="form-section" style="margin:0">
-        <legend>Theme</legend>
-        <div class="segmented">
-            <label class="segmented-option">
-                <input type="radio" name="branding-theme" checked="@IsSedna" @onchange="SelectSedna" /> Sedna
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-theme" checked="@IsForest" @onchange="SelectForest" /> Forest
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-theme" checked="@IsCobalt" @onchange="SelectCobalt" /> Cobalt
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-theme" checked="@IsGraphite" @onchange="SelectGraphite" /> Graphite
-            </label>
-        </div>
-    </fieldset>
-    <fieldset class="form-section" style="margin:0">
-        <legend>Variant</legend>
-        <div class="segmented">
-            <label class="segmented-option">
-                <input type="radio" name="branding-variant" checked="@IsDark" @onchange="SelectDark" />
-                <i class="ri-moon-line"></i> <span>Dark</span>
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-variant" checked="@IsLight" @onchange="SelectLight" />
-                <i class="ri-sun-line"></i> <span>Light</span>
-            </label>
-        </div>
-    </fieldset>
-    @* The other three appearance settings the header carries, on the page that is about
-       appearance. They are the same ISednaSettings the header writes, so flipping one here
-       moves the header's own toggle and the reverse, and neither has to know about the other. *@
-    <fieldset class="form-section" style="margin:0">
-        <legend>Palette</legend>
-        <div class="segmented">
-            <label class="segmented-option">
-                <input type="radio" name="branding-palette" checked="@(!IsColourBlind)" @onchange="SelectFullColour" />
-                <i class="ri-palette-line"></i> <span>Full colour</span>
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-palette" checked="@IsColourBlind" @onchange="SelectColourBlind" />
-                <i class="ri-contrast-2-line"></i> <span>Colour-blind</span>
-            </label>
-        </div>
-    </fieldset>
-    <fieldset class="form-section" style="margin:0">
-        <legend>Density</legend>
-        <div class="segmented">
-            <label class="segmented-option">
-                <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "comfortable")" @onchange="SelectComfortable" />
-                <i class="ri-menu-line"></i> <span>Comfortable</span>
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-density" checked="@IsCompact" @onchange="SelectCompact" />
-                <i class="ri-list-check-2"></i> <span>Compact</span>
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "touch")" @onchange="SelectTouch" />
-                <i class="ri-hand"></i> <span>Touch</span>
-            </label>
-        </div>
-    </fieldset>
-    <fieldset class="form-section" style="margin:0">
-        <legend>Direction</legend>
-        <div class="segmented">
-            <label class="segmented-option">
-                <input type="radio" name="branding-direction" checked="@(!IsRtl)" @onchange="SelectLtr" />
-                <i class="ri-text-direction-r"></i> <span>Left to right</span>
-            </label>
-            <label class="segmented-option">
-                <input type="radio" name="branding-direction" checked="@IsRtl" @onchange="SelectRtl" />
-                <i class="ri-text-direction-l"></i> <span>Right to left</span>
-            </label>
-        </div>
-    </fieldset>
-</div>
-
-<CatExample TExample="Examples.Branding.Showcase" Title="Recolours instantly" Demo="ex-demo--block">
-    <p>
-        The same six things every page on this site is built from. Watch the card under Forest and
-        Graphite: its fill, its border and the page behind it all come from the theme's own base ramp.
+    <p class="cat-lede">
+        Four registered themes, applied by flipping <code>data-theme</code> and
+        <code>data-variant</code> on <code>&lt;html&gt;</code> for the rest of this site.
+        <strong>Forest</strong> moves both halves, brand and base ramp; <strong>Cobalt</strong> moves the
+        brand only; <strong>Graphite</strong> the base only. A brand hue landing within ~15° of a
+        semantic family has to move that family — which is why Forest also moves <code>go</code> and
+        Cobalt moves <code>orbit</code>. Cobalt moves <code>indigo</code> as well, because its blue
+        brand is the first series colour and indigo the sixth.
     </p>
-</CatExample>
 
-<h2 id="mark">The mark, drawn three times <CatAnchor Id="mark" /></h2>
-
-<p class="cat-lede">
-    An elliptical orbit resolving into an <em>S</em>, with a coral focal body and a small blue
-    satellite. Pick a PNG by size and the right drawing comes out — the ladders in
-    <code>assets/brand/</code> already switch tier, so never scale one to stand in for another.
-</p>
-
-<div style="display:flex; gap:32px; align-items:flex-end; flex-wrap:wrap; margin:24px 0">
-    <figure style="margin:0; text-align:center">
-        <img src="brand/sedna-ui-icon-96.png" width="96" height="96"
-             alt="Full mark: a thin orbit, a coral focal body, and a blue satellite" />
-        <figcaption class="form-hint" style="margin-top:8px">Full — stroke 2.5, 96px and up</figcaption>
-    </figure>
-    <figure style="margin:0; text-align:center">
-        <img src="brand/sedna-ui-icon-64.png" width="64" height="64"
-             alt="Compact mark: a heavier orbit and a larger satellite" />
-        <figcaption class="form-hint" style="margin-top:8px">Compact — stroke 5.5, 32–64px</figcaption>
-    </figure>
-    <figure style="margin:0; text-align:center">
-        <img src="brand/sedna-ui-icon-16.png" width="16" height="16"
-             alt="Micro mark: only the orbit and the focal body, no satellite" />
-        <figcaption class="form-hint" style="margin-top:8px">Micro — stroke 8, 16px, satellite dropped</figcaption>
-    </figure>
-</div>
-
-<h2 id="ladders">Two ladders, and the tile <CatAnchor Id="ladders" /></h2>
-
-<p class="cat-lede">
-    Navy for light backgrounds, Ice White for dark ones. Only the diagonal reads.
-</p>
-
-<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:420px; margin:24px 0">
-    <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:24px; text-align:center">
-        <img src="brand/sedna-ui-icon-64.png" width="64" height="64" alt="Navy mark, clearly visible on a light surface" />
-    </div>
-    <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:24px; text-align:center">
-        <img src="brand/sedna-ui-icon-64.png" width="64" height="64" alt="The same navy mark on a dark surface, nearly invisible" />
-    </div>
-    <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:24px; text-align:center">
-        <img src="brand/sedna-ui-icon-on-dark-64.png" width="64" height="64" alt="The Ice White mark on a light surface, washed out" />
-    </div>
-    <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:24px; text-align:center">
-        <img src="brand/sedna-ui-icon-on-dark-64.png" width="64" height="64" alt="Ice White mark, clearly visible on a dark surface" />
-    </div>
-</div>
-<p class="cat-lede" style="margin-top:-8px">
-    Top row: <code>sedna-ui-icon-*</code>, the navy ladder. Bottom row:
-    <code>sedna-ui-icon-on-dark-*</code>, the Ice White ladder. Left column: a light surface. Right
-    column: a dark one.
-</p>
-
-<div style="text-align:center; margin:24px 0">
-    <img src="brand/sedna-ui-tile-128.png" width="96" height="96"
-         alt="The tile: the mark on its own Deep Space field, readable on any background" />
-    <p class="form-hint" style="margin-top:8px">
-        <code>sedna-ui-tile-*</code> — carries its own Deep Space field, for a background you do not
-        control. The NuGet package icon and this site's favicon both come from it at 128×128.
-    </p>
-</div>
-
-<h2 id="clear-space">Clear space, minimum sizes, misuse <CatAnchor Id="clear-space" /></h2>
-
-<div style="display:flex; gap:16px; flex-wrap:wrap; margin:24px 0">
-    <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:16px">
-        <img src="brand/sedna-ui-logo-light.png" width="191" height="56" alt="Horizontal lockup for light backgrounds" />
-    </div>
-    <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:16px">
-        <img src="brand/sedna-ui-logo-dark.png" width="191" height="56" alt="Horizontal lockup for dark backgrounds" />
-    </div>
-</div>
-
-<div class="card">
-    <table class="table">
-        <thead><tr><th>Rule</th><th>Value</th></tr></thead>
-        <tbody>
-            <tr><td>Clear space, all four sides</td><td>The radius of the focal body</td></tr>
-            <tr><td>Minimum size, standalone icon</td><td>20px — below that, the micro tier</td></tr>
-            <tr><td>Minimum width, horizontal lockup</td><td>96px</td></tr>
-            <tr><td>Misuse</td><td>Never rotate, recolour or add an effect. Never rebuild the wordmark in another face.</td></tr>
-        </tbody>
-    </table>
-</div>
-
-<div class="callout callout--warn">
-    <i class="ri-error-warning-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">The SVG trap</span>
-        <code>sedna-ui-wordmark*.svg</code> and
-        <code>sedna-ui-logo-*.svg</code> set live <code>&lt;text&gt;</code> in Outfit, so on a machine
-        without that font they silently fall back to a generic sans. For a wordmark or a lockup on the
-        web use the <strong>PNG</strong>, as the two lockups above do. Mark and tile SVGs are pure
-        geometry and safe anywhere.
-    </div>
-</div>
-
-<h2 id="palette">The palette, read live <CatAnchor Id="palette" /></h2>
-
-<p class="cat-lede">
-    The seven core colours the rest of the palette is generated from, read from the stylesheet the
-    browser actually loaded — so they follow whichever theme is selected above.
-</p>
-
-<div class="cat-swatches">
-    @foreach (var anchor in CoreAnchors)
-    {
-        <div class="cat-swatch">
-            <span class="cat-chip" style="background: var(@anchor.Token)"></span>
-            <div class="cat-swatch-text">
-                <div class="cat-swatch-name">@anchor.Label</div>
-                <div class="cat-swatch-value">@anchor.Token — @Value(anchor.Token)</div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 34px">
+        <fieldset class="form-section" style="margin:0">
+            <legend>Theme</legend>
+            <div class="segmented">
+                <label class="segmented-option">
+                    <input type="radio" name="branding-theme" checked="@IsSedna" @onchange="SelectSedna" /> Sedna
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-theme" checked="@IsForest" @onchange="SelectForest" /> Forest
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-theme" checked="@IsCobalt" @onchange="SelectCobalt" /> Cobalt
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-theme" checked="@IsGraphite" @onchange="SelectGraphite" /> Graphite
+                </label>
             </div>
-        </div>
-    }
-</div>
-
-<h2 id="exact-brand">Keeping an exact brand colour <CatAnchor Id="exact-brand" /></h2>
-
-<p class="cat-lede">
-    <code>SednaRamp.FromAnchor</code> takes the anchor's hue and chroma and reads its
-    <em>lightness</em> off the curve every family shares, so the step you anchored comes back a
-    different colour — close, deliberate, and wrong for a corporate design that mandates a hex.
-    <code>exactAnchor: true</code> keeps that one step verbatim and still generates the rest around
-    it.
-</p>
-
-<div class="cat-swatches">
-    @foreach (var step in PinnedSteps)
-    {
-        <div class="cat-swatch">
-            <span class="cat-chip" style="background: @Pinned[step]"></span>
-            <div class="cat-swatch-text">
-                <div class="cat-swatch-name">Step @step</div>
-                <div class="cat-swatch-value">@Pinned[step] — from the curve: @Curve[step]</div>
+        </fieldset>
+        <fieldset class="form-section" style="margin:0">
+            <legend>Variant</legend>
+            <div class="segmented">
+                <label class="segmented-option">
+                    <input type="radio" name="branding-variant" checked="@IsDark" @onchange="SelectDark" />
+                    <i class="ri-moon-line"></i> <span>Dark</span>
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-variant" checked="@IsLight" @onchange="SelectLight" />
+                    <i class="ri-sun-line"></i> <span>Light</span>
+                </label>
             </div>
+        </fieldset>
+        @* The other three appearance settings the header carries, on the page that is about
+           appearance. They are the same ISednaSettings the header writes, so flipping one here
+           moves the header's own toggle and the reverse, and neither has to know about the other. *@
+        <fieldset class="form-section" style="margin:0">
+            <legend>Palette</legend>
+            <div class="segmented">
+                <label class="segmented-option">
+                    <input type="radio" name="branding-palette" checked="@(!IsColourBlind)" @onchange="SelectFullColour" />
+                    <i class="ri-palette-line"></i> <span>Full colour</span>
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-palette" checked="@IsColourBlind" @onchange="SelectColourBlind" />
+                    <i class="ri-contrast-2-line"></i> <span>Colour-blind</span>
+                </label>
+            </div>
+        </fieldset>
+        <fieldset class="form-section" style="margin:0">
+            <legend>Density</legend>
+            <div class="segmented">
+                <label class="segmented-option">
+                    <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "comfortable")" @onchange="SelectComfortable" />
+                    <i class="ri-menu-line"></i> <span>Comfortable</span>
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-density" checked="@IsCompact" @onchange="SelectCompact" />
+                    <i class="ri-list-check-2"></i> <span>Compact</span>
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "touch")" @onchange="SelectTouch" />
+                    <i class="ri-hand"></i> <span>Touch</span>
+                </label>
+            </div>
+        </fieldset>
+        <fieldset class="form-section" style="margin:0">
+            <legend>Direction</legend>
+            <div class="segmented">
+                <label class="segmented-option">
+                    <input type="radio" name="branding-direction" checked="@(!IsRtl)" @onchange="SelectLtr" />
+                    <i class="ri-text-direction-r"></i> <span>Left to right</span>
+                </label>
+                <label class="segmented-option">
+                    <input type="radio" name="branding-direction" checked="@IsRtl" @onchange="SelectRtl" />
+                    <i class="ri-text-direction-l"></i> <span>Right to left</span>
+                </label>
+            </div>
+        </fieldset>
+    </div>
+
+    <CatExample TExample="Examples.Branding.Showcase" Title="Recolours instantly" Demo="ex-demo--block">
+        <p>
+            The same six things every page on this site is built from. Watch the card under Forest and
+            Graphite: its fill, its border and the page behind it all come from the theme's own base ramp.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Brand mark">
+    <h3 id="mark">Three drawings <CatAnchor Id="mark" /></h3>
+
+    <p class="cat-lede">
+        An elliptical orbit resolving into an <em>S</em>, with a coral focal body and a small blue
+        satellite. Pick a PNG by size and the right drawing comes out — the ladders in
+        <code>assets/brand/</code> already switch tier, so never scale one to stand in for another.
+    </p>
+
+    <div style="display:flex; gap:32px; align-items:flex-end; flex-wrap:wrap; margin:24px 0">
+        <figure style="margin:0; text-align:center">
+            <img src="brand/sedna-ui-icon-96.png" width="96" height="96"
+                 alt="Full mark: a thin orbit, a coral focal body, and a blue satellite" />
+            <figcaption class="form-hint" style="margin-top:8px">Full — stroke 2.5, 96px and up</figcaption>
+        </figure>
+        <figure style="margin:0; text-align:center">
+            <img src="brand/sedna-ui-icon-64.png" width="64" height="64"
+                 alt="Compact mark: a heavier orbit and a larger satellite" />
+            <figcaption class="form-hint" style="margin-top:8px">Compact — stroke 5.5, 32–64px</figcaption>
+        </figure>
+        <figure style="margin:0; text-align:center">
+            <img src="brand/sedna-ui-icon-16.png" width="16" height="16"
+                 alt="Micro mark: only the orbit and the focal body, no satellite" />
+            <figcaption class="form-hint" style="margin-top:8px">Micro — stroke 8, 16px, satellite dropped</figcaption>
+        </figure>
+    </div>
+
+    <h3 id="ladders">Two ladders and a tile <CatAnchor Id="ladders" /></h3>
+
+    <p class="cat-lede">
+        Navy for light backgrounds, Ice White for dark ones. Only the diagonal reads.
+    </p>
+
+    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:420px; margin:24px 0">
+        <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:24px; text-align:center">
+            <img src="brand/sedna-ui-icon-64.png" width="64" height="64" alt="Navy mark, clearly visible on a light surface" />
         </div>
-    }
-</div>
-
-<CatSnippet Name="Branding/ExactAnchor.txt" Title="`exactAnchor`">
-    <p>
-        Step 600 above is the anchor itself; its neighbours are the ordinary generated steps. Use it
-        for the one colour a brand guide names, not for a whole ramp — pinning every step by hand is
-        what the dictionary constructor is for.
+        <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:24px; text-align:center">
+            <img src="brand/sedna-ui-icon-64.png" width="64" height="64" alt="The same navy mark on a dark surface, nearly invisible" />
+        </div>
+        <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:24px; text-align:center">
+            <img src="brand/sedna-ui-icon-on-dark-64.png" width="64" height="64" alt="The Ice White mark on a light surface, washed out" />
+        </div>
+        <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:24px; text-align:center">
+            <img src="brand/sedna-ui-icon-on-dark-64.png" width="64" height="64" alt="Ice White mark, clearly visible on a dark surface" />
+        </div>
+    </div>
+    <p class="cat-lede" style="margin-top:-8px">
+        Top row: <code>sedna-ui-icon-*</code>, the navy ladder. Bottom row:
+        <code>sedna-ui-icon-on-dark-*</code>, the Ice White ladder. Left column: a light surface. Right
+        column: a dark one.
     </p>
-</CatSnippet>
 
-<CatSnippet Name="Branding/WithStep.txt" Title="`WithStep`">
-    <p>
-        <code>exactAnchor</code> keeps the colour a ramp is generated from, so its hue reaches every
-        step. When the hue comes from one colour and the mandated step from another, generate from
-        the first and pin the second with <code>WithStep</code>.
+    <div style="text-align:center; margin:24px 0">
+        <img src="brand/sedna-ui-tile-128.png" width="96" height="96"
+             alt="The tile: the mark on its own Deep Space field, readable on any background" />
+        <p class="form-hint" style="margin-top:8px">
+            <code>sedna-ui-tile-*</code> — carries its own Deep Space field, for a background you do not
+            control. The NuGet package icon and this site's favicon both come from it at 128×128.
+        </p>
+    </div>
+
+    <h3 id="clear-space">Clear space and minimum sizes <CatAnchor Id="clear-space" /></h3>
+
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin:24px 0">
+        <div style="background:var(--slate-50); border-radius:var(--radius-surface); padding:16px">
+            <img src="brand/sedna-ui-logo-light.png" width="191" height="56" alt="Horizontal lockup for light backgrounds" />
+        </div>
+        <div style="background:var(--slate-900); border-radius:var(--radius-surface); padding:16px">
+            <img src="brand/sedna-ui-logo-dark.png" width="191" height="56" alt="Horizontal lockup for dark backgrounds" />
+        </div>
+    </div>
+
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>Rule</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Clear space, all four sides</td><td>The radius of the focal body</td></tr>
+                <tr><td>Minimum size, standalone icon</td><td>20px — below that, the micro tier</td></tr>
+                <tr><td>Minimum width, horizontal lockup</td><td>96px</td></tr>
+                <tr><td>Misuse</td><td>Never rotate, recolour or add an effect. Never rebuild the wordmark in another face.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout callout--warn">
+        <i class="ri-error-warning-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">The SVG trap</span>
+            <code>sedna-ui-wordmark*.svg</code> and
+            <code>sedna-ui-logo-*.svg</code> set live <code>&lt;text&gt;</code> in Outfit, so on a machine
+            without that font they silently fall back to a generic sans. For a wordmark or a lockup on the
+            web use the <strong>PNG</strong>, as the two lockups above do. Mark and tile SVGs are pure
+            geometry and safe anywhere.
+        </div>
+    </div>
+</CatGroup>
+
+<CatGroup Title="Colour">
+    <h3 id="palette">Core palette <CatAnchor Id="palette" /></h3>
+
+    <p class="cat-lede">
+        The seven core colours the rest of the palette is generated from, read from the stylesheet the
+        browser actually loaded — so they follow whichever theme is selected above.
     </p>
-</CatSnippet>
 
-<h2 id="decisions">Three decisions that shaped the system <CatAnchor Id="decisions" /></h2>
+    <div class="cat-swatches">
+        @foreach (var anchor in CoreAnchors)
+        {
+            <div class="cat-swatch">
+                <span class="cat-chip" style="background: var(@anchor.Token)"></span>
+                <div class="cat-swatch-text">
+                    <div class="cat-swatch-name">@anchor.Label</div>
+                    <div class="cat-swatch-value">@anchor.Token — @Value(anchor.Token)</div>
+                </div>
+            </div>
+        }
+    </div>
 
-<p class="cat-lede">
-    Places the palette could not be applied literally. Each is encoded as a ramp relationship rather
-    than a hard-coded value, so it holds for every theme above.
-</p>
+    <h3 id="exact-brand">Exact brand colour <CatAnchor Id="exact-brand" /></h3>
 
-<div class="card">
-    <table class="table">
-        <thead><tr><th>Decision</th><th>Why</th></tr></thead>
-        <tbody>
-            <tr>
-                <td><strong>Sedna Red cannot be a button</strong></td>
-                <td>
-                    White on Sedna Red measures 2.82:1, short of the 4.5:1 a filled control's label
-                    needs. <code>--brand</code> takes ramp step 600 instead, solved for the contrast
-                    floor, which reaches 4.55:1.
-                </td>
-            </tr>
-            <tr>
-                <td><strong>The accent is Orbit Blue</strong></td>
-                <td>
-                    A second coral would make a link and a button the same colour, so
-                    <code>--accent</code> takes Orbit Blue.
-                </td>
-            </tr>
-            <tr>
-                <td><strong>Danger cannot stay red</strong></td>
-                <td>
-                    The old danger red sat 7° from the brand in OKLCH. Danger moves to crimson, 32°
-                    away, so a destructive action and the brand separate on hue as well as on fill.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    <p class="cat-lede">
+        <code>SednaRamp.FromAnchor</code> takes the anchor's hue and chroma and reads its
+        <em>lightness</em> off the curve every family shares, so the step you anchored comes back a
+        different colour — close, deliberate, and wrong for a corporate design that mandates a hex.
+        <code>exactAnchor: true</code> keeps that one step verbatim and still generates the rest around
+        it.
+    </p>
+
+    <div class="cat-swatches">
+        @foreach (var step in PinnedSteps)
+        {
+            <div class="cat-swatch">
+                <span class="cat-chip" style="background: @Pinned[step]"></span>
+                <div class="cat-swatch-text">
+                    <div class="cat-swatch-name">Step @step</div>
+                    <div class="cat-swatch-value">@Pinned[step] — from the curve: @Curve[step]</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <CatSnippet Name="Branding/ExactAnchor.txt" Title="Pinned anchor step">
+        <p>
+            With <code>exactAnchor: true</code>, step 600 above is the anchor itself; its neighbours are
+            the ordinary generated steps. Use it for the one colour a brand guide names, not for a whole
+            ramp — pinning every step by hand is what the dictionary constructor is for.
+        </p>
+    </CatSnippet>
+
+    <CatSnippet Name="Branding/WithStep.txt" Title="Step from another colour">
+        <p>
+            <code>exactAnchor</code> keeps the colour a ramp is generated from, so its hue reaches every
+            step. When the hue comes from one colour and the mandated step from another, generate from
+            the first and pin the second with <code>WithStep</code>.
+        </p>
+    </CatSnippet>
+
+    <h3 id="decisions">Three palette decisions <CatAnchor Id="decisions" /></h3>
+
+    <p class="cat-lede">
+        Places the palette could not be applied literally. Each is encoded as a ramp relationship rather
+        than a hard-coded value, so it holds for every theme above.
+    </p>
+
+    <div class="card">
+        <table class="table">
+            <thead><tr><th>Decision</th><th>Why</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Sedna Red cannot be a button</strong></td>
+                    <td>
+                        White on Sedna Red measures 2.82:1, short of the 4.5:1 a filled control's label
+                        needs. <code>--brand</code> takes ramp step 600 instead, solved for the contrast
+                        floor, which reaches 4.55:1.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>The accent is Orbit Blue</strong></td>
+                    <td>
+                        A second coral would make a link and a button the same colour, so
+                        <code>--accent</code> takes Orbit Blue.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Danger cannot stay red</strong></td>
+                    <td>
+                        The old danger red sat 7° from the brand in OKLCH. Danger moves to crimson, 32°
+                        away, so a destructive action and the brand separate on hue as well as on fill.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</CatGroup>
 
 @code {
     private Dictionary<string, string>? _values;

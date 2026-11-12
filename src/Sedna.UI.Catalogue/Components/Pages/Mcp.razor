@@ -19,226 +19,232 @@
     </div>
 </div>
 
-<h2 id="add-it">Add it <CatAnchor Id="add-it" /></h2>
-<p class="cat-lede">One URL. Streamable HTTP, no key, no install.</p>
+<CatGroup Title="Add it">
+    <p class="cat-lede">One URL. Streamable HTTP, no key, no install.</p>
 
-<CatSnippet Name="Mcp/Config.txt" Title="Any MCP client">
-    <p>
-        The endpoint is <code>@CatalogueLinks.Mcp</code>. It is stateless, so a client may reconnect
-        or fan out across processes without leaving sessions behind.
+    <CatSnippet Name="Mcp/Config.txt" Title="Any MCP client">
+        <p>
+            The endpoint is <code>@CatalogueLinks.Mcp</code>. It is stateless, so a client may reconnect
+            or fan out across processes without leaving sessions behind.
+        </p>
+    </CatSnippet>
+
+    <CatSnippet Name="Mcp/ClaudeCode.txt" Title="Claude Code">
+        <p>Or add it to a project's <code>.mcp.json</code> with the block above.</p>
+    </CatSnippet>
+</CatGroup>
+
+<CatGroup Title="Tools">
+    <p class="cat-lede">
+        One verb each, no overlap, shaped around one workflow: an agent writing a page in a consuming app
+        and needing the exact markup plus enough semantics to pick the right variant &mdash; then checking
+        what it wrote, and upgrading the app later.
     </p>
-</CatSnippet>
 
-<CatSnippet Name="Mcp/ClaudeCode.txt" Title="Claude Code">
-    <p>Or add it to a project's <code>.mcp.json</code> with the block above.</p>
-</CatSnippet>
+    <div class="card sedna-mb-20">
+        <table class="table">
+            <thead><tr><th>Tool</th><th>What it answers</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>search</code></td>
+                    <td>
+                        “What is there for a sortable table with status badges?” Ranks the design
+                        guide's goals, examples, classes, tokens and pages together; a query that says
+                        what the user should be able to do puts its goal first. <strong>Returns
+                        references, never markup</strong>.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>get_guide</code></td>
+                    <td>
+                        The <a href="/design-guide">design guide</a>: a goal's page to start from, the
+                        parts around it and the usual mistake; a page's use it for, combine with and not
+                        for; and the principles of composition, spacing, colour, actions, feedback,
+                        density, motion and words.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>get_example</code></td>
+                    <td>
+                        The markup for up to five examples, byte-for-byte what this site renders. Valid
+                        in a <code>.razor</code> page and an <code>.html</code> file alike.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>describe_class</code></td>
+                    <td>
+                        What a class actually does: the declarations from the shipped stylesheet, its
+                        cascade layer, its modifiers, its family's variants, the attributes and
+                        pseudo-classes that put it in a state, and which examples use it. Also the way to check a
+                        class your app already styles before upgrading; a class a release renamed comes
+                        back with the classes that replace it.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>get_page</code></td>
+                    <td>Every example on one page — one call instead of five — and the page's design-guide entry. With no id, the page list.</td>
+                </tr>
+                <tr>
+                    <td><code>get_tokens</code></td>
+                    <td>
+                        The tokens as an ordered array of blocks, media condition included, for writing
+                        <code>brand.css</code>.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>get_integration_guide</code></td>
+                    <td>
+                        The host page and its load order, the branding recipe, the JavaScript and C#
+                        surface, the rules a consuming app follows, the graph's or the rich-text
+                        editor's reference, or &mdash; with <code>"upgrade"</code> &mdash; every class
+                        each release renamed, old name to the classes that look the same.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>check_markup</code></td>
+                    <td>
+                        For markup the agent wrote: every class the stylesheet does not declare, with the
+                        nearest library class in case it is a typo; every class a release renamed or
+                        removed, judged against the installed version; every class newer than it; and
+                        every icon the font does not have. Classes only &mdash; it does not judge structure.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>get_changes</code></td>
+                    <td>
+                        What two releases differ by: every class, token and public C# member added and
+                        removed, every rename, and each release in between with a link to its notes,
+                        where the breaking changes are listed first. <code>to: "main"</code> includes
+                        what is merged and in no release yet.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>describe_api</code></td>
+                    <td>
+                        The C# and script API, member by member: a type's members, a member's signatures,
+                        its documentation, the release it first shipped in and the examples that use it
+                        &mdash; <code>ISednaUi.ShowModalAsync</code>, or <code>sednaUi.toast</code>.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-<h2 id="tools">The tools <CatAnchor Id="tools" /></h2>
-<p class="cat-lede">
-    One verb each, no overlap, shaped around one workflow: an agent writing a page in a consuming app
-    and needing the exact markup plus enough semantics to pick the right variant &mdash; then checking
-    what it wrote, and upgrading the app later.
-</p>
+    <CatSnippet Name="Mcp/SearchCall.txt" Title="Writing a page">
+        <p>
+            <code>search</code> → <code>get_example</code> → <code>describe_class</code>. Nothing else
+            is needed to write a page; <code>check_markup</code> then checks it.
+        </p>
+    </CatSnippet>
 
-<div class="card sedna-mb-20">
-    <table class="table">
-        <thead><tr><th>Tool</th><th>What it answers</th></tr></thead>
-        <tbody>
-            <tr>
-                <td><code>search</code></td>
-                <td>
-                    “What is there for a sortable table with status badges?” Ranks the design
-                    guide's goals, examples, classes, tokens and pages together; a query that says
-                    what the user should be able to do puts its goal first. <strong>Returns
-                    references, never markup</strong>.
-                </td>
-            </tr>
-            <tr>
-                <td><code>get_guide</code></td>
-                <td>
-                    The <a href="/design-guide">design guide</a>: a goal's page to start from, the
-                    parts around it and the usual mistake; a page's use it for, combine with and not
-                    for; and the principles of composition, spacing, colour, actions, feedback,
-                    density, motion and words.
-                </td>
-            </tr>
-            <tr>
-                <td><code>get_example</code></td>
-                <td>
-                    The markup for up to five examples, byte-for-byte what this site renders. Valid
-                    in a <code>.razor</code> page and an <code>.html</code> file alike.
-                </td>
-            </tr>
-            <tr>
-                <td><code>describe_class</code></td>
-                <td>
-                    What a class actually does: the declarations from the shipped stylesheet, its
-                    cascade layer, its modifiers, its family's variants, the attributes and
-                    pseudo-classes that put it in a state, and which examples use it. Also the way to check a
-                    class your app already styles before upgrading; a class a release renamed comes
-                    back with the classes that replace it.
-                </td>
-            </tr>
-            <tr>
-                <td><code>get_page</code></td>
-                <td>Every example on one page — one call instead of five — and the page's design-guide entry. With no id, the page list.</td>
-            </tr>
-            <tr>
-                <td><code>get_tokens</code></td>
-                <td>
-                    The tokens as an ordered array of blocks, media condition included, for writing
-                    <code>brand.css</code>.
-                </td>
-            </tr>
-            <tr>
-                <td><code>get_integration_guide</code></td>
-                <td>
-                    The host page and its load order, the branding recipe, the JavaScript and C#
-                    surface, the rules a consuming app follows, the graph's or the rich-text
-                    editor's reference, or &mdash; with <code>"upgrade"</code> &mdash; every class
-                    each release renamed, old name to the classes that look the same.
-                </td>
-            </tr>
-            <tr>
-                <td><code>check_markup</code></td>
-                <td>
-                    For markup the agent wrote: every class the stylesheet does not declare, with the
-                    nearest library class in case it is a typo; every class a release renamed or
-                    removed, judged against the installed version; every class newer than it; and
-                    every icon the font does not have. Classes only &mdash; it does not judge structure.
-                </td>
-            </tr>
-            <tr>
-                <td><code>get_changes</code></td>
-                <td>
-                    What two releases differ by: every class, token and public C# member added and
-                    removed, every rename, and each release in between with a link to its notes,
-                    where the breaking changes are listed first. <code>to: "main"</code> includes
-                    what is merged and in no release yet.
-                </td>
-            </tr>
-            <tr>
-                <td><code>describe_api</code></td>
-                <td>
-                    The C# and script API, member by member: a type's members, a member's signatures,
-                    its documentation, the release it first shipped in and the examples that use it
-                    &mdash; <code>ISednaUi.ShowModalAsync</code>, or <code>sednaUi.toast</code>.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    <CatSnippet Name="Mcp/DescribeClassCall.txt" Title="Describing a class">
+        <p>
+            Up to ten class names per call. The declarations come from the stylesheet the running app
+            serves, and <code>usedByExamples</code> points at the pages that show the class in context.
+            <code>variants</code> and <code>states</code> are derived from the selectors: a state is an
+            attribute or a pseudo-class written on the class itself, never one on an ancestor.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatSnippet Name="Mcp/SearchCall.txt" Title="The whole loop">
-    <p>
-        <code>search</code> → <code>get_example</code> → <code>describe_class</code>. Nothing else
-        is needed to write a page; <code>check_markup</code> then checks it.
+<CatGroup Title="Using it well">
+    <h3 id="versions">Installed version <CatAnchor Id="versions" /></h3>
+    <p class="cat-lede">
+        This site is built from <code>main</code> and can be ahead of any release, so every tool that
+        answers with classes, tokens, examples or API takes <code>installedVersion</code>. Pass it and the <code>meta.warning</code> block names everything
+        in the answer your version does not have — including anything with no <code>since</code> at all,
+        which is in <em>no</em> release yet. The results still come back.
     </p>
-</CatSnippet>
 
-<CatSnippet Name="Mcp/DescribeClassCall.txt" Title="`describe_class`">
-    <p>
-        Up to ten class names per call. The declarations come from the stylesheet the running app
-        serves, and <code>usedByExamples</code> points at the pages that show the class in context.
-        <code>variants</code> and <code>states</code> are derived from the selectors: a state is an
-        attribute or a pseudo-class written on the class itself, never one on an ancestor.
+    <h3 id="agent-rules">Rules for the agent <CatAnchor Id="agent-rules" /></h3>
+    <p class="cat-lede">
+        The server answers questions. It does not stop an agent inventing a class name or wrapping a
+        table in a component — so copy
+        <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
+        <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
+        <code>CLAUDE.md</code>, or fetch it through
+        <code>get_integration_guide { "section": "rules" }</code>.
     </p>
-</CatSnippet>
+</CatGroup>
 
-<h2 id="resources">The four resources <CatAnchor Id="resources" /></h2>
-<p class="cat-lede">
-    Whole artefacts, addressable by URI. A resource is attached by the person rather than pulled by
-    the model. Nothing is resource-only: <code>get_tokens</code> and
-    <code>get_integration_guide</code> duplicate two of these, because clients vary widely in
-    resource support.
-</p>
+<CatGroup Title="Resources and limits">
+    <h3 id="resources">Resources <CatAnchor Id="resources" /></h3>
+    <p class="cat-lede">
+        Whole artefacts, addressable by URI. A resource is attached by the person rather than pulled by
+        the model. Nothing is resource-only: <code>get_tokens</code> and
+        <code>get_integration_guide</code> duplicate two of these, because clients vary widely in
+        resource support.
+    </p>
 
-<div class="card sedna-mb-20">
-    <table class="table">
-        <thead><tr><th>URI</th><th>Type</th><th>What it is</th></tr></thead>
-        <tbody>
-            <tr>
-                <td><code>sednaui://stylesheet</code></td>
-                <td class="col-muted"><code>text/css</code></td>
-                <td>The whole shipped stylesheet, exactly as the package delivers it.</td>
-            </tr>
-            <tr>
-                <td><code>sednaui://tokens</code></td>
-                <td class="col-muted"><code>application/json</code></td>
-                <td>The token export, as an ordered array of blocks.</td>
-            </tr>
-            <tr>
-                <td><code>sednaui://version</code></td>
-                <td class="col-muted"><code>application/json</code></td>
-                <td>What this catalogue was built from, and the latest released version.</td>
-            </tr>
-            <tr>
-                <td><code>sednaui://docs/{name}</code></td>
-                <td class="col-muted"><code>text/markdown</code></td>
-                <td>
-                    Any file in the repository's <code>docs/</code>, by name without
-                    <code>.md</code> &mdash; <code>getting-started</code>, <code>architecture</code>,
-                    <code>CLAUDE.consuming-app</code> and the rest. A wrong name is answered with the list.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    <div class="card sedna-mb-20">
+        <table class="table">
+            <thead><tr><th>URI</th><th>Type</th><th>What it is</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>sednaui://stylesheet</code></td>
+                    <td class="col-muted"><code>text/css</code></td>
+                    <td>The whole shipped stylesheet, exactly as the package delivers it.</td>
+                </tr>
+                <tr>
+                    <td><code>sednaui://tokens</code></td>
+                    <td class="col-muted"><code>application/json</code></td>
+                    <td>The token export, as an ordered array of blocks.</td>
+                </tr>
+                <tr>
+                    <td><code>sednaui://version</code></td>
+                    <td class="col-muted"><code>application/json</code></td>
+                    <td>What this catalogue was built from, and the latest released version.</td>
+                </tr>
+                <tr>
+                    <td><code>sednaui://docs/{name}</code></td>
+                    <td class="col-muted"><code>text/markdown</code></td>
+                    <td>
+                        Any file in the repository's <code>docs/</code>, by name without
+                        <code>.md</code> &mdash; <code>getting-started</code>, <code>architecture</code>,
+                        <code>CLAUDE.consuming-app</code> and the rest. A wrong name is answered with the list.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-<h2 id="versions">Say which version you have <CatAnchor Id="versions" /></h2>
-<p class="cat-lede">
-    This site is built from <code>main</code> and can be ahead of any release, so every tool that
-    answers with classes, tokens, examples or API takes <code>installedVersion</code>. Pass it and the <code>meta.warning</code> block names everything
-    in the answer your version does not have — including anything with no <code>since</code> at all,
-    which is in <em>no</em> release yet. The results still come back.
-</p>
+    <h3 id="limits">Limits <CatAnchor Id="limits" /></h3>
+    <p class="cat-lede">
+        They apply to <code>/mcp</code> alone, never globally — a global limiter would also count this
+        site's own SignalR upgrades. A rejected call answers <code>429</code> with
+        <code>Retry-After: 60</code>.
+    </p>
 
-<h2 id="limits">Limits <CatAnchor Id="limits" /></h2>
-<p class="cat-lede">
-    They apply to <code>/mcp</code> alone, never globally — a global limiter would also count this
-    site's own SignalR upgrades. A rejected call answers <code>429</code> with
-    <code>Retry-After: 60</code>.
-</p>
-
-<div class="card sedna-mb-20">
-    <table class="table">
-        <thead><tr><th>Limit</th><th>Value</th><th>Why</th></tr></thead>
-        <tbody>
-            <tr>
-                <td>Concurrent requests</td><td class="col-num">64, plus 32 queued</td>
-                <td>The actual control. Not partitioned, so there is nothing to spoof around.</td>
-            </tr>
-            <tr>
-                <td>Per caller</td><td class="col-num">240 burst, 120/min</td>
-                <td>
-                    Fairness, not security: behind a proxy whose addresses we do not control, per-IP
-                    limiting is not a security measure.
-                </td>
-            </tr>
-            <tr>
-                <td>Request body</td><td class="col-num">256 KB</td>
-                <td>JSON-RPC calls here are a few hundred bytes.</td>
-            </tr>
-            <tr>
-                <td>Per call</td>
-                <td class="col-num">25 / 5 / 10</td>
-                <td>
-                    Hits from <code>search</code>, ids per <code>get_example</code>, names per
-                    <code>describe_class</code>. Markup is capped at 8&nbsp;KB per example and cut
-                    at a tag boundary, so a truncated response still parses. <code>describe_api</code>
-                    takes 10 names, and <code>check_markup</code> up to 64&nbsp;KB of markup.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-<h2 id="agent-rules">Then give the agent the rules <CatAnchor Id="agent-rules" /></h2>
-<p class="cat-lede">
-    The server answers questions. It does not stop an agent inventing a class name or wrapping a
-    table in a component — so copy
-    <CatLink Href="https://github.com/dennisrahmen/Sedna.UI/blob/main/docs/CLAUDE.consuming-app.md">
-    <code>docs/CLAUDE.consuming-app.md</code></CatLink> into your app's own
-    <code>CLAUDE.md</code>, or fetch it through
-    <code>get_integration_guide { "section": "rules" }</code>.
-</p>
+    <div class="card sedna-mb-20">
+        <table class="table">
+            <thead><tr><th>Limit</th><th>Value</th><th>Why</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Concurrent requests</td><td class="col-num">64, plus 32 queued</td>
+                    <td>The actual control. Not partitioned, so there is nothing to spoof around.</td>
+                </tr>
+                <tr>
+                    <td>Per caller</td><td class="col-num">240 burst, 120/min</td>
+                    <td>
+                        Fairness, not security: behind a proxy whose addresses we do not control, per-IP
+                        limiting is not a security measure.
+                    </td>
+                </tr>
+                <tr>
+                    <td>Request body</td><td class="col-num">256 KB</td>
+                    <td>JSON-RPC calls here are a few hundred bytes.</td>
+                </tr>
+                <tr>
+                    <td>Per call</td>
+                    <td class="col-num">25 / 5 / 10</td>
+                    <td>
+                        Hits from <code>search</code>, ids per <code>get_example</code>, names per
+                        <code>describe_class</code>. Markup is capped at 8&nbsp;KB per example and cut
+                        at a tag boundary, so a truncated response still parses. <code>describe_api</code>
+                        takes 10 names, and <code>check_markup</code> up to 64&nbsp;KB of markup.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</CatGroup>

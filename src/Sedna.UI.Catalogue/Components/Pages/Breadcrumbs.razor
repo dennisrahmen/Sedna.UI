@@ -1,0 +1,24 @@
+@page "/breadcrumbs"
+
+<CatHead Title="Breadcrumbs">
+    The trail that says where a page sits, above its title, when the sidebar cannot show how deep
+    the reader has gone.
+</CatHead>
+
+<CatExample TExample="Examples.Breadcrumbs.Breadcrumbs" Title="Breadcrumb trail" Demo="ex-demo--block">
+    <p>
+        For where a page sits when the sidebar cannot show it — a record three levels inside a
+        section; if the sidebar already highlights the page, a breadcrumb earns nothing. The last
+        item is the current page: mark it <code>aria-current="page"</code> and leave it a
+        <code>&lt;span&gt;</code>, not a link to where you already are.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Breadcrumbs.BreadcrumbAbovePageHead" Title="Above the page head" Demo="ex-demo--block">
+    <p>
+        Where a breadcrumb belongs: above the heading, so the trail is read before the title it leads
+        to, with <a href="/structure"><code>.page-head</code></a> carrying the title, the supporting
+        line and the actions that apply to the whole page. One <code>&lt;h1&gt;</code> per page and
+        it is this one — the breadcrumb is navigation, not a heading level.
+    </p>
+</CatExample>

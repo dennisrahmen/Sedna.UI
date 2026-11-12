@@ -6,7 +6,7 @@
     happened and goes; the inbox is where it can still be found afterwards.
 </CatHead>
 
-<CatExample TExample="Examples.Notifications.Inbox" Title="From the bell" Demo="ex-demo--block ex-demo--flush">
+<CatExample TExample="Examples.Notifications.Inbox" Title="Inbox from the bell" Demo="ex-demo--block ex-demo--flush">
     <p>
         <strong>Live &mdash; open it.</strong> The panel is a <a href="/popover"><code>.popover</code></a>
         with <code>.inbox</code>, opened by a <code>popovertarget</code> button, so the platform
@@ -28,7 +28,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Notifications.Bell" Title="The bell and its count" Demo="ex-demo--pad">
+<CatExample TExample="Examples.Notifications.Bell" Title="Bell and unread count" Demo="ex-demo--pad">
     <p>
         <code>.inbox-bell</code> holds the icon and an <code>.inbox-count</code> on its corner,
         inside any button &mdash; a <code>.topbar-btn</code>, a <code>.btn--icon</code>. Cap a large
@@ -38,7 +38,7 @@
     </p>
 </CatExample>
 
-<CatExample TExample="Examples.Notifications.CaughtUp" Title="Every tab says when it is empty" Demo="ex-demo--block ex-demo--pad">
+<CatExample TExample="Examples.Notifications.CaughtUp" Title="Empty tabs" Demo="ex-demo--block ex-demo--pad">
     <p>
         A tab with nothing in it shows an <a href="/empty-state"><code>.empty-state</code></a> in the
         list's place, in words for that tab &mdash; <em>all caught up</em> for Unread,
@@ -51,7 +51,7 @@
 <h2 id="arrives">When a notification arrives <CatAnchor Id="arrives" /></h2>
 <p class="cat-lede">
     Update the count and add the item to the list; that is the record. To say so as it happens,
-    present it as a <a href="/toast#yours">toast you write</a> as well &mdash; but never only as a
+    present it as a <a href="/toast#toasts-you-write">toast you write</a> as well &mdash; but never only as a
     toast, which goes on its own and can be missed. Something the reader must act on before anything
     else is a <a href="/modal">dialog</a>, not a notification.
 </p>

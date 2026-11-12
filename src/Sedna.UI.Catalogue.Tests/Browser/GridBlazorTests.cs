@@ -30,7 +30,7 @@ public class GridBlazorTests(CatalogueAppFixture app)
 
     private static ILocator Example(IPage page, string title) =>
         page.Locator("section[data-example]")
-            .Filter(new() { Has = page.Locator("h2", new() { HasTextString = title }) })
+            .Filter(new() { Has = page.Locator("h2, h3", new() { HasTextString = title }) })
             .Locator(".ex-demo");
 
     private static Task<string> Focused(IPage page) =>

@@ -7,83 +7,87 @@
     state is the <a href="/status-bar">status bar</a>'s.
 </CatHead>
 
-<CatExample TExample="Examples.Banner.UnderTheTopbar" Title="Under the topbar" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.page-banner</code> is a sibling of <code>.topbar</code> and <code>.page</code>, in
-        <code>.content</code> or <code>.bare-layout</code>, so the page scrolls below it and its words
-        start on the page's own column. Four slots, each optional: an icon, the words in
-        <code>.page-banner-body</code>, <code>.page-banner-actions</code> holding <code>.btn--sm</code>
-        buttons, and <code>.page-banner-dismiss</code>. Name it as a landmark with
-        <code>role="region"</code> and an <code>aria-label</code>. Under <code>.topbar--sticky</code>, or
-        <code>.layout--flow</code> on a phone, it scrolls away under the header; below 560px the
-        actions move under the words.
-    </p>
-</CatExample>
+<CatGroup Title="Placement and tone">
+    <CatExample TExample="Examples.Banner.UnderTheTopbar" Title="Under the topbar" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.page-banner</code> is a sibling of <code>.topbar</code> and <code>.page</code>, in
+            <code>.content</code> or <code>.bare-layout</code>, so the page scrolls below it and its words
+            start on the page's own column. Four slots, each optional: an icon, the words in
+            <code>.page-banner-body</code>, <code>.page-banner-actions</code> holding <code>.btn--sm</code>
+            buttons, and <code>.page-banner-dismiss</code>. Name it as a landmark with
+            <code>role="region"</code> and an <code>aria-label</code>. Under <code>.topbar--sticky</code>, or
+            <code>.layout--flow</code> on a phone, it scrolls away under the header; below 560px the
+            actions move under the words.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Banner.Tones" Title="Tones" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.page-banner--info</code>, <code>--warn</code>, <code>--danger</code> and <code>--go</code>
-        &mdash; with <code>--brand</code> and <code>--secret</code>, as on every toned family &mdash; tint
-        the strip and its edge and colour the icon and the dismiss; the words keep the page's ink. With no
-        tone it is a quiet announcement. Pick the tone by what the reader has to do: <code>--danger</code>
-        when something they rely on is broken now, <code>--warn</code> when it will be or is degraded,
-        <code>--go</code> when it is over, <code>--brand</code> for news, and <code>--secret</code> while
-        the reader acts as somebody else.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Banner.Tones" Title="Tones" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.page-banner--info</code>, <code>--warn</code>, <code>--danger</code> and <code>--go</code>
+            &mdash; with <code>--brand</code> and <code>--secret</code>, as on every toned family &mdash; tint
+            the strip and its edge and colour the icon and the dismiss; the words keep the page's ink. With no
+            tone it is a quiet announcement. Pick the tone by what the reader has to do: <code>--danger</code>
+            when something they rely on is broken now, <code>--warn</code> when it will be or is degraded,
+            <code>--go</code> when it is over, <code>--brand</code> for news, and <code>--secret</code> while
+            the reader acts as somebody else.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Banner.Titled" Title="More than one line" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        A <code>.page-banner-title</code> first in the body makes the banner a block of text, and every
-        slot then stands on its first line instead of on the middle of the block. Point
-        <code>aria-labelledby</code> at the title. A link in a toned banner's words takes the banner's
-        ink and an underline.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Banner.Titled" Title="More than one line" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            A <code>.page-banner-title</code> first in the body makes the banner a block of text, and every
+            slot then stands on its first line instead of on the middle of the block. Point
+            <code>aria-labelledby</code> at the title. A link in a toned banner's words takes the banner's
+            ink and an underline.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Banner/Dismiss.txt" Title="Dismissing">
-    <p>
-        <code>.page-banner-dismiss</code> is the app's button: remove the banner and remember the choice
-        per notice, so the next notice shows again. A banner the reader cannot act on and cannot dismiss
-        &mdash; an outage in progress &mdash; leaves the button out.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Banner/Dismiss.txt" Title="Dismissing">
+        <p>
+            <code>.page-banner-dismiss</code> is the app's button: remove the banner and remember the choice
+            per notice, so the next notice shows again. A banner the reader cannot act on and cannot dismiss
+            &mdash; an outage in progress &mdash; leaves the button out.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatExample TExample="Examples.Banner.Phase" Title="Phase" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.page-banner--phase</code> &mdash; a <code>.badge</code> in the lead slot and one line
-        about what the phase means for the reader, with a way to tell the team. It has no tint: it
-        stays for the life of the phase, and a strip that never goes away should not compete with one
-        that matters today.
-    </p>
-</CatExample>
+<CatGroup Title="Common notices">
+    <CatExample TExample="Examples.Banner.Phase" Title="Service phase" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.page-banner--phase</code> &mdash; a <code>.badge</code> in the lead slot and one line
+            about what the phase means for the reader, with a way to tell the team. It has no tint: it
+            stays for the life of the phase, and a strip that never goes away should not compete with one
+            that matters today.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Banner.AfterRedirect" Title="After a redirect" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <strong>A success banner is for an action that ended on another page</strong> &mdash; a record
-        cancelled from its own page, then the reader sent back to the list. Where the reader stays on
-        the page they acted on, say it there, inline or in a <a href="/toast">toast</a>. Give the
-        banner <code>tabindex="-1"</code> and move focus to it after the navigation, so a screen reader
-        reads it first; show it once, and not again on a reload.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Banner.AfterRedirect" Title="After a redirect" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <strong>A success banner is for an action that ended on another page</strong> &mdash; a record
+            cancelled from its own page, then the reader sent back to the list. Where the reader stays on
+            the page they acted on, say it there, inline or in a <a href="/toast">toast</a>. Give the
+            banner <code>tabindex="-1"</code> and move focus to it after the navigation, so a screen reader
+            reads it first; show it once, and not again on a reload.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<h2 id="cookies">Cookie consent <CatAnchor Id="cookies" /></h2>
+<CatGroup Title="Cookie consent">
+    <CatExample TExample="Examples.Banner.CookieConsent" Title="Asking for consent" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            A neutral <code>.page-banner</code>, first under the topbar on every page until the reader
+            chooses. The actions go inside the body, as a row under the words. <strong>Accept and reject
+            look the same</strong> and sit side by side; a reject that is harder to find is not a choice.
+            &ldquo;View cookies&rdquo; leads to the page that lists them and holds the same choice. Without
+            a choice, set only the essential cookies.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Banner.CookieConsent" Title="Asking" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        A neutral <code>.page-banner</code>, first under the topbar on every page until the reader
-        chooses. The actions go inside the body, as a row under the words. <strong>Accept and reject
-        look the same</strong> and sit side by side; a reject that is harder to find is not a choice.
-        &ldquo;View cookies&rdquo; leads to the page that lists them and holds the same choice. Without
-        a choice, set only the essential cookies.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Banner.CookieConfirmation" Title="After choosing" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        The same region, its content replaced: what the reader chose, where to change it, and a button
-        that hides the message. Swap the two with <code>hidden</code> on each, or render one or the
-        other; keep focus on the region so the confirmation is read.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Banner.CookieConfirmation" Title="After choosing" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            The same region, its content replaced: what the reader chose, where to change it, and a button
+            that hides the message. Swap the two with <code>hidden</code> on each, or render one or the
+            other; keep focus on the region so the confirmation is read.
+        </p>
+    </CatExample>
+</CatGroup>

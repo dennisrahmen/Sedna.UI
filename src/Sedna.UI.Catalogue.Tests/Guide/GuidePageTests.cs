@@ -34,13 +34,31 @@ public class GuidePageTests(CatalogueAppFixture app)
     }
 
     [Fact]
-    public async Task The_design_guide_page_holds_every_goal_and_section()
+    public async Task Every_goal_is_on_its_area_of_the_design_guide_and_every_section_on_the_principles()
     {
-        var html = await Get("/design-guide");
         var guide = GuideFiles.Guide;
 
-        foreach (var id in guide.Goals.Select(g => g.Id).Concat(guide.Sections.Select(s => s.Id)).Append("goals"))
-            Assert.True(html.Contains($"id=\"{id}\"", StringComparison.Ordinal), $"/design-guide has no element with id \"{id}\".");
+        foreach (var group in guide.Goals.GroupBy(g => g.Group))
+        {
+            var route = Components.Pages.DesignGuidePage.HrefOf(group.Key);
+            var html = await Get(route);
+            foreach (var goal in group)
+                Assert.True(html.Contains($"id=\"{goal.Id}\"", StringComparison.Ordinal), $"{route} has no card with id \"{goal.Id}\".");
+        }
+
+        var principles = await Get("/principles");
+        foreach (var id in guide.Sections.Select(s => s.Id))
+            Assert.True(principles.Contains($"id=\"{id}\"", StringComparison.Ordinal), $"/principles has no element with id \"{id}\".");
+    }
+
+    [Fact]
+    public async Task An_area_shows_its_own_goals_and_no_others()
+    {
+        var guide = GuideFiles.Guide;
+        var html = await Get(Components.Pages.DesignGuidePage.HrefOf("Forms"));
+
+        Assert.All(guide.Goals.Where(g => g.Group != "Forms"),
+            g => Assert.DoesNotContain($"id=\"{g.Id}\"", html, StringComparison.Ordinal));
     }
 
     private async Task<string> Get(string route)

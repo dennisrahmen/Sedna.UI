@@ -1,8 +1,9 @@
 @page "/calendar"
 
 <CatHead Title="Calendar">
-    The surfaces a scheduling view is drawn on — a month, a week or a day on a time axis, a year — and
-    a date picker built on the same grid. The library paints the grid; every date, span, overlap and
+    The surfaces a scheduling view is drawn on — a month, a week or a day on a time axis, a year. The
+    date picker built on the same grid is with the other date fields, on
+    <a href="/form-datetime">date and time</a>. The library paints the grid; every date, span, overlap and
     recurrence is your app's to work out. The agenda list, business hours, background events and
     dragging events are on <a href="/calendar-agenda">Agenda and editing</a>.
 </CatHead>
@@ -17,207 +18,179 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Calendar.Month" Title="A month" Demo="ex-demo--block">
-    <p>
-        One <code>.cal-row</code> per week: seven <code>.cal-day</code>s, and over them
-        <code>.cal-row-events</code> in the same seven columns, where each <code>.cal-event</code> takes
-        its days with <code>grid-column</code> and a lane with <code>grid-row</code>.
-        <code>--cal-lanes</code> is how many lanes a day shows; what does not fit is a
-        <code>.cal-more</code>, which sits in the row under them. A span that runs into the next week is
-        two pills, <code>--continues-end</code> then <code>--continues-start</code>. Today is
-        <code>aria-current="date"</code> on the day; <code>--outside</code> and <code>--weekend</code>
-        are the days you mark. Pills take the badge families — <code>--go</code>, <code>--warn</code>,
-        <code>--danger</code>, <code>--info</code>, <code>--cyan</code>, <code>--orange</code>,
-        <code>--teal</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Month">
+    <CatExample TExample="Examples.Calendar.Month" Title="Month grid" Demo="ex-demo--block">
+        <p>
+            One <code>.cal-row</code> per week: seven <code>.cal-day</code>s, and over them
+            <code>.cal-row-events</code> in the same seven columns, where each <code>.cal-event</code> takes
+            its days with <code>grid-column</code> and a lane with <code>grid-row</code>.
+            <code>--cal-lanes</code> is how many lanes a day shows; what does not fit is a
+            <code>.cal-more</code>, which sits in the row under them. A span that runs into the next week is
+            two pills, <code>--continues-end</code> then <code>--continues-start</code>. Today is
+            <code>aria-current="date"</code> on the day; <code>--outside</code> and <code>--weekend</code>
+            are the days you mark. Pills take the badge families — <code>--go</code>, <code>--warn</code>,
+            <code>--danger</code>, <code>--info</code>, <code>--cyan</code>, <code>--orange</code>,
+            <code>--teal</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.WeekNumbers" Title="Week numbers" Demo="ex-demo--block">
-    <p>
-        <code>.cal-month--weeknums</code> adds a column before the days, headed by an empty
-        <code>.cal-weekday</code>, and each row starts with a <code>.cal-weeknum</code>.
-        <strong>The number is yours</strong> — ISO 8601 or your reader's locale rule — because a stylesheet
-        cannot count weeks. Make it a <code>&lt;button&gt;</code> when choosing the week opens something,
-        and give it a visually hidden word, since a bare "38" is not a week to a screen reader. Pills and
-        <code>.cal-more</code> still take <code>grid-column</code> 1 to 7: the lanes cover only the days.
-        The same column works in the <a href="/calendar#a-date-picker">date picker</a>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.WeekNumbers" Title="Week numbers" Demo="ex-demo--block">
+        <p>
+            <code>.cal-month--weeknums</code> adds a column before the days, headed by an empty
+            <code>.cal-weekday</code>, and each row starts with a <code>.cal-weeknum</code>.
+            <strong>The number is yours</strong> — ISO 8601 or your reader's locale rule — because a stylesheet
+            cannot count weeks. Make it a <code>&lt;button&gt;</code> when choosing the week opens something,
+            and give it a visually hidden word, since a bare "38" is not a week to a screen reader. Pills and
+            <code>.cal-more</code> still take <code>grid-column</code> 1 to 7: the lanes cover only the days.
+            The same column works in the <a href="/form-datetime#date-or-range">date picker</a>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.NextTwoWeeks" Title="The next two weeks, with now and what else is on" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open a marker.</strong> A short rolling range is two rows of the month,
-        starting today. <code>.cal-now</code> in today's <code>.cal-row</code> is a rule through the
-        week at <code>--cal-at</code> days from its first day &mdash; 0.6 is 60% of the way through
-        today &mdash; the same line the timeline draws. <code>.cal-marks</code> holds a day's
-        <code>.cal-mark</code>s: an icon with a count or a time for what has no pill of its own. A
-        marker that opens its list is a <code>&lt;button&gt;</code> with
-        <code>data-popover</code>; give it a label that says what the number counts.
-        <code>.cal-month--day-tones</code> sets a weekend's and a holiday's day number in their
-        tones, which reads beside markers where the day's shade does not. In a card,
-        <code>.cal-month--flush</code> gives up the month's own border and corners, so the card's are
-        the only frame.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.NextTwoWeeks" Title="Next two weeks" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open a marker.</strong> A short rolling range is two rows of the month,
+            starting today. <code>.cal-now</code> in today's <code>.cal-row</code> is a rule through the
+            week at <code>--cal-at</code> days from its first day &mdash; 0.6 is 60% of the way through
+            today &mdash; the same line the timeline draws. <code>.cal-marks</code> holds a day's
+            <code>.cal-mark</code>s: an icon with a count or a time for what has no pill of its own. A
+            marker that opens its list is a <code>&lt;button&gt;</code> with
+            <code>data-popover</code>; give it a label that says what the number counts.
+            <code>.cal-month--day-tones</code> sets a weekend's and a holiday's day number in their
+            tones, which reads beside markers where the day's shade does not. In a card,
+            <code>.cal-month--flush</code> gives up the month's own border and corners, so the card's are
+            the only frame.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.DayHeadTones" Title="Tinted day heads, with markers in a head" Demo="ex-demo--block">
-    <p>
-        Under <code>.cal-week--day-tones</code> &mdash; or <code>.cal-month--day-tones</code> &mdash; a
-        <code>.cal-weekday</code> that carries the day's <code>.cal-day--weekend</code> or
-        <code>.cal-day--holiday</code> is tinted whole, in the info and the danger tone, while the
-        column under it keeps its plain shade. A holiday on a weekend reads as a holiday, and today
-        keeps its own mark. A <code>.cal-marks</code> inside a head follows the date instead of keeping
-        to the end edge.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.DayHeadTones" Title="Tinted day heads" Demo="ex-demo--block">
+        <p>
+            Under <code>.cal-week--day-tones</code> &mdash; or <code>.cal-month--day-tones</code> &mdash; a
+            <code>.cal-weekday</code> that carries the day's <code>.cal-day--weekend</code> or
+            <code>.cal-day--holiday</code> is tinted whole, in the info and the danger tone, while the
+            column under it keeps its plain shade. A holiday on a weekend reads as a holiday, and today
+            keeps its own mark. A <code>.cal-marks</code> inside a head follows the date instead of keeping
+            to the end edge.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.Growing" Title="Rows that grow" Demo="ex-demo--block">
-    <p>
-        <code>.cal-month--grow</code> is the other choice for a whole calendar: a week is as tall as its
-        last lane, so every event is on screen and there is no <code>.cal-more</code>. Use it where a
-        busy day must not hide anything — a dispatch plan, a rota — and the fixed rows where the month has
-        to fit a screen. <code>--cal-lanes</code> is then the height a quiet week keeps. The lanes and the
-        <code>grid-row</code> of each pill are still yours to work out.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.Growing" Title="Rows that grow" Demo="ex-demo--block">
+        <p>
+            <code>.cal-month--grow</code> is the other choice for a whole calendar: a week is as tall as its
+            last lane, so every event is on screen and there is no <code>.cal-more</code>. Use it where a
+            busy day must not hide anything — a dispatch plan, a rota — and the fixed rows where the month has
+            to fit a screen. <code>--cal-lanes</code> is then the height a quiet week keeps. The lanes and the
+            <code>grid-row</code> of each pill are still yours to work out.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Calendar.Week" Title="A week on a time axis" Demo="ex-demo--block">
-    <p>
-        <code>.cal-week</code> puts a <code>.cal-hours</code> gutter beside one <code>.cal-day-col</code>
-        per day. <code>--cal-hours</code> is how many hour rows the axis has and
-        <code>--cal-hour-height</code> how tall each is. A <code>.cal-block</code>'s
-        <code>--cal-start</code> and <code>--cal-span</code> are in hours from the top of the axis, so
-        09:30 on an axis starting at 07:00 is <code>2.5</code>; two blocks that overlap go side by side
-        with <code>--cal-lane</code> and <code>--cal-lanes</code>, which you work out.
-        <code>.cal-now</code> is the line for the current time, at <code>--cal-at</code>. A block's text
-        stops at the last whole line that fits, so a short block shows its time and the start of its
-        title — put the full title in the link's label or a <code>data-tip</code> if it matters.
-    </p>
-</CatExample>
+<CatGroup Title="Week and day">
+    <CatExample TExample="Examples.Calendar.Week" Title="Week on a time axis" Demo="ex-demo--block">
+        <p>
+            <code>.cal-week</code> puts a <code>.cal-hours</code> gutter beside one <code>.cal-day-col</code>
+            per day. <code>--cal-hours</code> is how many hour rows the axis has and
+            <code>--cal-hour-height</code> how tall each is. A <code>.cal-block</code>'s
+            <code>--cal-start</code> and <code>--cal-span</code> are in hours from the top of the axis, so
+            09:30 on an axis starting at 07:00 is <code>2.5</code>; two blocks that overlap go side by side
+            with <code>--cal-lane</code> and <code>--cal-lanes</code>, which you work out.
+            <code>.cal-now</code> is the line for the current time, at <code>--cal-at</code>. A block's text
+            stops at the last whole line that fits, so a short block shows its time and the start of its
+            title — put the full title in the link's label or a <code>data-tip</code> if it matters.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.WeekByLanes" Title="Room for busy days" Demo="ex-demo--block">
-    <p>
-        <code>.cal-week--by-lanes</code> shares the width by how busy each day is. CSS cannot tell which
-        blocks overlap, so <strong>you pass the count</strong>: the most blocks side by side on that day, as
-        <code>--cal-lanes</code> on its <code>.cal-day-col</code> and the same number on its
-        <code>.cal-weekday</code>, which keeps the heading over the column. A day you leave alone counts
-        as one lane. <code>--cal-day-min</code> is the narrowest any day may get, on this modifier or
-        without it; the week's own minimum width follows from it, so put the week in a
-        <code>.sedna-scroll-x</code>, which scrolls it sideways on a phone. Leave the modifier off and
-        every day is the same width again.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.WeekByLanes" Title="Room for busy days" Demo="ex-demo--block">
+        <p>
+            <code>.cal-week--by-lanes</code> shares the width by how busy each day is. CSS cannot tell which
+            blocks overlap, so <strong>you pass the count</strong>: the most blocks side by side on that day, as
+            <code>--cal-lanes</code> on its <code>.cal-day-col</code> and the same number on its
+            <code>.cal-weekday</code>, which keeps the heading over the column. A day you leave alone counts
+            as one lane. <code>--cal-day-min</code> is the narrowest any day may get, on this modifier or
+            without it; the week's own minimum width follows from it, so put the week in a
+            <code>.sedna-scroll-x</code>, which scrolls it sideways on a phone. Leave the modifier off and
+            every day is the same width again.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.Day" Title="A day" Demo="ex-demo--block">
-    <p>
-        The same surface with <code>--cal-days: 1</code>. Nothing else changes, so a week view and a day
-        view share one set of rules and one layout of blocks. In a card, <code>.cal-week--flush</code>
-        leaves the frame to the card, as every framed calendar view's <code>--flush</code> does.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.Day" Title="One day" Demo="ex-demo--block">
+        <p>
+            The same surface with <code>--cal-days: 1</code>. Nothing else changes, so a week view and a day
+            view share one set of rules and one layout of blocks. In a card, <code>.cal-week--flush</code>
+            leaves the frame to the card, as every framed calendar view's <code>--flush</code> does.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Calendar.EventFills" Title="Event status as a fill" Demo="ex-demo--block">
-    <p>
-        Tinted is the default. <code>.cal-event--filled</code> is for what is settled or happening now,
-        <code>--outline</code> for what may be skipped, and <code>--tentative</code> — a dashed edge on a
-        faint hatch — for an invitation nobody has accepted yet. Each combines with every hue,
-        <code>--go</code> to <code>--teal</code>, on a pill and on a block. <strong>Say the status in words
-        too</strong>, as the time line does here: a dashed border is not something a screen reader or a
-        printout can pass on.
-    </p>
-</CatExample>
+<CatGroup Title="Events and holidays">
+    <CatExample TExample="Examples.Calendar.EventFills" Title="Status as a fill" Demo="ex-demo--block">
+        <p>
+            Tinted is the default. <code>.cal-event--filled</code> is for what is settled or happening now,
+            <code>--outline</code> for what may be skipped, and <code>--tentative</code> — a dashed edge on a
+            faint hatch — for an invitation nobody has accepted yet. Each combines with every hue,
+            <code>--go</code> to <code>--teal</code>, on a pill and on a block. <strong>Say the status in words
+            too</strong>, as the time line does here: a dashed border is not something a screen reader or a
+            printout can pass on.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.EventSlots" Title="Type, state and people" Demo="ex-demo--block">
-    <p>
-        Before the title, a <code>.cal-event-icon</code> for the kind of event, a <code>.cal-event-dot</code>,
-        or <code>.cal-event-dot--live</code> for one in progress; all three take the event's hue. After it,
-        the people on it, as an <a href="/avatar">avatar group</a> with <code>.cal-event-avatars</code>,
-        which shrinks the avatars to the pill. On a pill, wrap the title in <code>.cal-event-title</code>
-        so it truncates instead of pushing the avatars out; on a block the avatars sit in the top corner
-        and the text wraps round them. The avatars and the dot are pictures: put the names and the word
-        "Live" in text as well.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.EventSlots" Title="Type, state and people" Demo="ex-demo--block">
+        <p>
+            Before the title, a <code>.cal-event-icon</code> for the kind of event, a <code>.cal-event-dot</code>,
+            or <code>.cal-event-dot--live</code> for one in progress; all three take the event's hue. After it,
+            the people on it, as an <a href="/avatar">avatar group</a> with <code>.cal-event-avatars</code>,
+            which shrinks the avatars to the pill. On a pill, wrap the title in <code>.cal-event-title</code>
+            so it truncates instead of pushing the avatars out; on a block the avatars sit in the top corner
+            and the text wraps round them. The avatars and the dot are pictures: put the names and the word
+            "Live" in text as well.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.Holidays" Title="Holidays" Demo="ex-demo--block">
-    <p>
-        <code>.cal-day--holiday</code> shades a day nobody works, and a <code>.cal-holiday</code> beside the
-        day number names it with an icon. A name that does not fit is cut short, and in a very narrow cell
-        it drops out and the icon stays; either way its <code>data-tip</code> carries the name — the hint
-        only appears while the whole name is not on screen, so it never repeats it. The
-        <code>aria-label</code> is what a screen reader hears. A small month has no room for the marker:
-        shade the day and put the <code>data-tip</code> on it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.Holidays" Title="Holidays" Demo="ex-demo--block">
+        <p>
+            <code>.cal-day--holiday</code> shades a day nobody works, and a <code>.cal-holiday</code> beside the
+            day number names it with an icon. A name that does not fit is cut short, and in a very narrow cell
+            it drops out and the icon stays; either way its <code>data-tip</code> carries the name — the hint
+            only appears while the whole name is not on screen, so it never repeats it. The
+            <code>aria-label</code> is what a screen reader hears. A small month has no room for the marker:
+            shade the day and put the <code>data-tip</code> on it.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Calendar.Year" Title="A year" Demo="ex-demo--block">
-    <p>
-        <code>.cal-year</code> lays out small months — <code>.cal-month--mini</code>, numbers only and
-        square days — and wraps them to the width, so twelve fill a page and three fit a panel. A day
-        with something on it is <code>.cal-day--marked</code>. Hide the weekday initials from a screen
-        reader with <code>aria-hidden</code>, as here: the date is in the day's own label or context.
-    </p>
-</CatExample>
+<CatGroup Title="Years and timelines">
+    <CatExample TExample="Examples.Calendar.Year" Title="Year of small months" Demo="ex-demo--block">
+        <p>
+            <code>.cal-year</code> lays out small months — <code>.cal-month--mini</code>, numbers only and
+            square days — and wraps them to the width, so twelve fill a page and three fit a panel. A day
+            with something on it is <code>.cal-day--marked</code>. Hide the weekday initials from a screen
+            reader with <code>aria-hidden</code>, as here: the date is in the day's own label or context.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.TimelineResources" Title="A resource timeline" Demo="ex-demo--block">
-    <p>
-        One row per room, vehicle or person, with the days or hours across. <code>.cal-timeline</code>
-        takes the column count as <code>--cal-columns</code> &mdash; yours to write, because a stylesheet
-        cannot count days &mdash; and each <code>.cal-timeline-row</code> is a
-        <code>.cal-timeline-label</code>, pinned while the columns scroll, a
-        <code>.cal-timeline-cells</code> behind it for the shading, and the month's own
-        <code>.cal-row-events</code>: the same pills, lanes, <code>.cal-more</code>, fills and
-        <code>--continues-*</code>. A column that is a day takes the day's modifiers, and
-        <code>.cal-now</code> is a vertical rule at <code>--cal-at</code> columns. Keep it in a
-        <code>.sedna-scroll-x</code>: a column never gets narrower than <code>--cal-column-min</code>.
-        Straight in a card, as here, <code>.cal-timeline--flush</code> leaves the frame to the card.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.TimelineResources" Title="Resource timeline" Demo="ex-demo--block">
+        <p>
+            One row per room, vehicle or person, with the days or hours across. <code>.cal-timeline</code>
+            takes the column count as <code>--cal-columns</code> &mdash; yours to write, because a stylesheet
+            cannot count days &mdash; and each <code>.cal-timeline-row</code> is a
+            <code>.cal-timeline-label</code>, pinned while the columns scroll, a
+            <code>.cal-timeline-cells</code> behind it for the shading, and the month's own
+            <code>.cal-row-events</code>: the same pills, lanes, <code>.cal-more</code>, fills and
+            <code>--continues-*</code>. A column that is a day takes the day's modifiers, and
+            <code>.cal-now</code> is a vertical rule at <code>--cal-at</code> columns. Keep it in a
+            <code>.sedna-scroll-x</code>: a column never gets narrower than <code>--cal-column-min</code>.
+            Straight in a card, as here, <code>.cal-timeline--flush</code> leaves the frame to the card.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Calendar.TimelineYear" Title="A year as a timeline" Demo="ex-demo--block">
-    <p>
-        The same layout with months down the side and days across: a column past the end of a short
-        month is <code>.cal-day--outside</code>, and a holiday is <code>.cal-day--holiday</code>.
-        <code>.cal-timeline--grow</code> grows each row to fit its lanes instead of summarising the rest,
-        as <code>.cal-month--grow</code> does, so <code>--cal-lanes</code> becomes the height an empty row
-        still keeps. <code>--cal-label-width</code> and <code>--cal-column-min</code> fit the label and
-        the day numbers.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Calendar.TimelineYear" Title="Year as a timeline" Demo="ex-demo--block">
+        <p>
+            The same layout with months down the side and days across: a column past the end of a short
+            month is <code>.cal-day--outside</code>, and a holiday is <code>.cal-day--holiday</code>.
+            <code>.cal-timeline--grow</code> grows each row to fit its lanes instead of summarising the rest,
+            as <code>.cal-month--grow</code> does, so <code>--cal-lanes</code> becomes the height an empty row
+            still keeps. <code>--cal-label-width</code> and <code>--cal-column-min</code> fit the label and
+            the day numbers.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Calendar.DatePicker" Title="A date picker" Demo="ex-demo--pad">
-    <p>
-        <strong>Live — open it.</strong> For a date that has to look the same in every engine, or a range,
-        or days that cannot be chosen. <code>.datepicker</code> is a <a href="/popover">popover</a>, so
-        the anchoring, light dismiss and <kbd>Escape</kbd> are the platform's; its body is the small
-        month grid. Each day is a <code>&lt;button&gt;</code> <strong>named with its full date</strong> —
-        &ldquo;21&rdquo; alone is not a date to a screen reader — and <code>aria-pressed="true"</code>
-        when chosen. A range is <code>--range-start</code>, <code>--in-range</code> and
-        <code>--range-end</code> on the days you work out; an unavailable day is a disabled button.
-        The keys beyond <kbd>Tab</kbd> are yours to add. The week numbers are
-        <code>.cal-month--weeknums</code>, as on a full month. For a single date the native
-        <a href="/form-datetime">date input</a> is still the better default.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Calendar.DatePickerTime" Title="A date with a time" Demo="ex-demo--pad">
-    <p>
-        <strong>Live — open it.</strong> A <code>.datepicker-time</code> row under the grid holds the
-        platform's own <code>&lt;input type="time"&gt;</code> as a <code>.form-input--sm</code> &mdash; one
-        for a moment, two for a slot &mdash; so the clock, the 12- or 24-hour form and the keys are the
-        reader's. Give each input a label, even when the second one is only read by a screen reader.
-        The actions under it share its divider.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Calendar.DatePickerLevels" Title="Months and years" Demo="ex-demo--pad">
-    <p>
-        <strong>Live — open both.</strong> To go further than a month at a time, make the
-        <code>.datepicker-title</code> a <code>&lt;button&gt;</code> that swaps the panel's body for the
-        level above: <code>.cal-months</code>, then <code>.cal-years</code>, each a grid of
-        <code>.cal-pick</code> buttons with the day grid's states &mdash; <code>aria-pressed="true"</code>
-        chosen, <code>aria-current</code> now, disabled out of bounds, and
-        <code>.cal-pick--outside</code> for the years of the neighbouring decade. Which level shows and
-        what a pick does are yours; name the title button with what it opens.
-    </p>
-</CatExample>

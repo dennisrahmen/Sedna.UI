@@ -16,7 +16,7 @@
     "goal": "Let the user find each field that kept a form from being submitted",
     "phrases": [ "validation summary", "error summary", "list of form errors", "errors at the top of the form" ],
     "answer": [
-      { "page": "/alert#a-validation-summary", "role": "primary" },
+      { "page": "/alert#validation-summary", "role": "primary" },
       { "page": "/form-validation#error-and-warning", "role": "part" }
     ],
     "how": "One danger alert at the top of the form says nothing was saved and links to each field that needs attention. Every field keeps aria-invalid and its own .form-error, which is what is read when focus arrives.",
@@ -27,8 +27,8 @@
     "goal": "Let the user know that what they just did has happened",
     "phrases": [ "success message", "toast notification", "toast", "snackbar", "growl" ],
     "answer": [
-      { "page": "/toast#raising-one", "role": "primary" },
-      { "page": "/toast#piled-and-opened-by-the-pointer", "role": "part" }
+      { "page": "/toast#tones-and-timeout", "role": "primary" },
+      { "page": "/toast#several-at-once", "role": "part" }
     ],
     "how": "sednaUi.toast or ToastAsync with the outcome as a short title and a sentence, in the tone of what happened; the library's stack places it, announces it and takes it away. A failure gets a timeout of 0, so it stays until dismissed.",
     "avoid": "Putting anything the reader needs, or must act on, only in a toast: it goes on its own, and a screen reader or magnifier user can miss it."
@@ -38,8 +38,8 @@
     "goal": "Let the user follow work from running to its outcome in one message",
     "phrases": [ "promise toast", "loading toast", "saving toast", "toast that updates" ],
     "answer": [
-      { "page": "/toast#one-toast-from-saving-to-saved", "role": "primary" },
-      { "page": "/toast#work-that-ends-later", "role": "part" },
+      { "page": "/toast#save-from-script", "role": "primary" },
+      { "page": "/toast#upload-from-c", "role": "part" },
       { "page": "/progress#spinner", "role": "part" }
     ],
     "how": "Present a toast from the app's template with a .spinner in the icon's place and no close button, then replace it in place with the outcome when the work settles. A failure is also written on the page, as an alert beside the work that stays until it succeeds, because the reader has to act on it.",
@@ -50,8 +50,8 @@
     "goal": "Let the user act on something that arrived while they were busy elsewhere",
     "phrases": [ "actionable toast", "toast with buttons", "notification card", "in app notification popup" ],
     "answer": [
-      { "page": "/toast#a-notification-card", "role": "primary" },
-      { "page": "/toast#notifications-from-c-with-n-more", "role": "part" },
+      { "page": "/toast#notification-card", "role": "primary" },
+      { "page": "/toast#cards-from-c-with-n-more", "role": "part" },
       { "page": "/notifications#arrives", "role": "part" }
     ],
     "how": "A card the app writes once in a template element and presents in the library's stack: a body that opens the record, or buttons that end it with a value the app awaits. The same item goes into the notification inbox, so nothing depends on the toast being seen.",
@@ -62,8 +62,8 @@
     "goal": "Let the user catch up on what happened while they were away",
     "phrases": [ "unread count", "notification center", "notification inbox", "notification bell", "notifications panel" ],
     "answer": [
-      { "page": "/notifications#from-the-bell", "role": "primary" },
-      { "page": "/notifications#the-bell-and-its-count", "role": "part" },
+      { "page": "/notifications#inbox-from-the-bell", "role": "primary" },
+      { "page": "/notifications#bell-and-unread-count", "role": "part" },
       { "page": "/popover", "role": "part" },
       { "page": "/tabs", "role": "part" },
       { "page": "/menu#anchored-under-a-trigger", "role": "part" }
@@ -76,8 +76,8 @@
     "goal": "Let the user see how far a long job has got",
     "phrases": [ "progress bar", "percent complete", "progress ring", "circular progress", "determinate progress" ],
     "answer": [
-      { "page": "/progress#progress-bar", "role": "primary" },
-      { "page": "/progress#progress-ring", "role": "part" }
+      { "page": "/progress#determinate-and-indeterminate", "role": "primary" },
+      { "page": "/progress#ring-with-a-value", "role": "part" }
     ],
     "how": "A .progress track with its bar's width set to the share done and the figure in words beside it; where there is no width to fill, a .progress-ring with the same number in --progress and aria-valuenow. A wait with no total is the indeterminate bar.",
     "avoid": "A bar with no figure: a reader deciding whether to wait needs the number, not only the shape."
@@ -87,9 +87,9 @@
     "goal": "Let the user see that a control or a region is busy",
     "phrases": [ "spinner", "loader", "loading indicator", "busy state", "activity indicator" ],
     "answer": [
-      { "page": "/progress#busy-on-a-control-and-on-a-surface", "role": "primary" },
+      { "page": "/progress#busy-controls-and-surfaces", "role": "primary" },
       { "page": "/progress#spinner", "role": "part" },
-      { "page": "/button#while-its-action-runs", "role": "part" }
+      { "page": "/button#busy-while-its-action-runs", "role": "part" }
     ],
     "how": "aria-busy on what is busy is the one switch: a control's icon becomes the spinner and it takes no second press, and a surface keeps its content, dimmed, with a bar along its top. A .spinner on its own is for a wait with nothing else to show.",
     "avoid": "Disabling a button while its action runs, which drops its focus and its announcement; mark it aria-busy instead."
@@ -100,7 +100,7 @@
     "phrases": [ "background jobs", "running jobs", "job list", "cancel a job", "task queue" ],
     "answer": [
       { "page": "/live-state#work-in-progress", "role": "primary" },
-      { "page": "/progress#a-list-of-running-work", "role": "part" },
+      { "page": "/progress#running-jobs", "role": "part" },
       { "page": "/list", "role": "part" }
     ],
     "how": "A .list-row per job with a progress bar in its subtext, determinate where the size is known and indeterminate where it is queued, and the figure and a cancel button in .list-meta. The row is aria-busy while it runs, and a finished one shows a badge in words.",
@@ -113,8 +113,8 @@
     "answer": [
       { "page": "/skeleton#table-rows", "role": "primary" },
       { "page": "/skeleton#list-rows", "role": "part" },
-      { "page": "/skeleton#a-surface-that-has-not-arrived", "role": "part" },
-      { "page": "/page-recipes#a-list-page-while-it-loads", "role": "part" }
+      { "page": "/skeleton#surface-blocks", "role": "part" },
+      { "page": "/page-recipes#list-while-it-loads", "role": "part" }
     ],
     "how": "The real frame of the content, such as the card, the table's headings and the list's rows, with skeleton shapes where the words go, each the height of what replaces it, and aria-busy on the container so the bars are not announced. A few rows are enough to say a table is coming.",
     "avoid": "A skeleton for a refresh of content already shown, which throws away what the reader was reading: keep the content and mark it aria-busy."
@@ -135,7 +135,7 @@
     "goal": "Let the user see that the app is starting before its first render",
     "phrases": [ "boot screen", "splash screen", "app loading screen", "startup screen" ],
     "answer": [
-      { "page": "/progress#a-splash-while-the-app-starts", "role": "primary" }
+      { "page": "/progress#while-the-app-starts", "role": "primary" }
     ],
     "how": "A .splash inside the element the app renders into, so the first render replaces it, with a ring fed from --blazor-load-percentage while WebAssembly downloads.",
     "avoid": "Putting the splash outside the app's root element, where nothing ever removes it."
@@ -146,10 +146,10 @@
     "phrases": [ "empty state", "no data", "nothing to show", "zero state", "blank slate", "nothing found message" ],
     "answer": [
       { "page": "/empty-state#empty", "role": "primary" },
-      { "page": "/state-art#the-thirteen-states", "role": "part" },
+      { "page": "/state-art#thirteen-states", "role": "part" },
       { "page": "/list#nothing-in-it", "role": "part" },
       { "page": "/table#nothing-found-and-refreshing", "role": "part" },
-      { "page": "/page-recipes#a-list-with-nothing-in-it-yet", "role": "part" }
+      { "page": "/page-recipes#empty-list-on-first-visit", "role": "part" }
     ],
     "how": "An .empty-state in the content's place, inside its card, list or table row, with the toolbar and count still above it: the drawing for the state, a title that says what to do, a sentence and the one action that resolves it. Nothing yet invites, nothing found echoes the query, and filtered out names the filters and how to clear them.",
     "avoid": "One empty state for every kind of empty: a cleared queue that looks like a broken search tells the reader the wrong thing."
@@ -170,7 +170,7 @@
     "goal": "Let the user keep working while a service behind the page is down",
     "phrases": [ "degraded mode", "partial outage", "graceful degradation", "service unavailable", "dependency down" ],
     "answer": [
-      { "page": "/live-state#a-degraded-page", "role": "primary" },
+      { "page": "/live-state#degraded-page", "role": "primary" },
       { "page": "/banner#under-the-topbar", "role": "part" },
       { "page": "/stat#target-link-and-unavailable", "role": "part" },
       { "page": "/empty-state#waiting-and-failed", "role": "part" }
@@ -284,7 +284,7 @@
     "goal": "Let the user tell at a glance which state a view is in",
     "phrases": [ "empty state illustration", "spot illustration", "state illustration", "error illustration" ],
     "answer": [
-      { "page": "/state-art#the-thirteen-states", "role": "primary" },
+      { "page": "/state-art#thirteen-states", "role": "primary" },
       { "page": "/state-art#three-sizes", "role": "part" },
       { "page": "/empty-state", "role": "part" }
     ],

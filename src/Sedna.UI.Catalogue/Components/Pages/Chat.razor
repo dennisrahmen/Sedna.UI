@@ -20,214 +20,224 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Chat.Thread" Title="A conversation" Demo="ex-demo--block">
-    <p>
-        <code>.chat-message</code> is avatar and <code>.chat-body</code>; <code>--mine</code> puts
-        it on the end with no avatar, <code>--continued</code> is the same author's next message
-        and drops the <code>.chat-meta</code> above it, so a run reads as one turn. The
-        <code>.chat-bubble</code> is on the neutral surface for theirs and the brand tint for mine,
-        both in the page's own text colour. <code>.chat-day</code> and <code>.chat-unread</code> are
-        lines across the thread; <code>.chat-status</code> is what happened to my message &mdash;
-        one check sent, two delivered, <code>--read</code> in the brand &mdash; and
-        <code>.chat-bubble--failed</code> with <code>.chat-status--failed</code> and a retry is one
-        that did not go. <code>.chat-typing</code> is the three dots, with the words for a screen
-        reader beside them, visually hidden.
-    </p>
-</CatExample>
+<CatGroup Title="Threads">
+    <CatExample TExample="Examples.Chat.Thread" Title="One-to-one conversation" Demo="ex-demo--block">
+        <p>
+            <code>.chat-message</code> is avatar and <code>.chat-body</code>; <code>--mine</code> puts
+            it on the end with no avatar, <code>--continued</code> is the same author's next message
+            and drops the <code>.chat-meta</code> above it, so a run reads as one turn. The
+            <code>.chat-bubble</code> is on the neutral surface for theirs and the brand tint for mine,
+            both in the page's own text colour. <code>.chat-day</code> and <code>.chat-unread</code> are
+            lines across the thread; <code>.chat-status</code> is what happened to my message &mdash;
+            one check sent, two delivered, <code>--read</code> in the brand &mdash; and
+            <code>.chat-bubble--failed</code> with <code>.chat-status--failed</code> and a retry is one
+            that did not go. <code>.chat-typing</code> is the three dots, with the words for a screen
+            reader beside them, visually hidden.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.GroupThread" Title="A group" Demo="ex-demo--block">
-    <p>
-        The same markup with more people: every message carries its avatar and
-        <code>.chat-author</code>, a <code>.chat-system</code> line tells what the app did, a
-        <code>.chat-mention</code> names someone, a <code>.chat-quote</code> at the top of a bubble
-        is the message it answers, and <code>.chat-seen</code> after the last message is who has
-        read up to here. Colour the avatars with <a href="/avatar"><code>.avatar--viz-1</code></a> to
-        <code>--viz-6</code>, so four people are four colours and none of them is a semantic one.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.GroupThread" Title="Group conversation" Demo="ex-demo--block">
+        <p>
+            The same markup with more people: every message carries its avatar and
+            <code>.chat-author</code>, a <code>.chat-system</code> line tells what the app did, a
+            <code>.chat-mention</code> names someone, a <code>.chat-quote</code> at the top of a bubble
+            is the message it answers, and <code>.chat-seen</code> after the last message is who has
+            read up to here. Colour the avatars with <a href="/avatar"><code>.avatar--viz-1</code></a> to
+            <code>--viz-6</code>, so four people are four colours and none of them is a semantic one.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Reactions" Title="Reactions" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open the picker.</strong> <code>.chat-reactions</code> under a bubble
-        is a pill per emoji with its count, <code>aria-pressed="true"</code> on the ones that are
-        mine and an <code>aria-label</code> that says the emoji's name and the count &mdash; a
-        screen reader does not read &ldquo;👍 3&rdquo; as anything. The last pill adds one: it opens
-        a <a href="/popover"><code>.popover</code></a> holding a <code>.chat-emoji-grid</code> of
-        <code>.chat-emoji</code> buttons, each named. Which emoji the picker offers is the app's
-        list; the platform's own picker is a keyboard away and needs no help.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Flat" Title="Flat channel" Demo="ex-demo--block">
+        <p>
+            <code>.chat--flat</code> on the thread is a channel rather than a conversation: no
+            bubbles, every message full width on the start with the author beside the time, the row
+            lit on hover. Mine is not on the end here &mdash; in a channel of forty people, whose a
+            message is is the name. <code>.chat-replies</code> under a message is the thread it
+            started: who answered, how many, and when.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Actions" Title="Actions on a message" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; hover a message, or tab into it.</strong> <code>.chat-actions</code>
-        is a row of ghost icon buttons in the gap above the bubble's far corner, shown on hover
-        and whenever anything in the message has focus, so the keyboard reaches it. React and
-        reply are buttons; more is a <a href="/menu"><code>.menu</code></a> with
-        <code>data-menu-toggle</code>, and the destructive item is
-        <code>.menu-item--danger</code>. On a phone, where there is no hover, a long press on the
-        bubble is the app's way in &mdash; it opens the same menu.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Loading" Title="Loading history" Demo="ex-demo--block">
+        <p>
+            The history arriving is <a href="/skeleton">skeletons</a> in the thread's own shapes: a
+            <code>.skeleton-circle</code> at the avatar's size, a <code>.skeleton-text</code> for the
+            meta line and a <code>.skeleton-block</code> at a bubble's height, mine on the end.
+            <code>--skeleton-size</code> and <code>--skeleton-height</code> match each one to the real
+            thing, and <code>.sedna-w</code> gives it a width. The
+            card is <code>aria-busy</code> and the words are there for a screen reader.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Chat.EditResend" Title="Edit and send again" Demo="ex-demo--block">
-    <p>
-        <code>.chat-bubble--editing</code> is a message being edited: the bubble becomes a form holding
-        the field, with Cancel and Send under it, and the message takes the width it may have. Sending it
-        again starts a branch of the conversation; <a href="/agent-chat"><code>.chat-versions</code></a>
-        in the message's meta line pages between the branches, and <code>.chat-edited</code> says so.
-        Which branch is shown, and what follows it, is the app's state.
-    </p>
-</CatExample>
+<CatGroup Title="Messages">
+    <CatExample TExample="Examples.Chat.Reactions" Title="Reactions" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open the picker.</strong> <code>.chat-reactions</code> under a bubble
+            is a pill per emoji with its count, <code>aria-pressed="true"</code> on the ones that are
+            mine and an <code>aria-label</code> that says the emoji's name and the count &mdash; a
+            screen reader does not read &ldquo;👍 3&rdquo; as anything. The last pill adds one: it opens
+            a <a href="/popover"><code>.popover</code></a> holding a <code>.chat-emoji-grid</code> of
+            <code>.chat-emoji</code> buttons, each named. Which emoji the picker offers is the app's
+            list; the platform's own picker is a keyboard away and needs no help.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Failed" Title="When a message fails" Demo="ex-demo--block">
-    <p>
-        <code>.chat-bubble--failed</code> is a message that did not go or an answer that did not come.
-        Mine keeps its text, with <code>.chat-status--failed</code> and a retry in the meta line. An
-        agent's answer says what went wrong in the app's words, with Retry in the
-        <code>.chat-feedback</code> under it; on an agent's turn the failed bubble gets its edge and
-        padding back.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Actions" Title="Message actions" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; hover a message, or tab into it.</strong> <code>.chat-actions</code>
+            is a row of ghost icon buttons in the gap above the bubble's far corner, shown on hover
+            and whenever anything in the message has focus, so the keyboard reaches it. React and
+            reply are buttons; more is a <a href="/menu"><code>.menu</code></a> with
+            <code>data-menu-toggle</code>, and the destructive item is
+            <code>.menu-item--danger</code>. On a phone, where there is no hover, a long press on the
+            bubble is the app's way in &mdash; it opens the same menu.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Composer" Title="The composer" Demo="ex-demo--block">
-    <p>
-        <code>.chat-composer</code> is what is being answered, what is attached, the field and the
-        send. <code>.chat-composer-reply</code> quotes the message being replied to with a way to
-        stop; <code>.chat-composer-files</code> is the pending attachments as
-        <a href="/chip">chips</a>, each removable; the <code>.chat-composer-row</code> holds the
-        <code>.form-input</code> textarea between attach, emoji and send. Enter sends and
-        Shift+Enter breaks a line &mdash; the app's handler, because the library does not know
-        which the app wants. The field grows with the text from its <code>rows</code> to about
-        six lines and scrolls after that (<code>field-sizing: content</code>; a browser without
-        it keeps the <code>rows</code>). <code>.chat-closed</code> takes the composer's place
-        when nothing can be sent any more.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.EditResend" Title="Edits and resends" Demo="ex-demo--block">
+        <p>
+            <code>.chat-bubble--editing</code> is a message being edited: the bubble becomes a form holding
+            the field, with Cancel and Send under it, and the message takes the width it may have. Sending it
+            again starts a branch of the conversation; <a href="/agent-chat"><code>.chat-versions</code></a>
+            in the message's meta line pages between the branches, and <code>.chat-edited</code> says so.
+            Which branch is shown, and what follows it, is the app's state.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Mention" Title="Naming someone in a message" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; type <kbd class="kbd">@@</kbd>.</strong> The composer's field inside a
-        <a href="/form-textarea"><code>.mention-field</code></a>, which takes the row's room as a bare field does.
-        The list opens above the composer when there is no room below it. While it is open,
-        <kbd class="kbd">Enter</kbd> chooses a name and does not reach the composer's own Enter-to-send.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Failed" Title="Failed messages" Demo="ex-demo--block">
+        <p>
+            <code>.chat-bubble--failed</code> is a message that did not go or an answer that did not come.
+            Mine keeps its text, with <code>.chat-status--failed</code> and a retry in the meta line. An
+            agent's answer says what went wrong in the app's words, with Retry in the
+            <code>.chat-feedback</code> under it; on an agent's turn the failed bubble gets its edge and
+            padding back.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.QuickReplies" Title="Quick replies, and a closed conversation" Demo="ex-demo--block">
-    <p>
-        <code>.chat-quick-replies</code> under a message is a row of <a href="/chip">chips</a>
-        that are buttons &mdash; the answers a bot or an assistant offers, each sending itself as
-        the reply; the app removes the row once one is taken. <code>.chat-closed</code> stands
-        where the composer was when the conversation cannot continue, with the way to a new one.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Contents" Title="Bubble contents" Demo="ex-demo--block">
+        <p>
+            <code>.chat-forwarded</code> above the text says where a message came from;
+            <code>.chat-bubble--deleted</code> keeps a taken-back message's place and says so. A
+            <code>&lt;pre&gt;</code>, a <code>&lt;code&gt;</code> and a list fit the bubble and take
+            its ink, and so does a <a href="/markdown"><code>.markdown-body</code></a> inside it
+            &mdash; which is how an assistant's answer, rendered from Markdown, reads as a message
+            rather than a document.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Chat.Attachments" Title="Files and pictures" Demo="ex-demo--block">
-    <p>
-        A file in a bubble is the <a href="/files"><code>.file-item</code></a> every other file
-        list uses &mdash; an <code>&lt;a&gt;</code> with the <code>.file-icon</code>, the name and
-        the size, so it downloads like any link, on the bubble's own surface &mdash; and
-        <code>.chat-bubble--media</code> is a bubble that is a picture or a <code>&lt;video&gt;</code>,
-        filled to its corners with the caption in the next bubble. Give the image its <code>width</code> and
-        <code>height</code>, or the thread jumps as it loads.
-    </p>
-</CatExample>
+<CatGroup Title="Writing">
+    <CatExample TExample="Examples.Chat.Composer" Title="Composer" Demo="ex-demo--block">
+        <p>
+            <code>.chat-composer</code> is what is being answered, what is attached, the field and the
+            send. <code>.chat-composer-reply</code> quotes the message being replied to with a way to
+            stop; <code>.chat-composer-files</code> is the pending attachments as
+            <a href="/chip">chips</a>, each removable; the <code>.chat-composer-row</code> holds the
+            <code>.form-input</code> textarea between attach, emoji and send. Enter sends and
+            Shift+Enter breaks a line &mdash; the app's handler, because the library does not know
+            which the app wants. The field grows with the text from its <code>rows</code> to about
+            six lines and scrolls after that (<code>field-sizing: content</code>; a browser without
+            it keeps the <code>rows</code>). <code>.chat-closed</code> takes the composer's place
+            when nothing can be sent any more.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Media" Title="Pictures, and looking at one large" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; open a picture.</strong> Several pictures in one message are a
-        <a href="/media"><code>.gallery--tight</code></a> inside a media bubble, two across, each a
-        <a href="/media"><code>.media-open</code></a> button around a square
-        <code>.media-frame</code> that opens the <a href="/media"><code>.lightbox</code></a> &mdash;
-        a modal dialog with the picture as large as the screen allows, the sender and time in its
-        meta line, and the way to the next one. A file travels beside them as a
-        <a href="/files"><code>.file-item</code></a>. In the composer, a picture waiting to be sent is a
-        <a href="/files"><code>.file-thumb</code></a> with its remove button over the corner, next to the
-        chips for the other files.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Mention" Title="Mentions" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; type <kbd class="kbd">@@</kbd>.</strong> The composer's field inside a
+            <a href="/form-textarea"><code>.mention-field</code></a>, which takes the row's room as a bare field does.
+            The list opens above the composer when there is no room below it. While it is open,
+            <kbd class="kbd">Enter</kbd> chooses a name and does not reach the composer's own Enter-to-send.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Contents" Title="What a bubble holds" Demo="ex-demo--block">
-    <p>
-        <code>.chat-forwarded</code> above the text says where a message came from;
-        <code>.chat-bubble--deleted</code> keeps a taken-back message's place and says so. A
-        <code>&lt;pre&gt;</code>, a <code>&lt;code&gt;</code> and a list fit the bubble and take
-        its ink, and so does a <a href="/markdown"><code>.markdown-body</code></a> inside it
-        &mdash; which is how an assistant's answer, rendered from Markdown, reads as a message
-        rather than a document.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.QuickReplies" Title="Quick replies and closed chats" Demo="ex-demo--block">
+        <p>
+            <code>.chat-quick-replies</code> under a message is a row of <a href="/chip">chips</a>
+            that are buttons &mdash; the answers a bot or an assistant offers, each sending itself as
+            the reply; the app removes the row once one is taken. <code>.chat-closed</code> stands
+            where the composer was when the conversation cannot continue, with the way to a new one.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Chat.Cards" Title="A link, a voice message, an upload" Demo="ex-demo--block">
-    <p>
-        A <a href="/media"><code>.link-preview</code></a> unfurls a link the message carries &mdash; the picture, the
-        title, a line and the host in <code>.link-preview-body</code>; the app fetches the
-        preview. A voice message is an <a href="/audio"><code>.audio-wave</code></a>: play, the <code>.audio-wave-bars</code>
-        with each bar's height in <code>--h</code> and the ones already heard as
-        <code>.audio-wave-heard</code>, and the <code>.audio-wave-time</code>. The
-        <code>&lt;audio&gt;</code> element is the app's and hidden; the play button names the
-        length. A file still uploading is a <code>.file-item</code> with a
-        <a href="/progress"><code>.progress</code></a> under the name and the percentage in the
-        size column.
-    </p>
-</CatExample>
+<CatGroup Title="Files and media">
+    <CatExample TExample="Examples.Chat.Attachments" Title="Files and pictures" Demo="ex-demo--block">
+        <p>
+            A file in a bubble is the <a href="/files"><code>.file-item</code></a> every other file
+            list uses &mdash; an <code>&lt;a&gt;</code> with the <code>.file-icon</code>, the name and
+            the size, so it downloads like any link, on the bubble's own surface &mdash; and
+            <code>.chat-bubble--media</code> is a bubble that is a picture or a <code>&lt;video&gt;</code>,
+            filled to its corners with the caption in the next bubble. Give the image its <code>width</code> and
+            <code>height</code>, or the thread jumps as it loads.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Launcher" Title="The launcher and the flyover" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; it is in the corner of this page.</strong> <code>.chat-launcher</code>
-        is the round brand button in the corner, above the home indicator, with the unread count on it as
-        <code>.chat-launcher-count</code>; it is the page's one floating action where a chat is the
-        page's job, so it takes the <a href="/button">FAB</a>'s corner and rung. It opens the
-        <code>.chat-flyover</code> with <code>popovertarget</code>: a <code>popover="manual"</code>
-        panel, so it is in the top layer and stays open while the reader works, and the close
-        button in its <code>.chat-flyover-head</code> is the way out. Inside it the thread and the
-        composer are the ones above; on a phone it is the whole screen.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Media" Title="Galleries and lightbox" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open a picture.</strong> Several pictures in one message are a
+            <a href="/media"><code>.gallery--tight</code></a> inside a media bubble, two across, each a
+            <a href="/media"><code>.media-open</code></a> button around a square
+            <code>.media-frame</code> that opens the <a href="/media"><code>.lightbox</code></a> &mdash;
+            a modal dialog with the picture as large as the screen allows, the sender and time in its
+            meta line, and the way to the next one. A file travels beside them as a
+            <a href="/files"><code>.file-item</code></a>. In the composer, a picture waiting to be sent is a
+            <a href="/files"><code>.file-thumb</code></a> with its remove button over the corner, next to the
+            chips for the other files.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Pane" Title="A page of it" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; scroll the thread.</strong> <code>.chat-pane</code> is the chat as
-        a page's whole height: give it a height &mdash; <code>100%</code> inside a
-        <a href="/frame"><code>.page--fill</code></a>, or one of its own &mdash; and the
-        thread takes what the <code>.chat-pinned</code> bar above and the composer below leave,
-        scrolling on its own with each <code>.chat-day</code> sticking as it passes. The thread
-        that scrolls carries <code>tabindex="0"</code>, so the keyboard can scroll it too.
-        <code>.chat-jump</code> floats over the thread's bottom edge for the moment the reader
-        has scrolled up and something arrives; the app shows it and scrolls on the click.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Cards" Title="Links, voice and uploads" Demo="ex-demo--block">
+        <p>
+            A <a href="/media"><code>.link-preview</code></a> unfurls a link the message carries &mdash; the picture, the
+            title, a line and the host in <code>.link-preview-body</code>; the app fetches the
+            preview. A voice message is an <a href="/audio"><code>.audio-wave</code></a>: play, the <code>.audio-wave-bars</code>
+            with each bar's height in <code>--h</code> and the ones already heard as
+            <code>.audio-wave-heard</code>, and the <code>.audio-wave-time</code>. The
+            <code>&lt;audio&gt;</code> element is the app's and hidden; the play button names the
+            length. A file still uploading is a <code>.file-item</code> with a
+            <a href="/progress"><code>.progress</code></a> under the name and the percentage in the
+            size column.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Chat.Flat" Title="Flat, like a channel" Demo="ex-demo--block">
-    <p>
-        <code>.chat--flat</code> on the thread is a channel rather than a conversation: no
-        bubbles, every message full width on the start with the author beside the time, the row
-        lit on hover. Mine is not on the end here &mdash; in a channel of forty people, whose a
-        message is is the name. <code>.chat-replies</code> under a message is the thread it
-        started: who answered, how many, and when.
-    </p>
-</CatExample>
+<CatGroup Title="Around the thread">
+    <CatExample TExample="Examples.Chat.Launcher" Title="Launcher and flyover" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; it is in the corner of this page.</strong> <code>.chat-launcher</code>
+            is the round brand button in the corner, above the home indicator, with the unread count on it as
+            <code>.chat-launcher-count</code>; it is the page's one floating action where a chat is the
+            page's job, so it takes the <a href="/button">FAB</a>'s corner and rung. It opens the
+            <code>.chat-flyover</code> with <code>popovertarget</code>: a <code>popover="manual"</code>
+            panel, so it is in the top layer and stays open while the reader works, and the close
+            button in its <code>.chat-flyover-head</code> is the way out. Inside it the thread and the
+            composer are the ones above; on a phone it is the whole screen.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Loading" Title="While it loads" Demo="ex-demo--block">
-    <p>
-        The history arriving is <a href="/skeleton">skeletons</a> in the thread's own shapes: a
-        <code>.skeleton-circle</code> at the avatar's size, a <code>.skeleton-text</code> for the
-        meta line and a <code>.skeleton-block</code> at a bubble's height, mine on the end.
-        <code>--skeleton-size</code> and <code>--skeleton-height</code> match each one to the real
-        thing, and <code>.sedna-w</code> gives it a width. The
-        card is <code>aria-busy</code> and the words are there for a screen reader.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Pane" Title="Full-page chat" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; scroll the thread.</strong> <code>.chat-pane</code> is the chat as
+            a page's whole height: give it a height &mdash; <code>100%</code> inside a
+            <a href="/frame"><code>.page--fill</code></a>, or one of its own &mdash; and the
+            thread takes what the <code>.chat-pinned</code> bar above and the composer below leave,
+            scrolling on its own with each <code>.chat-day</code> sticking as it passes. The thread
+            that scrolls carries <code>tabindex="0"</code>, so the keyboard can scroll it too.
+            <code>.chat-jump</code> floats over the thread's bottom edge for the moment the reader
+            has scrolled up and something arrives; the app shows it and scrolls on the click.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Chat.Conversations" Title="The conversations" Demo="ex-demo--block">
-    <p>
-        The list of chats is a <a href="/list"><code>.list</code></a>: an avatar, the name and the
-        last line, the time and an unread <a href="/badge">badge</a> &mdash; the row that
-        navigates is the row that navigates everywhere else. A group is an
-        <a href="/avatar"><code>.avatar-pair</code></a>: two of its people stacked corner to corner
-        inside one avatar's square, so a group's name starts where a person's does and the column
-        of names stays straight. An <code>.avatar-group</code> there would be as wide as its count.
-        Name the pair once, on the wrapper.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Chat.Conversations" Title="Conversation list" Demo="ex-demo--block">
+        <p>
+            The list of chats is a <a href="/list"><code>.list</code></a>: an avatar, the name and the
+            last line, the time and an unread <a href="/badge">badge</a> &mdash; the row that
+            navigates is the row that navigates everywhere else. A group is an
+            <a href="/avatar"><code>.avatar-pair</code></a>: two of its people stacked corner to corner
+            inside one avatar's square, so a group's name starts where a person's does and the column
+            of names stays straight. An <code>.avatar-group</code> there would be as wide as its count.
+            Name the pair once, on the wrapper.
+        </p>
+    </CatExample>
+</CatGroup>

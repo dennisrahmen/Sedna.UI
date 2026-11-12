@@ -17,105 +17,113 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Progress.Busy" Title="Busy, on a control and on a surface" Demo="ex-demo--block">
-    <p>
-        <code>aria-busy="true"</code> is the one switch, and the paint follows what is announced. On a
-        control — a menu item, a tab, a list row, a chip, a page link — its leading icon becomes the
-        spinner and it takes no pointer, so the work cannot start twice; a <code>.btn</code> covers its
-        label instead. On a surface — a card, a list, a table, a dialog, a drawer — the content stays
-        in place, dimmed and out of reach, with a bar along the top edge. Under reduced motion both
-        stand still.
-    </p>
-</CatExample>
+<CatGroup Title="Busy and spinners">
+    <CatExample TExample="Examples.Progress.Busy" Title="Busy controls and surfaces" Demo="ex-demo--block">
+        <p>
+            <code>aria-busy="true"</code> is the one switch, and the paint follows what is announced. On a
+            control — a menu item, a tab, a list row, a chip, a page link — its leading icon becomes the
+            spinner and it takes no pointer, so the work cannot start twice; a <code>.btn</code> covers its
+            label instead. On a surface — a card, a list, a table, a dialog, a drawer — the content stays
+            in place, dimmed and out of reach, with a bar along the top edge. Under reduced motion both
+            stand still.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Progress.Progress" Title="Progress bar" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Determinate: set the inline <code>width</code> on <code>.progress-bar</code>.
-        Indeterminate: leave the width off and add <code>.progress--indeterminate</code> to the
-        track. Put the number in text as well — a bar is a shape, and a reader deciding whether to
-        wait needs the figure.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Progress.Spinner" Title="Spinner">
+        <p>
+            Sized in <code>em</code>, so it matches whatever text it sits in without a second class.
+            A button whose action is running does not take one: it is <code>aria-busy="true"</code>,
+            which draws the same ring over its label and keeps its focus and its width &mdash; see
+            <a href="/button#busy-while-its-action-runs">Buttons</a>. <code>.spinner--lg</code> is the
+            standalone size for a panel that is still loading; on its own it needs a name.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Progress.Threshold" Title="Measuring towards a threshold" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.progress-bar--muted</code> is for a bar measuring progress <em>towards</em> a
-        threshold rather than the completion of a task, where well below the line is neither a
-        warning nor a failure. The base bar is <code>var(--brand)</code>, which reads as an alarm
-        wherever the brand is a red.
-    </p>
-</CatExample>
+<CatGroup Title="Progress bars">
+    <CatExample TExample="Examples.Progress.Progress" Title="Determinate and indeterminate" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Determinate: set the inline <code>width</code> on <code>.progress-bar</code>.
+            Indeterminate: leave the width off and add <code>.progress--indeterminate</code> to the
+            track. Put the number in text as well — a bar is a shape, and a reader deciding whether to
+            wait needs the figure.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Progress.Severity" Title="Ranked bars" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.progress-bar--sev-1</code> … <code>--sev-5</code> take the ordered ramp behind the
-        <a href="/badge">severity badges</a>, for a bar that measures a rank rather than a fraction.
-        They are a fill and carry no label — where there is one, use <code>.badge-sev-N</code>.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Progress.Threshold" Title="Towards a threshold" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.progress-bar--muted</code> is for a bar measuring progress <em>towards</em> a
+            threshold rather than the completion of a task, where well below the line is neither a
+            warning nor a failure. The base bar is <code>var(--brand)</code>, which reads as an alarm
+            wherever the brand is a red.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Progress.Spinner" Title="Spinner">
-    <p>
-        Sized in <code>em</code>, so it matches whatever text it sits in without a second class.
-        A button whose action is running does not take one: it is <code>aria-busy="true"</code>,
-        which draws the same ring over its label and keeps its focus and its width &mdash; see
-        <a href="/button#while-its-action-runs">Buttons</a>. <code>.spinner--lg</code> is the
-        standalone size for a panel that is still loading; on its own it needs a name.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Progress.Severity" Title="Ranked bars" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.progress-bar--sev-1</code> … <code>--sev-5</code> take the ordered ramp behind the
+            <a href="/badge">severity badges</a>, for a bar that measures a rank rather than a fraction.
+            They are a fill and carry no label — where there is one, use <code>.badge-sev-N</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Progress.Ring" Title="Progress ring" Demo="ex-demo--pad">
-    <p>
-        <code>.progress-ring</code> is the determinate value where there is no width to fill.
-        Write the value as a percentage in <code>--progress</code> and the same number in
-        <code>aria-valuenow</code>; the element holds a label if you give it one.
-        <code>--progress-ring-size</code> and <code>--progress-ring-width</code> size it, and
-        <code>.progress-ring--lg</code> is the larger step and <code>.progress-ring--sm</code> the smaller, beside a line of text. <code>.spinner--sm</code> is three quarters of the text it sits in.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Progress.RunningJobs" Title="Running jobs" Demo="ex-demo--block">
+        <p>
+            Where these end up in practice: one row per job, with the shape that matches what is known —
+            a percentage gets a determinate bar, a wait with no total gets the indeterminate one and a
+            <code>.spinner</code>, and anything finished gets a <a href="/badge">badge</a> instead. Add
+            <code>aria-busy="true"</code> to the row while it is running, and put the figure in text as
+            well as in the bar.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Progress.RingRound" Title="Round ends, and a ring that glides" Demo="ex-demo--pad">
-    <p>
-        <code>.progress-ring--round</code> rounds both ends of the arc, in every size. Every ring
-        glides from one value to the next, as a <code>.progress-bar</code> does, and lands at once
-        under reduced motion &mdash; so write each new value as it comes and leave the animating to
-        the stylesheet. Blazor's own <code>--blazor-load-percentage</code> works as the value while
-        WebAssembly starts.
-    </p>
-</CatExample>
+<CatGroup Title="Progress rings">
+    <CatExample TExample="Examples.Progress.Ring" Title="Ring with a value" Demo="ex-demo--pad">
+        <p>
+            <code>.progress-ring</code> is the determinate value where there is no width to fill.
+            Write the value as a percentage in <code>--progress</code> and the same number in
+            <code>aria-valuenow</code>; the element holds a label if you give it one.
+            <code>--progress-ring-size</code> and <code>--progress-ring-width</code> size it, and
+            <code>.progress-ring--lg</code> is the larger step and <code>.progress-ring--sm</code> the smaller, beside a line of text. <code>.spinner--sm</code> is three quarters of the text it sits in.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Progress/Splash.html" Title="A splash while the app starts">
-    <p>
-        <code>.splash</code> covers the viewport in the theme's background while the app starts,
-        clear of the notch. Put it inside the element the app renders into, so the first render
-        replaces it. Blazor WebAssembly writes <code>--blazor-load-percentage</code> on the
-        document while it downloads, so a ring fed from it fills as the app loads.
-    </p>
-</CatSnippet>
+    <CatExample TExample="Examples.Progress.RingRound" Title="Round ends and gliding" Demo="ex-demo--pad">
+        <p>
+            <code>.progress-ring--round</code> rounds both ends of the arc, in every size. Every ring
+            glides from one value to the next, as a <code>.progress-bar</code> does, and lands at once
+            under reduced motion &mdash; so write each new value as it comes and leave the animating to
+            the stylesheet. Blazor's own <code>--blazor-load-percentage</code> works as the value while
+            WebAssembly starts.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatSnippet Name="Interop/RouteProgress.txt" Title="While the next page loads">
-    <p>
-        <code>.progress--route</code> lays a bar along the top edge of the window, above the
-        frame, for the moment between a click and the page it leads to. Write it once, in the
-        layout, and show it with the <code>hidden</code> attribute: off by default, on when a
-        navigation starts, off again when it has arrived. It fades in only after a moment, so a
-        page that arrives at once shows nothing, and it stands still under reduced motion.
-    </p>
-    <p>
-        With interactive rendering the layout hears both ends from <code>NavigationManager</code>,
-        as here. A page that then loads its own data shows a <a href="/skeleton">skeleton</a>
-        for it. A statically rendered app with enhanced navigation has no circuit to do this from:
-        its own script takes <code>hidden</code> off when a link is followed and puts it back on
-        Blazor&rsquo;s <code>enhancedload</code> event.
-    </p>
-</CatSnippet>
+<CatGroup Title="Loading the app">
+    <CatSnippet Name="Progress/Splash.html" Title="While the app starts">
+        <p>
+            <code>.splash</code> covers the viewport in the theme's background while the app starts,
+            clear of the notch. Put it inside the element the app renders into, so the first render
+            replaces it. Blazor WebAssembly writes <code>--blazor-load-percentage</code> on the
+            document while it downloads, so a ring fed from it fills as the app loads.
+        </p>
+    </CatSnippet>
 
-<CatExample TExample="Examples.Progress.RunningJobs" Title="A list of running work" Demo="ex-demo--block">
-    <p>
-        Where these end up in practice: one row per job, with the shape that matches what is known —
-        a percentage gets a determinate bar, a wait with no total gets the indeterminate one and a
-        <code>.spinner</code>, and anything finished gets a <a href="/badge">badge</a> instead. Add
-        <code>aria-busy="true"</code> to the row while it is running, and put the figure in text as
-        well as in the bar.
-    </p>
-</CatExample>
+    <CatSnippet Name="Interop/RouteProgress.txt" Title="While the next page loads">
+        <p>
+            <code>.progress--route</code> lays a bar along the top edge of the window, above the
+            frame, for the moment between a click and the page it leads to. Write it once, in the
+            layout, and show it with the <code>hidden</code> attribute: off by default, on when a
+            navigation starts, off again when it has arrived. It fades in only after a moment, so a
+            page that arrives at once shows nothing, and it stands still under reduced motion.
+        </p>
+        <p>
+            With interactive rendering the layout hears both ends from <code>NavigationManager</code>,
+            as here. A page that then loads its own data shows a <a href="/skeleton">skeleton</a>
+            for it. A statically rendered app with enhanced navigation has no circuit to do this from:
+            its own script takes <code>hidden</code> off when a link is followed and puts it back on
+            Blazor&rsquo;s <code>enhancedload</code> event.
+        </p>
+    </CatSnippet>
+</CatGroup>

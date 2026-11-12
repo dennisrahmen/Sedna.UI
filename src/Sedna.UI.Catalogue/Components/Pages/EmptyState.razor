@@ -12,68 +12,67 @@
     state, referenced by id. That page has the set, the sizes, the accents and the motion.
 </p>
 
-<h2 id="with-an-icon">Or an icon, when what is missing has one <CatAnchor Id="with-an-icon" /></h2>
+<CatGroup Title="Empty and waiting">
+    <CatExample TExample="Examples.EmptyState.EmptyState" Title="Empty" Demo="ex-demo--block">
+        <p>
+            The kinds of empty are not interchangeable: nothing yet is an invitation, nothing found
+            needs the query echoed back, filtered to nothing needs the filters named and a way to clear
+            them, no access needs to say who can grant it, and a cleared queue has to look like success.
+            Give the one action that resolves it as a <code>.btn--sm</code>, inside a <code>.card</code>
+            for a panel or <code>.empty-state--bare</code> straight on the page.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.EmptyState.StateIcon" Title="State icon" Demo="ex-demo--block">
+    <CatExample TExample="Examples.EmptyState.Pending" Title="Waiting and failed" Demo="ex-demo--block">
+        <p>
+            <code>.empty-state--pending</code> is a wait with nothing to report, so put a
+            <code>.spinner--lg</code> where the drawing goes &mdash; use
+            <a href="/progress"><code>.progress</code></a> where there is progress, a
+            <code>.skeleton</code> where the shape of what is coming is known, and the
+            <code>#waiting</code> drawing where the reader can be told and then leave.
+            <code>.empty-state--failed</code> moves <code>--state-accent</code> into the danger ramp and
+            leaves the line work grey; put the endpoint, the code and the time it was tried in
+            <code>.empty-state-detail</code>, and keep <code>#failed</code> and <code>#offline</code>
+            apart &mdash; only a request that never left is worth retrying immediately.
+        </p>
+    </CatExample>
+
+    <h3 id="page-level">Whole page <CatAnchor Id="page-level" /></h3>
+
     <p>
-        <code>.state-icon</code> on a Remix Icon <code>&lt;i&gt;</code> takes the drawing's place,
-        with the same title, sentence and actions under it. Use it where the thing that is missing
-        has a glyph of its own &mdash; invoices, attachments, members &mdash; and the drawing where
-        the state is what matters. Pick the glyph for that thing: one inbox on every empty panel
-        says nothing the title does not. <code>.empty-state--failed</code> turns it to the danger
-        colour.
+        <code>.empty-state--page</code> is the same block at page scale: a bigger drawing
+        (<code>.state-art--lg</code>), a larger title, and a wider measure.
+        <code>.empty-state-code</code> is the status code above the title, small and monospace;
+        <code>.empty-state-actions</code> is the wrapped, centred row for one primary action and the
+        one or two beside it, and takes the top margin off the buttons.
     </p>
-</CatExample>
 
-<CatExample TExample="Examples.EmptyState.StateIconSizes" Title="Icon sizes" Demo="ex-demo--block">
     <p>
-        The same three places as the drawing: <code>.state-icon--sm</code> in a table row or a
-        narrow panel, the bare <code>.state-icon</code> in a card, and <code>.state-icon--lg</code>
-        in <code>.empty-state--page</code>.
+        <a href="/common-pages">Common pages</a> has the finished ones &mdash; access denied, not
+        found, the error, the expired session, the maintenance window &mdash; with the shell each
+        belongs in.
     </p>
-</CatExample>
+</CatGroup>
 
-<h2 id="empty-and-waiting">Empty and waiting <CatAnchor Id="empty-and-waiting" /></h2>
+<CatGroup Title="With an icon">
+    <p>An icon in place of the drawing, when what is missing has one of its own.</p>
 
-<CatExample TExample="Examples.EmptyState.EmptyState" Title="Empty" Demo="ex-demo--block">
-    <p>
-        The kinds of empty are not interchangeable: nothing yet is an invitation, nothing found
-        needs the query echoed back, filtered to nothing needs the filters named and a way to clear
-        them, no access needs to say who can grant it, and a cleared queue has to look like success.
-        Give the one action that resolves it as a <code>.btn--sm</code>, inside a <code>.card</code>
-        for a panel or <code>.empty-state--bare</code> straight on the page.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.EmptyState.StateIcon" Title="State icon" Demo="ex-demo--block">
+        <p>
+            <code>.state-icon</code> on a Remix Icon <code>&lt;i&gt;</code> takes the drawing's place,
+            with the same title, sentence and actions under it. Use it where the thing that is missing
+            has a glyph of its own &mdash; invoices, attachments, members &mdash; and the drawing where
+            the state is what matters. Pick the glyph for that thing: one inbox on every empty panel
+            says nothing the title does not. <code>.empty-state--failed</code> turns it to the danger
+            colour.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.EmptyState.Pending" Title="Waiting, and failed" Demo="ex-demo--block">
-    <p>
-        <code>.empty-state--pending</code> is a wait with nothing to report, so put a
-        <code>.spinner--lg</code> where the drawing goes &mdash; use
-        <a href="/progress"><code>.progress</code></a> where there is progress, a
-        <code>.skeleton</code> where the shape of what is coming is known, and the
-        <code>#waiting</code> drawing where the reader can be told and then leave.
-        <code>.empty-state--failed</code> moves <code>--state-accent</code> into the danger ramp and
-        leaves the line work grey; put the endpoint, the code and the time it was tried in
-        <code>.empty-state-detail</code>, and keep <code>#failed</code> and <code>#offline</code>
-        apart &mdash; only a request that never left is worth retrying immediately.
-    </p>
-</CatExample>
-
-
-
-
-<h2 id="page-level">When the whole page is the state <CatAnchor Id="page-level" /></h2>
-
-<p>
-    <code>.empty-state--page</code> is the same block at page scale: a bigger drawing
-    (<code>.state-art--lg</code>), a larger title, and a wider measure.
-    <code>.empty-state-code</code> is the status code above the title, small and monospace;
-    <code>.empty-state-actions</code> is the wrapped, centred row for one primary action and the
-    one or two beside it, and takes the top margin off the buttons.
-</p>
-
-<p>
-    <a href="/common-pages">Common pages</a> has the finished ones &mdash; access denied, not
-    found, the error, the expired session, the maintenance window &mdash; with the shell each
-    belongs in.
-</p>
+    <CatExample TExample="Examples.EmptyState.StateIconSizes" Title="Icon sizes" Demo="ex-demo--block">
+        <p>
+            The same three places as the drawing: <code>.state-icon--sm</code> in a table row or a
+            narrow panel, the bare <code>.state-icon</code> in a card, and <code>.state-icon--lg</code>
+            in <code>.empty-state--page</code>.
+        </p>
+    </CatExample>
+</CatGroup>

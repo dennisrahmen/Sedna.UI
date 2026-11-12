@@ -7,65 +7,71 @@
     third floats in the middle.
 </CatHead>
 
-<CatExample TExample="Examples.Toolbar.FiltersCount" Title="Filters and a count" Demo="ex-demo--block">
-    <p>
-        <code>.toolbar-input</code> narrows a <code>.form-input</code> or a
-        <code>.form-select</code> to a sensible 160px so it does not eat the row.
-        <code>.toolbar-count</code> is the muted result count.
-    </p>
-</CatExample>
+<CatGroup Title="Filters and search">
+    <CatExample TExample="Examples.Toolbar.FiltersCount" Title="Filters and a count" Demo="ex-demo--block">
+        <p>
+            <code>.toolbar-input</code> narrows a <code>.form-input</code> or a
+            <code>.form-select</code> to a sensible 160px so it does not eat the row.
+            <code>.toolbar-count</code> is the muted result count.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Toolbar.SearchWidth" Title="A wider search box" Demo="ex-demo--block">
-    <p>
-        <code>.toolbar-input--wide</code> is 280px, for a search box that cannot fit its own
-        placeholder at 160px. The width is a knob, <code>--toolbar-input-width</code>, for a control
-        between the two sizes — as the department select does here — and
-        <code>.toolbar-input--grow</code> takes whatever room is left instead. A filter carrying a
-        leading icon is an <a href="/form-text"><code>.input-group</code></a>, and
-        <code>.toolbar-input</code> goes on the <strong>group</strong>, not on the input inside it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Toolbar.SearchWidth" Title="Wider search box" Demo="ex-demo--block">
+        <p>
+            <code>.toolbar-input--wide</code> is 280px, for a search box that cannot fit its own
+            placeholder at 160px. The width is a knob, <code>--toolbar-input-width</code>, for a control
+            between the two sizes — as the department select does here — and
+            <code>.toolbar-input--grow</code> takes whatever room is left instead. A filter carrying a
+            leading icon is an <a href="/form-text"><code>.input-group</code></a>, and
+            <code>.toolbar-input</code> goes on the <strong>group</strong>, not on the input inside it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Toolbar.GrowingSearch" Title="A search that takes the room" Demo="ex-demo--block">
-    <p>
-        <code>.toolbar-input--grow</code> gives the field whatever the bar has left, floored at
-        12rem, for a search whose placeholder is a sentence. One control grows; give it to a
-        second and the two split the room and neither placeholder fits.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Toolbar.GrowingSearch" Title="Search that takes the room" Demo="ex-demo--block">
+        <p>
+            <code>.toolbar-input--grow</code> gives the field whatever the bar has left, floored at
+            12rem, for a search whose placeholder is a sentence. One control grows; give it to a
+            second and the two split the room and neither placeholder fits.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Toolbar.FiltersActions" Title="Filters and actions" Demo="ex-demo--block">
-    <p>
-        Put the buttons on the trailing side, with the primary action last.
-        <code>.sedna-push</code> does not rescue a third child, because an auto margin and
-        <code>space-between</code> are two answers to the same question.
-    </p>
-</CatExample>
+<CatGroup Title="Actions">
+    <CatExample TExample="Examples.Toolbar.FiltersActions" Title="Filters and actions" Demo="ex-demo--block">
+        <p>
+            Put the buttons on the trailing side, with the primary action last.
+            <code>.sedna-push</code> does not rescue a third child, because an auto margin and
+            <code>space-between</code> are two answers to the same question.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Toolbar.ActionsFold" Title="Actions that fold into a menu" Demo="ex-demo--block">
-    <p>
-        <code>.toolbar-actions--fold</code> is the page head&rsquo;s fold for a toolbar: below 40rem of
-        the toolbar&rsquo;s width every child of the group but <code>.actions-more</code> and those
-        marked <code>.actions-keep</code> is hidden &mdash; here the count stays and the two buttons
-        move into the menu.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Toolbar.ActionsFold" Title="Actions that fold into a menu" Demo="ex-demo--block">
+        <p>
+            <code>.toolbar-actions--fold</code> is the page head&rsquo;s fold for a toolbar: below 40rem of
+            the toolbar&rsquo;s width every child of the group but <code>.actions-more</code> and those
+            marked <code>.actions-keep</code> is hidden &mdash; here the count stays and the two buttons
+            move into the menu.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Toolbar.HeadingAbove" Title="With a heading above it" Demo="ex-demo--block">
-    <p>
-        The full top of a list page: the <a href="/structure"><code>.page-head</code></a>, the
-        toolbar under it, and the table straight in its card.
-    </p>
-</CatExample>
+<CatGroup Title="On a list page">
+    <CatExample TExample="Examples.Toolbar.HeadingAbove" Title="With a heading above it" Demo="ex-demo--block">
+        <p>
+            The full top of a list page: the <a href="/structure"><code>.page-head</code></a>, the
+            toolbar under it, and the table straight in its card.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Toolbar.BulkSelection" Title="With a selection" Demo="ex-demo--block">
-    <p>
-        <strong>Live — open the overflow menu.</strong> The count and the two ways out of it on the
-        leading side, the actions that apply to the selection on the trailing side, the primary
-        last before the overflow. Say how many are
-        selected in text, and offer &ldquo;select all 128&rdquo; separately — selecting a page is not
-        selecting a result set. The overflow is a <a href="/menu"><code>.menu-anchor</code></a> with
-        <code>data-menu-toggle</code>, and anything destructive goes in there behind
-        <code>.menu-item--danger</code>, naming the count it will act on.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Toolbar.BulkSelection" Title="With a selection" Demo="ex-demo--block">
+        <p>
+            <strong>Live — open the overflow menu.</strong> The count and the two ways out of it on the
+            leading side, the actions that apply to the selection on the trailing side, the primary
+            last before the overflow. Say how many are
+            selected in text, and offer &ldquo;select all 128&rdquo; separately — selecting a page is not
+            selecting a result set. The overflow is a <a href="/menu"><code>.menu-anchor</code></a> with
+            <code>data-menu-toggle</code>, and anything destructive goes in there behind
+            <code>.menu-item--danger</code>, naming the count it will act on.
+        </p>
+    </CatExample>
+</CatGroup>
