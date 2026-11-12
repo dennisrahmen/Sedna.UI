@@ -3,32 +3,32 @@
     "page": "/media",
     "useFor": "Pictures whose size the app does not control: framed whole or cropped without the page jumping, a gallery of attachments, a link unfurled, and one picture opened large.",
     "combineWith": [
-      { "page": "/skeleton#a-picture-and-a-circle-of-any-size", "how": "The skeleton reads the same --media-ratio as the frame it stands in for, so the picture replaces it without a jump." },
+      { "page": "/skeleton#pictures-and-circles", "how": "The skeleton reads the same --media-ratio as the frame it stands in for, so the picture replaces it without a jump." },
       { "page": "/modal", "how": "The lightbox is a dialog opened with showModal() or ShowModalAsync, so the focus trap, Escape and the inert page are the platform's." },
-      { "page": "/files#a-grid-of-tiles", "how": "A folder of pictures is file tiles, whose thumbnails take the same transparency modifier as a frame." },
-      { "page": "/chat#pictures-and-looking-at-one-large", "how": "Several pictures in one message are a .gallery--tight in a media bubble, each opening the lightbox." }
+      { "page": "/files#tile-grid", "how": "A folder of pictures is file tiles, whose thumbnails take the same transparency modifier as a frame." },
+      { "page": "/chat#galleries-and-lightbox", "how": "Several pictures in one message are a .gallery--tight in a media bubble, each opening the lightbox." }
     ],
     "notFor": [
       { "text": "Long text from a source the app did not author", "instead": "/prose" },
-      { "text": "A folder of files the reader selects and acts on", "instead": "/files#a-grid-of-tiles" },
+      { "text": "A folder of files the reader selects and acts on", "instead": "/files#tile-grid" },
       { "text": "Slides the reader moves through one at a time", "instead": "/carousel" },
       { "text": "A PDF read in the page", "instead": "/pdf" },
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "e6b91ecf52feedae"
+    "stamp": "3bdc4925bcd96bf0"
   },
   {
     "page": "/carousel",
     "useFor": "A row of slides the reader may move through one at a time and is fine to miss: what a release brings, records worth a look.",
     "combineWith": [
-      { "page": "/modal#dots-that-only-show-the-position", "how": "The dots are the deck's .deck-dot buttons, each with data-carousel-to naming its slide." },
+      { "page": "/modal#dots-that-only-show-position", "how": "The dots are the deck's .deck-dot buttons, each with data-carousel-to naming its slide." },
       { "page": "/card", "how": "Each slide is a card of its own, side by side with --carousel-per-view and a peek at the next." }
     ],
     "notFor": [
       { "text": "Content every reader needs", "instead": "/collections" },
-      { "text": "A sequence that has to be finished", "instead": "/modal#a-first-run-deck" },
-      { "text": "Pictures the reader looks through and opens", "instead": "/media#a-gallery-of-attachments" }
+      { "text": "A sequence that has to be finished", "instead": "/modal#slides-with-progress-dots" },
+      { "text": "Pictures the reader looks through and opens", "instead": "/media#gallery-of-attachments" }
     ],
     "goals": [ "step-through-slides" ],
     "stamp": "922f133f43b44252"
@@ -38,25 +38,25 @@
     "useFor": "A folder as a table or a grid of tiles, the files attached to a record, and uploads on their way up with their progress.",
     "combineWith": [
       { "page": "/table", "how": "A folder is a table in a card whose name column is a .file-cell, folders first, sorted and selected as any table is." },
-      { "page": "/pager#breadcrumbs", "how": "The path above the folder is a .breadcrumb, so the reader always knows which folder this is." },
+      { "page": "/breadcrumbs#breadcrumb-trail", "how": "The path above the folder is a .breadcrumb, so the reader always knows which folder this is." },
       { "page": "/form-file#dropzone-and-file-list", "how": "The dropzone above, and one .file-item per file under it while it uploads." },
-      { "page": "/progress#progress-bar", "how": "A .progress in .file-item-main is an upload under way, with how far it has got in the size column." },
+      { "page": "/progress#determinate-and-indeterminate", "how": "A .progress in .file-item-main is an upload under way, with how far it has got in the size column." },
       { "page": "/toolbar#with-a-selection", "how": "The count of selected tiles and the actions on them sit in a toolbar above the grid." },
       { "page": "/empty-state", "how": "An empty folder says so where the table or grid would be, with the path still above it." }
     ],
     "notFor": [
       { "text": "Choosing a file in a form", "instead": "/form-file" },
-      { "text": "Pictures looked at rather than managed", "instead": "/media#a-gallery-of-attachments" },
+      { "text": "Pictures looked at rather than managed", "instead": "/media#gallery-of-attachments" },
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "3a02c944be43dc86"
+    "stamp": "b37b5f104e7cd44f"
   },
   {
     "page": "/video",
     "useFor": "A video in the platform's own player, with its title, its length, its actions and a transcript to read, and a library of videos as tiles.",
     "combineWith": [
-      { "page": "/files#a-grid-of-tiles", "how": "A library of videos is a .file-grid--wide whose tiles carry .file-tile-play and their length." },
+      { "page": "/files#tile-grid", "how": "A library of videos is a .file-grid--wide whose tiles carry .file-tile-play and their length." },
       { "page": "/media#any-ratio-one-token", "how": "The player reads --media-ratio, 16:9 unless it says otherwise, so the page does not jump when the metadata arrives." }
     ],
     "notFor": [
@@ -64,15 +64,15 @@
       { "text": "A still picture opened large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "play-a-video" ],
-    "stamp": "368a7bcb119f1e61"
+    "stamp": "d51d5a64fcd70ce2"
   },
   {
     "page": "/audio",
     "useFor": "A recording the reader plays: a call or a voicemail in the native player, a voice message as a waveform, and a track list.",
     "combineWith": [
       { "page": "/list", "how": "A voicemail or a playlist is a list whose rows play, the one playing marked aria-current." },
-      { "page": "/chat#a-link-a-voice-message-an-upload", "how": "A voice message in a thread is the same .audio-wave inside the bubble." },
-      { "page": "/video#a-player", "how": "The player is the same .media-player as a video's, with no picture and a .media-transcript under it." },
+      { "page": "/chat#links-voice-and-uploads", "how": "A voice message in a thread is the same .audio-wave inside the bubble." },
+      { "page": "/video#video-player", "how": "The player is the same .media-player as a video's, with no picture and a .media-transcript under it." },
       { "page": "/card", "how": "The player of the track playing sits under a card head as .media-player--flush, over the track list." }
     ],
     "notFor": [
@@ -80,7 +80,7 @@
       { "text": "A recording with pictures", "instead": "/video" }
     ],
     "goals": [ "play-a-recording" ],
-    "stamp": "b5a0eca020ac36a5"
+    "stamp": "5c5268bea322cd02"
   },
   {
     "page": "/prose",
@@ -90,58 +90,74 @@
       { "page": "/diff", "how": "The same ins and del marks inside a line of a diff show the words that changed in it." }
     ],
     "notFor": [
-      { "text": "Rendered Markdown", "instead": "/markdown#markdown-body" },
+      { "text": "Rendered Markdown", "instead": "/markdown#rendered-content" },
       { "text": "Two versions of a text line by line", "instead": "/diff" },
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "125c727732bba5de"
+    "stamp": "7e71c1b0ea69710b"
   },
   {
     "page": "/markdown",
     "useFor": "Rendered Markdown wherever it appears, and a Markdown field the reader writes in with a toolbar and a live preview.",
     "combineWith": [
       { "page": "/segmented", "how": "The Write and Preview switch over the editor is a segmented control whose radios carry data-md-tab." },
-      { "page": "/form#sections-and-actions", "how": "As a form field the textarea takes the label and hint, and the form's actions row follows it." },
+      { "page": "/form#fieldset-sections", "how": "As a form field the textarea takes the label and hint, and the form's actions row follows it." },
       { "page": "/modal", "how": "A picker of the app's own, awaited with ShowModalAsync, returns the text InsertMarkdownAsync puts at the caret." },
-      { "page": "/chat#what-a-bubble-holds", "how": "A .markdown-body inside a bubble is how an assistant's answer reads as a message." }
+      { "page": "/chat#bubble-contents", "how": "A .markdown-body inside a bubble is how an assistant's answer reads as a message." }
     ],
     "notFor": [
       { "text": "HTML that did not come from Markdown", "instead": "/prose" },
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "1776e4f6523e02af"
+    "stamp": "1f7334c816ace779"
   },
   {
     "page": "/diff",
     "useFor": "Two versions of a text line by line, unified or side by side, from a diff the app computes.",
     "combineWith": [
-      { "page": "/badge#semantic", "how": "The .diff-head names the file and counts the lines added and removed in go and danger badges." },
+      { "page": "/badge#semantic-tones", "how": "The .diff-head names the file and counts the lines added and removed in go and danger badges." },
       { "page": "/prose#what-changed", "how": "Inside a changed line, ins and del mark the words that changed." },
       { "page": "/card", "how": "A diff straight in a card, under a head that names the file, takes .diff--flush, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "A few words changed in running text", "instead": "/prose#what-changed" },
-      { "text": "Code shown once, with nothing to compare", "instead": "/structure#code-blocks" }
+      { "text": "Code shown once, with nothing to compare", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "mark-changed-words", "compare-two-versions" ],
-    "stamp": "54ba42f9cf04ee71"
+    "stamp": "5a88a1d794f83d6f"
+  },
+  {
+    "page": "/code-blocks",
+    "useFor": "A block of code or output the reader copies: one file, several files as tabs in a card, or a long one clamped until opened.",
+    "combineWith": [
+      { "page": "/tabs#in-a-card-head", "how": "Several files in a card with tabs, one .code-block--flush per panel." },
+      { "page": "/card", "how": "A block inside a card's body, or flush to its edges as the card's only content." },
+      { "page": "/agent-steps", "how": "The command an agent ran, and its output, as blocks under the step." }
+    ],
+    "notFor": [
+      { "text": "A log that keeps growing", "instead": "/logs#live-tail" },
+      { "text": "Two versions of a text compared", "instead": "/diff" },
+      { "text": "A value the reader copies from a field", "instead": "/form-text" }
+    ],
+    "goals": [ "copy-a-command", "check-the-tools-an-agent-ran" ],
+    "stamp": "5ccda3e94626d20a"
   },
   {
     "page": "/pdf",
     "useFor": "A PDF read in the page through the browser's own viewer, with a bar to open or download it and a fallback where there is no viewer.",
     "combineWith": [
       { "page": "/empty-state", "how": "The fallback inside the object is an empty state naming the document, with a link that downloads it." },
-      { "page": "/media#a-document-in-it", "how": "A PDF opened from a gallery is a .lightbox-frame in the lightbox's stage." },
+      { "page": "/media#document-in-the-lightbox", "how": "A PDF opened from a gallery is a .lightbox-frame in the lightbox's stage." },
       { "page": "/card", "how": "A PDF in a card takes .pdf-frame--flush, with its name and actions in the card head instead of a bar." }
     ],
     "notFor": [
-      { "text": "A list of documents to download", "instead": "/files#attached-to-a-record" },
+      { "text": "A list of documents to download", "instead": "/files#record-attachments" },
       { "text": "A picture of a scanned page", "instead": "/media#contain-or-cover" }
     ],
     "goals": [ "read-a-pdf" ],
-    "stamp": "cc654a801d132b14"
+    "stamp": "3836fb45b15ddbbf"
   },
   {
     "page": "/qr",
@@ -150,10 +166,10 @@
       { "page": "/card", "how": "A pairing code sits in a card body with the step that uses it above it and a button that copies the link under it, for the reader without a camera." }
     ],
     "notFor": [
-      { "text": "An address the reader clicks", "instead": "/media#a-link-preview" }
+      { "text": "An address the reader clicks", "instead": "/media#link-preview" }
     ],
     "goals": [ "show-a-qr-code" ],
-    "stamp": "49d7789bdec7196f"
+    "stamp": "10b5a0ccc128deda"
   },
   {
     "page": "/editor",
@@ -165,21 +181,21 @@
       { "page": "/modal", "how": "An image picker of the app's own, opened by cancelling sedna-editor-media and answered with InsertImageAsync." }
     ],
     "notFor": [
-      { "text": "Text written in Markdown syntax", "instead": "/markdown#md-editor" },
+      { "text": "Text written in Markdown syntax", "instead": "/markdown#write-and-preview" },
       { "text": "Plain text with no formatting", "instead": "/form-textarea" },
-      { "text": "A message in a conversation", "instead": "/chat#the-composer" }
+      { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "7c858139a45f8707"
+    "stamp": "6b5dcccd7ab0aa70"
   },
   {
     "page": "/chat",
     "useFor": "A conversation between people: bubbles, groups and channels, replies and reactions, the composer, and the launcher that keeps it one tap away.",
     "combineWith": [
-      { "page": "/avatar#pair", "how": "Each message's avatar, and a group in the list of conversations as an .avatar-pair." },
+      { "page": "/avatar#pair-in-one-square", "how": "Each message's avatar, and a group in the list of conversations as an .avatar-pair." },
       { "page": "/popover", "how": "The emoji picker behind a reaction's add button is a popover holding .chat-emoji buttons." },
       { "page": "/menu#anchored-under-a-trigger", "how": "A message's further actions, the destructive one a .menu-item--danger." },
-      { "page": "/files#attached-to-a-record", "how": "A file in a bubble is the same .file-item every file list uses." },
+      { "page": "/files#record-attachments", "how": "A file in a bubble is the same .file-item every file list uses." },
       { "page": "/skeleton", "how": "The history arriving is skeletons in the thread's own shapes, mine on the end." },
       { "page": "/list", "how": "The conversations are a list of rows that navigate, each with its last line and an unread badge." }
     ],
@@ -189,6 +205,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "f67f0bc585e14478"
+    "stamp": "b44e3d39692e69d2"
   }
 ]

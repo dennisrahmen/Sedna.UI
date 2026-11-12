@@ -17,13 +17,13 @@
       { "text": "Looking at one picture large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "confirm-before-it-happens", "answer-in-a-dialog", "edit-in-a-dialog", "welcome-a-new-user", "save-a-view", "keep-unsaved-work", "warn-before-the-session-ends", "view-a-picture-large" ],
-    "stamp": "c588476e28888cf5"
+    "stamp": "60020255c84897af"
   },
   {
     "page": "/drawer",
     "useFor": "A panel from an edge for a secondary flow that should not lose the page behind it: a record's detail, filters, a form on a phone, a sheet of actions.",
     "combineWith": [
-      { "page": "/filtering#on-a-narrow-screen-a-drawer", "how": "The filter panel moves into a start drawer on a narrow screen, opened by a Filters button with the count that applies." },
+      { "page": "/filtering#drawer-on-a-narrow-screen", "how": "The filter panel moves into a start drawer on a narrow screen, opened by a Filters button with the count that applies." },
       { "page": "/list", "how": "A sheet's body is a list of button rows, and a record's drawer is opened from its row." },
       { "page": "/timeline", "how": "The record's history under its fields in .drawer-body, after a divider." },
       { "page": "/card#key-value-rows", "how": "The record's fields as .kv rows at the top of .drawer-body." },
@@ -33,41 +33,41 @@
     "notFor": [
       { "text": "A question that must be answered before anything else", "instead": "/modal" },
       { "text": "A short list of actions on a pointer screen", "instead": "/menu" },
-      { "text": "A panel always beside the content on a wide screen", "instead": "/grid#sedna-split" },
-      { "text": "An assistant docked beside the page", "instead": "/assistant-panels#an-assistant-docked-beside-the-page" }
+      { "text": "A panel always beside the content on a wide screen", "instead": "/grid#main-column-and-aside" },
+      { "text": "An assistant docked beside the page", "instead": "/assistant-panels#assistant-beside-the-page" }
     ],
     "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone", "dock-an-assistant" ],
-    "stamp": "4d29578164c44459"
+    "stamp": "4bcb38d1cb2b552e"
   },
   {
     "page": "/palette",
     "useFor": "Finding and running any command or page from the keyboard: type, see the matches, run one.",
     "combineWith": [
-      { "page": "/topbar#header-search", "how": "The header search finds records with the same matcher; the palette runs commands and opens pages." },
+      { "page": "/search#search-box", "how": "The header search finds records with the same matcher; the palette runs commands and opens pages." },
       { "page": "/empty-state", "how": "The same ranking from C# fills an empty state or a start page with the commands most likely wanted." }
     ],
     "notFor": [
-      { "text": "Searching the app's records", "instead": "/topbar#header-search" },
+      { "text": "Searching the app's records", "instead": "/search#search-box" },
       { "text": "The actions of one record", "instead": "/menu" },
       { "text": "Moving between the app's pages with a pointer", "instead": "/nav" }
     ],
     "goals": [ "run-a-command-by-name" ],
-    "stamp": "0ee91509c803027b"
+    "stamp": "427518fcdc060085"
   },
   {
     "page": "/spotlight",
     "useFor": "Pointing the reader at one control on a page they already have open: a step of a guided tour, or a hint the first time they see something.",
     "combineWith": [
-      { "page": "/modal#a-first-run-deck", "how": "The welcome before the reader has seen a page, the tour once they have; a step can point into an open modal." },
+      { "page": "/modal#slides-with-progress-dots", "how": "The welcome before the reader has seen a page, the tour once they have; a step can point into an open modal." },
       { "page": "/toolbar", "how": "The control a step points at is usually in a toolbar or the page head." },
       { "page": "/hover-hints", "how": "lock() gates hover hints for the length of a step, so two bubbles never show at once." }
     ],
     "notFor": [
-      { "text": "A welcome before the reader has seen the page", "instead": "/modal#a-first-run-deck" },
+      { "text": "A welcome before the reader has seen the page", "instead": "/modal#slides-with-progress-dots" },
       { "text": "What a control does, on hover", "instead": "/hover-hints" },
       { "text": "Detail about a control the reader asked for", "instead": "/popover" }
     ],
     "goals": [ "take-a-guided-tour", "point-out-something-new", "welcome-a-new-user" ],
-    "stamp": "e8f05ace997980cb"
+    "stamp": "fd6120f2b09cc008"
   }
 ]

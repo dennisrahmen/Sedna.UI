@@ -25,14 +25,14 @@
                 prompt, reading and writing this page's fields: write the
                 <code>&lt;dialog class="modal" id="…"&gt;</code> in the page and await
                 <code>ISednaUi.ShowModalAsync(id)</code>. See
-                <a href="/modal#opening-one-from-c">Opened from C#</a>.
+                <a href="/modal#opened-from-c">Opened from C#</a>.
             </li>
             <li>
                 <strong>Its own <code>.razor</code> file</strong> — its own parameters, state, loading or
                 validation, or opened from more than one page: present it with
                 <code>ISednaOverlays.ShowAsync&lt;TComponent, TResult&gt;</code>, with one
                 <code>&lt;SednaOverlayHost /&gt;</code> in the layout. See
-                <a href="/modal#a-modal-that-is-its-own-component">Component of its own</a>.
+                <a href="/modal#component-of-its-own">Component of its own</a>.
             </li>
         </ul>
         Do not render a dialog component inline in a page and open it through an <code>@@ref</code>:
@@ -87,7 +87,7 @@
         <p>
             The component takes a cascading <code>SednaOverlay</code>, puts its <code>Id</code> on the
             <code>&lt;dialog&gt;</code>, and renders that dialog on its first render. The same call
-            presents a <a href="/drawer#a-drawer-as-its-own-component">drawer or a sheet</a>.
+            presents a <a href="/drawer#opened-from-c">drawer or a sheet</a>.
         </p>
     </CatExample>
 
@@ -139,7 +139,7 @@
             Name the consequence in the body, and make the confirming button the destructive one. Put
             Cancel first in source order — <code>showModal()</code> focuses the first focusable element,
             so the safe choice is the one that takes focus. A dialog that is its own component and hands
-            back a typed result is <a href="/drawer#a-drawer-as-its-own-component"><code>ISednaOverlays</code></a>.
+            back a typed result is <a href="/drawer#opened-from-c"><code>ISednaOverlays</code></a>.
         </p>
     </CatExample>
 

@@ -134,7 +134,7 @@ what the region is for. Everything else in the region is soft or ghost. The vari
 
 - **The primary sits where it is looked for**: at the end of an end-aligned row, first in a
   start-aligned one. Never two filled buttons in one row, except a
-  [cookie choice](https://www.sedna-ui.com/banner#cookies), whose accept and reject are both filled so
+  [cookie choice](https://www.sedna-ui.com/banner#cookie-consent), whose accept and reject are both filled so
   that refusing weighs the same as accepting.
 - **A button is a verb.** A confirmation repeats the action — **Delete order** and **Cancel**, never
   **Yes** and **No**.

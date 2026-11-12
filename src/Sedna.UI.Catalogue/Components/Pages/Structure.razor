@@ -1,8 +1,7 @@
 @page "/structure"
 
 <CatHead Title="Page structure">
-    The parts that hold a page together: the title row, section breaks, editorial asides, and a
-    block of code or output.
+    The parts that hold a page together: the title row, section breaks and editorial asides.
 </CatHead>
 
 <CatGroup Title="Page head">
@@ -65,37 +64,3 @@
     </CatExample>
 </CatGroup>
 
-<CatGroup Title="Code blocks">
-    <CatExample TExample="Examples.Structure.CodeBlocks" Title="Copyable block" Demo="ex-demo--block">
-        <p>
-            For a command, a payload, a stack trace &mdash; anything the reader wants verbatim, with a
-            copy button that appears on hover and stays visible where there is no hover to speak of.
-            <strong>No syntax highlighting, and there will not be any</strong>; the block scrolls
-            sideways rather than wrapping, because a wrapped command no longer copies correctly by eye.
-        </p>
-    </CatExample>
-
-    <CatExample TExample="Examples.Structure.FilesInACard" Title="Several files in a card" Demo="ex-demo--block">
-        <p>
-            <strong>Live &mdash; switch files.</strong> When one thing is two files — a page and the dialog
-            it opens — put them in a <a href="/tabs">card with tabs</a>, one code block per panel. Add
-            <code>.code-block--flush</code> to each block: the card already draws the frame, and the block's
-            own border inside it is a second one.
-        </p>
-    </CatExample>
-
-    <CatExample TExample="Examples.Structure.ClampedCodeBlock" Title="Clamped long block" Demo="ex-demo--block">
-        <p>
-            <strong>Live &mdash; expand it.</strong> <code>.code-block--clamped</code> bounds the block to
-            <code>--code-clamp</code> (360px; 180px here) and scrolls inside it, and the
-            <code>.code-block-lip</code> fades the last visible line so the reader can see there is
-            more. The <code>.code-block-expand</code> button carries <code>data-code-expand</code>, and
-            the script removes the clamp and flips <code>aria-expanded</code>. The label sits in a
-            <code>&lt;span&gt;</code> so the icon survives the swap: <code>data-code-collapse</code>
-            is the wording once open and <code>data-code-expand-label</code> the wording on the way
-            back. Keep <code>tabindex="0"</code> on
-            the <code>&lt;pre&gt;</code>: a scroll container a keyboard cannot reach is a part of the
-            page a keyboard cannot read.
-        </p>
-    </CatExample>
-</CatGroup>

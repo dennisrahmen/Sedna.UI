@@ -3,9 +3,9 @@
     "page": "/orb",
     "useFor": "What an agent is doing, drawn as an orbit that moves the way the work does, from a mark in a line of text to the one thing on screen while a page waits.",
     "combineWith": [
-      { "page": "/agent-status#the-status-pill", "how": "The orb leads the status pill, with the app's words for what the agent is doing beside it." },
-      { "page": "/agent-steps#steps", "how": "A small orb is the marker of the step that is running." },
-      { "page": "/voice#a-voice-session", "how": "An .orb--hero can be the voice stage's one thing to look at, following the same --level as the bars." }
+      { "page": "/agent-status#status-pill", "how": "The orb leads the status pill, with the app's words for what the agent is doing beside it." },
+      { "page": "/agent-steps#steps-in-order", "how": "A small orb is the marker of the step that is running." },
+      { "page": "/voice#voice-session", "how": "An .orb--hero can be the voice stage's one thing to look at, following the same --level as the bars." }
     ],
     "notFor": [
       { "text": "Who an agent is", "instead": "/agent-avatar" },
@@ -13,7 +13,7 @@
       { "text": "A wait with no agent behind it", "instead": "/progress#spinner" }
     ],
     "goals": [ "show-the-agent-state-at-a-glance", "show-what-an-agent-is-doing" ],
-    "stamp": "83587b519e6fed64"
+    "stamp": "06f1b75a72333248"
   },
   {
     "page": "/agent-status",
@@ -22,32 +22,32 @@
       { "page": "/orb#states", "how": "The pill leads with an orb whose data-orb matches what the label says." },
       { "page": "/card#head-body-and-foot", "how": "A .beam goes on the card the agent is working on, and the AI label and the confidence sit in its head and foot once it is back." },
       { "page": "/skeleton", "how": ".skeleton--agent is the same shapes as a skeleton, for an answer being written rather than fetched." },
-      { "page": "/agent-chat#what-the-context-holds", "how": "The context ring in a ghost button opens a hover card with what the window is made of." }
+      { "page": "/agent-chat#context-usage", "how": "The context ring in a ghost button opens a hover card with what the window is made of." }
     ],
     "notFor": [
-      { "text": "Which tools the agent ran and what came back", "instead": "/agent-steps#tool-calls" },
+      { "text": "Which tools the agent ran and what came back", "instead": "/agent-steps#one-tool-call" },
       { "text": "Who the agent is", "instead": "/agent-avatar" },
-      { "text": "Work with a known figure of done", "instead": "/progress#progress-bar" }
+      { "text": "Work with a known figure of done", "instead": "/progress#determinate-and-indeterminate" }
     ],
     "goals": [ "show-what-an-agent-is-doing", "highlight-what-the-agent-is-on", "show-an-answer-being-written", "mark-ai-generated-content", "show-how-sure-the-agent-is", "show-context-usage", "mark-ai-generated-values" ],
-    "stamp": "eace8756f8614e85"
+    "stamp": "f9b2058797e7dde2"
   },
   {
     "page": "/agent-avatar",
     "useFor": "Who an agent is, as a sphere in a tone it keeps, wherever a person's avatar would go.",
     "combineWith": [
       { "page": "/list", "how": "A roster of agents is a list whose rows lead with the avatar and carry a status pill." },
-      { "page": "/avatar#group", "how": "class=\"avatar agent-avatar\" in an .avatar-group counts an agent with the people on a record." },
-      { "page": "/agent-chat#an-agent-s-turn", "how": "The avatar beside an agent's turn in a conversation." },
-      { "page": "/voice#a-voice-session", "how": ".agent-avatar--hero on the voice stage, moving with --level while the agent listens and speaks." }
+      { "page": "/avatar#overlapping-group", "how": "class=\"avatar agent-avatar\" in an .avatar-group counts an agent with the people on a record." },
+      { "page": "/agent-chat#agent-s-turn", "how": "The avatar beside an agent's turn in a conversation." },
+      { "page": "/voice#voice-session", "how": ".agent-avatar--hero on the voice stage, moving with --level while the agent listens and speaks." }
     ],
     "notFor": [
-      { "text": "What the agent is doing now", "instead": "/agent-status#the-status-pill" },
+      { "text": "What the agent is doing now", "instead": "/agent-status#status-pill" },
       { "text": "An agent with a face and moods", "instead": "/mochi" },
       { "text": "A person", "instead": "/avatar" }
     ],
     "goals": [ "tell-agents-apart", "talk-to-an-agent" ],
-    "stamp": "faf44ecea7b66036"
+    "stamp": "a911f1f89d6105d1"
   },
   {
     "page": "/mochi",
@@ -55,27 +55,27 @@
     "combineWith": [
       { "page": "/card#head-and-body", "how": "Mochi and the card share a .mochi-host, and data-perch says which edge it sits on, peeks over or hangs from." },
       { "page": "/structure#dividers", "how": "A divider in a .mochi-host is a line Mochi sits on, stands on or hangs from." },
-      { "page": "/chat#a-conversation", "how": "A .mochi--bust takes the avatar's place on an agent's message." },
+      { "page": "/chat#one-to-one-conversation", "how": "A .mochi--bust takes the avatar's place on an agent's message." },
       { "page": "/empty-state#empty", "how": "Mochi asleep on an empty state says the agent has nothing to do." },
       { "page": "/list", "how": "One small Mochi per row of what the agents finished, got stuck on or are waiting for." }
     ],
     "notFor": [
       { "text": "Which of several agents this is, in a dense list", "instead": "/agent-avatar" },
-      { "text": "What the agent is doing, in words", "instead": "/agent-status#the-status-pill" },
+      { "text": "What the agent is doing, in words", "instead": "/agent-status#status-pill" },
       { "text": "A guided tour of the page", "instead": "/spotlight" }
     ],
     "goals": [ "give-the-agent-a-character", "perch-a-mascot-on-the-page" ],
-    "stamp": "ba9b719f6f7818fd"
+    "stamp": "6277e02377fd7b4d"
   },
   {
     "page": "/agent-steps",
     "useFor": "What an agent thought, which tools it ran, what it means to do next, and the permission or the answer it asks the reader for before it acts.",
     "combineWith": [
       { "page": "/card#head-body-and-foot", "how": "A tool call and an approval are cards: the request in the head, the change in the body, the answer in the foot." },
-      { "page": "/structure#code-blocks", "how": "What a tool call was sent and what came back, each a code block with its head." },
+      { "page": "/code-blocks#copyable-block", "how": "What a tool call was sent and what came back, each a code block with its head." },
       { "page": "/chip", "how": "Under an approval's change, chips say what kind of change it is." },
       { "page": "/form-choice#choice-tiles", "how": "One answer to an agent's question is choice tiles; several are checkboxes." },
-      { "page": "/progress#progress-bar", "how": "A bar above the plan gives the count of steps done at a glance." },
+      { "page": "/progress#determinate-and-indeterminate", "how": "A bar above the plan gives the count of steps done at a glance." },
       { "page": "/collections#accordion", "how": "The queue and the todo list are each a details in an accordion, the count in its summary." }
     ],
     "notFor": [
@@ -84,49 +84,49 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "41ed76a58dc47750"
+    "stamp": "8e87e46742c12124"
   },
   {
     "page": "/agent-chat",
     "useFor": "An agent's turn in a conversation — reasoning, steps, a streamed answer, its sources and what to do next — and the prompt the reader asks it with.",
     "combineWith": [
-      { "page": "/chat#a-conversation", "how": "The thread and the reader's own --mine bubbles are the chat's; only the agent's turn sits on the ground as prose." },
-      { "page": "/agent-steps#reasoning", "how": "The reasoning and the steps come first in the agent's turn, above the answer." },
+      { "page": "/chat#one-to-one-conversation", "how": "The thread and the reader's own --mine bubbles are the chat's; only the agent's turn sits on the ground as prose." },
+      { "page": "/agent-steps#finished-thought", "how": "The reasoning and the steps come first in the agent's turn, above the answer." },
       { "page": "/popover", "how": "A citation opens its source in a popover, and the context ring opens a hover card." },
-      { "page": "/agent-status#the-status-pill", "how": "A status pill under a streaming answer says what the agent is doing." },
+      { "page": "/agent-status#status-pill", "how": "A status pill under a streaming answer says what the agent is doing." },
       { "page": "/form-combo", "how": "The model picker is an inline combo in a flush popover, grouped by where the models run." },
-      { "page": "/voice#the-mic-button", "how": "The mic button sits beside send in the prompt's toolbar." }
+      { "page": "/voice#mic-button", "how": "The mic button sits beside send in the prompt's toolbar." }
     ],
     "notFor": [
       { "text": "A conversation between people", "instead": "/chat" },
-      { "text": "The assistant kept beside the page", "instead": "/assistant-panels#an-assistant-docked-beside-the-page" },
+      { "text": "The assistant kept beside the page", "instead": "/assistant-panels#assistant-beside-the-page" },
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "3ab31076c0aed3b5"
+    "stamp": "32e963316fd28245"
   },
   {
     "page": "/assistant-panels",
     "useFor": "An assistant docked at the edge of the frame so the page narrows rather than being covered, and what it generated kept open beside the conversation.",
     "combineWith": [
-      { "page": "/drawer#a-drawer-that-is-not-modal", "how": ".drawer--dock on a modeless drawer that is a direct child of .layout, opened from a toggle in the topbar." },
-      { "page": "/chat#a-page-of-it", "how": "A .chat-pane straight after the drawer header takes the height that is left, with the composer at its foot." },
-      { "page": "/grid#sedna-split", "how": "The generated file is the aside of a split beside the conversation, and moves under it when the split is narrow." },
-      { "page": "/structure#code-blocks", "how": "Generated code fills a flush artifact body as a flush code block." }
+      { "page": "/drawer#drawer-scrim", "how": ".drawer--dock on a modeless drawer that is a direct child of .layout, opened from a toggle in the topbar." },
+      { "page": "/chat#full-page-chat", "how": "A .chat-pane straight after the drawer header takes the height that is left, with the composer at its foot." },
+      { "page": "/grid#main-column-and-aside", "how": "The generated file is the aside of a split beside the conversation, and moves under it when the split is narrow." },
+      { "page": "/code-blocks#copyable-block", "how": "Generated code fills a flush artifact body as a flush code block." }
     ],
     "notFor": [
-      { "text": "A record's detail opened over the page", "instead": "/drawer#a-record-s-detail" },
+      { "text": "A record's detail opened over the page", "instead": "/drawer#record-detail" },
       { "text": "The conversation itself", "instead": "/agent-chat" }
     ],
     "goals": [ "dock-an-assistant", "keep-generated-work-open" ],
-    "stamp": "901290c39876ad35"
+    "stamp": "10467a5b569ebf44"
   },
   {
     "page": "/voice",
     "useFor": "A spoken conversation with an agent: the stage, live captions, bars moving with the voice, the mic button and the choice of microphone.",
     "combineWith": [
       { "page": "/agent-avatar#where-the-agent-is-the-page", "how": "The stage holds one thing to look at: a hero agent avatar, a hero orb or Mochi." },
-      { "page": "/chat#flat-like-a-channel", "how": "The transcript is a flat chat beside the call, with the time into the call on each line." },
+      { "page": "/chat#flat-channel", "how": "The transcript is a flat chat beside the call, with the time into the call on each line." },
       { "page": "/form-select", "how": "The microphones the browser lists, in a select before the session starts." },
       { "page": "/list", "how": "The agent's voices as radios in a list, each row with a button that plays a sample." }
     ],
@@ -135,6 +135,6 @@
       { "text": "A typed conversation with an agent", "instead": "/agent-chat" }
     ],
     "goals": [ "talk-to-an-agent", "pick-a-microphone" ],
-    "stamp": "c2d1fb986e76b577"
+    "stamp": "7fb6b1456642628f"
   }
 ]

@@ -4,7 +4,7 @@
     "goal": "Let the user scan and compare many records in columns",
     "phrases": [ "data table", "data grid", "show records in a table", "list with columns", "compare rows" ],
     "answer": [
-      { "page": "/table#with-a-toolbar-in-a-card", "role": "primary" },
+      { "page": "/table#toolbar-in-a-card", "role": "primary" },
       { "page": "/toolbar", "role": "part" },
       { "page": "/pager", "role": "part" },
       { "page": "/badge", "role": "part" }
@@ -41,8 +41,8 @@
     "goal": "Let the user filter a table's rows column by column",
     "phrases": [ "column filters", "filter row", "header filter", "excel style filter" ],
     "answer": [
-      { "page": "/table#a-filter-per-column", "role": "primary" },
-      { "page": "/table#a-filter-in-the-header", "role": "part" },
+      { "page": "/table#filter-row", "role": "primary" },
+      { "page": "/table#filter-in-the-header", "role": "part" },
       { "page": "/table-large#filter-choices-with-counts", "role": "part" },
       { "page": "/popover", "role": "part" }
     ],
@@ -78,7 +78,7 @@
     "phrases": [ "editable table", "inline editing", "spreadsheet", "edit a cell", "editable grid" ],
     "answer": [
       { "page": "/table-editing#editing-a-cell", "role": "primary" },
-      { "page": "/table-editing#a-row-in-edit-mode", "role": "part" },
+      { "page": "/table-editing#row-edit-mode", "role": "part" },
       { "page": "/form-saving", "role": "part" }
     ],
     "how": "A keyboard grid whose cells carry a .cell-editor after the value: Enter or F2 edits, Enter commits, Escape puts it back. The app renders data-dirty on a changed cell and aria-invalid on a rejected one, and saves with a button of its own.",
@@ -89,7 +89,7 @@
     "goal": "Let the user move through a table cell by cell with the keyboard",
     "phrases": [ "keyboard grid", "arrow key navigation in a table", "select a range of cells", "roving focus table" ],
     "answer": [
-      { "page": "/table-editing#a-keyboard-grid", "role": "primary" }
+      { "page": "/table-editing#keyboard-grid", "role": "primary" }
     ],
     "how": "role=\"grid\" on the table makes it one tab stop walked with the arrow keys, Home, End and Page Up and Down; aria-multiselectable lets Shift select a range, read back with sednaUi.grid.range.",
     "avoid": "Adding a tabindex to every cell yourself: the script keeps one cell in the tab order and the grid is one stop."
@@ -99,23 +99,12 @@
     "goal": "Let the user page through a long result set",
     "phrases": [ "pagination", "pager", "next page", "page numbers", "previous and next" ],
     "answer": [
-      { "page": "/pager#pagination", "role": "primary" },
-      { "page": "/pager#which-numbers-to-show-from-c", "role": "part" },
+      { "page": "/pager#numbered-pages", "role": "primary" },
+      { "page": "/pager#page-numbers-from-c", "role": "part" },
       { "page": "/table", "role": "part" }
     ],
     "how": "A nav of page links straight after the card it pages, the ends, the pages around the current one and the gaps from SednaPager.Window, and the range of rows at the far end.",
     "avoid": "Showing only the current page between Previous and Next for a list of known length, which says nothing about how far there is to go."
-  },
-  {
-    "id": "show-where-a-page-sits",
-    "goal": "Let the user see where a page sits and go back up a level",
-    "phrases": [ "breadcrumbs", "breadcrumb trail", "navigation path", "go up a level" ],
-    "answer": [
-      { "page": "/pager#breadcrumbs", "role": "primary" },
-      { "page": "/structure#page-head", "role": "part" }
-    ],
-    "how": "A .breadcrumb above the page head, every level a link and the current page a span with aria-current=\"page\".",
-    "avoid": "Adding breadcrumbs where the sidebar already shows the current page: they repeat it and earn nothing."
   },
   {
     "id": "browse-thousands-of-rows",
@@ -134,8 +123,8 @@
     "goal": "Let the user open and close a hierarchy inside a table",
     "phrases": [ "tree grid", "tree table", "nested rows", "expandable hierarchy", "treegrid" ],
     "answer": [
-      { "page": "/table-large#a-tree-grid", "role": "primary" },
-      { "page": "/table-large#a-tree-grid-from-blazor", "role": "part" },
+      { "page": "/table-large#tree-grid", "role": "primary" },
+      { "page": "/table-large#tree-grid-from-blazor", "role": "part" },
       { "page": "/tree", "role": "part" }
     ],
     "how": "role=\"treegrid\" on the table, aria-level on each row and aria-expanded on each branch, a .tree-toggle in the tree column. The rows stay flat in the tbody and the script shows a row while every branch above it is open.",
@@ -162,7 +151,7 @@
       { "page": "/stat", "role": "primary" },
       { "page": "/stat#which-way-it-moved", "role": "part" },
       { "page": "/sparkline#under-a-figure", "role": "part" },
-      { "page": "/grid#a-dashboard", "role": "part" }
+      { "page": "/grid#two-independent-columns", "role": "part" }
     ],
     "how": "A .stat with its label above the value and a .stat-delta whose arrow carries the direction and whose modifier carries the judgement; a .stat-row for a set of them.",
     "avoid": "Colouring a delta by direction: more open orders is up and bad, so the modifier says good or bad and the arrow says up or down."
@@ -172,7 +161,7 @@
     "goal": "Let the user compare a handful of values at a glance",
     "phrases": [ "bar list", "ranking bars", "top five", "horizontal bars", "compare values" ],
     "answer": [
-      { "page": "/bars#a-list-of-bars", "role": "primary" },
+      { "page": "/bars#values-to-compare", "role": "primary" },
       { "page": "/chart#bars-for-long-names", "role": "part" }
     ],
     "how": "A .bar-list of label, bar and value, each fill a --value share of the widest. The figure is text as well as a bar, because the number is what the reader takes away.",
@@ -184,7 +173,7 @@
     "phrases": [ "stacked bar", "breakdown", "share of total", "proportions", "composition" ],
     "answer": [
       { "page": "/bars#one-bar-in-parts", "role": "primary" },
-      { "page": "/bars#a-list-of-bars-in-parts", "role": "part" },
+      { "page": "/bars#values-in-parts", "role": "part" },
       { "page": "/chart#pies-and-donuts", "role": "part" }
     ],
     "how": "One .stack-bar whose segments add up, role=\"img\" with a label giving the numbers, and a .stack-bar-legend naming each part with its figure.",
@@ -195,8 +184,8 @@
     "goal": "Let the user see a value against its limit",
     "phrases": [ "meter", "quota", "capacity", "usage bar", "threshold", "disk usage" ],
     "answer": [
-      { "page": "/bars#a-value-against-its-thresholds", "role": "primary" },
-      { "page": "/bars#a-value-on-a-dial", "role": "part" },
+      { "page": "/bars#value-against-thresholds", "role": "primary" },
+      { "page": "/bars#value-on-a-dial", "role": "part" },
       { "page": "/stat#over-a-threshold", "role": "part" },
       { "page": "/progress", "role": "part" }
     ],
@@ -209,7 +198,7 @@
     "phrases": [ "this year against last", "compare to previous period", "year over year", "month over month" ],
     "answer": [
       { "page": "/bars#this-year-against-last", "role": "primary" },
-      { "page": "/bars#month-against-month-with-the-change", "role": "part" },
+      { "page": "/bars#change-since-last-month", "role": "part" },
       { "page": "/stat#which-way-it-moved", "role": "part" }
     ],
     "how": "A .bar-previous first in each track, hatched under the current fill, the previous figure beside the current one and a legend that names the hatch.",
@@ -243,7 +232,7 @@
     "goal": "Let the user see how much happened on each day or hour",
     "phrases": [ "heatmap", "contribution graph", "activity calendar", "busy hours" ],
     "answer": [
-      { "page": "/tracker#a-calendar-of-activity", "role": "primary" },
+      { "page": "/tracker#calendar-of-activity", "role": "primary" },
       { "page": "/tracker#hours-by-day-in-two-sizes", "role": "part" }
     ],
     "how": "A .heatmap of cells, each a step from --1 to --4 that the app bands from its own data, and a .heatmap-legend from less to more.",
@@ -254,8 +243,8 @@
     "goal": "Let the user read figures over time or across categories as a chart",
     "phrases": [ "line chart", "bar chart", "column chart", "pie chart", "area chart", "scatter plot" ],
     "answer": [
-      { "page": "/chart#a-line-from-a-table", "role": "primary" },
-      { "page": "/chart#columns-a-tooltip-and-a-legend-that-switches", "role": "part" },
+      { "page": "/chart#lines-from-a-table", "role": "primary" },
+      { "page": "/chart#columns-tooltip-and-legend", "role": "part" },
       { "page": "/chart#loading-empty-and-failed", "role": "part" }
     ],
     "how": "A [data-chart] holding the app's own table of the figures, which is the data and the text alternative at once, with the app's legend and tooltip around the drawing.",
@@ -266,10 +255,10 @@
     "goal": "Let the user see their schedule on a calendar",
     "phrases": [ "calendar", "month view", "week view", "scheduler", "planner", "resource timeline" ],
     "answer": [
-      { "page": "/calendar#a-month", "role": "primary" },
-      { "page": "/calendar#a-week-on-a-time-axis", "role": "part" },
-      { "page": "/calendar#a-resource-timeline", "role": "part" },
-      { "page": "/calendar-agenda#an-agenda", "role": "part" }
+      { "page": "/calendar#month-grid", "role": "primary" },
+      { "page": "/calendar#week-on-a-time-axis", "role": "part" },
+      { "page": "/calendar#resource-timeline", "role": "part" },
+      { "page": "/calendar-agenda#agenda-list", "role": "part" }
     ],
     "how": "A month, a week on a time axis or a resource timeline drawn from the app's own positions as custom properties; the agenda is the same events as a list.",
     "avoid": "Expecting the library to work out dates, overlaps or recurrences: it paints where the app says."
@@ -279,8 +268,8 @@
     "goal": "Let the user read upcoming events as a list by day",
     "phrases": [ "agenda", "upcoming events", "event list", "list of appointments" ],
     "answer": [
-      { "page": "/calendar-agenda#an-agenda", "role": "primary" },
-      { "page": "/calendar-agenda#an-agenda-in-a-narrow-panel", "role": "part" }
+      { "page": "/calendar-agenda#agenda-list", "role": "primary" },
+      { "page": "/calendar-agenda#in-a-narrow-panel", "role": "part" }
     ],
     "how": "A .cal-agenda of days, each heading pinned while its events scroll under it, each event a time, a dot in its hue, a title and a meta line.",
     "avoid": "Leaving an empty day blank: say it in words, or leave the day out."
@@ -290,8 +279,8 @@
     "goal": "Let the user reschedule events by dragging them",
     "phrases": [ "drag events", "reschedule", "drag and drop calendar", "resize an event" ],
     "answer": [
-      { "page": "/calendar-agenda#move-an-event-to-another-day", "role": "primary" },
-      { "page": "/calendar-agenda#move-and-resize-on-a-time-axis", "role": "part" },
+      { "page": "/calendar-agenda#move-to-another-day", "role": "primary" },
+      { "page": "/calendar-agenda#move-and-resize-by-time", "role": "part" },
       { "page": "/drag-drop", "role": "part" }
     ],
     "how": "The calendar's events as drag items over its days as slots; the drop arrives as sedna-drop and a resize as sedna-resize, and the app changes the date in its own data and renders it there.",
@@ -302,7 +291,7 @@
     "goal": "Let the user see how records connect to each other",
     "phrases": [ "network graph", "node graph", "dependency map", "relationship diagram", "nodes and edges" ],
     "answer": [
-      { "page": "/graph#a-graph-from-a-list", "role": "primary" },
+      { "page": "/graph#graph-from-a-list", "role": "primary" },
       { "page": "/graph-layouts", "role": "part" },
       { "page": "/graph-exploring", "role": "part" },
       { "page": "/graph-gallery", "role": "part" }
@@ -315,9 +304,9 @@
     "goal": "Let the user filter, search and inspect a large network",
     "phrases": [ "filter a graph", "search nodes", "explore relationships", "neighbourhood of a node" ],
     "answer": [
-      { "page": "/graph-exploring#all-of-it-together", "role": "primary" },
-      { "page": "/graph-exploring#filter-chips-that-are-the-legend", "role": "part" },
-      { "page": "/graph-plugins#the-minimap", "role": "part" },
+      { "page": "/graph-exploring#complete-explorer", "role": "primary" },
+      { "page": "/graph-exploring#filter-chips-as-the-legend", "role": "part" },
+      { "page": "/graph-plugins#whole-drawing-in-miniature", "role": "part" },
       { "page": "/graph-blazor", "role": "part" }
     ],
     "how": "Filter chips that are also the legend, a search field, a side panel for the chosen record and a minimap, each ordinary markup with a data-graph-* attribute and no script of the app's own.",
@@ -328,8 +317,8 @@
     "goal": "Let the user see who reports to whom",
     "phrases": [ "org chart", "organisation chart", "hierarchy diagram", "reporting lines" ],
     "answer": [
-      { "page": "/graph-gallery#an-org-chart", "role": "primary" },
-      { "page": "/graph-layouts#a-hierarchy-top-down", "role": "part" }
+      { "page": "/graph-gallery#org-chart", "role": "primary" },
+      { "page": "/graph-layouts#hierarchy-top-down", "role": "part" }
     ],
     "how": "A graph laid out top down with boxes so every name is read, right-angled links, and the role in each record's meta.",
     "avoid": "A link that skips a level, which pulls the person it starts from down a rank."
@@ -341,7 +330,7 @@
     "answer": [
       { "page": "/graph-plugins#drawing-links", "role": "primary" },
       { "page": "/graph-blazor#links-the-reader-draws", "role": "part" },
-      { "page": "/graph-gallery#a-flow-being-edited", "role": "part" }
+      { "page": "/graph-gallery#flow-being-edited", "role": "part" }
     ],
     "how": "The graph's link-drawing plugin reports each drawn link as sedna-graph-connect; the app decides whether it stands and adds it to its own records.",
     "avoid": "Treating a drawn link as saved before the app has accepted it."
@@ -351,8 +340,8 @@
     "goal": "Let the user follow a process run step by step",
     "phrases": [ "workflow diagram", "pipeline status", "process flow", "run steps", "flowchart of a run" ],
     "answer": [
-      { "page": "/workflow#a-run", "role": "primary" },
-      { "page": "/workflow#the-state-of-a-step", "role": "part" },
+      { "page": "/workflow#run-and-its-trail", "role": "primary" },
+      { "page": "/workflow#step-states", "role": "part" },
       { "page": "/workflow-run", "role": "part" }
     ],
     "how": "An ol.workflow of steps, each with data-state; forks and branches are the structure. The wires take their state from the step they lead into, so the app writes one attribute per step.",
@@ -363,9 +352,9 @@
     "goal": "Let the user watch an automated run as it happens",
     "phrases": [ "live pipeline", "real time workflow", "automation monitor", "watch a run" ],
     "answer": [
-      { "page": "/workflow-run#a-support-call-from-the-phone-to-the-engineer-on-call", "role": "primary" },
-      { "page": "/workflow#how-much-moves", "role": "part" },
-      { "page": "/graph-blazor#a-run-step-by-step", "role": "part" }
+      { "page": "/workflow-run#live-support-call", "role": "primary" },
+      { "page": "/workflow#flowing-light", "role": "part" },
+      { "page": "/graph-blazor#step-by-step-run", "role": "part" }
     ],
     "how": "An overview of the stages above the detailed run, both bound to one dictionary of step to state that the app updates from the automation's events, the detail following the step at work.",
     "avoid": "Leaving the moving light on with no way to still it: .workflow--flow-off is the reader's control, and a run watched for hours wants it."

@@ -5,231 +5,237 @@
     in the page.
 </CatHead>
 
-<CatExample TExample="Examples.Table.RowTones" Title="Rows in a tone" Demo="ex-demo--block">
-    <p>A row that means something — stale, failing, waiting — takes a tone with <code>.tr--warn</code> and the rest.</p>
-</CatExample>
+<CatGroup Title="Plain tables">
+    <CatExample TExample="Examples.Table.Basic" Title="Headers and muted columns" Demo="ex-demo--block">
+        <p>
+            Headers are uppercased and muted by the class. <code>.col-muted</code> is for secondary
+            columns — timestamps, counts — and stops them from wrapping.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.Stagger" Title="Rows that arrive, and a strip under the pointer" Demo="ex-demo--block">
-    <p>
-        <code>.table--stagger</code> — and <code>.list--stagger</code> on a list — lets the first
-        rows fade in one after another, <code>--stagger-step</code> apart; set
-        <code>--row-index</code> on a row to count a later page from its own first row.
-        <code>--row-hover-accent</code> draws a strip at the start of a clickable row under the
-        pointer, on a <code>.tr-clickable</code> and a linked <code>.list-row</code>; it is
-        transparent until you set it. Both are off for a reader who asked for reduced motion.
-        <strong>Live &mdash; Replay plays the arrival again.</strong>
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.ToolbarCard" Title="Toolbar in a card" Demo="ex-demo--block">
+        <p>The standard list page: filter bar above, table inside a card.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.Basic" Title="Basic" Demo="ex-demo--block">
-    <p>
-        Headers are uppercased and muted by the class. <code>.col-muted</code> is for secondary
-        columns — timestamps, counts — and stops them from wrapping.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.EmptyAndBusyRows" Title="Nothing found, and refreshing" Demo="ex-demo--block">
+        <p>
+            <code>.tr-empty</code> is the row for a query that returned nothing, inside a table that is
+            still there with its toolbar and count; <code>.tr-busy</code> is the same row for a refresh
+            in flight. Write <strong><code>colspan="999"</code></strong>, never the real count: a
+            browser clamps it to the columns the table has, so it spans them all and does not go stale
+            when a column is added. A <a href="/state-art"><code>.state-art</code></a> drawing sits
+            centred above the text; the first load is <a href="/skeleton">skeleton</a> rows instead.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.ClickableRows" Title="Clickable rows" Demo="ex-demo--block">
-    <p>
-        <code>.tr-clickable</code> adds the pointer and the hover fill. Keep a real focusable
-        control in the row for keyboard users — a whole row cannot be tabbed to.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.StackedNarrowScreen" Title="Stacked on a narrow screen" Demo="ex-demo--block">
+        <p>
+            <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label
+            from <code>data-label</code>; a cell without one — an actions cell — keeps the full width.
+            Everything else in a cell is one value at the end edge, laid out as it is in a wide cell, so a
+            link with a line under it stays a link with a line under it. A <code>.tr-group</code> row
+            spans the width as the heading of the cards below it.
+            <strong>It throws away column alignment</strong>, so it is right for records read one at a
+            time and wrong for anything scanned down a column. Narrow this window to see it.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Table.ToolbarCard" Title="With a toolbar, in a card" Demo="ex-demo--block">
-    <p>The standard list page: filter bar above, table inside a card.</p>
-</CatExample>
+<CatGroup Title="Rows">
+    <CatExample TExample="Examples.Table.ClickableRows" Title="Clickable rows" Demo="ex-demo--block">
+        <p>
+            <code>.tr-clickable</code> adds the pointer and the hover fill. Keep a real focusable
+            control in the row for keyboard users — a whole row cannot be tabbed to.
+        </p>
+    </CatExample>
 
-<div class="callout callout--warn">
-    <i class="ri-arrow-left-right-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">Wide tables</span>
-        Wrap the table in a <code>.sedna-scroll-x</code> container, so the
-        page body never scrolls sideways.
+    <CatExample TExample="Examples.Table.RowTones" Title="Rows in a tone" Demo="ex-demo--block">
+        <p>A row that means something — stale, failing, waiting — takes a tone with <code>.tr--warn</code> and the rest.</p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Table.ExpandableRows" Title="Expandable rows" Demo="ex-demo--block">
+        <p>
+            The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> immediately after its
+            parent, and its cell spans every column. <strong>Shown expanded</strong> — which row is open
+            is your app's state, with <code>aria-expanded</code> on the control that toggles it.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Table.GroupedRows" Title="Grouped rows" Demo="ex-demo--block">
+        <p>
+            A <code>.tr-group</code> row heads the rows after it &mdash; a state, a day, a customer.
+            Its one cell is a <code>&lt;th scope="rowgroup"&gt;</code> spanning the table, so a screen
+            reader announces the group with every row under it, and the <code>.tr-group-body</code>
+            inside it is a flex row that takes whatever belongs to the group: a sentence, a
+            <a href="/badge">badge</a> for the count, a <a href="/chip">chip</a> for the filter that
+            made it, with <code>.tr-group-count</code> at the far end. Under
+            <code>.table--sticky</code> the group row pins beneath the header.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Table.Stagger" Title="Arriving rows and hover strip" Demo="ex-demo--block">
+        <p>
+            <code>.table--stagger</code> — and <code>.list--stagger</code> on a list — lets the first
+            rows fade in one after another, <code>--stagger-step</code> apart; set
+            <code>--row-index</code> on a row to count a later page from its own first row.
+            <code>--row-hover-accent</code> draws a strip at the start of a clickable row under the
+            pointer, on a <code>.tr-clickable</code> and a linked <code>.list-row</code>; it is
+            transparent until you set it. Both are off for a reader who asked for reduced motion.
+            <strong>Live &mdash; Replay plays the arrival again.</strong>
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Sorting and selection">
+    <CatExample TExample="Examples.Table.SortableNumericSelected" Title="Sortable, numeric and selected" Demo="ex-demo--block">
+        <p>
+            Put a <code>&lt;button class="th-sort"&gt;</code> inside the header cell filling it, and set
+            <code>aria-sort</code> — the arrow is keyed off the attribute a screen reader announces, so
+            the two cannot disagree. <code>.col-num</code> goes on the <code>th</code> <em>and</em> the
+            <code>td</code>; row selection is <code>aria-selected</code> on the
+            <code>&lt;tr&gt;</code>. <strong>The header buttons here do nothing</strong> — which column
+            is sorted is your query, and the arrow follows <code>aria-sort</code>.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.SortFromCsharp" Title="Sorting from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live — sort it.</strong> <code>SednaSort</code> holds which column and which
+            direction, and <code>AriaSort(column)</code> renders the attribute on every sortable header —
+            <code>none</code> on the others, which is what shows the hover arrow.
+            <code>Toggle(column)</code> starts a new column ascending and turns the sorted one;
+            <code>thenNone: true</code> returns a descending column to unsorted. The ordering is still
+            your query, and <code>ToQuery()</code> / <code>FromQuery()</code> carry the sort in an
+            address as <code>age</code> or <code>-age</code>.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Scrolling and column widths">
+    <div class="callout callout--warn">
+        <i class="ri-arrow-left-right-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">Wide tables</span>
+            Wrap the table in a <code>.sedna-scroll-x</code> container, so the
+            page body never scrolls sideways.
+        </div>
     </div>
-</div>
 
-<h2 id="extensions">Extensions <CatAnchor Id="extensions" /></h2>
+    <CatExample TExample="Examples.Table.StickyHeader" Title="Sticky header" Demo="ex-demo--block">
+        <p>
+            <code>.table--sticky</code> needs a scroll container around the table with a
+            <code>max-height</code>, and silently does nothing without one: the header sticks to the
+            nearest scrolling ancestor, and with none that is the page, where the topbar already is.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.SortableNumericSelected" Title="Sortable, numeric and selected" Demo="ex-demo--block">
+    <CatExample TExample="Examples.Table.PinnedColumn" Title="Pinned column" Demo="ex-demo--block">
+        <p>
+            <code>.table--pin-start</code> holds the first column still while the rest of a wide table
+            scrolls under it — use it for the column a row is <em>identified</em> by;
+            <code>.table--pin-end</code> does the same at the other edge, where a row's actions are.
+            Both need a horizontal scroll container, <code>.sedna-scroll-x</code>, and neither combines
+            with <code>.table--stack</code>, which has no sideways scroll to pin against.
+            <strong>Scroll this table both ways.</strong>
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Table.PinnedActions" Title="Pinned actions" Demo="ex-demo--block">
+        <p>
+            <code>.table--pin-end</code> on its own, for the commonest reason to pin the far edge: the
+            row's actions stay reachable however wide the table is. <code>.col-fit</code> on the
+            header and the cell keeps the column to its buttons, and the edge shadow appears only
+            while there is a column scrolled under it. <strong>Narrow this window to see it.</strong>
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Table.ColumnWidths" Title="Column widths" Demo="ex-demo--block">
+        <p>
+            <code>.col-control</code> gives a cell holding an input, a select or a
+            <code>.value-trigger</code> a floor and makes the control fill it;
+            <code>.col-prose</code> lets a sentence or a distinguished name give way instead of taking
+            the table; <code>.col-fit</code> takes the width of its content and no more. Put each on the
+            <code>th</code> <em>and</em> the <code>td</code>, and set <code>--col-control-min</code>,
+            <code>--col-control-max</code>, <code>--col-prose-min</code> or
+            <code>--col-prose-max</code> on the cell where a column needs a different number.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Filtering">
     <p>
-        Put a <code>&lt;button class="th-sort"&gt;</code> inside the header cell filling it, and set
-        <code>aria-sort</code> — the arrow is keyed off the attribute a screen reader announces, so
-        the two cannot disagree. <code>.col-num</code> goes on the <code>th</code> <em>and</em> the
-        <code>td</code>; row selection is <code>aria-selected</code> on the
-        <code>&lt;tr&gt;</code>. <strong>The header buttons here do nothing</strong> — which column
-        is sorted is your query, and the arrow follows <code>aria-sort</code>.
+        Pick the shape by how the reader narrows the list, not by how many columns there are. Every shape
+        below filters the same rows; what changes is where the controls stand.
     </p>
-</CatExample>
 
-<CatExample TExample="Examples.Interop.SortFromCsharp" Title="Sorting from C#" Demo="ex-demo--block">
+    <div class="card">
+        <table class="table">
+            <thead>
+                <tr><th>The reader&hellip;</th><th>Write</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>searches, then narrows by one or two things</td><td>A <a href="/toolbar">toolbar</a> above the table: the search field and a select or two. The default.</td></tr>
+                <tr><td>filters an admin table column by column</td><td>A <code>.tr-filter</code> row under the headings, one control per filterable column, each the control for that column's type.</td></tr>
+                <tr><td>filters a table too narrow for a filter row</td><td>A <code>.th-filter</code> button in each filterable heading, opening that column's control in a popover.</td></tr>
+                <tr><td>combines many filters, or saves them as views</td><td>A <a href="/filtering">filter side panel</a>, or a drawer on a narrow screen.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <p>
-        <strong>Live — sort it.</strong> <code>SednaSort</code> holds which column and which
-        direction, and <code>AriaSort(column)</code> renders the attribute on every sortable header —
-        <code>none</code> on the others, which is what shows the hover arrow.
-        <code>Toggle(column)</code> starts a new column ascending and turns the sorted one;
-        <code>thenNone: true</code> returns a descending column to unsorted. The ordering is still
-        your query, and <code>ToQuery()</code> / <code>FromQuery()</code> carry the sort in an
-        address as <code>age</code> or <code>-age</code>.
+        Whichever it is, the same three things follow a filter that is set: <code>.col-filtered</code> on
+        its heading, a removable <code>.chip--active</code> above the table with <em>Reset all</em> once
+        there are two, and a count that says how many rows are left. A column whose values are a handful
+        of states is a select or a set of checkboxes, never a text field; a date is a range, a number is
+        a from&ndash;to pair. Filter on the server for a list that pages, and keep the filters in the
+        address so a filtered list can be shared.
     </p>
-</CatExample>
 
-<CatExample TExample="Examples.Table.StickyHeader" Title="Sticky header" Demo="ex-demo--block">
-    <p>
-        <code>.table--sticky</code> needs a scroll container around the table with a
-        <code>max-height</code>, and silently does nothing without one: the header sticks to the
-        nearest scrolling ancestor, and with none that is the page, where the topbar already is.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.FilterRow" Title="Filter row" Demo="ex-demo--block">
+        <p>
+            <code>.tr-filter</code> is a second header row holding a <code>.form-input--sm</code> or a
+            <code>.form-select</code> per column, for an admin table filtered column by column — the
+            <a href="/toolbar">toolbar</a> above a table is still the default. Give every control an
+            <code>aria-label</code>: the heading above it is not its label. Under
+            <code>.table--sticky</code> it pins beneath the header, and a <code>.tr-group</code> row
+            pins beneath both; set <code>--table-filter-height</code> on the table if your controls are
+            not the small size.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.PinnedColumn" Title="Pinned column" Demo="ex-demo--block">
-    <p>
-        <code>.table--pin-start</code> holds the first column still while the rest of a wide table
-        scrolls under it — use it for the column a row is <em>identified</em> by;
-        <code>.table--pin-end</code> does the same at the other edge, where a row's actions are.
-        Both need a horizontal scroll container, <code>.sedna-scroll-x</code>, and neither combines
-        with <code>.table--stack</code>, which has no sideways scroll to pin against.
-        <strong>Scroll this table both ways.</strong>
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.FilterTypes" Title="Filters by column type" Demo="ex-demo--block">
+        <p>
+            Each filter is a control that already exists, at the small size, so the row stays one
+            height. Text is an <code>.input-group--sm</code> with a search affix and an
+            <code>.input-clear</code>, which shows only while the field has a value. One choice is a
+            <code>.form-select--sm</code>, holding <a href="/badge">badges</a> through
+            <code>&lt;selectedcontent&gt;</code> where the values are states. Several choices, and a
+            date range, are a <code>.form-trigger</code>: a button shaped like the field beside it that
+            reads <em>2 selected</em> and opens a <a href="/popover">popover</a> of checkboxes or a
+            <a href="/calendar">date picker</a>. A number range is two fields in one group, and yes /
+            no is a <code>.segmented--sm</code> with <em>Any</em>. <code>.col-filtered</code> on the
+            heading and the filter cell marks the columns that are set. <strong>Open the region and the
+            date.</strong>
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.PinnedActions" Title="Pinned actions" Demo="ex-demo--block">
-    <p>
-        <code>.table--pin-end</code> on its own, for the commonest reason to pin the far edge: the
-        row's actions stay reachable however wide the table is. <code>.col-fit</code> on the
-        header and the cell keeps the column to its buttons, and the edge shadow appears only
-        while there is a column scrolled under it. <strong>Narrow this window to see it.</strong>
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.FilterActive" Title="Several filters at once" Demo="ex-demo--block">
+        <p>
+            With more than one filter set, repeat them above the table as <code>.chip--active</code>
+            chips, each removable on its own, and end the row with <em>Reset all</em>. The chips are
+            what a reader sees without scanning the filter row, and the count says how much the filters
+            took away. Every filtered heading says so to a screen reader too, in a
+            <code>.visually-hidden</code> span — the colour and the rule under it are not a label.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Table.ColumnWidths" Title="Column widths" Demo="ex-demo--block">
-    <p>
-        <code>.col-control</code> gives a cell holding an input, a select or a
-        <code>.value-trigger</code> a floor and makes the control fill it;
-        <code>.col-prose</code> lets a sentence or a distinguished name give way instead of taking
-        the table; <code>.col-fit</code> takes the width of its content and no more. Put each on the
-        <code>th</code> <em>and</em> the <code>td</code>, and set <code>--col-control-min</code>,
-        <code>--col-control-max</code>, <code>--col-prose-min</code> or
-        <code>--col-prose-max</code> on the cell where a column needs a different number.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.ExpandableRows" Title="Expandable rows" Demo="ex-demo--block">
-    <p>
-        The detail row is a real <code>&lt;tr class="tr-detail"&gt;</code> immediately after its
-        parent, and its cell spans every column. <strong>Shown expanded</strong> — which row is open
-        is your app's state, with <code>aria-expanded</code> on the control that toggles it.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.GroupedRows" Title="Grouped rows" Demo="ex-demo--block">
-    <p>
-        A <code>.tr-group</code> row heads the rows after it &mdash; a state, a day, a customer.
-        Its one cell is a <code>&lt;th scope="rowgroup"&gt;</code> spanning the table, so a screen
-        reader announces the group with every row under it, and the <code>.tr-group-body</code>
-        inside it is a flex row that takes whatever belongs to the group: a sentence, a
-        <a href="/badge">badge</a> for the count, a <a href="/chip">chip</a> for the filter that
-        made it, with <code>.tr-group-count</code> at the far end. Under
-        <code>.table--sticky</code> the group row pins beneath the header.
-    </p>
-</CatExample>
-
-<h2 id="filtering">Filtering by column <CatAnchor Id="filtering" /></h2>
-
-<p>
-    Pick the shape by how the reader narrows the list, not by how many columns there are. Every shape
-    below filters the same rows; what changes is where the controls stand.
-</p>
-
-<div class="card">
-    <table class="table">
-        <thead>
-            <tr><th>The reader&hellip;</th><th>Write</th></tr>
-        </thead>
-        <tbody>
-            <tr><td>searches, then narrows by one or two things</td><td>A <a href="/toolbar">toolbar</a> above the table: the search field and a select or two. The default.</td></tr>
-            <tr><td>filters an admin table column by column</td><td>A <code>.tr-filter</code> row under the headings, one control per filterable column, each the control for that column's type.</td></tr>
-            <tr><td>filters a table too narrow for a filter row</td><td>A <code>.th-filter</code> button in each filterable heading, opening that column's control in a popover.</td></tr>
-            <tr><td>combines many filters, or saves them as views</td><td>A <a href="/filtering">filter side panel</a>, or a drawer on a narrow screen.</td></tr>
-        </tbody>
-    </table>
-</div>
-
-<p>
-    Whichever it is, the same three things follow a filter that is set: <code>.col-filtered</code> on
-    its heading, a removable <code>.chip--active</code> above the table with <em>Reset all</em> once
-    there are two, and a count that says how many rows are left. A column whose values are a handful
-    of states is a select or a set of checkboxes, never a text field; a date is a range, a number is
-    a from&ndash;to pair. Filter on the server for a list that pages, and keep the filters in the
-    address so a filtered list can be shared.
-</p>
-
-<CatExample TExample="Examples.Table.FilterRow" Title="A filter per column" Demo="ex-demo--block">
-    <p>
-        <code>.tr-filter</code> is a second header row holding a <code>.form-input--sm</code> or a
-        <code>.form-select</code> per column, for an admin table filtered column by column — the
-        <a href="/toolbar">toolbar</a> above a table is still the default. Give every control an
-        <code>aria-label</code>: the heading above it is not its label. Under
-        <code>.table--sticky</code> it pins beneath the header, and a <code>.tr-group</code> row
-        pins beneath both; set <code>--table-filter-height</code> on the table if your controls are
-        not the small size.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.FilterTypes" Title="A filter for each type of column" Demo="ex-demo--block">
-    <p>
-        Each filter is a control that already exists, at the small size, so the row stays one
-        height. Text is an <code>.input-group--sm</code> with a search affix and an
-        <code>.input-clear</code>, which shows only while the field has a value. One choice is a
-        <code>.form-select--sm</code>, holding <a href="/badge">badges</a> through
-        <code>&lt;selectedcontent&gt;</code> where the values are states. Several choices, and a
-        date range, are a <code>.form-trigger</code>: a button shaped like the field beside it that
-        reads <em>2 selected</em> and opens a <a href="/popover">popover</a> of checkboxes or a
-        <a href="/calendar">date picker</a>. A number range is two fields in one group, and yes /
-        no is a <code>.segmented--sm</code> with <em>Any</em>. <code>.col-filtered</code> on the
-        heading and the filter cell marks the columns that are set. <strong>Open the region and the
-        date.</strong>
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.FilterActive" Title="Several filters at once" Demo="ex-demo--block">
-    <p>
-        With more than one filter set, repeat them above the table as <code>.chip--active</code>
-        chips, each removable on its own, and end the row with <em>Reset all</em>. The chips are
-        what a reader sees without scanning the filter row, and the count says how much the filters
-        took away. Every filtered heading says so to a screen reader too, in a
-        <code>.visually-hidden</code> span — the colour and the rule under it are not a label.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.FilterPopover" Title="A filter in the header" Demo="ex-demo--block">
-    <p>
-        For a table too narrow for a filter row, a <code>.th-filter</code> button at the end of the
-        heading opens the column's filter in a <a href="/popover">popover</a>.
-        <code>.th-filter--active</code> fills it and adds a dot while the filter is set; say the same
-        in its <code>aria-label</code>. Beside a <code>.th-sort</code>, wrap the two in a
-        <code>.sedna-row.sedna-gap-0</code>. <strong>Open both.</strong>
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.EmptyAndBusyRows" Title="Nothing found, and refreshing" Demo="ex-demo--block">
-    <p>
-        <code>.tr-empty</code> is the row for a query that returned nothing, inside a table that is
-        still there with its toolbar and count; <code>.tr-busy</code> is the same row for a refresh
-        in flight. Write <strong><code>colspan="999"</code></strong>, never the real count: a
-        browser clamps it to the columns the table has, so it spans them all and does not go stale
-        when a column is added. A <a href="/state-art"><code>.state-art</code></a> drawing sits
-        centred above the text; the first load is <a href="/skeleton">skeleton</a> rows instead.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Table.StackedNarrowScreen" Title="Stacked on a narrow screen" Demo="ex-demo--block">
-    <p>
-        <code>.table--stack</code> turns each row into a card below 640px, taking each cell's label
-        from <code>data-label</code>; a cell without one — an actions cell — keeps the full width.
-        Everything else in a cell is one value at the end edge, laid out as it is in a wide cell, so a
-        link with a line under it stays a link with a line under it. A <code>.tr-group</code> row
-        spans the width as the heading of the cards below it.
-        <strong>It throws away column alignment</strong>, so it is right for records read one at a
-        time and wrong for anything scanned down a column. Narrow this window to see it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Table.FilterPopover" Title="Filter in the header" Demo="ex-demo--block">
+        <p>
+            For a table too narrow for a filter row, a <code>.th-filter</code> button at the end of the
+            heading opens the column's filter in a <a href="/popover">popover</a>.
+            <code>.th-filter--active</code> fills it and adds a dot while the filter is set; say the same
+            in its <code>aria-label</code>. Beside a <code>.th-sort</code>, wrap the two in a
+            <code>.sedna-row.sedna-gap-0</code>. <strong>Open both.</strong>
+        </p>
+    </CatExample>
+</CatGroup>

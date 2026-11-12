@@ -1,8 +1,9 @@
 @page "/calendar"
 
 <CatHead Title="Calendar">
-    The surfaces a scheduling view is drawn on — a month, a week or a day on a time axis, a year — and
-    a date picker built on the same grid. The library paints the grid; every date, span, overlap and
+    The surfaces a scheduling view is drawn on — a month, a week or a day on a time axis, a year. The
+    date picker built on the same grid is with the other date fields, on
+    <a href="/form-datetime">date and time</a>. The library paints the grid; every date, span, overlap and
     recurrence is your app's to work out. The agenda list, business hours, background events and
     dragging events are on <a href="/calendar-agenda">Agenda and editing</a>.
 </CatHead>
@@ -41,7 +42,7 @@
             cannot count weeks. Make it a <code>&lt;button&gt;</code> when choosing the week opens something,
             and give it a visually hidden word, since a bare "38" is not a week to a screen reader. Pills and
             <code>.cal-more</code> still take <code>grid-column</code> 1 to 7: the lanes cover only the days.
-            The same column works in the <a href="/calendar#a-date-picker">date picker</a>.
+            The same column works in the <a href="/form-datetime#date-or-range">date picker</a>.
         </p>
     </CatExample>
 
@@ -193,41 +194,3 @@
     </CatExample>
 </CatGroup>
 
-<CatGroup Title="Date picker">
-    <CatExample TExample="Examples.Calendar.DatePicker" Title="Date or range" Demo="ex-demo--pad">
-        <p>
-            <strong>Live — open it.</strong> For a date that has to look the same in every engine, or a range,
-            or days that cannot be chosen. <code>.datepicker</code> is a <a href="/popover">popover</a>, so
-            the anchoring, light dismiss and <kbd>Escape</kbd> are the platform's; its body is the small
-            month grid. Each day is a <code>&lt;button&gt;</code> <strong>named with its full date</strong> —
-            &ldquo;21&rdquo; alone is not a date to a screen reader — and <code>aria-pressed="true"</code>
-            when chosen. A range is <code>--range-start</code>, <code>--in-range</code> and
-            <code>--range-end</code> on the days you work out; an unavailable day is a disabled button.
-            The keys beyond <kbd>Tab</kbd> are yours to add. The week numbers are
-            <code>.cal-month--weeknums</code>, as on a full month. For a single date the native
-            <a href="/form-datetime">date input</a> is still the better default.
-        </p>
-    </CatExample>
-
-    <CatExample TExample="Examples.Calendar.DatePickerTime" Title="Date with a time" Demo="ex-demo--pad">
-        <p>
-            <strong>Live — open it.</strong> A <code>.datepicker-time</code> row under the grid holds the
-            platform's own <code>&lt;input type="time"&gt;</code> as a <code>.form-input--sm</code> &mdash; one
-            for a moment, two for a slot &mdash; so the clock, the 12- or 24-hour form and the keys are the
-            reader's. Give each input a label, even when the second one is only read by a screen reader.
-            The actions under it share its divider.
-        </p>
-    </CatExample>
-
-    <CatExample TExample="Examples.Calendar.DatePickerLevels" Title="Months and years" Demo="ex-demo--pad">
-        <p>
-            <strong>Live — open both.</strong> To go further than a month at a time, make the
-            <code>.datepicker-title</code> a <code>&lt;button&gt;</code> that swaps the panel's body for the
-            level above: <code>.cal-months</code>, then <code>.cal-years</code>, each a grid of
-            <code>.cal-pick</code> buttons with the day grid's states &mdash; <code>aria-pressed="true"</code>
-            chosen, <code>aria-current</code> now, disabled out of bounds, and
-            <code>.cal-pick--outside</code> for the years of the neighbouring decade. Which level shows and
-            what a pick does are yours; name the title button with what it opens.
-        </p>
-    </CatExample>
-</CatGroup>

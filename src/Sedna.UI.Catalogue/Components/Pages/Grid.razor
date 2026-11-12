@@ -2,7 +2,7 @@
 
 <CatHead Title="Grid and layout">
     Primitives for placing markup you write: a wrapping grid of peers, a 24-column grid for
-    panels, a main column beside an aside, and panels placed on cells that the reader can arrange.
+    panels, and a main column beside an aside.
     None of them cares what its children are — a card, a field, a figure or an element of your own.
     Each responds to the width it is given, not the window's, so the same markup is right on a page,
     in a drawer and inside a narrow card.
@@ -15,96 +15,11 @@
         Children that are all the same kind and size — tiles, fields, thumbnails — go in
         <code>.sedna-grid</code>. Panels of different widths that you place yourself — a dashboard — go
         in <code>.sedna-grid-24</code>. Panels with a place, a width and a height each, that the reader
-        moves and resizes, go in <code>.panel-grid</code>. One content column with a side panel is <code>.sedna-split</code>.
+        moves and resizes, go in a <a href="/panel-grid">panel grid</a>. One content column with a side panel is <code>.sedna-split</code>.
         A column of panels inside any of them is a <code>.sedna-stack</code>.
         Page width needs no wrapper: <code>.page</code> holds content to <code>--page-max</code>.
     </div>
 </div>
-
-<CatGroup Title="Dashboards">
-    <CatExample TExample="Examples.Grid.Dashboard" Title="Two independent columns" Demo="ex-demo--block">
-        <p>
-            A <a href="/stat"><code>.stat-row</code></a> across the top, then two independent columns:
-            a <code>.sedna-span-16</code> and a <code>.sedna-span-8</code>, each a <code>.sedna-stack</code>
-            of panels. <strong>A panel growing in one column moves nothing in the other</strong>, which
-            is what you want when the columns are unrelated — the main chart and table on one side, the
-            queue on the other. A stack takes the grid's own gap.
-        </p>
-        <p>Resize the window to watch it collapse: the two columns stack below 48rem.</p>
-    </CatExample>
-
-    <CatExample TExample="Examples.Interop.DashboardTiles" Title="Panels the reader reorders" Demo="ex-demo--block ex-demo--pad">
-        <p>
-            <strong>Live &mdash; drag a panel by its grip, or pull its bottom edge.</strong> A dashboard the
-            reader puts in order is a <a href="/drag-drop"><code>.drag-grid</code></a> of
-            <a href="/card"><code>.card--resizable</code></a> panels, with nothing added:
-            <code>data-drag-axis="grid"</code> numbers the panels in reading order, and the app moves one
-            in its own list on <code>sedna-drop</code>; each panel's <code>.card-resize</code> writes
-            <code>--card-height</code>, and the app keeps it from <code>sedna-resize</code>. Store both per
-            reader and render them back. <code>--drag-grid-min</code> on the grid is the narrowest a panel
-            may be, which sets how many fit side by side. Where a panel needs a width of its own and a
-            place beside and under others, it is a <code>.panel-grid</code>, below.
-        </p>
-    </CatExample>
-</CatGroup>
-
-<CatGroup Title="Panel grid">
-    <CatExample TExample="Examples.Grid.PanelGrid" Title="Panels placed on cells" Demo="ex-demo--block">
-        <p>
-            Panels each placed on cells: <code>--panel-x</code> and <code>--panel-y</code> are the column and
-            the row it starts on, from 0, and <code>--panel-w</code> and <code>--panel-h</code> how many it
-            covers, written inline from the arrangement you store. <code>--panel-cols</code> (12) columns
-            share the width and a row is <code>--panel-row</code> (3rem) tall. A panel stays where it is put,
-            so a narrow one can sit beside a tall one under a wide one &mdash; and nothing stops two
-            overlapping but the arrangement, which <code>SednaPanels.Arrange</code> settles.
-        </p>
-        <p>
-            Narrower than 560px the panels stack, a whole row wide, in reading order.
-        </p>
-    </CatExample>
-
-    <CatExample TExample="Examples.Interop.PanelGridArrange" Title="Panels the reader arranges" Demo="ex-demo--block ex-demo--pad">
-        <p>
-            <strong>Live &mdash; drag a panel by its grip, pull its side, its bottom or its corner.</strong>
-            The grid is a drag zone with <code>data-drag-axis="cells"</code>, arranged while it carries
-            <code>data-arrange</code>: outside it the panels are content, and their grips and handles are not
-            there. A panel in the way of the one carried goes down below it and every panel floats up, so
-            nothing overlaps and nothing hangs over a gap; the grid marks the cell it would land on.
-            <code>sedna-drop</code> and <code>sedna-resize</code> carry <code>Panels</code>, the whole
-            arrangement as <code>SednaPanel</code>s in reading order: store it and render it back. Nothing is
-            moved for you &mdash; the preview stands until your render arrives.
-        </p>
-        <p>
-            The handles count in cells, and their <code>aria-valuemin</code> is a panel's least size. The camera
-            carries <code>data-panel-ratio="16:9"</code>, so whichever handle moves it keeps that shape to the
-            nearest row.
-        </p>
-    </CatExample>
-
-    <h3 id="arranging-from-the-keyboard">Arranging from the keyboard <CatAnchor Id="arranging-from-the-keyboard" /></h3>
-    <div class="sedna-scroll-x">
-        <table class="table">
-            <thead>
-                <tr><th>On</th><th>Key</th><th>Does</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>a panel's grip</td><td><kbd class="kbd">Space</kbd> <kbd class="kbd">Enter</kbd></td><td>Picks the panel up; while it is held, drops it.</td></tr>
-                <tr><td>a held panel</td><td><kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd></td><td>A column towards the inline start or end, mirrored right to left.</td></tr>
-                <tr><td>a held panel</td><td><kbd class="kbd">↑</kbd> <kbd class="kbd">↓</kbd></td><td>To the next row where it lands somewhere else: above or below the panel in the way.</td></tr>
-                <tr><td>a held panel</td><td><kbd class="kbd">Esc</kbd>, or leaving it</td><td>Puts it back.</td></tr>
-                <tr><td>a side or bottom handle</td><td>the arrows along it</td><td>A cell wider or narrower, taller or shorter; four with <kbd class="kbd">Shift</kbd>.</td></tr>
-            </tbody>
-        </table>
-    </div>
-    <p>
-        Each step is read out through your <code>[data-drag-live]</code> region, as on
-        <a href="/drag-drop#keyboard">drag and drop</a>; on a panel grid <code>{column}</code> and
-        <code>{row}</code> name the cell, from 1. A handle is a separator whose <code>aria-valuenow</code> you
-        render from the arrangement, so its new size is read when your render arrives.
-        <code>sednaUi.panels.arrange(panels, columns, moved)</code> is the same layout in script, for a page
-        without Blazor.
-    </p>
-</CatGroup>
 
 <CatGroup Title="24-column grid">
     <CatExample TExample="Examples.Grid.Grid24" Title="Column spans" Demo="ex-demo--block">
@@ -122,6 +37,17 @@
             by its own width. It is a size container, so it takes its width from where it sits: inside a
             flex row, give it <code>.sedna-fill</code>.
         </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Grid.Dashboard" Title="Two independent columns" Demo="ex-demo--block">
+        <p>
+            A <a href="/stat"><code>.stat-row</code></a> across the top, then two independent columns:
+            a <code>.sedna-span-16</code> and a <code>.sedna-span-8</code>, each a <code>.sedna-stack</code>
+            of panels. <strong>A panel growing in one column moves nothing in the other</strong>, which
+            is what you want when the columns are unrelated — the main chart and table on one side, the
+            queue on the other. A stack takes the grid's own gap.
+        </p>
+        <p>Resize the window to watch it collapse: the two columns stack below 48rem.</p>
     </CatExample>
 
     <CatExample TExample="Examples.Grid.Dense" Title="Filling the holes" Demo="ex-demo--block">

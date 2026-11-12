@@ -60,7 +60,7 @@ An array of the goals whose `primary` answer is a page in the group.
   "goal": "Let the user scan and compare many records in columns",
   "phrases": [ "data table", "data grid", "show records in a table" ],
   "answer": [
-    { "page": "/table#with-a-toolbar-in-a-card", "role": "primary" },
+    { "page": "/table#toolbar-in-a-card", "role": "primary" },
     { "page": "/toolbar", "role": "part" }
   ],
   "how": "One to three sentences: the composition, and why it works.",

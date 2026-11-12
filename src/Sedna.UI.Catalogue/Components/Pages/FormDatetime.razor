@@ -3,7 +3,9 @@
 <CatHead Title="Date and time">
     <code>.form-input</code> on a date, time, month or week input. The box is the text field's;
     what the class adds is the parts the browser draws in its own colours, and the two things
-    iOS does to a date input that a desktop never shows.
+    iOS does to a date input that a desktop never shows. Where the native input will not do — a
+    range, days that cannot be chosen, the same look in every engine — a date picker built on the
+    calendar's month grid.
 </CatHead>
 
 <CatGroup Title="Native inputs">
@@ -64,6 +66,43 @@
 </CatGroup>
 
 <CatGroup Title="Composed pickers">
+    <CatExample TExample="Examples.FormDatetime.DatePicker" Title="Date or range" Demo="ex-demo--pad">
+        <p>
+            <strong>Live — open it.</strong> For a date that has to look the same in every engine, or a range,
+            or days that cannot be chosen. <code>.datepicker</code> is a <a href="/popover">popover</a>, so
+            the anchoring, light dismiss and <kbd>Escape</kbd> are the platform's; its body is the small
+            month grid. Each day is a <code>&lt;button&gt;</code> <strong>named with its full date</strong> —
+            &ldquo;21&rdquo; alone is not a date to a screen reader — and <code>aria-pressed="true"</code>
+            when chosen. A range is <code>--range-start</code>, <code>--in-range</code> and
+            <code>--range-end</code> on the days you work out; an unavailable day is a disabled button.
+            The keys beyond <kbd>Tab</kbd> are yours to add. The week numbers are
+            <code>.cal-month--weeknums</code>, as on a full <a href="/calendar">month</a>. For a single date the native
+            date input, above, is still the better default.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.FormDatetime.DatePickerTime" Title="Date with a time" Demo="ex-demo--pad">
+        <p>
+            <strong>Live — open it.</strong> A <code>.datepicker-time</code> row under the grid holds the
+            platform's own <code>&lt;input type="time"&gt;</code> as a <code>.form-input--sm</code> &mdash; one
+            for a moment, two for a slot &mdash; so the clock, the 12- or 24-hour form and the keys are the
+            reader's. Give each input a label, even when the second one is only read by a screen reader.
+            The actions under it share its divider.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.FormDatetime.DatePickerLevels" Title="Months and years" Demo="ex-demo--pad">
+        <p>
+            <strong>Live — open both.</strong> To go further than a month at a time, make the
+            <code>.datepicker-title</code> a <code>&lt;button&gt;</code> that swaps the panel's body for the
+            level above: <code>.cal-months</code>, then <code>.cal-years</code>, each a grid of
+            <code>.cal-pick</code> buttons with the day grid's states &mdash; <code>aria-pressed="true"</code>
+            chosen, <code>aria-current</code> now, disabled out of bounds, and
+            <code>.cal-pick--outside</code> for the years of the neighbouring decade. Which level shows and
+            what a pick does are yours; name the title button with what it opens.
+        </p>
+    </CatExample>
+
     <CatExample TExample="Examples.FormDatetime.Typeable" Title="Typed date with a calendar" Demo="ex-demo--block">
         <p>
             A text field people type into &mdash; <code>3.11.26</code>, <code>03112026</code> &mdash;

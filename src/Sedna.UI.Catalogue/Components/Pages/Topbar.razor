@@ -1,8 +1,8 @@
 @page "/topbar"
 
 <CatHead Title="Topbar and user" Tier="@CatHead.Tier1">
-    The header strip: the search, the status and version chips on the right, and the user widget
-    with its menu.
+    The header strip: the status and version chips on the right, the app switcher, and the user
+    widget with its menu. The search box in it has a page of its own, <a href="/search">header search</a>.
 </CatHead>
 
 <CatGroup Title="Header bar">
@@ -36,60 +36,6 @@
             <code>--bottombar-muted</code>; a menu or a panel opened from the header is a surface of its
             own and keeps the page's muted. Give a header your own colour, and set
             <code>--topbar-muted</code> beside it at 4.5:1 or more.
-        </p>
-    </CatExample>
-</CatGroup>
-
-<CatGroup Title="Search">
-    <CatExample TExample="Examples.Topbar.HeaderSearch" Title="Search box" Demo="ex-demo--block ex-demo--flush">
-        <p>
-            <strong>Live — type in it.</strong> <code>.search</code> goes at the start of the topbar,
-            after the nav toggles and before <code>.topbar-spacer</code>, and is hidden below 720px.
-            <code>.topbar-btn--search</code> is the way in there: a topbar button that shows exactly
-            while the box is hidden and opens the app's own search &mdash; a page, a sheet, the palette.
-            Under <code>.layout--bottombar</code> it steps back below 560px, where the
-            <a href="/bottombar">bottom bar</a>'s end cell is the search. <code>data-search</code> hands the box to
-            <code>sednaUi.search</code>, which ranks against the index the app registered, implements the
-            keyboard and fills the result panel you wrote — below; narrow it with
-            <code>style="--search-max: 340px"</code> on the box, and keep the input's placeholder —
-            the clear button is shown by CSS on <code>:placeholder-shown</code>.
-        </p>
-    </CatExample>
-
-    <CatSnippet Name="Topbar/SearchResults.html" Title="Result panel">
-        <p>
-            <strong>The panel is yours to write</strong>, once, outside <code>.topbar</code>, with a
-            <code>&lt;template&gt;</code> per row shape; <code>data-search="&lt;panel id&gt;"</code> on the
-            input names it. The script clones the templates, fills their <code>data-*</code> slots with
-            text and places the panel under the box, so the empty and the cut-off lines are in your
-            language. One <code>.search-item</code> per result — a <code>.search-item-title</code> and a
-            <code>.search-item-meta</code> line, with <code>.search-item--sel</code> where the keyboard
-            is and <code>.search-status</code> for the busy and empty line. Put
-            <code>.sedna-scroll</code> on the panel, use an <code>&lt;a&gt;</code> rather than a button
-            so middle-click and &ldquo;open in a new tab&rdquo; work, and keep
-            <code>role="option"</code> inside <code>role="listbox"</code> — that is what makes
-            <code>aria-selected</code> legal while the box keeps focus through
-            <code>aria-activedescendant</code>.
-        </p>
-    </CatSnippet>
-
-    <CatSnippet Name="Topbar/AnchoredSearch.html" Title="Results the app renders">
-        <p>
-            For an app searching a database itself: leave <code>data-search</code> off the input and
-            add <code>.search-panel--anchored</code>, which nests the panel under the box —
-            <code>.search</code> is already <code>position: relative</code>, so nothing is measured.
-            <strong>The trade:</strong> a nested panel joins <code>.topbar</code>'s stacking context at
-            z-index 60, so it sits <em>under</em> a modal backdrop however high its own z-index.
-        </p>
-    </CatSnippet>
-
-    <CatExample TExample="Examples.Interop.SearchRankFromCsharp" Title="Ranking from C#" Demo="ex-demo--block">
-        <p>
-            <strong>Live &mdash; this ranks this site's own index.</strong> <code>RankSearchAsync</code> ranks what
-            <code>RegisterSearchAsync</code> registered against a query, in the browser, and answers every match best
-            first; the dropdown's own cut is not applied, and an empty query answers nothing. A page that was not found
-            can offer the pages nearest the words of its address. Register the index and close the panel after a
-            navigation with <code>CloseSearchAsync</code> from the layout, as <a href="/interop">From C#</a> shows.
         </p>
     </CatExample>
 </CatGroup>

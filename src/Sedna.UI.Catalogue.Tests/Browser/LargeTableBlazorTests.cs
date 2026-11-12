@@ -34,7 +34,7 @@ public class LargeTableBlazorTests(CatalogueAppFixture app)
         if (app.NoBrowser) return;
         var errors = new List<string>();
         var page = await Open(errors);
-        var demo = Example(page, "A tree grid from Blazor");
+        var demo = Example(page, "Tree grid from Blazor");
         var year = demo.Locator("tr[data-value='2024']");
         var cell = year.Locator("td").First;
 

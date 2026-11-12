@@ -24,7 +24,7 @@ public class PanelGridBlazorTests(CatalogueAppFixture app)
         var page = await context.NewPageAsync();
         page.PageError += (_, error) => errors.Add(error);
         page.Console += (_, message) => { if (message.Type == "error") errors.Add(message.Text); };
-        await page.GotoAsync(app.Url("/grid"), new() { WaitUntil = WaitUntilState.Load });
+        await page.GotoAsync(app.Url("/panel-grid"), new() { WaitUntil = WaitUntilState.Load });
         await page.WaitForSelectorAsync("[data-interactive='true']", new() { Timeout = 15_000 });
         return page;
     }

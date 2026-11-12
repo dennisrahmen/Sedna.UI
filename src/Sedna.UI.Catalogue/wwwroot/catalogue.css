@@ -132,7 +132,6 @@
     border-top: 1px solid var(--border);
 }
 .cat-group > h2 { margin: 0 0 8px; font-size: 20px; scroll-margin-top: 16px; }
-.cat-group > p { margin: 0 0 28px; font-size: 13px; color: var(--muted); line-height: 1.65; }
 .cat-group > h3 { margin: 38px 0 10px; font-size: 16px; scroll-margin-top: 16px; }
 .cat-group > h3:first-child { margin-top: 0; }
 .cat-group > .card + .cat-ex { margin-top: 38px; }

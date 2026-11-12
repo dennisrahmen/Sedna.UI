@@ -140,7 +140,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
                 var score = CatalogueRanker.Score(terms, example.Id,
                     [example.Title, example.Page, string.Join(' ', example.Classes),
                      string.Join(' ', example.Ids), string.Join(' ', example.Attributes)],
-                    [example.Blurb, example.Markup]);
+                    [example.Blurb, example.Markup], example.Blurb);
                 if (score is null) continue;
 
                 // Capped: the shell example names forty classes, and a search
