@@ -32,7 +32,7 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#a-strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "fc569c7bcf7d3f9a"
+    "stamp": "7419be826884d547"
   },
   {
     "page": "/card",
@@ -54,7 +54,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "80dd4d09b5df0a50"
+    "stamp": "86e3a287ad25428b"
   },
   {
     "page": "/grid",
@@ -74,7 +74,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "place-panels-freely", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "bca561401c571be5"
+    "stamp": "0069259a0c7594ed"
   },
   {
     "page": "/list",

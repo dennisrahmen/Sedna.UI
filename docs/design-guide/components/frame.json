@@ -89,7 +89,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "986399c42b2389d8"
+    "stamp": "e8dbc1b9d2fdd9b8"
   },
   {
     "page": "/status-bar",
@@ -180,6 +180,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/grid#panels-the-reader-arranges" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
-    "stamp": "d7e41d6317eebbfd"
+    "stamp": "4a54cc301119682d"
   }
 ]

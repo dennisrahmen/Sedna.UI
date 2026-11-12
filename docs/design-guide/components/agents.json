@@ -103,7 +103,7 @@
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "652507e2768441e0"
+    "stamp": "b955e06a4b307153"
   },
   {
     "page": "/assistant-panels",
@@ -119,7 +119,7 @@
       { "text": "The conversation itself", "instead": "/agent-chat" }
     ],
     "goals": [ "dock-an-assistant", "keep-generated-work-open" ],
-    "stamp": "58f225179a8d473d"
+    "stamp": "86bf5d7a7c78b94e"
   },
   {
     "page": "/voice",

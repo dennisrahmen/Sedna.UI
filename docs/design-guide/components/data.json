@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "b7ce88e6a3596f00"
+    "stamp": "ee1ce02e2cae707e"
   },
   {
     "page": "/table-editing",
@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "f7d497f74039eb95"
+    "stamp": "ff047719df9684b7"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "64706160c8f8845c"
+    "stamp": "174c6e0c8e22d416"
   },
   {
     "page": "/stat",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "9f8a934b794c922e"
+    "stamp": "43cebeb4d863475f"
   },
   {
     "page": "/graph-plugins",
@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "30fea58daf82c4d6"
+    "stamp": "5d13d6d35f2cdbe8"
   },
   {
     "page": "/workflow-run",

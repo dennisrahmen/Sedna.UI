@@ -6670,7 +6670,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 @container panel-grid (width < 560px) {
     .panel-grid > * {
         --panel-stacked: 1;
-        grid-column: 1 / -1;
+        grid-column: span var(--panel-cols);
         grid-row: auto / span var(--panel-h);
         order: calc(var(--panel-y) * 1000 + var(--panel-x));
     }
@@ -14298,7 +14298,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    the panel and never sits under the tick. */
 .menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
     position: relative;
-    padding-inline-end: calc(var(--space-5) * 2 + 7px);
+    padding-inline-end: calc(var(--space-5) * 2 + var(--space-4));
 }
 .menu-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
 .menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }

@@ -67,6 +67,8 @@ public class BrandTextContrastTests
         [".text-brand"] = (Ink.Text, []),
         [".nav-link.active"] = (Ink.Text, ["--brand-tint"]),
         [".nav-link.active i"] = (Ink.Icon, ["--brand-tint"]),
+        [".menu-item[aria-current]:not([aria-current=\"false\"])"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),
+        [".menu-item[aria-current]:not([aria-current=\"false\"]) i"] = (Ink.Icon, ["--brand-tint", "--brand-tint-strong"]),
         [".nav-area[aria-expanded=\"true\"]"] = (Ink.Text, ["--brand-tint"]),
         [".nav-area.active"] = (Ink.Text, ["--brand-tint"]),
         // The current bottom-bar item: on the bar's own surface, or on the tint in .bottombar--tint.

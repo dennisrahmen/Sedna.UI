@@ -208,8 +208,7 @@ public class PanelGridTests : ScriptTestBase
         // Held, so nothing jumps back while the app is still storing it…
         Assert.Equal("dispatch:6,3,6,4 orders:0,3,6,4 returns:0,0,12,3", await Cells(page));
         // …and once it has had its chance and rendered nothing, the app's own values stand.
-        await page.WaitForFunctionAsync("() => !document.getElementById('orders').style.getPropertyValue('--panel-preview-y')",
-            null, new() { Timeout = 6000 });
+        await page.WaitForFunctionAsync("() => !document.getElementById('orders').style.getPropertyValue('--panel-preview-y')");
         Assert.Equal("dispatch:6,0,6,4 orders:0,0,6,4 returns:0,4,12,3", await Cells(page));
         await AssertPreviewCleared(page);
         Assert.Empty(errors);

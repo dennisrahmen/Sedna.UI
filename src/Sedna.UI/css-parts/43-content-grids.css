@@ -364,7 +364,7 @@
 @container panel-grid (width < 560px) {
     .panel-grid > * {
         --panel-stacked: 1;
-        grid-column: 1 / -1;
+        grid-column: span var(--panel-cols);
         grid-row: auto / span var(--panel-h);
         order: calc(var(--panel-y) * 1000 + var(--panel-x));
     }
