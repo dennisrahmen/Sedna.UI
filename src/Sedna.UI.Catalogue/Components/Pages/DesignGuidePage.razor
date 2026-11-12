@@ -78,10 +78,14 @@
 </div>
 
 @code {
+    /// <summary>
     /// The area whose goals are shown: the address's ?group=, by its lowercase name.
+    /// </summary>
     [SupplyParameterFromQuery(Name = "group")] public string? GroupQuery { get; set; }
 
+    /// <summary>
     /// The address of an area's goals, and of one goal's card within it.
+    /// </summary>
     public static string HrefOf(string group, string? goalId = null) =>
         $"/design-guide?group={group.ToLowerInvariant()}{(goalId is null ? null : "#" + goalId)}";
 

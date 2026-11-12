@@ -10,13 +10,19 @@
 </section>
 
 @code {
+    /// <summary>
     /// The cascading name an example reads to know its heading is one level down.
+    /// </summary>
     public const string InGroupName = "CatGroup";
 
+    /// <summary>
     /// A short topic name in sentence case: "Splits", "Rows of fixed height".
+    /// </summary>
     [Parameter, EditorRequired] public string Title { get; set; } = default!;
 
+    /// <summary>
     /// One sentence about the topic, if it needs one, then the examples.
+    /// </summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private string Anchor => Slug.From(Title);

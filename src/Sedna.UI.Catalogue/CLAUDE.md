@@ -111,8 +111,8 @@ survives re-renders by construction.
   A section is a `CatGroup`, a `CatExample`, a `CatSnippet`, or a hand-written `<h2 id="…">` — `<h3>`
   inside a group — with a `<CatAnchor Id="…" />` in it — the same id, and every page heading has
   one, so its link can be copied. A heading written in a loop has no literal id to read: the page's sections are then
-  added in `PageContents` from the data the loop renders, as the design guide's and the tokens'
-  are — the tokens' groups under the sections `TokenGroups.Sections` names. `PageContentsTests` fails when a page's contents and its anchored headings disagree.
+  added in `PageContents` from the data the loop renders, as the principles' and the tokens' are —
+  each nested under its topic, from `PrincipleTopics` and `TokenGroups.Sections`. `PageContentsTests` fails when a page's contents and its anchored headings disagree.
 - **An unknown address renders `Components/Pages/NotFound.razor`** with a 404, through the router's
   `NotFoundPage` and `UseStatusCodePagesWithReExecute`. Its route is `CataloguePages.NotFoundRoute` and
   it is not in `All`; `NotFoundTests` covers it.
