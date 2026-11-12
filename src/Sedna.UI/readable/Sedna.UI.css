@@ -11310,14 +11310,16 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    aria-pressed is "true" is chosen by that alone, so a script that toggles the state —
    the graph's filter chips — changes the look with it. */
 .chip--active,
-button.chip[aria-pressed="true"] {
+button.chip[aria-pressed="true"],
+a.chip[aria-current="page"] {
     background: var(--brand-tint);
     border-color: var(--brand-soft);
     color: var(--brand-text);
 }
 .chip--active i,
 .chip--active .chip-dismiss,
-button.chip[aria-pressed="true"] i { color: var(--brand-text); }
+button.chip[aria-pressed="true"] i,
+a.chip[aria-current="page"] i { color: var(--brand-text); }
 
 /* Not accepted — an address that is not one, a value the app rejected. Kept as a
    chip rather than thrown away, so the reader can see the typo and fix it. Pair it
@@ -11338,6 +11340,13 @@ button.chip[aria-pressed="true"] i { color: var(--brand-text); }
 button.chip { font-family: inherit; cursor: pointer; }
 button.chip:hover { border-color: var(--border-hover); }
 button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+
+/* A chip that is a link: one of a few views at addresses of their own, such as the areas a
+   long list is split into. `aria-current="page"` marks the one shown, for a screen reader
+   and for the eye; a link is never underlined as a chip. */
+a.chip { text-decoration: none; }
+a.chip:hover { border-color: var(--border-hover); text-decoration: none; }
+a.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 
 /* A whole row of them, wrapping. */
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
@@ -26288,6 +26297,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
     button.chip:focus-visible,
+    a.chip:focus-visible,
     a.stat:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,

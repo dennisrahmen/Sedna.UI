@@ -248,7 +248,9 @@
     background: var(--brand-tint);
     color: var(--brand-text);
 }
-.cat-tile-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+/* The text takes the room the icon and the arrow leave, so the arrow sits at the tile's end
+   however short the text is. */
+.cat-tile-text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
 .cat-tile-text strong { font-size: 14px; color: var(--fg); }
 .cat-tile-text span { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
 .cat-tile-go {

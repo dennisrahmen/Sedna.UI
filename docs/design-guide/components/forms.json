@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "092794b7d8f67d42"
+    "stamp": "7b7c39bed321afc0"
   },
   {
     "page": "/form-select",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "e9d540aa288268c0"
+    "stamp": "ae83abc0e332a3b3"
   },
   {
     "page": "/form-choice",

@@ -41,12 +41,12 @@
 
 @* The areas are links to addresses, each a filter that is on or offered: chips, which wrap, so
    every area is in view however many there are. *@
-<nav aria-label="Areas">
+<nav aria-label="Goal areas">
     <div class="chip-set">
         @foreach (var (group, count) in Areas)
         {
             var current = group == Area;
-            <a class="chip @(current ? "chip--active" : null)" href="@HrefOf(group)" aria-current="@(current ? "page" : null)">
+            <a class="chip" href="@HrefOf(group)" aria-current="@(current ? "page" : null)">
                 <span class="chip-label">@group · @count</span>
             </a>
         }
