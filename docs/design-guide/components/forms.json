@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#stepper" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "a71a342fdf811d91"
+    "stamp": "592939bbd4bb9970"
   },
   {
     "page": "/form-code",

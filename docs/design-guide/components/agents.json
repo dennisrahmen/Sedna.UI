@@ -84,7 +84,7 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "11530660aa821c08"
+    "stamp": "edf5b3d65e4f0128"
   },
   {
     "page": "/agent-chat",
@@ -103,7 +103,7 @@
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "b955e06a4b307153"
+    "stamp": "670d5d00da4da386"
   },
   {
     "page": "/assistant-panels",

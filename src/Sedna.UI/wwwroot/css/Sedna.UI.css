@@ -14149,6 +14149,7 @@ button.inbox-item-title {
     white-space: nowrap;
 }
 .workflow-label > i { font-size: var(--text-3); }
+.workflow-label:not(:has(> *)) { display: inline-block; align-content: center; text-box: trim-both cap alphabetic; }
 .workflow-label::before,
 .workflow-label::after {
     content: '';

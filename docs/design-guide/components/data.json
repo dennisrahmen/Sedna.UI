@@ -121,7 +121,7 @@
       { "text": "Which way a figure is going", "instead": "/sparkline" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period", "show-test-results", "show-a-password" ],
-    "stamp": "33ddbd4804d02f1f"
+    "stamp": "9c7382593be0797a"
   },
   {
     "page": "/sparkline",
@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "5d13d6d35f2cdbe8"
+    "stamp": "3c5aed05e43e736d"
   },
   {
     "page": "/workflow-run",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "4797975e630e75d8"
+    "stamp": "4b599cf162047988"
   }
 ]
