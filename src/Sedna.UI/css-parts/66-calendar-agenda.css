@@ -51,6 +51,9 @@
     --surface-here: var(--card-bg);
     --muted-here: var(--muted);
 }
+/* In a card: the card draws the frame, so the agenda gives up its own border and
+   corners — the same `--flush` every framed calendar view takes (66-calendar.css). */
+.cal-agenda--flush { border: none; border-radius: 0; }
 .cal-agenda-day + .cal-agenda-day { border-top: 1px solid var(--border); }
 
 /* The heading keeps the surface under its own tint, so a row sliding under it while it

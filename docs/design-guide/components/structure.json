@@ -43,7 +43,8 @@
       { "page": "/grid#a-dashboard", "how": "Cards as the panels of a dashboard, .card--fill where a row should end on one line." },
       { "page": "/form#a-settings-card", "how": "A form section in the body and its Save in a .card-foot." },
       { "page": "/tabs#tabs-in-a-card", "how": "The tablist in a .card-head--tabs and the panels in the body." },
-      { "page": "/list", "how": "A list straight in the card meets its edges with no class." }
+      { "page": "/list", "how": "A list straight in the card meets its edges with no class." },
+      { "page": "/diff#a-diff-in-a-card", "how": "A panel with a frame of its own, a diff, a calendar or a code block, goes straight in the card with its --flush modifier, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "Records compared down columns", "instead": "/table" },
@@ -52,7 +53,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "d84d659151f36d93"
+    "stamp": "31ec6d81e1e6af5d"
   },
   {
     "page": "/grid",
@@ -91,7 +92,7 @@
       { "text": "A list of files", "instead": "/files#a-list-of-files" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "af48f44e7846b1dd"
+    "stamp": "93da6106b085964b"
   },
   {
     "page": "/collections",
@@ -99,7 +100,8 @@
     "combineWith": [
       { "page": "/page-recipes#a-step-in-a-longer-task", "how": "The steps above the form of the current step, in the page head's place." },
       { "page": "/form-flow#one-field-to-a-page", "how": "Steps over a multi-page form, saying where in it the reader is." },
-      { "page": "/agent-steps#queue-and-todo", "how": "An accordion of the agent's queued work, one section per item." }
+      { "page": "/agent-steps#queue-and-todo", "how": "An accordion of the agent's queued work, one section per item." },
+      { "page": "/card", "how": "An accordion straight under a card head takes .accordion--flush, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "A record with no end", "instead": "/timeline" },
@@ -108,7 +110,7 @@
       { "text": "Groups of a long nav", "instead": "/nav-layouts#accordion-groups" }
     ],
     "goals": [ "see-the-step-they-are-on", "open-detail-on-demand", "answer-one-question-at-a-time", "do-a-task-in-steps" ],
-    "stamp": "511f6c7c548c7e3f"
+    "stamp": "213579abe4db6bb8"
   },
   {
     "page": "/tree",
@@ -144,7 +146,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "see-what-happened-to-a-record", "open-a-record-beside-the-list" ],
-    "stamp": "95095e834bba2b55"
+    "stamp": "dc2e1c115dfb781f"
   },
   {
     "page": "/tabs",

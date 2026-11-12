@@ -71,7 +71,9 @@ moves them together.
 - **The `sedna-gap-*` steps are their own scale**, not the `--space-*` tokens: `.sedna-gap-1` is 8px,
   `-2` 12px, `-3` 20px, `-4` 24px, `-5` 32px and `-6` 40px — `.sedna-gap-6` is `--space-11`, not
   `--space-6`. Steps 1 to 3 space controls and items; 4 to 6 space blocks of a page. `.sedna-gap-0`
-  joins items that form one control.
+  joins items that form one control. 16px is not a step: it is the gap `.sedna-grid`, `.sedna-grid-24`
+  and `.sedna-stack` have with no gap class, so fields in a grid and panels in a stack get the value in
+  the table above by leaving the step off.
 - **Use a utility where no component spaces it**, and the component where one does. A toolbar, a form
   section, a card foot and a list already space their children; `.sedna-row`, `.sedna-col` and the gap
   steps are for arrangements of the app's own.

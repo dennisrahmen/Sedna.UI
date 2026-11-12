@@ -423,6 +423,9 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
    `::-webkit-details-marker` is needed because the two engines expose the default
    triangle differently, and neither alone removes it everywhere. */
 .accordion { border: 1px solid var(--border); border-radius: var(--radius-surface); overflow: hidden; }
+/* Inside a card, edge to edge: the card draws the frame, so the accordion gives up its
+   own border and corners, as `.code-block--flush` does. */
+.accordion--flush { border: none; border-radius: 0; }
 .accordion > details + details { border-top: 1px solid var(--border); }
 .accordion summary {
     display: flex;

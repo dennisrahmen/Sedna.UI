@@ -168,6 +168,7 @@ dialog.lightbox::before {
     cursor: zoom-in;
     overflow: hidden;
 }
-.media-open > img,
-.media-open > .media-frame { display: block; }
+/* A bare picture loses its baseline gap. A `.media-frame` keeps its own display: it
+   centres what it holds, a picture that does not fill it or a `.file-icon` alike. */
+.media-open > img { display: block; }
 .media-open:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring); }

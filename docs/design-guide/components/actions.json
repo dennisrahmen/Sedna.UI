@@ -111,6 +111,6 @@
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
     "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels" ],
-    "stamp": "4e3433ebdc1658db"
+    "stamp": "a60792b2940c084e"
   }
 ]

@@ -140,7 +140,7 @@
     "src/Sedna.UI/css-parts/61-buttons-extra.css": "d63ae13d0dd8d706",
     "src/Sedna.UI/css-parts/65-app-switcher.css": "4d2abd1533417256",
     "src/Sedna.UI/css-parts/65-popover.css": "de958408c00f008b",
-    "src/Sedna.UI/css-parts/66-calendar.css": "5722ba941500e49b",
+    "src/Sedna.UI/css-parts/66-calendar.css": "6db450b273a4aa7f",
     "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a",
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5",
     "src/Sedna.UI/js-parts/22-anchored.js": "eccfa21cf94ce110",
@@ -179,7 +179,7 @@
     "src/Sedna.UI/css-parts/55-actions-fold.css": "d0cb5ef6aff7f429",
     "src/Sedna.UI/css-parts/55-page-structure.css": "8c074ff1e15ad9d9",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
-    "src/Sedna.UI/css-parts/60-lists.css": "34cd60068593b42e",
+    "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
     "src/Sedna.UI/js-parts/21-copy.js": "aea50bb40b6b5197"
   },
@@ -224,7 +224,7 @@
     "src/Sedna.UI/css-parts/30-cards.css": "03782386ac5ff8af",
     "src/Sedna.UI/css-parts/36-modal.css": "6adc298cf6ec80f9",
     "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
-    "src/Sedna.UI/css-parts/60-lists.css": "34cd60068593b42e",
+    "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/js-parts/29-viewport.js": "6d1010fc021a3db3",
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412",
     "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"

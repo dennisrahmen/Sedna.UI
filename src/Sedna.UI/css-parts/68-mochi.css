@@ -259,6 +259,35 @@
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="stand"] { inset-block-end: calc(50% - var(--size) * 0.0375); }
 .mochi-host:has(> .divider-labelled) > .mochi[data-perch="hang"]  { inset-block-start: calc(50% - var(--size) * 0.1875); }
 
+/* ── Room for the perch ──
+   A perch reaches out of its host: above it for `sit`, `peek` and `look`, below it for
+   `hang`, past its end for `side`, and beside the anchor for `point`. `.mochi-host--room`
+   keeps that room clear, as a margin outside the host's edge — the edge is the perch, so
+   it stays where it is — and for `point`, whose anchor is inside the host, as padding.
+   The room is a fraction of `--size`, measured from what the drawing paints in every
+   action, so it is right at every size; beside the host and below it, it holds Mochi's
+   whole box too, which would otherwise widen whatever scrolls around it. `stand` keeps
+   its feet inside a box's bottom edge and needs none outside it; on a divider, below.
+
+   The host reads `--size` and Mochi inherits it from there: a size class on the Mochi
+   reaches the host through `:has()`, and a size of the app's own is set on the host. */
+.mochi-host--room { --size: 112px; }
+.mochi-host--room:has(> .mochi--sm) { --size: 64px; }
+.mochi-host--room:has(> .mochi--md) { --size: 88px; }
+.mochi-host--room:has(> .mochi--lg) { --size: 140px; }
+.mochi-host--room:has(> .mochi--xl) { --size: 220px; }
+.mochi-host--room > .mochi { --size: inherit; }
+.mochi-host--room:has(> .mochi[data-perch="sit"])  { margin-block-start: calc(var(--size) * 0.8); }
+.mochi-host--room:has(> .mochi:is([data-perch="peek"], [data-perch="look"])) { margin-block-start: calc(var(--size) * 0.4); }
+.mochi-host--room:has(> .mochi[data-perch="hang"]) { margin-block-end: calc(var(--size) * 0.82); }
+.mochi-host--room:has(> .mochi[data-perch="side"]) { margin-inline-end: calc(var(--size) * 0.65); }
+.mochi-host--room:has(> .mochi[data-perch="point"]) { padding-block: calc(var(--size) * 0.4); padding-inline-start: calc(var(--size) * 1.05); }
+.mochi-host--room:has(> .mochi[data-perch="point"][data-facing="start"]) { padding-inline: 0 calc(var(--size) * 1.05); }
+/* On a divider the line is the edge: standing, the whole of Mochi is above it, and
+   sitting, the feet hang below it. */
+.mochi-host--room:has(> :is(.divider, .divider-labelled)):has(> .mochi[data-perch="stand"]) { margin-block-start: calc(var(--size) * 0.8); }
+.mochi-host--room:has(> :is(.divider, .divider-labelled)):has(> .mochi[data-perch="sit"]) { margin-block-end: calc(var(--size) * 0.25); }
+
 /* ── The sprite's parts ─────────────────────────────────────────────────────── */
 .sedna-mochi-body  { fill: var(--mochi-body); }
 .sedna-mochi-palm  { fill: var(--mochi-body); }

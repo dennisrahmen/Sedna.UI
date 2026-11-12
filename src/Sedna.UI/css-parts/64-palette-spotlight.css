@@ -15,18 +15,13 @@
    No fuzzy-match library. The scorer is `ui._.score` in js-parts/00-core.js, shared
    with the header search — this package loads nothing at runtime.
    ─────────────────────────────────────────────────────────────────────────── */
-/* Any class that gives a <dialog> a display has to gate it on [open], or it overrides
-   the UA's `display: none` for a closed dialog. The palette is built once and reused,
-   so without the gate it stays in the page as a 560px panel below the content from the
-   first Ctrl-K onwards. */
-dialog.palette[open] {
+/* The panel is the class's, wherever its markup is: a palette shown in the page — a
+   static picture of one, an app that keeps its commands on screen — is the same panel
+   as the dialog. Only what makes it a dialog is on `dialog.palette`: its place near the
+   top, its height cap and its backdrop. `.modal` is split the same way. */
+.palette {
     display: flex;
     flex-direction: column;
-}
-dialog.palette {
-    width: min(560px, calc(100vw - 32px));
-    max-height: 60dvh;
-    margin: 12dvh auto auto;
     padding: 0;
     overflow: hidden;
     --surface-here: var(--bg-elevated);
@@ -36,8 +31,18 @@ dialog.palette {
     border-radius: var(--radius-panel);
     box-shadow: var(--shadow-pop);
     color: var(--fg);
+}
+dialog.palette {
+    width: min(560px, calc(100vw - 32px));
+    max-height: 60dvh;
+    margin: 12dvh auto auto;
     --dialog-backdrop: var(--backdrop);
 }
+/* `.palette`'s own `display: flex` is gated on nothing, so it also applies to a CLOSED
+   dialog and outranks the UA's `display: none`. The palette is built once and reused, so
+   without this it stays in the page as a 560px panel below the content from the first
+   Ctrl-K onwards. */
+dialog.palette:not([open]) { display: none; }
 dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: blur(2px); }
 
 .palette-input {

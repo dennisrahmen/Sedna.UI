@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "edc90d065b0ac12d"
+    "stamp": "08dcde034cab88d7"
   },
   {
     "page": "/table-editing",
@@ -161,7 +161,8 @@
       { "page": "/calendar-agenda", "how": "The agenda is the same events as a list, and business hours, background events and dragging are added there." },
       { "page": "/popover", "how": "A day's markers and its +N more open a popover listing every event." },
       { "page": "/hover-hints", "how": "A pill too short for its title, a marker or a holiday carries its name in a data-tip." },
-      { "page": "/form-datetime#a-typeable-date-with-a-calendar", "how": "A typed date field beside a button that opens the date picker drawn on this grid." }
+      { "page": "/form-datetime#a-typeable-date-with-a-calendar", "how": "A typed date field beside a button that opens the date picker drawn on this grid." },
+      { "page": "/card", "how": "A month, a week or a timeline straight in a card takes its --flush modifier, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "A date typed into a form field", "instead": "/form-datetime" },
@@ -170,7 +171,7 @@
       { "text": "Activity per day with no events", "instead": "/tracker#a-calendar-of-activity" }
     ],
     "goals": [ "see-a-schedule", "pick-a-date" ],
-    "stamp": "cbdb0cbe3716f36a"
+    "stamp": "1ef6ee0907808cbf"
   },
   {
     "page": "/calendar-agenda",
@@ -179,14 +180,15 @@
       { "page": "/calendar", "how": "The month, week and timeline the agenda lists and the drags happen on." },
       { "page": "/drag-drop", "how": "Moving an event is the library's drag and drop: a drop event the app answers by changing the date." },
       { "page": "/popover", "how": "The rest of a busy day, opened from its +N more." },
-      { "page": "/utility-scroll#vertical", "how": "An agenda in a scroller with a height keeps each day's heading pinned." }
+      { "page": "/utility-scroll#vertical", "how": "An agenda in a scroller with a height keeps each day's heading pinned." },
+      { "page": "/card", "how": "An agenda straight in a card, or in a scroller in one, takes .cal-agenda--flush, so the card draws the only frame." }
     ],
     "notFor": [
       { "text": "Appointments on a grid of days", "instead": "/calendar" },
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "538b934a23f09dcf"
+    "stamp": "826f00f3a6e733b8"
   },
   {
     "page": "/pager",
@@ -239,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "fd3a8692f8996157"
+    "stamp": "6efc55830f615810"
   },
   {
     "page": "/graph-layouts",
@@ -270,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "79461dc8e2157322"
+    "stamp": "2b83e1285f2bec18"
   },
   {
     "page": "/graph-plugins",
@@ -348,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "d8022a1da995949a"
+    "stamp": "6886fa87e1924c4f"
   }
 ]

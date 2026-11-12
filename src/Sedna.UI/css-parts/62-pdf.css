@@ -37,6 +37,9 @@
     border-radius: var(--radius-surface);
     overflow: hidden;
 }
+/* Inside a card or a drawer's flush body, which draws the frame: the frame gives up its
+   own border and corners, as `.code-block--flush` does. */
+.pdf-frame--flush { border: none; border-radius: 0; }
 .pdf-frame--page {
     block-size: auto;
     aspect-ratio: var(--media-ratio, 210 / 297);

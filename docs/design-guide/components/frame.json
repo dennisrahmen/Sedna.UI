@@ -180,6 +180,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/grid#panels-the-reader-arranges" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
-    "stamp": "9667b72e4c4f7e3c"
+    "stamp": "ac384cabd55c4495"
   }
 ]

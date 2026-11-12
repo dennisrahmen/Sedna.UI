@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "fed939b18006aa4d"
+    "stamp": "3b1f129246df1836"
   },
   {
     "page": "/form-saving",
@@ -69,7 +69,7 @@
       { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
     ],
     "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
-    "stamp": "4475c573c978df6f"
+    "stamp": "a82e6393eb923835"
   },
   {
     "page": "/form-text",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "88dccb425869d95a"
+    "stamp": "6cd83deb0e44db32"
   },
   {
     "page": "/form-select",

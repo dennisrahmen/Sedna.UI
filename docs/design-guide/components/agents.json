@@ -65,7 +65,7 @@
       { "text": "A guided tour of the page", "instead": "/spotlight" }
     ],
     "goals": [ "give-the-agent-a-character", "perch-a-mascot-on-the-page" ],
-    "stamp": "acf74daed4051f58"
+    "stamp": "1afa0d0b6c252ac4"
   },
   {
     "page": "/agent-steps",
@@ -84,7 +84,7 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "210281ba4051885b"
+    "stamp": "b59fe855f1009231"
   },
   {
     "page": "/agent-chat",
@@ -103,7 +103,7 @@
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "95657734e56a86ec"
+    "stamp": "a3852dcbf465579a"
   },
   {
     "page": "/assistant-panels",
@@ -135,6 +135,6 @@
       { "text": "A typed conversation with an agent", "instead": "/agent-chat" }
     ],
     "goals": [ "talk-to-an-agent", "pick-a-microphone" ],
-    "stamp": "ebff5ee90e0f7ca9"
+    "stamp": "7403e5c7e90c5dcb"
   }
 ]

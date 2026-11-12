@@ -147,7 +147,12 @@
     </p>
     <p>
         <code>--perch-inset</code> on the Mochi moves it along its edge &mdash; 24px from the end by
-        default. Leave room for it: a perch draws outside the element, and the host does not grow.
+        default. A perch draws outside the element, and a plain host does not grow for it:
+        <code>.mochi-host--room</code> keeps the room clear, as a margin on the side the perch reaches
+        out of &mdash; above for <code>sit</code>, <code>peek</code> and <code>look</code>, below for
+        <code>hang</code>, past the end for <code>side</code> &mdash; sized from Mochi's size and the
+        perch, so the page around it moves and the edge stays put. A size class on the Mochi reaches the
+        host by itself; a size of your own goes on the host as <code>--size</code>.
         <code>wave</code> or <code>point</code> on <code>peek</code>, <code>look</code> or <code>hang</code>
         lets go with one hand.
     </p>
@@ -162,8 +167,9 @@
     </p>
     <p>
         <strong>A hairline has nothing to hide behind</strong>, so <code>peek</code>, <code>look</code> and
-        <code>side</code> are for a box: on a line they show half a Mochi cut off by thin air. Leave room
-        above a sitting Mochi and below a hanging one; the text beside a divider does not move for it.
+        <code>side</code> are for a box: on a line they show half a Mochi cut off by thin air.
+        <code>.mochi-host--room</code> on a divider's host keeps room above a Mochi sitting or standing
+        on the line, below a hanging one, and below the feet of a sitting one.
     </p>
 </CatExample>
 
@@ -171,7 +177,8 @@
     <p>
         A host is whatever box it wraps, so every perch works on a <a href="/form-text">field</a> or a
         <a href="/topbar">search box</a> as it does on a card. Wrap the control alone, not its label, so the
-        edges are the control's.
+        edges are the control's. A Mochi peeking over a field looks over its label's line, so that host
+        takes no <code>--room</code>: the room would come between the label and its field.
     </p>
     <p>
         A <a href="/button">button</a> is inline, and a plain host is a block as wide as the row, so Mochi
@@ -185,7 +192,9 @@
         <code>data-perch="point"</code> stands Mochi beside whatever the app names as its anchor, with
         its fingertip on the anchor's edge and centred on it. Give the target an
         <code>anchor-name</code> and the Mochi the matching <code>position-anchor</code>; CSS anchor
-        positioning does the rest, with no script, and the finger follows the target if it moves.
+        positioning does the rest, with no script, and the finger follows the target if it moves. The
+        anchor is inside the host, so <code>.mochi-host--room</code> keeps the room beside it as the
+        host's padding.
     </p>
 </CatExample>
 
@@ -207,7 +216,8 @@
 <CatExample TExample="Examples.Mochi.Empty" Title="On an empty state" Demo="ex-demo--block ex-demo--pad">
     <p>
         Mochi asleep on an <a href="/empty-state">empty state</a> says the agent has nothing to do,
-        without a sentence about it. <code>--perch-inset</code> centres it.
+        without a sentence about it. <code>--perch-inset</code> centres it, and the host's
+        <code>--size</code> sets Mochi's size and the room above the card at once.
     </p>
 </CatExample>
 

@@ -51,6 +51,6 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "5a59f47a4fc61ccf"
+    "stamp": "357348ab1d5846d0"
   }
 ]
