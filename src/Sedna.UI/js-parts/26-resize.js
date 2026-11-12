@@ -39,8 +39,32 @@
    takes `.card--folded` — the way a drop moves nothing and the app moves the item. While
    a drag is below the threshold the handle carries `data-resize-folding`, for the app to
    show what letting go will do.
+
+   A CORNER. `data-resize` naming two properties — the inline size, then the block size,
+   `data-resize="--card-width --card-height"` — is a handle for both at once: the corner
+   between a card's side and bottom handles. It is for the pointer; the keyboard has the
+   two edges, so a corner is `aria-hidden="true"` and takes no focus. Each axis takes its
+   bounds and step from the handle on the same element that writes that property alone,
+   and keeps that handle's `aria-valuenow` current; with none, the corner's own. It sends
+   one `sedna-resize` for each property it changed, and folds nothing.
+
+   A PANEL. A handle on a panel of a panel grid — `--panel-w`, `--panel-h`, or the two —
+   counts in cells, and 26-panels.js arranges the grid around the new size: the property
+   is the app's and is not written, the preview is, and `sedna-resize` carries `value` in
+   cells, `key` as the panel's id and `panels`, the whole arrangement. `aria-valuemin` and
+   `aria-valuemax` are in cells too, and `aria-valuenow` is the app's to render with the
+   arrangement, as the panel's own properties are. `data-panel-ratio="16:9"` on the panel keeps its
+   shape, to the nearest row. Outside the grid's arrange mode the handles do nothing, and
+   Home resets nothing: a panel has no size of its own to go back to.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
+
+    function toArray(list) { return Array.prototype.slice.call(list); }
+
+    /* The properties a handle names: one for an edge, two for a corner. */
+    function properties(handle) {
+        return (handle.getAttribute('data-resize') || '').trim().split(/\s+/).filter(Boolean);
+    }
 
     function parts(handle) {
         var on = handle.getAttribute('data-resize-on');
@@ -52,8 +76,44 @@
         var block = handle.getAttribute('aria-orientation') !== 'vertical';
         return {
             target: target, measured: measured, block: block,
-            property: handle.getAttribute('data-resize'), key: handle.getAttribute('data-resize-key')
+            property: properties(handle)[0], key: handle.getAttribute('data-resize-key')
         };
+    }
+
+    /* The handle on the same element as `handle` that writes `property` alone: the edge
+       beside a corner, whose bounds, step and value the corner shares. */
+    function edgeOf(handle, target, property) {
+        var found = toArray(target.querySelectorAll('[data-resize]'));
+        if (target.id) {
+            found = found.concat(toArray(document.querySelectorAll('[data-resize-on]')).filter(function (h) {
+                return h.getAttribute('data-resize-on') === target.id;
+            }));
+        }
+        for (var i = 0; i < found.length; i++) {
+            var h = found[i], props = properties(h);
+            if (h === handle || props.length !== 1 || props[0] !== property) continue;
+            var q = parts(h);
+            if (q && q.target === target) return h;
+        }
+        return null;
+    }
+
+    /* What a press on `handle` resizes, one axis each: `handle` is where the axis takes its
+       bounds and step from, `aria` whether it keeps that handle's value. An edge is one
+       axis; a corner is two, the inline size first. */
+    function axes(handle) {
+        var p = parts(handle);
+        if (!p) return null;
+        var props = properties(handle);
+        if (props.length < 2) return [{ handle: handle, p: p, aria: true }];
+        return props.slice(0, 2).map(function (property, i) {
+            var edge = edgeOf(handle, p.target, property);
+            var q = edge ? parts(edge) : null;
+            return {
+                handle: edge || handle, aria: !!edge,
+                p: { target: p.target, measured: q ? q.measured : p.measured, block: i === 1, property: property, key: p.key }
+            };
+        });
     }
 
     function size(p) {
@@ -90,19 +150,22 @@
         return isNaN(s) || s <= 0 ? 8 : s;
     }
 
-    function apply(handle, p, value) {
-        var b = bounds(handle), step = stepOf(handle);
+    function apply(a, value) {
+        var b = bounds(a.handle), step = stepOf(a.handle);
         value = Math.min(b.max, Math.max(b.min, Math.round(value / step) * step));
-        p.target.style.setProperty(p.property, value + 'px');
-        handle.setAttribute('aria-valuenow', String(value));
+        a.p.target.style.setProperty(a.p.property, value + 'px');
+        if (a.aria) a.handle.setAttribute('aria-valuenow', String(value));
         return value;
     }
 
-    function done(p, value, folded) {
-        p.target.dispatchEvent(new CustomEvent('sedna-resize', {
+    function done(p, value, folded, panels) {
+        var event = new CustomEvent('sedna-resize', {
             bubbles: true,
             detail: { property: p.property, value: value, folded: !!folded, key: p.key }
-        }));
+        });
+        // A panel grid's resize carries the arrangement as well.
+        if (panels) event.detail.panels = panels;
+        p.target.dispatchEvent(event);
     }
 
     function foldAt(handle) {
@@ -125,47 +188,156 @@
         done(p, isNaN(value) ? null : value, true);
     }
 
+    /* The panel grid `target` is an arranged panel of, or null. */
+    function panelGrid(target) { return ui._.panels ? ui._.panels.gridOfPanel(target) : null; }
+
     function reset(handle) {
         var p = parts(handle);
-        if (!p) return;
-        p.target.style.removeProperty(p.property);
-        handle.removeAttribute('aria-valuenow');
-        done(p, null);
+        if (!p || panelGrid(p.target)) return;
+        properties(handle).forEach(function (property, i) {
+            p.target.style.removeProperty(property);
+            var edge = i === 0 && properties(handle).length === 1 ? handle : edgeOf(handle, p.target, property);
+            if (edge) edge.removeAttribute('aria-valuenow');
+            done({ target: p.target, property: property, key: p.key }, null);
+        });
     }
 
     ui.resize = { reset: reset };
+
+    /* ── A size in pixels ─────────────────────────────────────────────────── */
+
+    function sizeSession(handle, list, x0, y0) {
+        var single = list.length === 1, a0 = list[0];
+        var threshold = single ? foldAt(handle) : null, folding = false;
+        var before = a0.p.target.style.getPropertyValue(a0.p.property), now = handle.getAttribute('aria-valuenow');
+        list.forEach(function (a) {
+            a.start = a.value = size(a.p);
+            a.dir = sign(handle, a.p);
+        });
+        return {
+            move: function (ev) {
+                list.forEach(function (a) {
+                    var wanted = a.start + ((a.p.block ? ev.clientY - y0 : ev.clientX - x0) * a.dir);
+                    if (single) {
+                        folding = threshold !== null && wanted < threshold;
+                        if (folding) handle.setAttribute('data-resize-folding', '');
+                        else handle.removeAttribute('data-resize-folding');
+                    }
+                    a.value = apply(a, wanted);
+                });
+            },
+            end: function (released) {
+                handle.removeAttribute('data-resize-folding');
+                // A cancelled drag below the threshold folds nothing: the size goes back, unsaid.
+                if (folding && released) fold(handle, a0.p, before, now);
+                else if (folding) restore(handle, a0.p, before, now);
+                else list.forEach(function (a) { if (a.value !== a.start) done(a.p, a.value); });
+            }
+        };
+    }
+
+    /* ── A size in cells, on a panel grid ─────────────────────────────────── */
+
+    function dimOf(property) { return property === '--panel-h' ? 'h' : 'w'; }
+
+    /* Each axis's bounds, in cells, from the edge handle that writes it — `aria-valuemin`
+       and `aria-valuemax` — and no wider than the grid from where the panel stands. */
+    function panelLimits(handle, target, cols, was) {
+        var limits = {};
+        ['w', 'h'].forEach(function (dim) {
+            var property = '--panel-' + dim, props = properties(handle);
+            var edge = props.length === 1 && props[0] === property ? handle : edgeOf(handle, target, property);
+            var min = edge ? parseFloat(edge.getAttribute('aria-valuemin')) : NaN;
+            var max = edge ? parseFloat(edge.getAttribute('aria-valuemax')) : NaN;
+            var widest = dim === 'w' ? cols - was.x : Infinity;
+            limits[dim] = [isNaN(min) ? 1 : Math.max(1, Math.round(min)), Math.min(widest, isNaN(max) ? Infinity : Math.round(max))];
+        });
+        return limits;
+    }
+
+    /* Previews `target` at `want` cells — { w, h }. The edges' `aria-valuenow` is the app's
+       to render with the arrangement, like the panel's own properties. */
+    function panelPreview(s, target, want, limits, lead) {
+        var P = ui._.panels;
+        return P.resizeTo(s, target, P.sized(s, target, want.w, want.h, limits, lead));
+    }
+
+    /* Ends a panel's resize: one sedna-resize for each size that changed, carrying the
+       arrangement the app stores. */
+    function panelDone(s, target, was, keep) {
+        var arranged = ui._.panels.end(s, keep);
+        if (!arranged) return;
+        var id = target.getAttribute('data-drag-item');
+        var now = ui._.panels.find(arranged, id);
+        ['w', 'h'].forEach(function (dim) {
+            if (now[dim] === was[dim]) return;
+            done({ target: target, property: '--panel-' + dim, key: id }, now[dim], false, arranged);
+        });
+    }
+
+    function panelSession(handle, list, grid, x0, y0) {
+        var P = ui._.panels, target = list[0].p.target, s = P.begin(grid);
+        var was = P.find(s.start, target.getAttribute('data-drag-item'));
+        var limits = panelLimits(handle, target, s.cols, was);
+        list.forEach(function (a) {
+            a.dim = dimOf(a.p.property);
+            a.dir = sign(handle, { block: a.dim === 'h', measured: target });
+        });
+        return {
+            move: function (ev) {
+                var want = { w: was.w, h: was.h }, lead = list[0].dim, most = -1;
+                list.forEach(function (a) {
+                    var moved = (a.dim === 'h' ? ev.clientY - y0 : ev.clientX - x0) * a.dir;
+                    var cells = moved / (a.dim === 'h' ? s.geo.pitchY : s.geo.pitchX);
+                    want[a.dim] = was[a.dim] + Math.round(cells);
+                    if (Math.abs(cells) > most) { most = Math.abs(cells); lead = a.dim; }
+                });
+                panelPreview(s, target, want, limits, lead);
+            },
+            end: function (released) { panelDone(s, target, was, released); }
+        };
+    }
+
+    /* An arrow on a panel's edge: a cell, or four with Shift, and the arrangement at once. */
+    function panelKey(handle, p, grid, key, steps) {
+        var props = properties(handle);
+        var by = arrow(handle, key);
+        if (props.length !== 1 || !by) return false;
+        var P = ui._.panels, s = P.begin(grid);
+        var was = P.find(s.start, p.target.getAttribute('data-drag-item'));
+        var dim = dimOf(props[0]);
+        var want = { w: was.w, h: was.h };
+        want[dim] += by * sign(handle, { block: dim === 'h', measured: p.target }) * steps;
+        panelPreview(s, p.target, want, panelLimits(handle, p.target, s.cols, was), dim);
+        panelDone(s, p.target, was, true);
+        return true;
+    }
+
+    /* ── Input ────────────────────────────────────────────────────────────── */
 
     document.addEventListener('pointerdown', function (e) {
         if (e.button !== 0) return;
         var handle = e.target instanceof Element ? e.target.closest('[data-resize]') : null;
         if (!handle) return;
-        var p = parts(handle);
-        if (!p) return;
+        var list = axes(handle);
+        if (!list) return;
+        var grid = panelGrid(list[0].p.target);
+        // Outside the arrange mode a panel is ordinary content.
+        if (grid && ui._.panels.resting(grid)) return;
         e.preventDefault();
-        var start = size(p), dir = sign(handle, p), origin = p.block ? e.clientY : e.clientX;
-        var value = start, folding = false, threshold = foldAt(handle);
-        var before = p.target.style.getPropertyValue(p.property), now = handle.getAttribute('aria-valuenow');
         try { handle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
         handle.setAttribute('data-resizing', '');
+        var session = grid
+            ? panelSession(handle, list, grid, e.clientX, e.clientY)
+            : sizeSession(handle, list, e.clientX, e.clientY);
 
-        function move(ev) {
-            var at = p.block ? ev.clientY : ev.clientX;
-            var wanted = start + (at - origin) * dir;
-            folding = threshold !== null && wanted < threshold;
-            if (folding) handle.setAttribute('data-resize-folding', '');
-            else handle.removeAttribute('data-resize-folding');
-            value = apply(handle, p, wanted);
-        }
+        function move(ev) { session.move(ev); }
         function up(ev) {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
             handle.removeEventListener('pointercancel', up);
             handle.removeAttribute('data-resizing');
-            handle.removeAttribute('data-resize-folding');
-            // A cancelled drag below the threshold folds nothing: the size goes back, unsaid.
-            if (folding && ev.type === 'pointerup') fold(handle, p, before, now);
-            else if (folding) restore(handle, p, before, now);
-            else if (value !== start) done(p, value);
+            session.end(ev.type === 'pointerup');
         }
         handle.addEventListener('pointermove', move);
         handle.addEventListener('pointerup', up);
@@ -190,16 +362,19 @@
     function press(handle, key, steps) {
         var p = parts(handle);
         if (!p) return false;
+        var grid = panelGrid(p.target);
+        if (grid) return !ui._.panels.resting(grid) && panelKey(handle, p, grid, key, steps);
         if (key === 'Home') { reset(handle); return true; }
         var by = arrow(handle, key);
         if (!by) return false;
+        var a = { handle: handle, p: p, aria: true };
         var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * steps;
         // Already as small as it goes, and asked for less: put it away.
         if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
             fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
             return true;
         }
-        done(p, apply(handle, p, wanted));
+        done(p, apply(a, wanted));
         return true;
     }
 

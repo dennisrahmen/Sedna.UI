@@ -96,7 +96,7 @@ must act on lives only in a toast: it goes inline, in an `.alert`, or in the not
 
 ### State the markup cannot express
 
-Three helpers render attributes from the app's own state — never a component:
+These helpers compute from the app's own state — never a component:
 
 - **A sorted table:** `SednaSort` — `aria-sort="@_sort.AriaSort("due")"` on each sortable header,
   `_sort = _sort.Toggle("due")` on its `.th-sort` button.
@@ -104,6 +104,12 @@ Three helpers render attributes from the app's own state — never a component:
 - **Tabs selected from C#:** `data-tabs="managed"` on the tablist, `@attributes="SednaTabs.Tab(key, _tab)"`
   on each tab and `SednaTabs.Panel(key, _tab)` on each panel. Never plain `data-tabs` with C# selection:
   two things would write `aria-selected`.
+- **A dashboard the reader arranges:** a `.panel-grid` with `data-drag-zone`, `data-drag-axis="cells"`
+  and `data-arrange` while arranging; each panel writes `--panel-x`, `--panel-y`, `--panel-w` and
+  `--panel-h` inline from the stored `SednaPanel`s, rendered in the order they come. `sedna-drop` and
+  `sedna-resize` carry `Panels`, the whole arrangement: store it and render it back. Settle anything
+  the app changes itself — a panel added, a stored layout loaded — with `SednaPanels.Arrange`, and never
+  write collision logic of your own.
 
 ### Tables, filters and pagers
 

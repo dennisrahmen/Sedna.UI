@@ -16,7 +16,7 @@
       { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
     ],
     "goals": [ "explain-a-page-condition", "summarise-form-errors", "show-field-errors", "confirm-before-it-happens" ],
-    "stamp": "517baf501009b3c0"
+    "stamp": "9ae70eb1851c2193"
   },
   {
     "page": "/toast",
@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "fd24492a2e64e732"
+    "stamp": "c190756b45e8ae65"
   },
   {
     "page": "/progress",
@@ -112,7 +112,7 @@
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
     "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
-    "stamp": "bcb509e31183382f"
+    "stamp": "f6a216d5052ea2d7"
   },
   {
     "page": "/state-art",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/structure#code-blocks" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "6768f4b4ab2549a5"
+    "stamp": "b6731c227a6b4403"
   }
 ]

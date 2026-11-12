@@ -19,7 +19,7 @@
     "src/Sedna.UI.Catalogue/Examples/Button/Wrap.razor": "f4cd2375c8f1f410",
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "5a8918a36a9a8dee",
     "src/Sedna.UI/css-parts/17-frame-hover-hints.css": "c76ee0ee677b0843",
-    "src/Sedna.UI/css-parts/30-cards.css": "eb8f251e94f5401a",
+    "src/Sedna.UI/css-parts/30-cards.css": "f5f801db27111890",
     "src/Sedna.UI/css-parts/33-buttons.css": "c031f84426b8e0a8",
     "src/Sedna.UI/css-parts/50-tabs.css": "cbabc5a7dc315677",
     "src/Sedna.UI/css-parts/51-segmented.css": "31474281afb5e44c",
@@ -49,7 +49,7 @@
     "src/Sedna.UI/js-parts/27-output.js": "32769fc034f87eac"
   },
   "/drag-drop": {
-    "src/Sedna.UI.Catalogue/Components/Pages/DragDrop.razor": "2b61d3c6fcf34985",
+    "src/Sedna.UI.Catalogue/Components/Pages/DragDrop.razor": "0bfaa7e241265a45",
     "src/Sedna.UI.Catalogue/Examples/DragDrop/Listening.html": "f816994fc23e011b",
     "src/Sedna.UI.Catalogue/Examples/DragDrop/States.razor": "519006e2172966f2",
     "src/Sedna.UI.Catalogue/Examples/Interop/DragAutoScroll.razor": "357d28888a9b963a",
@@ -60,13 +60,14 @@
     "src/Sedna.UI.Catalogue/Examples/Interop/DragSelection.razor": "8506c914af25bfc2",
     "src/Sedna.UI.Catalogue/Examples/Interop/DragTiles.razor": "ad0a9e85351b37de",
     "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
-    "src/Sedna.UI/css-parts/30-cards.css": "eb8f251e94f5401a",
+    "src/Sedna.UI/css-parts/30-cards.css": "f5f801db27111890",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
-    "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/63-drag.css": "040f001cb43d92bd",
     "src/Sedna.UI/css-parts/64-files.css": "f8bb204a44a2cc2b",
     "src/Sedna.UI/js-parts/22-tree.js": "4e9eefd37ed6656c",
-    "src/Sedna.UI/js-parts/26-drag.js": "3321bfc5a948e354"
+    "src/Sedna.UI/js-parts/26-drag.js": "b22f3e7b14ba1cc1",
+    "src/Sedna.UI/js-parts/26-panels.js": "737e228b881573c9",
+    "src/Sedna.UI/js-parts/26-resize.js": "8404205d80e531ad"
   },
   "/menu": {
     "src/Sedna.UI.Catalogue/Components/Pages/Menu.razor": "3f45ff5d69911980",
@@ -98,7 +99,7 @@
     "src/Sedna.UI.Catalogue/Examples/Popover/Popover.razor": "11d207a14df994ca",
     "src/Sedna.UI.Catalogue/Examples/Popover/Shapes.razor": "ebbe7376a9b90999",
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "5a8918a36a9a8dee",
-    "src/Sedna.UI/css-parts/30-cards.css": "eb8f251e94f5401a",
+    "src/Sedna.UI/css-parts/30-cards.css": "f5f801db27111890",
     "src/Sedna.UI/css-parts/58-menu.css": "0e34150b36fefbfd",
     "src/Sedna.UI/css-parts/65-app-switcher.css": "4d2abd1533417256",
     "src/Sedna.UI/css-parts/65-popover.css": "efdd526f226f60f3",

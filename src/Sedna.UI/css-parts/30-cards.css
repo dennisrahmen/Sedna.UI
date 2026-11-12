@@ -112,6 +112,63 @@
 .card-resize[data-resizing]::before { opacity: 1; background: var(--selected); }
 .card-resize:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
 
+/* `.card-resize--inline` is the handle on the inline-end edge, a
+   `[data-resize="--card-width"]` separator with `aria-orientation="vertical"`; the width
+   it writes is the card's `--card-width`, never wider than what holds the card.
+   `.card-resize--corner` is the corner between the two, `data-resize="--card-width
+   --card-height"`: for the pointer, `aria-hidden="true"`, with the keyboard on the edges.
+   Both lie over the card's own edge, so they take no room. In a `.panel-grid` the same
+   handles write `--panel-w` and `--panel-h`. */
+.card--resizable {
+    --card-width: auto;
+    inline-size: var(--card-width);
+    max-inline-size: 100%;
+}
+:where(.card:has(> .card-resize--inline, > .card-resize--corner)) { position: relative; }
+.card-resize--inline,
+.card-resize--corner {
+    position: absolute;
+    margin: 0;
+}
+.card-resize--inline {
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: var(--space-4);
+    block-size: auto;
+    cursor: ew-resize;
+}
+.card-resize--inline::before {
+    inset-inline: auto;
+    inset-inline-start: calc(50% - 1px);
+    inset-block: 40%;
+    inline-size: 2px;
+    block-size: auto;
+}
+.card-resize--corner {
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    inline-size: var(--space-6);
+    block-size: var(--space-6);
+    cursor: nwse-resize;
+}
+/* Two short strokes along the corner, drawn as the borders of a box set in from it, and
+   shown at rest: a corner is found by its mark, as a text area's is. */
+.card-resize--corner::before {
+    inset: auto;
+    inset-block-end: var(--space-2);
+    inset-inline-end: var(--space-2);
+    inline-size: var(--space-4);
+    block-size: var(--space-4);
+    background: none;
+    border-block-end: 2px solid var(--border-strong);
+    border-inline-end: 2px solid var(--border-strong);
+    border-radius: 0;
+    border-end-end-radius: var(--radius-inner);
+    opacity: 1;
+}
+.card-resize--corner:hover::before,
+.card-resize--corner[data-resizing]::before { background: none; border-color: var(--selected); }
+
 /* ── A card head that holds a tab strip ─────────────────────────────────────
    `.card-head` pads all four sides and centres its children, which leaves a `.tabs`
    floating in it: the strip's own bottom border sits 12px above the head's, so the

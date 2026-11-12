@@ -212,7 +212,7 @@
       { "page": "/grid#panels-the-reader-arranges", "role": "part" }
     ],
     "how": ".drag-grid with data-drag-axis=\"grid\" counts positions in reading order, so the index is the same whatever the column count, and the arrow keys move a tile across and between rows.",
-    "avoid": "Storing a tile's position as a column and a row, which breaks as soon as the grid has a different number of columns."
+    "avoid": "Storing a tile's position as a column and a row in a .drag-grid, whose column count follows its width: tiles that keep a place of their own are a .panel-grid."
   },
   {
     "id": "open-a-panel-upward",

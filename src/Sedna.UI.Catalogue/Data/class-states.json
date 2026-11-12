@@ -1357,6 +1357,10 @@
     },
     "card-resize": {
       "family": "card-resize",
+      "variants": [
+        "card-resize--corner",
+        "card-resize--inline"
+      ],
       "attributes": [
         "[data-resizing]"
       ],
@@ -1364,6 +1368,18 @@
         ":focus-visible",
         ":hover"
       ]
+    },
+    "card-resize--corner": {
+      "family": "card-resize",
+      "attributes": [
+        "[data-resizing]"
+      ],
+      "pseudoClasses": [
+        ":hover"
+      ]
+    },
+    "card-resize--inline": {
+      "family": "card-resize"
     },
     "card-section": {
       "family": "card-section"
@@ -4589,6 +4605,14 @@
     },
     "palette-trail": {
       "family": "palette-trail"
+    },
+    "panel-grid": {
+      "family": "panel-grid",
+      "attributes": [
+        ":not([data-arrange])",
+        "[data-arrange]",
+        "[data-drop-over]"
+      ]
     },
     "pdf-frame": {
       "family": "pdf-frame",
