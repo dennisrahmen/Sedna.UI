@@ -24291,6 +24291,10 @@ button.inbox-item-title {
     white-space: nowrap;
 }
 .workflow-label > i { font-size: var(--text-3); }
+/* Holding only its word, the pill is a block container whose line is trimmed to its
+   capitals and centred in its height, so the word sits on the wire in every font rather
+   than on the middle of the font's whole line box. */
+.workflow-label:not(:has(> *)) { display: inline-block; align-content: center; text-box: trim-both cap alphabetic; }
 .workflow-label::before,
 .workflow-label::after {
     content: '';
