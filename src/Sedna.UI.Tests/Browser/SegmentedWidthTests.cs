@@ -46,7 +46,7 @@ public class SegmentedWidthTests : ScriptTestBase
         var (page, errors) = await OpenStyled($"""
             <dialog class="modal" id="dlg">
               <div class="modal-header"><h3>Capture</h3></div>
-              <div class="modal-body sedna-col sedna-gap-2" id="box">
+              <div class="modal-body sedna-col sedna-gap-12" id="box">
                 <div class="segmented" id="seg" role="group" aria-label="Kind">{string.Format(Control, "c")}</div>
                 <div class="form-field"><label class="form-label" for="t">Title</label><input class="form-input" id="t"></div>
               </div>

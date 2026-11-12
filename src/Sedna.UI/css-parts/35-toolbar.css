@@ -16,7 +16,7 @@
 
    Its absence was not theoretical. This library's own examples had invented it three
    different ways — a second `.toolbar-filters` (those are not filters), a
-   `.sedna-row sedna-gap-2`, and a `.sedna-push` on a bare span, which is the one
+   `.sedna-row sedna-gap-12`, and a `.sedna-push` on a bare span, which is the one
    that was visibly broken on the landing page. */
 /* The auto margin keeps it at the end edge on a line of its own, where `space-between` has
    nothing to distribute; on a shared line it takes the same free space `space-between`

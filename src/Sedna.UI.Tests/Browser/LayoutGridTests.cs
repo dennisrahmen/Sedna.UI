@@ -60,9 +60,9 @@ public class LayoutGridTests : ScriptTestBase
     [InlineData(960, "", new[] { "sedna-span-16", "sedna-span-8" })]
     [InlineData(960, "", new[] { "sedna-span-8", "sedna-span-8", "sedna-span-8" })]
     [InlineData(961, "", new[] { "sedna-span-6", "sedna-span-6", "sedna-span-6", "sedna-span-6" })]
-    [InlineData(997, "sedna-gap-3", new[] { "sedna-span-4", "sedna-span-4", "sedna-span-4", "sedna-span-4", "sedna-span-4", "sedna-span-4" })]
+    [InlineData(997, "sedna-gap-20", new[] { "sedna-span-4", "sedna-span-4", "sedna-span-4", "sedna-span-4", "sedna-span-4", "sedna-span-4" })]
     [InlineData(1003, "sedna-gap-0", new[] { "sedna-span-1", "sedna-span-23" })]
-    [InlineData(999, "sedna-gap-1", new[] { "sedna-span-5", "sedna-span-7", "sedna-span-12" })]
+    [InlineData(999, "sedna-gap-8", new[] { "sedna-span-5", "sedna-span-7", "sedna-span-12" })]
     public async Task Spans_that_sum_to_24_share_one_row_and_fill_it(int width, string gridClass, string[] spans)
     {
         if (NoBrowser) return;
@@ -133,7 +133,7 @@ public class LayoutGridTests : ScriptTestBase
     [Theory]
     [InlineData(327, "")]
     [InlineData(280, "")]
-    [InlineData(327, "sedna-gap-3")]
+    [InlineData(327, "sedna-gap-20")]
     public async Task A_grid_narrower_than_its_gaps_keeps_every_child_inside_it(int width, string gridClass)
     {
         if (NoBrowser) return;

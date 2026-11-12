@@ -4,10 +4,10 @@
    data-drag-drop="{items} dropped in {zone} at position {position}."
    data-drag-cancel="Cancelled. Nothing moved."></p>
 
-<div class="sedna-col sedna-gap-2" @onsedna-drop="Drop">
+<div class="sedna-col sedna-gap-12" @onsedna-drop="Drop">
     @foreach (var (id, title) in Zones)
     {
-        <section class="sedna-col sedna-gap-1" aria-labelledby="pick-@id">
+        <section class="sedna-col sedna-gap-8" aria-labelledby="pick-@id">
             <h3 class="drag-lane-head" id="pick-@id"><span>@title</span> <span class="badge">@_zones[id].Count</span></h3>
             <ul class="file-grid" data-drag-zone="@id" data-drag-group="photos" data-drag-axis="grid"
                 data-drag-label="@title" style="--drop-gap: var(--space-6)">

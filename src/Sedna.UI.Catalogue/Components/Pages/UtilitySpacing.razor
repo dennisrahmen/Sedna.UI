@@ -18,17 +18,18 @@
 <CatExample TExample="Examples.UtilitySpacing.Gaps" Title="Gaps" Demo="ex-demo--block">
     <p>
         <code>.sedna-row</code> and <code>.sedna-col</code> carry one gap, and these override it:
-        <code>.sedna-gap-0</code> removes it, <code>.sedna-gap-1</code> is the default 8px restated,
-        <code>-2</code> and <code>-3</code> are 12px and 20px, and <code>-4</code> to <code>-6</code>
-        are 24, 32 and 40px, the gaps between sections. A gap that needs another value is usually a
-        layout that wants <a href="/grid">a grid</a>.
+        each is named by its size in pixels. <code>.sedna-gap-0</code> removes it,
+        <code>.sedna-gap-8</code> is the default restated, <code>-12</code> is tighter,
+        <code>-16</code> is the space between fields, and <code>-20</code> to <code>-40</code> are
+        the gaps between sections. A gap that needs another value is usually a layout that wants
+        <a href="/grid">a grid</a>.
     </p>
 </CatExample>
 
 <CatExample TExample="Examples.UtilitySpacing.Margins" Title="Margins" Demo="ex-demo--block">
     <p>
-        <code>.sedna-mt-0</code> to <code>-6</code> and <code>.sedna-mb-0</code> to <code>-6</code>,
-        on the same 0 / 8 / 12 / 20 / 24 / 32 / 40px steps. Top and bottom only, and the zeros do most of the work:
+        <code>.sedna-mt-*</code> and <code>.sedna-mb-*</code>, on the same steps and named the same
+        way: 0, 8, 12, 16, 20, 24, 32 and 40. Top and bottom only, and the zeros do most of the work:
         they are the escape from a margin a library component sets, without overriding that
         component's class.
     </p>

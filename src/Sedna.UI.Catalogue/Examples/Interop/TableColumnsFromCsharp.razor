@@ -56,7 +56,7 @@
         </tbody>
     </table>
 </div>
-<p class="text-muted sedna-mt-3">Saved for the reader: @string.Join(", ", Shown.Select(c => $"{c.Title} {c.Width}px"))</p>
+<p class="text-muted sedna-mt-20">Saved for the reader: @string.Join(", ", Shown.Select(c => $"{c.Title} {c.Width}px"))</p>
 
 @code {
     private sealed class Column(string key, int index, string title, int width, bool numeric = false, bool locked = false)

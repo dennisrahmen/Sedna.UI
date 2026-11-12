@@ -16,7 +16,7 @@
       { "text": "A whole page to start from", "instead": "/page-recipes" }
     ],
     "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "skip-to-the-content", "fill-the-screen-below-the-header", "show-on-a-wall-screen", "use-the-app-on-a-narrow-screen", "pick-a-workspace", "keep-a-footer-at-the-bottom", "sign-in", "explain-access-denied", "say-a-page-was-not-found", "sign-in-after-the-session-expired" ],
-    "stamp": "c57200735d936869"
+    "stamp": "7b5816c817a320d9"
   },
   {
     "page": "/nav",
@@ -70,7 +70,7 @@
       { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
     ],
     "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "b5b18045e0673827"
+    "stamp": "dacb84f2d2deaf4f"
   },
   {
     "page": "/topbar",
@@ -89,7 +89,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "search-the-whole-app", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "e8dbc1b9d2fdd9b8"
+    "stamp": "48ba2028fc6f76a6"
   },
   {
     "page": "/status-bar",
@@ -139,7 +139,7 @@
       { "text": "A label on the collapsed rail's links", "instead": "/nav#collapsed-rail" }
     ],
     "goals": [ "show-status-history", "explain-a-control", "act-with-an-icon-button", "explain-a-disabled-action" ],
-    "stamp": "ba62563cbb881416"
+    "stamp": "9a7c8ead43d3ec75"
   },
   {
     "page": "/common-pages",
@@ -160,7 +160,7 @@
       { "text": "Signing in", "instead": "/page-recipes#a-sign-in-page" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends", "count-down-to-a-deadline" ],
-    "stamp": "818f1e4a5027bf6c"
+    "stamp": "6825f659b1d3d04c"
   },
   {
     "page": "/page-recipes",
@@ -180,6 +180,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/grid#panels-the-reader-arranges" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
-    "stamp": "4a54cc301119682d"
+    "stamp": "834fb366c9057753"
   }
 ]
