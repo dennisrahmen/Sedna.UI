@@ -82,6 +82,11 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             {
                 var page = await context.NewPageAsync();
                 await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
+                // Interactive first: the circuit's first render replaces what the server
+                // rendered, so a scan before it has its letters turned back from H into the
+                // page's words — descenders and all — under the centre lines it recorded for
+                // the H's. A heavy page connects late enough for that to land mid-scan.
+                await page.WaitForSelectorAsync("[data-interactive='true']");
                 var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
                     await page.EvaluateAsync<string>(Scanner, new { density, dir }),
                     new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
