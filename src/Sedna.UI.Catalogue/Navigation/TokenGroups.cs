@@ -341,7 +341,10 @@ internal static class TokenGroups
 
     /// <summary>The groups of each section, in the order the page shows them.</summary>
     public static IReadOnlyList<(string Section, IReadOnlyList<TokenGroup> Groups)> BySection { get; } =
-        [.. Sections.Select(s => (s, (IReadOnlyList<TokenGroup>)[.. All.Where(g => g.Section == s)]))];
+        [.. Sections.Select(s => (s, InSection(s)))];
+
+    private static IReadOnlyList<TokenGroup> InSection(string section) =>
+        [.. All.Where(g => g.Section == section)];
 
     /// <summary>Every token named on the page, in display order.</summary>
     public static IReadOnlyList<string> AllTokens { get; } =

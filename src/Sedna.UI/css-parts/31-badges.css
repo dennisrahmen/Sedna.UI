@@ -54,3 +54,106 @@
 .badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 .badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
 .badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
+
+/* ── An identifier ─────────────────────────────────────────────────────────
+   A record number, a version, a commit, an address, a key: a value the reader copies or
+   compares character by character. Monospace on the code tint, and squarer than a pill,
+   so it never reads as a state. `.badge-copy` is a button inside it that copies the value
+   with `data-copy`; give it the value in its name, "Copy ORD-20418".
+
+     <span class="badge badge--mono"><span class="badge-text">ORD-20418</span>
+       <button class="badge-copy" type="button" data-copy="ORD-20418" aria-label="Copy ORD-20418"><i class="ri-file-copy-line"></i></button></span> */
+.badge--mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: var(--radius-small);
+    max-width: 100%;
+}
+.badge-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.badge-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-end: calc(var(--space-2) * -1);
+    padding: 0 var(--space-1);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: inherit;
+    opacity: 0.65;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+}
+.badge-copy:hover { opacity: 1; }
+.badge-copy:focus-visible { opacity: 1; outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+
+/* ── A label in a group ────────────────────────────────────────────────────
+   `env | prod`: the group on a neutral cap at the start, the value in the badge's tone.
+   One pill, read as "environment is production".
+
+     <span class="badge badge--scoped badge--danger"><span class="badge-key">env</span>prod</span> */
+.badge--scoped { padding-inline-start: 0; gap: 0; overflow: hidden; }
+.badge-key {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: calc(var(--space-1) * -1);
+    margin-inline-end: var(--space-3);
+    padding-inline: var(--space-4) var(--space-3);
+    background: var(--badge-bg);
+    color: var(--fg-soft);
+    border-inline-end: 1px solid var(--border);
+}
+.badge--sm .badge-key { margin-block: 0; padding-inline: var(--space-3) var(--space-2); margin-inline-end: var(--space-2); }
+.badge--lg .badge-key { margin-block: calc(var(--space-2) * -1); padding-inline-start: var(--space-5); }
+
+/* ── A label in the app's own colour ───────────────────────────────────────
+   A label a reader made and coloured, as in an issue tracker. The colour is the app's
+   data, set as `--label-colour` on the badge; the library decides how much of it to use.
+   The text never takes it, so a yellow a reader picked is still legible in every theme.
+
+     <span class="badge badge--swatch" style="--label-colour: #8b5cf6">design</span>
+
+   `.badge--swatch-fill` tints the pill as well as the dot. */
+.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--label-colour);
+}
+.badge--swatch-fill {
+    background: color-mix(in oklab, var(--label-colour) 18%, transparent);
+    border-color: color-mix(in oklab, var(--label-colour) 55%, transparent);
+    color: var(--fg);
+}
+
+/* ── The rest, folded ──────────────────────────────────────────────────────
+   The first few labels, then one button for the rest: "+4", "and 6 others". It opens what
+   it folds — a popover the app writes. Dashed, so it reads as "there is more" and never as
+   one more label.
+
+     <button class="badge badge-more" type="button" popovertarget="labels-rest" aria-label="Show 4 more labels">+4</button> */
+button.badge-more {
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--border-hover);
+    color: var(--fg-soft);
+}
+button.badge-more:hover { background: var(--badge-bg); color: var(--fg); }
+button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }

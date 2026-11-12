@@ -302,7 +302,7 @@
     .chip-dot,
     .th-filter--active::after,
     .avatar-presence::after,
-    .inbox-count,
+    .count-badge,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 

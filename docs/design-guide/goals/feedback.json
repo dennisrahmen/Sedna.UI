@@ -68,7 +68,7 @@
       { "page": "/tabs", "role": "part" },
       { "page": "/menu#anchored-under-a-trigger", "role": "part" }
     ],
-    "how": "A bell with an .inbox-count opens a .popover holding .inbox: tabs for All, Unread and Archived, each item who, what, when and its actions, and a menu per item. The count, the read state and the current tab are the app's own state, rendered.",
+    "how": "A bell with a .count-badge on a .count-host opens a .popover holding .inbox: tabs for All, Unread and Archived, each item who, what, when and its actions, and a menu per item. The count, the read state and the current tab are the app's own state, rendered.",
     "avoid": "A count only a sighted reader gets: the number is hidden from assistive technology, so the bell's name says how many are unread."
   },
   {
@@ -177,17 +177,6 @@
     ],
     "how": "Each part that failed is replaced where it stands: a figure with .stat--unavailable and how old the last good one is, a panel with a failed empty state and a retry. A page banner says once what is down and what still works.",
     "avoid": "Disabling controls or hiding the navigation because a service is down: the reader can still act, and an action that fails says so when it is taken."
-  },
-  {
-    "id": "show-connection-state",
-    "goal": "Let the user see whether a live feed is connected and how fresh its data is",
-    "phrases": [ "health badge", "connection indicator", "live badge", "streaming status", "stale data" ],
-    "answer": [
-      { "page": "/live-state#connection-state", "role": "primary" },
-      { "page": "/status-bar", "role": "part" }
-    ],
-    "how": "A .health-badge with its dot and a word, where live, streaming and connecting pulse and idle, degraded and down stand still, and a .stale beside the figure it dates, turned --warn when it is too old to trust.",
-    "avoid": "A dot with no word, which says nothing to a reader who cannot tell the colours apart."
   },
   {
     "id": "show-how-long-ago",

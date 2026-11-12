@@ -1,24 +1,12 @@
 @page "/live-state"
 
 <CatHead Title="Live states">
-    What a view shows while something is still happening: the state of the connection behind it,
-    the lines a job is writing, how long ago something changed or how long is left, and work the
+    What a view shows while something is still happening: the lines a job is writing, how long ago something changed or how long is left, and work the
     reader can watch and cancel. A view with nothing to
     show yet is an <a href="/empty-state">empty state</a>; a wait with a known shape is a
-    <a href="/progress">skeleton</a>.
+    <a href="/progress">skeleton</a>. The state of the connection behind a view, in a dot and a
+    word, is a <a href="/status-dot">status dot</a>.
 </CatHead>
-
-<CatExample TExample="Examples.LiveState.Connection" Title="Connection state" Demo="ex-demo--block">
-    <p>
-        <code>.health-badge</code> with a <code>.health-dot</code>, in six states: the active
-        <code>--live</code>, <code>--streaming</code> and <code>--connecting</code> pulse, and the
-        settled <code>--idle</code>, <code>--degraded</code> and <code>--down</code> do not.
-        <strong>The word is not optional</strong> &mdash; a colour alone fails for anybody who
-        cannot see it. <code>.stale</code> is how old the number beside it is, with
-        <code>--warn</code> when it is old enough to distrust. The circuit's own state is the
-        <a href="/status-bar">status bar</a>'s job, not a badge's.
-    </p>
-</CatExample>
 
 <CatExample TExample="Examples.LiveState.OutputPane" Title="Output pane" Demo="ex-demo--block">
     <p>

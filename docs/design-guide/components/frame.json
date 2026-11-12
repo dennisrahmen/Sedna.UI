@@ -80,7 +80,7 @@
       { "page": "/search", "how": "The header search sits at the start of the topbar, after the nav toggles and before .topbar-spacer." },
       { "page": "/menu#anchored-under-a-trigger", "how": "The user widget opens the library's one dropdown, .menu, under its trigger." },
       { "page": "/popover", "how": "The app switcher is a popover opened by a .topbar-btn with popovertarget." },
-      { "page": "/live-state#connection-state", "how": "The status in the right cluster is a .health-badge, its state in a word beside the dot." },
+      { "page": "/status-dot#connection-state", "how": "The status in the right cluster is a .health-badge, its state in a word beside the dot." },
       { "page": "/notifications#inbox-from-the-bell", "how": "The bell is a .topbar-btn whose label carries the unread count, opening the inbox." },
       { "page": "/hover-hints", "how": "An icon-only .topbar-btn is named by aria-label and says its consequence in a data-tip." }
     ],
@@ -118,7 +118,7 @@
       { "text": "Planned maintenance or an outage of a service", "instead": "/banner#tones" },
       { "text": "An error the reader can fix on the page", "instead": "/alert" },
       { "text": "A page that failed to load", "instead": "/common-pages#something-went-wrong" },
-      { "text": "The state of one live feed on a page", "instead": "/live-state#connection-state" }
+      { "text": "The state of one live feed on a page", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
     "stamp": "4089e254248a8fdc"

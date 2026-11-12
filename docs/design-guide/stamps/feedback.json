@@ -30,10 +30,9 @@
     "src/Sedna.UI/css-parts/47-form-file.css": "cc2c15b8180eae70"
   },
   "/live-state": {
-    "src/Sedna.UI.Catalogue/Components/Pages/LiveState.razor": "65d4ed16afa7f67a",
+    "src/Sedna.UI.Catalogue/Components/Pages/LiveState.razor": "ae366fc1d7895346",
     "src/Sedna.UI.Catalogue/Examples/Interop/SessionCountdown.razor": "e6133cc4c000f292",
     "src/Sedna.UI.Catalogue/Examples/LiveState/ActivityRow.razor": "196c857422fc1831",
-    "src/Sedna.UI.Catalogue/Examples/LiveState/Connection.razor": "31a557514fb2c74c",
     "src/Sedna.UI.Catalogue/Examples/LiveState/Degraded.razor": "ec476638cc8c0f7f",
     "src/Sedna.UI.Catalogue/Examples/LiveState/OutputPane.razor": "169b744feb40ceb1",
     "src/Sedna.UI.Catalogue/Examples/LiveState/RelativeList.razor": "b4a57ecd1503745c",
@@ -100,13 +99,14 @@
     "src/Sedna.UI/js-parts/27-workflow.js": "63763826fdc679ba"
   },
   "/notifications": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Notifications.razor": "96a52a493146e4fa",
-    "src/Sedna.UI.Catalogue/Examples/Notifications/Bell.razor": "16ae5bf80fc6fb66",
+    "src/Sedna.UI.Catalogue/Components/Pages/Notifications.razor": "113e4ed73427b2a6",
+    "src/Sedna.UI.Catalogue/Examples/Notifications/Bell.razor": "bc52c2b601f003e3",
     "src/Sedna.UI.Catalogue/Examples/Notifications/CaughtUp.razor": "2227fa59289fac28",
-    "src/Sedna.UI.Catalogue/Examples/Notifications/Inbox.razor": "1e6df1f852918852",
+    "src/Sedna.UI.Catalogue/Examples/Notifications/Inbox.razor": "17e608f83275e485",
     "src/Sedna.UI/css-parts/13-frame-topbar.css": "ad0f8b685900c38d",
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "5a8918a36a9a8dee",
     "src/Sedna.UI/css-parts/30-cards.css": "f5f801db27111890",
+    "src/Sedna.UI/css-parts/31-count.css": "6b209d2b6e111165",
     "src/Sedna.UI/css-parts/42-empty-state.css": "1db61f292dc13633",
     "src/Sedna.UI/css-parts/50-tabs.css": "cbabc5a7dc315677",
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
@@ -115,7 +115,7 @@
     "src/Sedna.UI/css-parts/61-buttons-extra.css": "a000a7294fa7201b",
     "src/Sedna.UI/css-parts/65-app-switcher.css": "4d2abd1533417256",
     "src/Sedna.UI/css-parts/65-popover.css": "efdd526f226f60f3",
-    "src/Sedna.UI/css-parts/66-inbox.css": "216fd1135a6f6c8c",
+    "src/Sedna.UI/css-parts/66-inbox.css": "4d05d5a3440fa4ff",
     "src/Sedna.UI/css-parts/69-busy.css": "3b12f0dd9589d085",
     "src/Sedna.UI/js-parts/22-anchored.js": "eccfa21cf94ce110",
     "src/Sedna.UI/js-parts/22-menu.js": "b7020a230408c688"

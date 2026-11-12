@@ -2370,6 +2370,41 @@ a.topbar-version--pre:hover {
 }
 }
 @layer sedna.paint {
+.ribbon-host { position: relative; overflow: hidden; }
+.ribbon {
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-end: -34px;
+    width: 120px;
+    rotate: 45deg;
+    box-sizing: border-box;
+    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    line-height: round(1.4em, 2px);
+    text-box: trim-both cap alphabetic;
+    pointer-events: none;
+}
+.ribbon--tab {
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: auto;
+    rotate: none;
+    border-end-start-radius: var(--radius-small);
+    letter-spacing: 0.04em;
+}
+.ribbon--go     { background: var(--go-solid); }
+.ribbon--info   { background: var(--info-solid); }
+.ribbon--danger { background: var(--danger-solid); }
+.ribbon--muted  { background: var(--border-hover); }
+}
+@layer sedna.paint {
 .badge {
     display: inline-flex;
     align-items: center;
@@ -2397,6 +2432,151 @@ a.topbar-version--pre:hover {
 .badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 .badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
 .badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
+.badge--mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: var(--radius-small);
+    max-width: 100%;
+}
+.badge-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.badge-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-end: calc(var(--space-2) * -1);
+    padding: 0 var(--space-1);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: inherit;
+    opacity: 0.65;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+}
+.badge-copy:hover { opacity: 1; }
+.badge-copy:focus-visible { opacity: 1; outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.badge--scoped { padding-inline-start: 0; gap: 0; overflow: hidden; }
+.badge-key {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: calc(var(--space-1) * -1);
+    margin-inline-end: var(--space-3);
+    padding-inline: var(--space-4) var(--space-3);
+    background: var(--badge-bg);
+    color: var(--fg-soft);
+    border-inline-end: 1px solid var(--border);
+}
+.badge--sm .badge-key { margin-block: 0; padding-inline: var(--space-3) var(--space-2); margin-inline-end: var(--space-2); }
+.badge--lg .badge-key { margin-block: calc(var(--space-2) * -1); padding-inline-start: var(--space-5); }
+.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--label-colour);
+}
+.badge--swatch-fill {
+    background: color-mix(in oklab, var(--label-colour) 18%, transparent);
+    border-color: color-mix(in oklab, var(--label-colour) 55%, transparent);
+    color: var(--fg);
+}
+button.badge-more {
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--border-hover);
+    color: var(--fg-soft);
+}
+button.badge-more:hover { background: var(--badge-bg); color: var(--fg); }
+button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+}
+@layer sedna.paint {
+.count-host {
+    --count-inset: 2px;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.count-host--round { --count-inset: 14.6%; }
+.btn.count-host    { --count-inset: 3px; }
+.count-badge {
+    position: absolute;
+    inset-block-start: var(--count-inset);
+    inset-inline-end: var(--count-inset);
+    translate: 50% -50%;
+    box-sizing: border-box;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-box: trim-both cap alphabetic;
+    align-content: center;
+    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+    pointer-events: none;
+}
+.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
+.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
+.count-badge--danger { background: var(--danger-solid); }
+.count-badge--go     { background: var(--go-solid); }
+.count-badge--info   { background: var(--info-solid); }
+.count-badge--muted  { background: var(--border-hover); }
+}
+@layer sedna.paint {
+.kbd {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px var(--space-2);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    color: var(--code-fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    line-height: round(1.5em, 2px);
+}
+.kbd i { font-size: 1.05em; line-height: 1; }
+.kbd--sm { font-size: var(--text-1); padding-inline: var(--space-1); }
+.kbd-combo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    white-space: nowrap;
+    vertical-align: middle;
+    font: inherit;
+}
+.kbd-combo > .kbd { min-width: 1.75em; box-sizing: border-box; justify-content: center; text-align: center; }
+.kbd-combo > .kbd--sm { min-width: 1.6em; }
+.kbd-combo-sep {
+    color: var(--muted);
+    font-size: var(--text-1);
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.btn > .kbd-combo { margin-inline-start: auto; padding-inline-start: var(--space-4); }
+.kbd:not(:has(> *))    { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
 }
 @layer sedna.paint {
 .table { width: 100%; border-collapse: collapse; }
@@ -10426,18 +10606,6 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     color: var(--muted);
     font-size: var(--text-2);
 }
-.kbd {
-    display: inline-flex;
-    align-items: center;
-    padding: 1px var(--space-2);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-small);
-    color: var(--code-fg);
-    font-family: var(--font-mono);
-    font-size: var(--text-2);
-    line-height: round(1.5em, 2px);
-}
 .spotlight-hole {
     position: absolute;
     z-index: 510;
@@ -10526,7 +10694,6 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block],
 body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, input, select, textarea, label) {
     pointer-events: none;
 }
-.kbd:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
 .spotlight-step { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
 }
 @layer sedna.paint {
@@ -12485,33 +12652,6 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
 .chat--flat .chat-bubble:not(:has(> *)) { padding-block: var(--cap-gap); }
 }
 @layer sedna.paint {
-.inbox-bell { position: relative; display: inline-flex; }
-.inbox-count {
-    position: absolute;
-    inset-block-start: -5px;
-    inset-inline-start: calc(100% - 7px);
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-pill);
-    background: var(--brand);
-    color: var(--on-solid);
-    font-size: var(--text-1);
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    text-box: trim-both cap alphabetic;
-    align-content: center;
-    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
-}
-.inbox-count:empty {
-    inset-block-start: -2px;
-    inset-inline-start: calc(100% - 6px);
-    min-width: 8px;
-    height: 8px;
-    padding: 0;
-}
 .inbox {
     --inbox-width: 380px;
     --inbox-list-height: min(440px, 60vh);
@@ -15331,6 +15471,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 [dir="rtl"] .form-code { direction: ltr; }
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 [dir="rtl"] .diff-fold > td { direction: rtl; }
+[dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; }
+[dir="rtl"] .count-badge { translate: -50% -50%; }
 }
 @layer sedna.paint {
 @media (forced-colors: active) {
@@ -15554,7 +15696,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chip-dot,
     .th-filter--active::after,
     .avatar-presence::after,
-    .inbox-count,
+    .count-badge,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
     .workflow > li::before,

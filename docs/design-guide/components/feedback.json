@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "05054c9959f59399"
+    "stamp": "eab6e38e362da367"
   },
   {
     "page": "/progress",
@@ -132,9 +132,9 @@
   },
   {
     "page": "/live-state",
-    "useFor": "What a view shows while something is still happening: the state of a connection, output being written, how long ago or how long left, and work the reader can watch and cancel.",
+    "useFor": "What a view shows while something is still happening: output being written, how long ago or how long left, and work the reader can watch and cancel.",
     "combineWith": [
-      { "page": "/status-bar", "how": "The connection to the server is the status bar's; a health badge reports a service or a stream inside the page." },
+      { "page": "/status-dot#in-a-table", "how": "A degraded page states each service that is down with a status dot beside the part it feeds." },
       { "page": "/banner#under-the-topbar", "how": "A degraded page says once, in a page banner, what is down and what still works." },
       { "page": "/stat#target-link-and-unavailable", "how": "A figure that could not be read is .stat--unavailable with a .stale saying how old the last good one is." },
       { "page": "/list", "how": "Work in progress is a .list-row with its bar in the subtext and its cancel button in .list-meta." },
@@ -147,8 +147,8 @@
       { "text": "The connection to the server itself", "instead": "/status-bar" },
       { "text": "A share done with no output to show", "instead": "/progress#determinate-and-indeterminate" }
     ],
-    "goals": [ "show-connection-state", "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "148935b777dcb2b9"
+    "goals": [ "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
+    "stamp": "bddd833f9bb90ba2"
   },
   {
     "page": "/logs",

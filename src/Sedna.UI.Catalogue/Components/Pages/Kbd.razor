@@ -1,0 +1,41 @@
+@page "/kbd"
+
+<CatHead Title="Keyboard keys">
+    A key the reader presses, and keys pressed together or one after another &mdash; in a shortcut
+    list, at the end of a button, in a sentence. The keys a <a href="/palette">command palette</a>
+    and a <a href="/form-combo">combo field</a> show are these.
+</CatHead>
+
+<CatExample TExample="Examples.Kbd.Keys" Title="Single keys">
+    <p>
+        <code>.kbd</code> on a <code>&lt;kbd&gt;</code>, in the code tint because it is a literal the
+        reader types. A key drawn as an icon is named in words with <code>aria-label</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Kbd.Combinations" Title="Combinations">
+    <p>
+        <code>.kbd-combo</code> keeps the keys on one line, and the separator is the app's own:
+        <code>.kbd-combo-sep</code> holding &ldquo;+&rdquo; for keys held together, hidden from
+        assistive technology because the keys are read in order anyway, or &ldquo;then&rdquo; for a
+        sequence, which is read.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Kbd.ShortcutList" Title="Shortcut list" Demo="ex-demo--block">
+    <p>
+        <code>.kbd--sm</code> is the key for a row, where a full key would set the row's height:
+        a <a href="/list">list</a> of shortcuts, a <a href="/menu">menu</a> item.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Kbd.InAButton" Title="In a button">
+    <p>
+        A <code>.kbd-combo</code> after a button's label goes to its end. The button says its
+        shortcut with <code>aria-keyshortcuts</code>, so the keys on screen are hidden.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Kbd.InText" Title="In running text">
+    <p>The same keys in a sentence of help, sitting on its line.</p>
+</CatExample>

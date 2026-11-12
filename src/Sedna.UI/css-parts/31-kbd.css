@@ -1,0 +1,51 @@
+/* ── Keyboard keys ───────────────────────────────────────────────────────────
+   A key the reader presses, and keys pressed together or one after another. `.kbd` reuses
+   the code tint, because that is what it is: a literal the reader types.
+
+     <kbd class="kbd-combo"><kbd class="kbd">Ctrl</kbd><span class="kbd-combo-sep" aria-hidden="true">+</span><kbd class="kbd">K</kbd></kbd>
+     <kbd class="kbd-combo"><kbd class="kbd kbd--sm">G</kbd><span class="kbd-combo-sep">then</span><kbd class="kbd kbd--sm">I</kbd></kbd>
+
+   `.kbd-combo` keeps the keys on one line. The separator is the app's own word or sign:
+   "+" for keys held together, hidden from assistive technology because the keys are read
+   in order anyway; "then" for a sequence, which is read. `.kbd--sm` is the key for a menu
+   row, a shortcut list and a button, where a full key would set the row's height. */
+.kbd {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px var(--space-2);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    color: var(--code-fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    line-height: round(1.5em, 2px);
+}
+.kbd i { font-size: 1.05em; line-height: 1; }
+.kbd--sm { font-size: var(--text-1); padding-inline: var(--space-1); }
+
+.kbd-combo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    white-space: nowrap;
+    vertical-align: middle;
+    font: inherit;
+}
+/* A key that holds one character is a square-ish cap with its glyph in the middle. */
+.kbd-combo > .kbd { min-width: 1.75em; box-sizing: border-box; justify-content: center; text-align: center; }
+.kbd-combo > .kbd--sm { min-width: 1.6em; }
+.kbd-combo-sep {
+    color: var(--muted);
+    font-size: var(--text-1);
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+/* At the end of a button, after its label. */
+.btn > .kbd-combo { margin-inline-start: auto; padding-inline-start: var(--space-4); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.kbd:not(:has(> *))    { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }

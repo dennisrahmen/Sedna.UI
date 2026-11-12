@@ -1,0 +1,46 @@
+/* ── Ribbon ──────────────────────────────────────────────────────────────────
+   A word on the corner of a card or a tile — "New", "Beta", "Retiring" — that says
+   something about the whole thing it sits on, not about one of its values.
+
+     <section class="card ribbon-host"><span class="ribbon ribbon--tab">New</span> … </section>
+
+   Two shapes. `.ribbon` is the band across the corner; `.ribbon--tab` is a flat tab
+   tucked into it, quieter, for a grid where several tiles carry one. The host clips the
+   band at its own edge, so a card's radius still shapes the corner.
+
+   The word is the whole message and is read in place, so keep it to one or two words;
+   a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
+   brand by default, `--go`, `--info`, `--danger` and `--muted`. */
+.ribbon-host { position: relative; overflow: hidden; }
+.ribbon {
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-end: -34px;
+    width: 120px;
+    rotate: 45deg;
+    box-sizing: border-box;
+    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    line-height: round(1.4em, 2px);
+    text-box: trim-both cap alphabetic;
+    pointer-events: none;
+}
+.ribbon--tab {
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: auto;
+    rotate: none;
+    border-end-start-radius: var(--radius-small);
+    letter-spacing: 0.04em;
+}
+.ribbon--go     { background: var(--go-solid); }
+.ribbon--info   { background: var(--info-solid); }
+.ribbon--danger { background: var(--danger-solid); }
+.ribbon--muted  { background: var(--border-hover); }

@@ -52,7 +52,7 @@
       { "text": "Moving between the app's pages with a pointer", "instead": "/nav" }
     ],
     "goals": [ "run-a-command-by-name" ],
-    "stamp": "427518fcdc060085"
+    "stamp": "c65c16017b571c33"
   },
   {
     "page": "/spotlight",
@@ -68,6 +68,6 @@
       { "text": "Detail about a control the reader asked for", "instead": "/popover" }
     ],
     "goals": [ "take-a-guided-tour", "point-out-something-new", "welcome-a-new-user" ],
-    "stamp": "fd6120f2b09cc008"
+    "stamp": "719778838bb261a1"
   }
 ]

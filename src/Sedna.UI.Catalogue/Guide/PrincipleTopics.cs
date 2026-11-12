@@ -21,7 +21,9 @@ internal static class PrincipleTopics
         var filed = Map.SelectMany(t => t.Ids).ToHashSet(StringComparer.Ordinal);
         var rest = guide.Sections.Where(s => !filed.Contains(s.Id)).ToList();
 
-        return [.. Map.Select((t, i) => (t.Topic, (IReadOnlyList<GuideSection>)
-            [.. t.Ids.Select(guide.Section).OfType<GuideSection>(), .. i == Map.Length - 1 ? rest : []]))];
+        return [.. Map.Select((t, i) => (t.Topic, SectionsOf(guide, t.Ids, i == Map.Length - 1 ? rest : [])))];
     }
+
+    private static IReadOnlyList<GuideSection> SectionsOf(DesignGuide guide, IEnumerable<string> ids, IReadOnlyList<GuideSection> rest) =>
+        [.. ids.Select(guide.Section).OfType<GuideSection>(), .. rest];
 }
