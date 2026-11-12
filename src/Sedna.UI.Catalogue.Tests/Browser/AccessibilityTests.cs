@@ -92,22 +92,23 @@ public class AccessibilityTests(CatalogueAppFixture app)
     {
         if (app.NoBrowser) return;
         // The /frame page is full of example topbars, sidebars and bottom bars. Each sits
-        // inside <main>, so none is a stop: F6 visits this site's own frame and nothing else.
+        // inside <main>, so none is a stop: F6 visits this site's own frame — the page's
+        // contents beside it among them — and nothing else.
         var page = await app.OpenInteractiveAsync("/frame");
 
         var seen = new List<string>();
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 6; i++)
         {
             await page.Keyboard.PressAsync("F6");
             seen.Add(await page.EvaluateAsync<string>("""
                 () => {
-                    const r = document.activeElement.closest('aside.sidebar, header.topbar, main, footer.cat-footer');
+                    const r = document.activeElement.closest('aside.sidebar, header.topbar, main, .cat-toc > nav, footer.cat-footer');
                     return r ? r.tagName.toLowerCase() : document.activeElement.tagName;
                 }
                 """));
         }
 
-        Assert.Equal(["aside", "header", "main", "footer", "aside"], seen);
+        Assert.Equal(["aside", "header", "main", "nav", "footer", "aside"], seen);
 
         await page.Keyboard.PressAsync("Shift+F6");
         Assert.Equal("footer", await page.EvaluateAsync<string>(
