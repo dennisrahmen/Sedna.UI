@@ -1,6 +1,13 @@
 /* ── Skeleton ───────────────────────────────────────────────────────────────
    A placeholder with the shape of the content that is coming, so the page does
-   not reflow when it arrives. Give it the height of the real thing. */
+   not reflow when it arrives. Give it the height of the real thing.
+
+   Every shape reads the same two knobs, so a placeholder is sized the same way
+   whichever it is: `--skeleton-width` and `--skeleton-height`, set on the element —
+   `style="--skeleton-width: 60%"` for a line, `--skeleton-height: 6.5rem` for a block.
+   A round shape has one measure, `--skeleton-size`, and a picture's height follows its
+   ratio. Each shape declares its own defaults, so a knob set on an outer element does
+   not reach the skeletons inside it. */
 .skeleton {
     /* A block whatever the element: a <span> in a table cell or a list row is the
        natural markup, and an inline box ignores the height that is the whole point. */
@@ -16,9 +23,28 @@
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
 /* A line of text. Two of these with different widths read as a paragraph. */
-.skeleton-text   { height: 12px; margin: var(--space-3) 0; }
-.skeleton-title  { height: 18px; margin: var(--space-4) 0; border-radius: var(--radius-control); }
-.skeleton-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+.skeleton-text {
+    --skeleton-width: auto;
+    --skeleton-height: 12px;
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    margin: var(--space-3) 0;
+}
+.skeleton-title {
+    --skeleton-width: auto;
+    --skeleton-height: 18px;
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    margin: var(--space-4) 0;
+    border-radius: var(--radius-control);
+}
+.skeleton-avatar {
+    --skeleton-size: 28px;
+    width: var(--skeleton-size);
+    height: var(--skeleton-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
 /* A SURFACE that has not arrived — a card of settings, a table of rows, a note's
    body — rather than a line of text. The three line-scale modifiers above are the
    shape of a paragraph, and every loading state on a list or a detail page is the
@@ -30,7 +56,9 @@
    it stands in for exactly — which is the point of a skeleton, since a height that
    is merely close reflows the page when the content lands. */
 .skeleton-block {
+    --skeleton-width: auto;
     --skeleton-height: 8rem;
+    width: var(--skeleton-width);
     height: var(--skeleton-height);
     border-radius: var(--radius-surface);
 }
@@ -40,10 +68,22 @@
 /* The other shapes a page is made of, each the size of the real thing so nothing
    moves when it lands: a field or a button (one control height), a pill, a circle
    of any size (an avatar in a different tier, a status dot), a picture. */
-.skeleton-control { height: var(--control-height); border-radius: var(--radius-control); }
-.skeleton-control--sm { height: var(--control-height-sm); }
-.skeleton-control--lg { height: var(--control-height-lg); }
-.skeleton-badge { width: 4rem; height: 18px; border-radius: var(--radius-pill); }
+.skeleton-control {
+    --skeleton-width: auto;
+    --skeleton-height: var(--control-height);
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    border-radius: var(--radius-control);
+}
+.skeleton-control--sm { --skeleton-height: var(--control-height-sm); }
+.skeleton-control--lg { --skeleton-height: var(--control-height-lg); }
+.skeleton-badge {
+    --skeleton-width: 4rem;
+    --skeleton-height: 18px;
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    border-radius: var(--radius-pill);
+}
 .skeleton-circle {
     --skeleton-size: 36px;
     width: var(--skeleton-size);
@@ -52,17 +92,20 @@
     flex-shrink: 0;
 }
 .skeleton-image {
+    --skeleton-width: 100%;
     aspect-ratio: var(--media-ratio, 16 / 9);
-    width: 100%;
+    width: var(--skeleton-width);
     border-radius: var(--radius-surface);
 }
 /* A chart that has not arrived: a row of bars at different heights, so the box
    reads as a chart and not as a paragraph. Each bar's height is `--bar`. */
 .skeleton-bars {
+    --skeleton-width: auto;
     --skeleton-height: 8rem;
     display: flex;
     align-items: flex-end;
     gap: var(--space-3);
+    width: var(--skeleton-width);
     height: var(--skeleton-height);
 }
 .skeleton-bars > .skeleton {

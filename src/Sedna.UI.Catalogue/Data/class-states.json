@@ -1869,9 +1869,6 @@
         "choice-dependent--dim",
         "choice-dependent--hide",
         "choice-dependent--off"
-      ],
-      "attributes": [
-        "[hidden]"
       ]
     },
     "choice-dependent--dim": {
@@ -2322,31 +2319,19 @@
       ]
     },
     "editor-link": {
-      "family": "editor-link",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "editor-link"
     },
     "editor-media": {
-      "family": "editor-media",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "editor-media"
     },
     "editor-notice": {
-      "family": "editor-notice",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "editor-notice"
     },
     "editor-sep": {
       "family": "editor-sep"
     },
     "editor-slash": {
-      "family": "editor-slash",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "editor-slash"
     },
     "editor-toolbar": {
       "family": "editor-toolbar"
@@ -2807,8 +2792,7 @@
       "family": "form-combo-group",
       "attributes": [
         ":not([data-all-selected])",
-        "[data-all-selected]",
-        "[hidden]"
+        "[data-all-selected]"
       ]
     },
     "form-combo-group-action": {
@@ -2856,8 +2840,7 @@
       "attributes": [
         "[aria-disabled=\"true\"]",
         "[aria-selected=\"true\"]",
-        "[data-active]",
-        "[hidden]"
+        "[data-active]"
       ],
       "pseudoClasses": [
         ":hover"
@@ -3203,10 +3186,7 @@
       "family": "graph-data"
     },
     "graph-detail": {
-      "family": "graph-detail",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "graph-detail"
     },
     "graph-direction": {
       "family": "graph-direction"
@@ -3278,10 +3258,7 @@
       "family": "graph-line"
     },
     "graph-menu": {
-      "family": "graph-menu",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "graph-menu"
     },
     "graph-minimap": {
       "family": "graph-minimap",
@@ -3341,10 +3318,7 @@
       "family": "graph-swatch"
     },
     "graph-tip": {
-      "family": "graph-tip",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "graph-tip"
     },
     "graph-tip-head": {
       "family": "graph-tip-head"
@@ -3865,7 +3839,6 @@
       ],
       "attributes": [
         "[data-menu-empty]",
-        "[hidden]",
         "[popover]"
       ]
     },
@@ -3892,8 +3865,7 @@
       "attributes": [
         "[aria-disabled=\"true\"]",
         "[data-active]",
-        "[data-menu-sub]",
-        "[hidden]"
+        "[data-menu-sub]"
       ],
       "pseudoClasses": [
         ":disabled",
@@ -3908,10 +3880,7 @@
       "family": "menu-item-note"
     },
     "menu-label": {
-      "family": "menu-label",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "menu-label"
     },
     "menu-point": {
       "family": "menu-point"
@@ -4089,8 +4058,7 @@
     "nav": {
       "family": "nav",
       "attributes": [
-        "[data-filtering]",
-        "[hidden]"
+        "[data-filtering]"
       ]
     },
     "nav-area": {
@@ -4417,9 +4385,6 @@
         "page-banner--phase",
         "page-banner--secret",
         "page-banner--warn"
-      ],
-      "attributes": [
-        "[hidden]"
       ]
     },
     "page-banner--brand": {
@@ -4577,10 +4542,7 @@
       "family": "palette-loading"
     },
     "palette-path": {
-      "family": "palette-path",
-      "attributes": [
-        "[hidden]"
-      ]
+      "family": "palette-path"
     },
     "palette-separator": {
       "family": "palette-separator"
@@ -4626,9 +4588,6 @@
       "variants": [
         "progress--indeterminate",
         "progress--route"
-      ],
-      "attributes": [
-        "[hidden]"
       ]
     },
     "progress--indeterminate": {
@@ -6653,8 +6612,7 @@
       ],
       "attributes": [
         "[data-toast-queued]",
-        "[data-toast-swiping]",
-        "[hidden]"
+        "[data-toast-swiping]"
       ]
     },
     "toast--brand": {

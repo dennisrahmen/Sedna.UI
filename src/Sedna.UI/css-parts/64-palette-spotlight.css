@@ -91,8 +91,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 /* ── Pages ───────────────────────────────────────────────────────────────────
    A command can open a page of its own commands. `.palette-path` is the row above the
    input that says where the reader is — the app's back button and a trail of
-   `.palette-crumb`s, one per page opened — and the script hides it on the root.
-   `[hidden]` is gated here because the row sets a display of its own. */
+   `.palette-crumb`s, one per page opened — and the script hides it on the root. */
 .palette-path {
     flex-shrink: 0;
     display: flex;
@@ -100,7 +99,6 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     gap: var(--space-4);
     padding: var(--space-3) var(--space-5) 0;
 }
-.palette-path[hidden] { display: none; }
 .palette-trail { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
 .palette-crumb {
     display: inline-block;

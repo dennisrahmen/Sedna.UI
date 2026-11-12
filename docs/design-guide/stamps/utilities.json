@@ -8,20 +8,20 @@
     "src/Sedna.UI.Catalogue/Examples/UtilityLayout/Rows.razor": "9b5904f743ce8588",
     "src/Sedna.UI.Catalogue/Examples/UtilityLayout/Sizing.razor": "0bb748812bfb6a91",
     "src/Sedna.UI/css-parts/60-lists.css": "34cd60068593b42e",
-    "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a"
+    "src/Sedna.UI/css-parts/80-utilities.css": "f50be9641de7c4c0"
   },
   "/utility-safe-area": {
     "src/Sedna.UI.Catalogue/Components/Pages/UtilitySafeArea.razor": "a7a4f60c9094ccd4",
     "src/Sedna.UI.Catalogue/Examples/UtilitySafeArea/SafeArea.razor": "88c2966e83da7716",
     "src/Sedna.UI.Catalogue/Examples/UtilitySafeArea/TopAndSides.razor": "58079b59ee733f39",
-    "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a"
+    "src/Sedna.UI/css-parts/80-utilities.css": "f50be9641de7c4c0"
   },
   "/utility-scroll": {
     "src/Sedna.UI.Catalogue/Components/Pages/UtilityScroll.razor": "97f9f848775e1a66",
     "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Horizontal.razor": "c3c31d68d79c2e88",
-    "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Vertical.razor": "e6a5ddbb7e07b1fb",
+    "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Vertical.razor": "8d009b6d12f33a2d",
     "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
-    "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
+    "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/js-parts/22-scroll-edge.js": "b57cd39e6dcfa1a4"
   },
@@ -29,16 +29,16 @@
     "src/Sedna.UI.Catalogue/Components/Pages/UtilitySpacing.razor": "2f880b5702b3931a",
     "src/Sedna.UI.Catalogue/Examples/UtilitySpacing/Gaps.razor": "3c680a03ce597c3f",
     "src/Sedna.UI.Catalogue/Examples/UtilitySpacing/Margins.razor": "5eb45a30440499c1",
-    "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a"
+    "src/Sedna.UI/css-parts/80-utilities.css": "f50be9641de7c4c0"
   },
   "/utility-text": {
     "src/Sedna.UI.Catalogue/Components/Pages/UtilityText.razor": "00c03979d1f48e9e",
     "src/Sedna.UI.Catalogue/Examples/UtilityText/Alignment.razor": "4970b68e0c1bccd7",
     "src/Sedna.UI.Catalogue/Examples/UtilityText/Overflow.razor": "f70f4e98b833c308",
     "src/Sedna.UI.Catalogue/Examples/UtilityText/ShowMore.razor": "d48dd1a07a592ecc",
-    "src/Sedna.UI.Catalogue/Examples/UtilityText/Tone.razor": "2288790af28449a4",
-    "src/Sedna.UI/css-parts/46-form-layout.css": "6d983e35e40575f3",
-    "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a",
+    "src/Sedna.UI.Catalogue/Examples/UtilityText/Tone.razor": "3e62ffcf28ae8c49",
+    "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
+    "src/Sedna.UI/css-parts/80-utilities.css": "f50be9641de7c4c0",
     "src/Sedna.UI/js-parts/28-clamp.js": "d4a12e5d61a39fdc"
   },
   "/utility-visibility": {
@@ -47,6 +47,6 @@
     "src/Sedna.UI.Catalogue/Examples/UtilityVisibility/ScreenReaders.razor": "26ae6d5546873183",
     "src/Sedna.UI.Catalogue/Examples/UtilityVisibility/State.razor": "b685a4220d5e405a",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
-    "src/Sedna.UI/css-parts/80-utilities.css": "f59e24acbf80e91a"
+    "src/Sedna.UI/css-parts/80-utilities.css": "f50be9641de7c4c0"
   }
 }

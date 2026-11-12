@@ -2767,10 +2767,6 @@ a.topbar-version--pre:hover {
     /* A long address or token in the message wraps instead of widening the frame. */
     overflow-wrap: anywhere;
 }
-/* `display: grid` above outranks the browser's own `[hidden]`, and an app hides a
-   banner, or one state of the cookie banner, with the attribute. */
-.page-banner[hidden],
-.page-banner [hidden] { display: none; }
 
 .page-banner > i {
     grid-area: lead;
@@ -3799,12 +3795,9 @@ a.topbar-version--pre:hover {
 .nav-area[aria-expanded="true"],
 .nav-area.active { background: var(--brand-tint); color: var(--brand-text); }
 
-/* The panel. A .nav is display:flex, which outranks the UA's [hidden], so the
-   hidden panels are put away explicitly. */
-/* Its width is what the sidebar leaves beside the rail, and it holds that width
+/* The panel. Its width is what the sidebar leaves beside the rail, and it holds that width
    while the sidebar closes over it (11-frame-sidebar.css). */
 .sidebar--areas > .nav { flex: 1; min-width: calc(var(--sidebar-width) - var(--nav-areas-width)); }
-.sidebar--areas > .nav[hidden] { display: none; }
 
 /* The panel's heading sits on the brand's line, so the two columns share one
    divider across the top of the sidebar. */
@@ -4384,6 +4377,12 @@ a.topbar-version--pre:hover {
 /* The gutter is --card-pad-block / --card-pad-inline, which [data-density="compact"]
    remaps — so every card part tightens together and stays aligned. */
 .card-body { padding: var(--card-pad-block) var(--card-pad-inline); }
+/* The padding is the gutter, so the paragraph, list, key/value list or heading that
+   starts or ends the body or a section in it brings no margin of the browser's to add
+   to it. At the weight of the element alone, so a classed block keeps its own spacing;
+   a modal, a drawer, a slide and an artifact do the same with their bodies. */
+:where(.card-body, .card-section) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.card-body, .card-section) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 /* Drops the padding, for content that is drawn edge to edge inside the card — a
    canvas, a chart, a map, a table that already has its own cell padding. The
    sibling of `.list-row--flush`, and the same reason: the gutter is a gap the
@@ -5169,6 +5168,10 @@ dialog.modal::backdrop {
 /* A bare paragraph's margin is reset at the weight of the element alone, so a classed
    one — a section hint, a field hint — keeps its own spacing inside a modal. */
 :where(.modal-body) p { margin: 0; }
+/* And the list, key/value list or heading that starts or ends the body adds no margin
+   to its padding, as in a card body. */
+:where(.modal-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.modal-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 .modal-footer {
     display: flex;
     flex-wrap: wrap;
@@ -5226,6 +5229,16 @@ dialog.modal::backdrop {
     margin: auto 0;
     animation: sedna-deck-in var(--motion-mid) ease;
 }
+/* A slide's heading and paragraphs are the app's words with the slide's spacing, as a
+   modal body's paragraphs are: no margin of the browser's, a step under the heading and
+   a wider one between paragraphs. A list or a key/value list keeps its margins between
+   them and drops them at the slide's edges. At the weight of the element alone, so a
+   classed block keeps its own. */
+:where(.deck-step) :is(h1, h2, h3, h4, h5, h6, p) { margin: 0; }
+:where(.deck-step) :is(h1, h2, h3, h4, h5, h6) + p { margin-block-start: var(--space-2); }
+:where(.deck-step) p + p { margin-block-start: var(--space-3); }
+:where(.deck-step) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.deck-step) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 @keyframes sedna-deck-in {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: none; }
@@ -5464,9 +5477,6 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* The semantic families again, carried on the leading rule and the icon. */
 
 
-/* The first toast of a new stack waits a moment with `hidden` (51-toast.js says why), and
-   `.toast` sets display of its own, which outranks the UA's [hidden]. */
-.toast[hidden] { display: none; }
 
 /* ── The pile, the limit, the swipe ─────────────────────────────────────────
    `.toast-stack--pile` lays every toast in one place: the newest, last in the source,
@@ -5604,7 +5614,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 @layer sedna.paint {
 /* ── Skeleton ───────────────────────────────────────────────────────────────
    A placeholder with the shape of the content that is coming, so the page does
-   not reflow when it arrives. Give it the height of the real thing. */
+   not reflow when it arrives. Give it the height of the real thing.
+
+   Every shape reads the same two knobs, so a placeholder is sized the same way
+   whichever it is: `--skeleton-width` and `--skeleton-height`, set on the element —
+   `style="--skeleton-width: 60%"` for a line, `--skeleton-height: 6.5rem` for a block.
+   A round shape has one measure, `--skeleton-size`, and a picture's height follows its
+   ratio. Each shape declares its own defaults, so a knob set on an outer element does
+   not reach the skeletons inside it. */
 .skeleton {
     /* A block whatever the element: a <span> in a table cell or a list row is the
        natural markup, and an inline box ignores the height that is the whole point. */
@@ -5620,9 +5637,28 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
 /* A line of text. Two of these with different widths read as a paragraph. */
-.skeleton-text   { height: 12px; margin: var(--space-3) 0; }
-.skeleton-title  { height: 18px; margin: var(--space-4) 0; border-radius: var(--radius-control); }
-.skeleton-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+.skeleton-text {
+    --skeleton-width: auto;
+    --skeleton-height: 12px;
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    margin: var(--space-3) 0;
+}
+.skeleton-title {
+    --skeleton-width: auto;
+    --skeleton-height: 18px;
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    margin: var(--space-4) 0;
+    border-radius: var(--radius-control);
+}
+.skeleton-avatar {
+    --skeleton-size: 28px;
+    width: var(--skeleton-size);
+    height: var(--skeleton-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
 /* A SURFACE that has not arrived — a card of settings, a table of rows, a note's
    body — rather than a line of text. The three line-scale modifiers above are the
    shape of a paragraph, and every loading state on a list or a detail page is the
@@ -5634,7 +5670,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    it stands in for exactly — which is the point of a skeleton, since a height that
    is merely close reflows the page when the content lands. */
 .skeleton-block {
+    --skeleton-width: auto;
     --skeleton-height: 8rem;
+    width: var(--skeleton-width);
     height: var(--skeleton-height);
     border-radius: var(--radius-surface);
 }
@@ -5644,10 +5682,22 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* The other shapes a page is made of, each the size of the real thing so nothing
    moves when it lands: a field or a button (one control height), a pill, a circle
    of any size (an avatar in a different tier, a status dot), a picture. */
-.skeleton-control { height: var(--control-height); border-radius: var(--radius-control); }
-.skeleton-control--sm { height: var(--control-height-sm); }
-.skeleton-control--lg { height: var(--control-height-lg); }
-.skeleton-badge { width: 4rem; height: 18px; border-radius: var(--radius-pill); }
+.skeleton-control {
+    --skeleton-width: auto;
+    --skeleton-height: var(--control-height);
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    border-radius: var(--radius-control);
+}
+.skeleton-control--sm { --skeleton-height: var(--control-height-sm); }
+.skeleton-control--lg { --skeleton-height: var(--control-height-lg); }
+.skeleton-badge {
+    --skeleton-width: 4rem;
+    --skeleton-height: 18px;
+    width: var(--skeleton-width);
+    height: var(--skeleton-height);
+    border-radius: var(--radius-pill);
+}
 .skeleton-circle {
     --skeleton-size: 36px;
     width: var(--skeleton-size);
@@ -5656,17 +5706,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     flex-shrink: 0;
 }
 .skeleton-image {
+    --skeleton-width: 100%;
     aspect-ratio: var(--media-ratio, 16 / 9);
-    width: 100%;
+    width: var(--skeleton-width);
     border-radius: var(--radius-surface);
 }
 /* A chart that has not arrived: a row of bars at different heights, so the box
    reads as a chart and not as a paragraph. Each bar's height is `--bar`. */
 .skeleton-bars {
+    --skeleton-width: auto;
     --skeleton-height: 8rem;
     display: flex;
     align-items: flex-end;
     gap: var(--space-3);
+    width: var(--skeleton-width);
     height: var(--skeleton-height);
 }
 .skeleton-bars > .skeleton {
@@ -5697,7 +5750,6 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
-.progress[hidden] { display: none; }
 .progress-bar {
     display: block;
     height: 100%;
@@ -6911,10 +6963,6 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-surface);
     box-shadow: var(--shadow-dropdown);
 }
-.editor-link[hidden],
-.editor-link [hidden],
-.editor-media[hidden],
-.editor-media [hidden] { display: none; }
 .editor-link .form-input,
 .editor-media .form-input { inline-size: 16rem; }
 /* The media form is the one with a second field; it wraps rather than leaving the frame. */
@@ -6930,7 +6978,6 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     padding: var(--space-3) var(--space-6);
     border-block-start: 1px solid var(--divider);
 }
-.editor-notice[hidden] { display: none; }
 
 /* ── The slash menu ──────────────────────────────────────────────────────────
    The app's `.menu` with `data-editor-slash`, which "/" opens at the caret to turn the
@@ -6946,7 +6993,6 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     max-block-size: min(18rem, 60vh);
     overflow-y: auto;
 }
-.editor-slash[hidden] { display: none; }
 }
 
 /* ── 45-colour-picker.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -8236,8 +8282,6 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
 .form-check + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
 .switch + .choice-dependent,
 .switch + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-switch); }
-/* `display: flex` above outranks the browser's own `[hidden]`. */
-.choice-dependent[hidden] { display: none; }
 
 /* Inactive while the option is off. Opt-in, because whether an unused setting
    vanishes, fades or stays put is the page's call. Both follow the control's live
@@ -9553,11 +9597,6 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     cursor: pointer;
     user-select: none;
 }
-/* A filtered row. `display: flex` above outranks the browser's own `[hidden]`
-   rule, which is a user-agent style, so the attribute alone left every row on
-   screen. */
-.form-combo-option[hidden],
-.form-combo-group[hidden] { display: none; }
 /* Where the keyboard is. The pointer lands on the same tint, because the two never
    disagree for long enough to matter. `data-active` rather than a class: the script
    sets it on markup Blazor renders, and Blazor rewrites a class attribute whole. */
@@ -11158,11 +11197,6 @@ button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-height: 0;
 }
 
-/* The script fills the app's tooltip, and hides a slot with the `hidden` attribute
-   when a point has nothing for it; a class that sets `display` would otherwise
-   outrank the attribute's own `display: none`. */
-.chart [hidden] { display: none; }
-
 /* The data as markup: read by the script, read out by a screen reader as a table — so
    visually hidden, not hidden. Add `hidden` when the page shows the same numbers
    another way, such as a table beside the chart. A table grows to its content
@@ -11721,8 +11755,8 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
     opacity: 0.5;
     vector-effect: non-scaling-stroke;
 }
-/* Under a stat's value, and in a table cell, where the row's height is the box. */
-.stat > .sparkline { margin-top: var(--space-2); }
+/* In a table cell, where the row's height is the box. Under a stat's value it takes the
+   stat's spacing for a drawing (54-stat.css). */
 .table td > .sparkline { width: 96px; height: 24px; }
 
 /* ── Against a previous value ───────────────────────────────────────────────
@@ -12092,12 +12126,6 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
 }
 .graph[data-graph-drawing] .graph-canvas { cursor: crosshair; }
 
-/* The script fills the app's tooltip, menu and panel, and hides a slot with the
-   `hidden` attribute when a record has nothing for it — a menu item that does not apply,
-   a field left empty. A class that sets `display` would otherwise outrank the
-   attribute's own `display: none` and show it anyway — so this outweighs one class. */
-:is(.graph, .graph-detail, [data-graph-detail], .graph-menu) [hidden] { display: none; }
-
 /* The records as markup: read by the script, and read out by a screen reader as the
    graph's text — so it is visually hidden, not hidden. Add `hidden` to it when the page
    already says the same thing another way, such as a table beside the graph. */
@@ -12214,7 +12242,6 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
     box-shadow: var(--shadow-tip);
     pointer-events: none;
 }
-.graph-tip[hidden] { display: none; }
 .graph-tip-head {
     display: flex;
     align-items: center;
@@ -12239,7 +12266,6 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
     z-index: 3;
     min-width: 12rem;
 }
-.graph-menu[hidden] { display: none; }
 
 /* ── A button on a link ────────────────────────────────────────────────────────
    Copies of the app's `<template data-graph-edge-tool>`, one per link on screen, each set
@@ -12431,7 +12457,6 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
    record and its list of neighbours — scrolls, so selecting a busy record never pushes
    the graph out of view. */
 .graph-detail { max-height: var(--graph-height, 26rem); }
-.graph-detail[hidden] { display: none; }
 /* A neighbour row's direction, from the data-graph-direction the script puts on the row.
    The row's template writes one icon for each, and the matching one shows:
 
@@ -12594,6 +12619,11 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
 .stat--sm .stat-value { font-size: var(--text-6); }
 /* A figure that is the point of the page — one tile on its own, a wall screen. */
 .stat--lg .stat-value { font-size: var(--text-10); }
+/* The value still loading is a `.skeleton-title` exactly as tall as the figure's line,
+   at each size, so the tile does not move when the number lands. */
+.stat > .skeleton-title { font-size: var(--text-9); --skeleton-height: round(1.2em, 2px); }
+.stat--sm > .skeleton-title { font-size: var(--text-6); }
+.stat--lg > .skeleton-title { font-size: var(--text-10); }
 
 /* A unit or denominator that should not compete with the number. */
 .stat-unit { font-size: var(--text-4); font-weight: 500; color: var(--muted); }
@@ -12623,12 +12653,18 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
 
 /* ── Against a target ───────────────────────────────────────────────────────
    A number is rarely interesting on its own. `.stat-target` is the line that says what
-   it is being measured against — "62 of 80", "of a 120 cap" — and `.stat-bar` is the
+   it is being measured against — "62 of 80", "of a 120 cap" — and a `.progress` is the
    optional filled track under it.
 
-   The bar is a `.progress` with no extra rules: a stat against a target IS progress
+   The bar is a `.progress` with no class of its own: a stat against a target IS progress
    towards it, and a second track class would drift from the first. */
 .stat-target { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* A drawing under the words — the bar against a target, a sparkline of the trend, a
+   meter, a stacked bar, a tracker — stands a step further from the line above it than
+   the lines of text stand from each other, so the tile reads as its words, then its
+   picture. Every one the library draws, so none needs a margin utility in a stat. */
+.stat > :is(.progress, .meter, .stack-bar, .tracker, .sparkline) { margin-top: var(--space-2); }
 
 /* ── A stat that opens something ────────────────────────────────────────────
    For a tile that leads to the thing it counts. An <a>, so it is a real link. The
@@ -13985,12 +14021,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 /* ── A menu that filters ────────────────────────────────────────────────────
    An `<input class="form-input form-input--sm menu-filter" data-menu-filter>` at the
    top of the panel narrows the items as the reader types (22-menu.js). An item that
-   does not match is `hidden`, which `.menu-item`'s own display would otherwise
-   outrank, and so is a heading with nothing left under it. `.menu-empty` is the app's
+   does not match is `hidden`, and so is a heading with nothing left under it.
+   `.menu-empty` is the app's
    row for a query that matches nothing; the script marks the panel `data-menu-empty`
    while it does, and this shows it. */
-.menu-item[hidden],
-.menu-label[hidden] { display: none; }
 .menu-filter {
     display: block;
     width: 100%;
@@ -14042,7 +14076,6 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     overflow-y: auto;
     z-index: 550;
 }
-.mention-field > .menu[hidden] { display: none; }
 .chat-composer-row > .mention-field { flex: 1; }
 .chat-composer-row > .mention-field > .form-input {
     resize: none;
@@ -15967,7 +16000,6 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border: none;
     box-shadow: none;
 }
-.fab-dial > .menu[hidden] { display: none; }
 .fab-dial > .menu > .menu-item {
     width: auto;
     padding: var(--space-4) var(--space-6);
@@ -17054,6 +17086,9 @@ dialog.drawer[open] { visibility: visible; transform: none; }
 .drawer-header h3 { margin: 0; font-size: var(--text-6); font-weight: 600; }
 /* The only scrolling part, so the header and footer stay put. */
 .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-7) var(--space-8); }
+/* The block that starts or ends the body adds no margin to its padding, as in a card. */
+:where(.drawer-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.drawer-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 /* Drops the padding, for content drawn edge to edge inside the panel — a list of
    actions, a table that already has its own cell padding. `.card-body--flush`'s
    sibling, and the same reason: the gutter is a gap the content then paints over.
@@ -18001,8 +18036,7 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
 /* ── Pages ───────────────────────────────────────────────────────────────────
    A command can open a page of its own commands. `.palette-path` is the row above the
    input that says where the reader is — the app's back button and a trail of
-   `.palette-crumb`s, one per page opened — and the script hides it on the root.
-   `[hidden]` is gated here because the row sets a display of its own. */
+   `.palette-crumb`s, one per page opened — and the script hides it on the root. */
 .palette-path {
     flex-shrink: 0;
     display: flex;
@@ -18010,7 +18044,6 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     gap: var(--space-4);
     padding: var(--space-3) var(--space-5) 0;
 }
-.palette-path[hidden] { display: none; }
 .palette-trail { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
 .palette-crumb {
     display: inline-block;
@@ -21859,6 +21892,9 @@ button.inbox-item-title {
     padding: var(--card-pad-block) var(--card-pad-inline);
 }
 .artifact-body--flush { padding: 0; }
+/* The block that starts or ends the body adds no margin to its padding, as in a card. */
+:where(.artifact-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.artifact-body) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 
 /* In a drawer the drawer is the frame: the artifact fills it, on its surface. */
 .drawer > .artifact {
@@ -21935,12 +21971,18 @@ button.inbox-item-title {
    line, releasing when the reader scrolls up.
 
    Monospace with tabular figures, because the reader is comparing columns —
-   timestamps, levels, ids — down the page rather than reading prose. */
+   timestamps, levels, ids — down the page rather than reading prose.
+
+   `--output-max-height` is how tall the pane grows before it scrolls, a knob on the pane
+   like `--editor-max-height` on an editor: set it on the `.output` itself, as
+   `style="--output-max-height: 32rem"` for a pane a reader scrolls back through at length,
+   or `none` for one that shows every line. */
 .output {
     --output-level-width: 8ch;
     --output-source-width: 20ch;
+    --output-max-height: 320px;
     display: block;
-    max-height: 320px;
+    max-height: var(--output-max-height);
     overflow-y: auto;
     margin: 0;
     padding: var(--space-4) 0;
@@ -24753,6 +24795,13 @@ button.inbox-item-title {
    place — for rows an app renders in pages, which should count from the page's
    first row, not the table's.
 
+   The fill mode is `backwards`, never `both`: the first keyframe hides a row through
+   its delay, and nothing is left on it once it has arrived. A finished animation that
+   still holds `transform` makes the row the containing block of everything fixed
+   inside it, so an anchored `.menu` or `.popover` in the row is laid out inside the row
+   and clipped by the card's `overflow: hidden`. `EntranceAnimationScanTests` fails on
+   any animation that would do the same.
+
    `--row-hover-accent` draws a strip at the inline start of a clickable row under
    the pointer — a `.tr-clickable` and a linked or button `.list-row`. It is
    `transparent` until an app sets it, so nothing changes by default, and a selected
@@ -24760,7 +24809,7 @@ button.inbox-item-title {
    shadow and a stacked table's labels are untouched. */
 .table--stagger tbody > tr,
 .list--stagger > li {
-    animation: sedna-row-in var(--motion-slow) ease-out both;
+    animation: sedna-row-in var(--motion-slow) ease-out backwards;
     animation-delay: calc(var(--row-index, 12) * var(--stagger-step));
 }
 .table--stagger tbody > tr:nth-child(1), .list--stagger > li:nth-child(1) { --row-index: 0; }
@@ -26368,7 +26417,17 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 .sedna-scroll--lg { --scroll-max: 32rem; }
 
 /* ── State ──────────────────────────────────────────────────────────────────
-   Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
+   The `hidden` attribute hides, whatever class the element carries. The browser hides
+   it with a user-agent rule, and every author rule that sets `display` outranks that —
+   so `.alert[hidden]` stayed on the page as a flex row. This layer comes after every
+   component, so this one rule wins over any display a component sets, and no family
+   needs a `[hidden]` rule of its own. `hidden="until-found"` is left to the browser,
+   which draws it collapsed but findable, and `display: none` would take it out of
+   find-in-page. `HiddenAttributeTests` builds every rule that sets a display and
+   checks it. */
+[hidden]:not([hidden="until-found"]) { display: none; }
+
+/* Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
    removes the element from the accessibility tree and the tab order. This is for
    hiding something that must stay in the layout's flow calculations. */
 .sedna-invisible { visibility: hidden; }

@@ -17,7 +17,7 @@
       { "text": "Looking at one picture large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "confirm-before-it-happens", "answer-in-a-dialog", "edit-in-a-dialog", "welcome-a-new-user", "save-a-view", "keep-unsaved-work", "warn-before-the-session-ends", "view-a-picture-large" ],
-    "stamp": "d726058dc0469e4e"
+    "stamp": "baa3792510df5cdf"
   },
   {
     "page": "/drawer",
@@ -37,7 +37,7 @@
       { "text": "An assistant docked beside the page", "instead": "/assistant-panels#an-assistant-docked-beside-the-page" }
     ],
     "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone", "dock-an-assistant" ],
-    "stamp": "3d4166f74ff9024c"
+    "stamp": "c3826fb9fe7b75be"
   },
   {
     "page": "/palette",
@@ -52,7 +52,7 @@
       { "text": "Moving between the app's pages with a pointer", "instead": "/nav" }
     ],
     "goals": [ "run-a-command-by-name" ],
-    "stamp": "ec4f0a0a71ca233d"
+    "stamp": "5803fb4d5891a3dd"
   },
   {
     "page": "/spotlight",
@@ -68,6 +68,6 @@
       { "text": "Detail about a control the reader asked for", "instead": "/popover" }
     ],
     "goals": [ "take-a-guided-tour", "point-out-something-new", "welcome-a-new-user" ],
-    "stamp": "3925e528bf70275e"
+    "stamp": "8ecc9d3bd5ac5555"
   }
 ]

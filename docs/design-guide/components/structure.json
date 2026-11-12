@@ -17,7 +17,7 @@
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" }
     ],
     "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "check-the-tools-an-agent-ran" ],
-    "stamp": "291bdd4d71e3fa31"
+    "stamp": "8ed84b0330db5acf"
   },
   {
     "page": "/page-navigation",
@@ -52,7 +52,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "d84d659151f36d93"
+    "stamp": "76f31e508bd756b0"
   },
   {
     "page": "/grid",
@@ -71,7 +71,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "69c0cc9609a8fdbd"
+    "stamp": "50abdbb75b644c08"
   },
   {
     "page": "/list",
@@ -91,7 +91,7 @@
       { "text": "A list of files", "instead": "/files#a-list-of-files" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "af48f44e7846b1dd"
+    "stamp": "ecd7bb0bbab1ae48"
   },
   {
     "page": "/collections",
@@ -125,7 +125,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "147f627534b31967"
+    "stamp": "cd336603fd4d8ebc"
   },
   {
     "page": "/timeline",
@@ -162,6 +162,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "a5e0f8b8adedb6a3"
+    "stamp": "886b9753c037952d"
   }
 ]

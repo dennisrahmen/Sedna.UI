@@ -205,7 +205,9 @@ rhythm and `.lede` stays tight under its heading; `--page-gap: 0` on `.page` tur
 and `.sedna-mt-0` flushes one child.
 
 Inside a `.card-body` the rhythm is yours, because its content is: a `.kv` stack is tight on purpose
-and a form is not. Reach for `.sedna-col` with a gap step rather than a margin per child. Sub-sections
+and a form is not. The bare paragraph, list, `<dl>` or heading that starts or ends a card body, a card
+section, a modal body, a drawer body or a slide brings no margin of its own, so it needs no
+`.sedna-mt-0` or `.sedna-mb-0`. Reach for `.sedna-col` with a gap step rather than a margin per child. Sub-sections
 of one body — details, then attachments, then history — are `.card-section`, which draws the hairline
 between them and spaces them with the card's own gutter; a second `.card-body` ends the first body's
 layout at the seam instead.
@@ -214,11 +216,14 @@ layout at the seam instead.
 
 Where a library class has one value an app reasonably wants to change, that value is a custom property
 on the element, not a class to override. `--toolbar-input-width`, `--search-max`, `--modal-width`, `--modal-max-height`, `--drawer-width`,
-`--scroll-max`, `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
+`--scroll-max`, `--output-max-height`, `--skeleton-width` / `--skeleton-height`, `--page-gap`, `--sidebar-width`, `--nav-indent`,
 `--prose-measure`, `--deck-height`, `--form-combo-panel-width`,
 `--col-control-min` / `--col-control-max`, `--col-prose-min` / `--col-prose-max`. Set one inline —
 `style="--search-max: 340px"` — rather than declaring `max-width` for a library class, which the
 section below is about. If the number you need has no knob, that is a request for the library.
+
+The `hidden` attribute hides an element whatever library class it carries — an `.alert`, a `.toast`,
+a `.menu-item`. Hide with the attribute; never write a `[hidden]` rule for a library class.
 
 ### Check the classes this app uses
 

@@ -68,11 +68,6 @@
     min-height: 0;
 }
 
-/* The script fills the app's tooltip, and hides a slot with the `hidden` attribute
-   when a point has nothing for it; a class that sets `display` would otherwise
-   outrank the attribute's own `display: none`. */
-.chart [hidden] { display: none; }
-
 /* The data as markup: read by the script, read out by a screen reader as a table — so
    visually hidden, not hidden. Add `hidden` when the page shows the same numbers
    another way, such as a table beside the chart. A table grows to its content

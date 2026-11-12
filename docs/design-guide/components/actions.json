@@ -17,7 +17,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "cda0c54e7eeecc91"
+    "stamp": "da5a6fdf705ddfa7"
   },
   {
     "page": "/button-group",
@@ -33,7 +33,7 @@
       { "text": "Paging through a list of results", "instead": "/pager#pagination" }
     ],
     "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
-    "stamp": "87e675fadb8eb554"
+    "stamp": "ecb1b3562a45d3ed"
   },
   {
     "page": "/toolbar",
@@ -53,7 +53,7 @@
       { "text": "Switching between views of one record", "instead": "/tabs#tabs" }
     ],
     "goals": [ "compare-records", "narrow-a-long-list", "search-a-list", "act-on-a-selection", "fold-actions-into-a-menu", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "switch-a-view-setting", "fill-the-screen-below-the-header", "find-a-record-on-a-list-page", "search-everything" ],
-    "stamp": "28019cd79c0c1cb7"
+    "stamp": "f0f0202e3420ec40"
   },
   {
     "page": "/menu",
@@ -74,7 +74,7 @@
       { "text": "Searching every command in the app", "instead": "/palette" }
     ],
     "goals": [ "save-a-view", "choose-table-columns", "offer-variants-of-an-action", "act-on-a-selection", "fold-actions-into-a-menu", "open-a-menu-of-actions", "open-a-context-menu", "find-an-action-in-a-long-menu", "change-a-value-in-place", "catch-up-on-notifications", "mention-someone", "see-who-is-signed-in", "write-a-prompt", "insert-blocks-with-a-slash" ],
-    "stamp": "0784265f06636bdf"
+    "stamp": "08f592a332634ec0"
   },
   {
     "page": "/popover",
@@ -93,7 +93,7 @@
       { "text": "A record's whole detail beside the list", "instead": "/drawer#a-record-s-detail" }
     ],
     "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message" ],
-    "stamp": "257dfbcb1fe2786f"
+    "stamp": "2331b5a2ccd55aa1"
   },
   {
     "page": "/drag-drop",
@@ -111,6 +111,6 @@
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
     "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels" ],
-    "stamp": "4e3433ebdc1658db"
+    "stamp": "6c9d1f03b9879121"
   }
 ]

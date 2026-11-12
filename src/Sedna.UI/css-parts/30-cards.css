@@ -155,6 +155,12 @@
 /* The gutter is --card-pad-block / --card-pad-inline, which [data-density="compact"]
    remaps — so every card part tightens together and stays aligned. */
 .card-body { padding: var(--card-pad-block) var(--card-pad-inline); }
+/* The padding is the gutter, so the paragraph, list, key/value list or heading that
+   starts or ends the body or a section in it brings no margin of the browser's to add
+   to it. At the weight of the element alone, so a classed block keeps its own spacing;
+   a modal, a drawer, a slide and an artifact do the same with their bodies. */
+:where(.card-body, .card-section) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:first-child) { margin-block-start: 0; }
+:where(.card-body, .card-section) > :is(p, ul, ol, dl, h1, h2, h3, h4, h5, h6):where(:last-child) { margin-block-end: 0; }
 /* Drops the padding, for content that is drawn edge to edge inside the card — a
    canvas, a chart, a map, a table that already has its own cell padding. The
    sibling of `.list-row--flush`, and the same reason: the gutter is a gap the

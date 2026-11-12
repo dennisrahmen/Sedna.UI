@@ -649,8 +649,6 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
 .form-check + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-check); }
 .switch + .choice-dependent,
 .switch + :is(.form-error, .form-warning) + .choice-dependent { margin-inline-start: var(--choice-inset-switch); }
-/* `display: flex` above outranks the browser's own `[hidden]`. */
-.choice-dependent[hidden] { display: none; }
 
 /* Inactive while the option is off. Opt-in, because whether an unused setting
    vanishes, fades or stays put is the page's call. Both follow the control's live

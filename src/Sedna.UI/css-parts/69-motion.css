@@ -8,6 +8,13 @@
    place — for rows an app renders in pages, which should count from the page's
    first row, not the table's.
 
+   The fill mode is `backwards`, never `both`: the first keyframe hides a row through
+   its delay, and nothing is left on it once it has arrived. A finished animation that
+   still holds `transform` makes the row the containing block of everything fixed
+   inside it, so an anchored `.menu` or `.popover` in the row is laid out inside the row
+   and clipped by the card's `overflow: hidden`. `EntranceAnimationScanTests` fails on
+   any animation that would do the same.
+
    `--row-hover-accent` draws a strip at the inline start of a clickable row under
    the pointer — a `.tr-clickable` and a linked or button `.list-row`. It is
    `transparent` until an app sets it, so nothing changes by default, and a selected
@@ -15,7 +22,7 @@
    shadow and a stacked table's labels are untouched. */
 .table--stagger tbody > tr,
 .list--stagger > li {
-    animation: sedna-row-in var(--motion-slow) ease-out both;
+    animation: sedna-row-in var(--motion-slow) ease-out backwards;
     animation-delay: calc(var(--row-index, 12) * var(--stagger-step));
 }
 .table--stagger tbody > tr:nth-child(1), .list--stagger > li:nth-child(1) { --row-index: 0; }
