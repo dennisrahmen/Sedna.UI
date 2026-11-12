@@ -6212,6 +6212,8 @@ a.chip[aria-current="page"] i { color: var(--brand-text); }
 .chip--invalid .chip-dismiss { color: var(--danger-fg); }
 button.chip { font-family: inherit; cursor: pointer; }
 button.chip:hover { border-color: var(--border-hover); }
+button.chip:not([aria-pressed="true"], .chip--active):hover,
+a.chip:not([aria-current="page"], .chip--active):hover { background: var(--bg-hover); color: var(--fg); }
 button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 a.chip { text-decoration: none; }
 a.chip:hover { border-color: var(--border-hover); text-decoration: none; }

@@ -84,10 +84,11 @@
     [SupplyParameterFromQuery(Name = "group")] public string? GroupQuery { get; set; }
 
     /// <summary>
-    /// The address of an area's goals, and of one goal's card within it.
+    /// The address of an area's goals, opened at the goals rather than the top of the page, and
+    /// of one goal's card within it.
     /// </summary>
     public static string HrefOf(string group, string? goalId = null) =>
-        $"/design-guide?group={group.ToLowerInvariant()}{(goalId is null ? null : "#" + goalId)}";
+        $"/design-guide?group={group.ToLowerInvariant()}#{goalId ?? "goals"}";
 
     private IReadOnlyList<(string Group, int Count)> Areas =>
         [.. CataloguePages.Groups
