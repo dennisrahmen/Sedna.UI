@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "618c8bd343c60ea8"
+    "stamp": "24dcd9e816585771"
   },
   {
     "page": "/carousel",
@@ -31,7 +31,7 @@
       { "text": "Pictures the reader looks through and opens", "instead": "/media#a-gallery-of-attachments" }
     ],
     "goals": [ "step-through-slides" ],
-    "stamp": "9e77779e41153247"
+    "stamp": "922f133f43b44252"
   },
   {
     "page": "/files",
@@ -50,7 +50,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "29a6d1583b991cfe"
+    "stamp": "709fe7970c0b8c68"
   },
   {
     "page": "/video",
@@ -110,7 +110,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "614802c0469a49cb"
+    "stamp": "1776e4f6523e02af"
   },
   {
     "page": "/diff",
@@ -167,7 +167,7 @@
       { "text": "A message in a conversation", "instead": "/chat#the-composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "3f06b73cc26d2541"
+    "stamp": "d9caa2bd1965724b"
   },
   {
     "page": "/chat",
@@ -186,6 +186,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "da2e6167276facaf"
+    "stamp": "0051b7f3fe597ece"
   }
 ]

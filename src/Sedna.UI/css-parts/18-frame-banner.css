@@ -57,10 +57,6 @@
     /* A long address or token in the message wraps instead of widening the frame. */
     overflow-wrap: anywhere;
 }
-/* `display: grid` above outranks the browser's own `[hidden]`, and an app hides a
-   banner, or one state of the cookie banner, with the attribute. */
-.page-banner[hidden],
-.page-banner [hidden] { display: none; }
 
 .page-banner > i {
     grid-area: lead;

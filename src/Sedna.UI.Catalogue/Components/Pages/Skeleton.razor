@@ -26,7 +26,9 @@
     <p>
         <code>.skeleton-text</code> is a line of text and <code>.skeleton-title</code> a heading;
         <code>.skeleton-avatar</code> is the small circle beside one. Vary the widths &mdash;
-        identical bars read as a table rather than a paragraph.
+        identical bars read as a table rather than a paragraph. Every shape is sized by the same two
+        knobs on the element, <code>--skeleton-width</code> and <code>--skeleton-height</code>, and a
+        circle by <code>--skeleton-size</code>.
     </p>
 </CatExample>
 
@@ -64,7 +66,9 @@
 <CatExample TExample="Examples.Skeleton.Stats" Title="Stat tiles" Demo="ex-demo--block">
     <p>
         Label, value, delta: the value is a <code>.skeleton-title</code>, the tallest bar, because
-        the figure is what the reader is waiting for. The first line takes
+        the figure is what the reader is waiting for. Inside a <code>.stat</code> it is exactly as
+        tall as the figure's line, at <code>.stat--sm</code> and <code>.stat--lg</code> too, with no
+        height to set. The first line takes
         <code>.sedna-mt-0</code> and the last <code>.sedna-mb-0</code>, so the bars keep the
         spacing between them and lose it at the tile&rsquo;s edges, as the list rows and the form do.
     </p>

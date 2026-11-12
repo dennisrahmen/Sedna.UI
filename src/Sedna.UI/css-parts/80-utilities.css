@@ -260,7 +260,17 @@
 .sedna-scroll--lg { --scroll-max: 32rem; }
 
 /* ── State ──────────────────────────────────────────────────────────────────
-   Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
+   The `hidden` attribute hides, whatever class the element carries. The browser hides
+   it with a user-agent rule, and every author rule that sets `display` outranks that —
+   so `.alert[hidden]` stayed on the page as a flex row. This layer comes after every
+   component, so this one rule wins over any display a component sets, and no family
+   needs a `[hidden]` rule of its own. `hidden="until-found"` is left to the browser,
+   which draws it collapsed but findable, and `display: none` would take it out of
+   find-in-page. `HiddenAttributeTests` builds every rule that sets a display and
+   checks it. */
+[hidden]:not([hidden="until-found"]) { display: none; }
+
+/* Not a `hidden` replacement: use the `hidden` ATTRIBUTE for that, because it also
    removes the element from the accessibility tree and the tab order. This is for
    hiding something that must stay in the layout's flow calculations. */
 .sedna-invisible { visibility: hidden; }

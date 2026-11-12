@@ -371,11 +371,6 @@
     cursor: pointer;
     user-select: none;
 }
-/* A filtered row. `display: flex` above outranks the browser's own `[hidden]`
-   rule, which is a user-agent style, so the attribute alone left every row on
-   screen. */
-.form-combo-option[hidden],
-.form-combo-group[hidden] { display: none; }
 /* Where the keyboard is. The pointer lands on the same tint, because the two never
    disagree for long enough to matter. `data-active` rather than a class: the script
    sets it on markup Blazor renders, and Blazor rewrites a class attribute whole. */

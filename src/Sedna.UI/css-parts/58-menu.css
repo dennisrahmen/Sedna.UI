@@ -319,12 +319,10 @@
 /* ── A menu that filters ────────────────────────────────────────────────────
    An `<input class="form-input form-input--sm menu-filter" data-menu-filter>` at the
    top of the panel narrows the items as the reader types (22-menu.js). An item that
-   does not match is `hidden`, which `.menu-item`'s own display would otherwise
-   outrank, and so is a heading with nothing left under it. `.menu-empty` is the app's
+   does not match is `hidden`, and so is a heading with nothing left under it.
+   `.menu-empty` is the app's
    row for a query that matches nothing; the script marks the panel `data-menu-empty`
    while it does, and this shows it. */
-.menu-item[hidden],
-.menu-label[hidden] { display: none; }
 .menu-filter {
     display: block;
     width: 100%;
@@ -376,7 +374,6 @@
     overflow-y: auto;
     z-index: 550;
 }
-.mention-field > .menu[hidden] { display: none; }
 .chat-composer-row > .mention-field { flex: 1; }
 .chat-composer-row > .mention-field > .form-input {
     resize: none;

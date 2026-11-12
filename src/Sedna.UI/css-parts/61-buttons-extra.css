@@ -173,7 +173,6 @@
     border: none;
     box-shadow: none;
 }
-.fab-dial > .menu[hidden] { display: none; }
 .fab-dial > .menu > .menu-item {
     width: auto;
     padding: var(--space-4) var(--space-6);

@@ -10,12 +10,18 @@
    line, releasing when the reader scrolls up.
 
    Monospace with tabular figures, because the reader is comparing columns —
-   timestamps, levels, ids — down the page rather than reading prose. */
+   timestamps, levels, ids — down the page rather than reading prose.
+
+   `--output-max-height` is how tall the pane grows before it scrolls, a knob on the pane
+   like `--editor-max-height` on an editor: set it on the `.output` itself, as
+   `style="--output-max-height: 32rem"` for a pane a reader scrolls back through at length,
+   or `none` for one that shows every line. */
 .output {
     --output-level-width: 8ch;
     --output-source-width: 20ch;
+    --output-max-height: 320px;
     display: block;
-    max-height: 320px;
+    max-height: var(--output-max-height);
     overflow-y: auto;
     margin: 0;
     padding: var(--space-4) 0;

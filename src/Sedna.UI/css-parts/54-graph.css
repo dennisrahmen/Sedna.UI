@@ -88,12 +88,6 @@
 }
 .graph[data-graph-drawing] .graph-canvas { cursor: crosshair; }
 
-/* The script fills the app's tooltip, menu and panel, and hides a slot with the
-   `hidden` attribute when a record has nothing for it — a menu item that does not apply,
-   a field left empty. A class that sets `display` would otherwise outrank the
-   attribute's own `display: none` and show it anyway — so this outweighs one class. */
-:is(.graph, .graph-detail, [data-graph-detail], .graph-menu) [hidden] { display: none; }
-
 /* The records as markup: read by the script, and read out by a screen reader as the
    graph's text — so it is visually hidden, not hidden. Add `hidden` to it when the page
    already says the same thing another way, such as a table beside the graph. */
@@ -210,7 +204,6 @@
     box-shadow: var(--shadow-tip);
     pointer-events: none;
 }
-.graph-tip[hidden] { display: none; }
 .graph-tip-head {
     display: flex;
     align-items: center;
@@ -235,7 +228,6 @@
     z-index: 3;
     min-width: 12rem;
 }
-.graph-menu[hidden] { display: none; }
 
 /* ── A button on a link ────────────────────────────────────────────────────────
    Copies of the app's `<template data-graph-edge-tool>`, one per link on screen, each set
@@ -427,7 +419,6 @@
    record and its list of neighbours — scrolls, so selecting a busy record never pushes
    the graph out of view. */
 .graph-detail { max-height: var(--graph-height, 26rem); }
-.graph-detail[hidden] { display: none; }
 /* A neighbour row's direction, from the data-graph-direction the script puts on the row.
    The row's template writes one icon for each, and the matching one shows:
 
