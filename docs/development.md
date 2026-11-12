@@ -181,6 +181,11 @@ build/app-tooling.sh         # tooling/stylelint/…stylelintrc.json from the sh
 `bundle-css.sh` runs `class-states.sh` and `app-tooling.sh` after it writes the stylesheet. After editing
 `docs/CLAUDE.consuming-app.md`, run `app-tooling.sh` yourself: the agent skill is that file.
 
+CI also runs `build/guide-stamp.sh --check`, which is not a generator but a review gate: each
+design-guide entry is stamped against its page's sources, and a change to a page, an example or a part
+behind it fails until the entry has been read again and restamped with `build/guide-stamp.sh <route>`.
+`docs/design-guide/README.md` has the workflow.
+
 One is generated and never committed, because the release tags date it. Run it after cloning and after
 fetching a new tag (it needs bash 4 or later); CI, the release and the catalogue image run it themselves:
 

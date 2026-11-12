@@ -1,0 +1,485 @@
+[
+  {
+    "id": "frame-every-page",
+    "goal": "Let the user find the same frame around every page",
+    "phrases": [ "app layout", "app shell", "main layout", "application frame", "layout with a sidebar and a header" ],
+    "answer": [
+      { "page": "/frame#full-shell", "role": "primary" },
+      { "page": "/nav", "role": "part" },
+      { "page": "/topbar", "role": "part" },
+      { "page": "/structure#page-head", "role": "part" }
+    ],
+    "how": ".layout holds the .sidebar and a .content column, .content holds the .topbar and one .page, and .page is the only part that scrolls. The frame is markup written once in the app's layout, and every page is the content of .page.",
+    "avoid": "Wrapping the frame in components of the app's own, which hides the markup every page relies on and lets two layouts drift apart."
+  },
+  {
+    "id": "move-between-pages",
+    "goal": "Let the user move between the app's pages from a sidebar",
+    "phrases": [ "side nav", "sidebar menu", "navigation menu", "left navigation", "vertical navigation" ],
+    "answer": [
+      { "page": "/nav#nav-items", "role": "primary" },
+      { "page": "/nav#the-active-link", "role": "part" },
+      { "page": "/frame#full-shell", "role": "part" }
+    ],
+    "how": "A .nav in the .sidebar, one .nav-link per page with an icon and its label, sections under a .nav-section-label and folding groups as .nav-group. ActiveLink marks the current page with .active and aria-current.",
+    "avoid": "A link without an icon, which the collapsed rail leaves as a blank box."
+  },
+  {
+    "id": "collapse-the-sidebar",
+    "goal": "Let the user shrink the sidebar to a rail of icons",
+    "phrases": [ "collapse the menu", "collapsible sidebar", "icon rail", "mini sidebar", "navigation rail" ],
+    "answer": [
+      { "page": "/nav#collapsed-rail", "role": "primary" },
+      { "page": "/topbar", "role": "part" },
+      { "page": "/frame#narrow-screens", "role": "part" }
+    ],
+    "how": ".collapsed on the .sidebar, toggled by a .topbar-btn--start in the header: the labels drop, the counts ride the icons and each link's data-tip becomes a flyout. .layout--responsive forces the rail on a narrow screen.",
+    "avoid": "Hiding the sidebar altogether on a wide screen, which takes away the way to every other page."
+  },
+  {
+    "id": "find-a-page-in-a-long-nav",
+    "goal": "Let the user find one page in a sidebar too long to scan",
+    "phrases": [ "filter the sidebar", "nav search", "searchable sidebar", "accordion menu", "too many menu items" ],
+    "answer": [
+      { "page": "/nav-layouts#accordion-with-a-filter", "role": "primary" },
+      { "page": "/nav-layouts#accordion-groups", "role": "part" },
+      { "page": "/nav#collapsible-nav-group", "role": "part" }
+    ],
+    "how": "Accordion groups that share one name, so one is open at a time, under a .nav-filter input with data-nav-filter. A link's data-keywords holds the words a reader would type that its label does not say.",
+    "avoid": "Leaving the group that holds the current page closed, so the reader lands on a page whose own link is hidden."
+  },
+  {
+    "id": "switch-between-areas",
+    "goal": "Let the user switch between the separate areas of a large app",
+    "phrases": [ "areas in the header", "two-level navigation", "area rail", "module switcher", "top navigation links" ],
+    "answer": [
+      { "page": "/nav-layouts#area-rail", "role": "primary" },
+      { "page": "/nav-layouts#areas-in-the-topbar", "role": "part" },
+      { "page": "/nav-layouts#collapsed-area-rail", "role": "part" }
+    ],
+    "how": ".sidebar--areas puts a rail of areas beside one nav per area, swapped in place; the same split can sit in the header as .topbar-nav links, with the sidebar listing only the current area's pages.",
+    "avoid": "Making the areas tabs: an area has an address, so it is a link that ActiveLink marks by its prefix."
+  },
+  {
+    "id": "navigate-on-a-phone",
+    "goal": "Let the user move between the main places from a tab bar on a phone",
+    "phrases": [ "bottom navigation", "tab bar", "bottom nav", "mobile navigation bar", "bottom tabs" ],
+    "answer": [
+      { "page": "/bottombar#bottom-bar", "role": "primary" },
+      { "page": "/bottombar#on-a-phone-only", "role": "part" },
+      { "page": "/bottombar#menu-first", "role": "part" },
+      { "page": "/drawer", "role": "part" }
+    ],
+    "how": "A .bottombar as the last child of .content, its items the few places used most and the current one aria-current. .layout--bottombar shows it in the sidebar's place below 560px, and a --start cell opens every page in a sheet.",
+    "avoid": "Filling the bar with every page: it holds the places used most, and the sheet it opens holds the rest."
+  },
+  {
+    "id": "act-on-a-record-on-a-phone",
+    "goal": "Let the user reach a record's main actions with a thumb on a phone",
+    "phrases": [ "bottom app bar", "mobile action bar", "bottom toolbar", "thumb reach actions" ],
+    "answer": [
+      { "page": "/bottombar#actions", "role": "primary" }
+    ],
+    "how": "A .bottombar with role=\"toolbar\" and buttons rather than links, with no current item: the actions used most, and the rest behind the --end cell.",
+    "avoid": "Mixing places and actions in one bar, so one press navigates and the next changes the record."
+  },
+  {
+    "id": "search-the-whole-app",
+    "goal": "Let the user search the whole app from the header",
+    "phrases": [ "global search", "header search", "site search", "search box in the header", "omnibox" ],
+    "answer": [
+      { "page": "/topbar#header-search", "role": "primary" },
+      { "page": "/topbar#result-panel", "role": "part" },
+      { "page": "/topbar#a-panel-the-app-renders", "role": "part" },
+      { "page": "/page-recipes#search-results", "role": "part" }
+    ],
+    "how": "A .search at the start of the topbar whose data-search names a .search-panel the app writes once, outside the topbar, with a template per row; sednaUi.search ranks the app's registered index and fills it. A search of a database leaves data-search off and renders an anchored panel of its own.",
+    "avoid": "Nesting a registered search's panel inside the topbar, which traps it under every modal."
+  },
+  {
+    "id": "see-who-is-signed-in",
+    "goal": "Let the user see who is signed in and reach their account",
+    "phrases": [ "user menu", "account menu", "profile dropdown", "avatar menu", "sign out menu" ],
+    "answer": [
+      { "page": "/topbar#user-menu", "role": "primary" },
+      { "page": "/menu#anchored-under-a-trigger", "role": "part" },
+      { "page": "/page-recipes#an-account-page", "role": "part" }
+    ],
+    "how": "A .user-widget at the end of the topbar, its trigger the avatar, the name and the e-mail, and a .menu under it with the account's links and Sign out after a separator.",
+    "avoid": "Declaring role=\"menu\" on it: its items are ordinary links and buttons that tab."
+  },
+  {
+    "id": "switch-between-apps",
+    "goal": "Let the user jump to another app of the same suite",
+    "phrases": [ "app switcher", "app launcher", "waffle menu", "apps grid", "product switcher" ],
+    "answer": [
+      { "page": "/topbar#app-switcher", "role": "primary" },
+      { "page": "/popover", "role": "part" }
+    ],
+    "how": "A .topbar-btn with popovertarget opens a .popover holding .app-switcher: one link per app with its mark and its name, the app the reader is in marked aria-current=\"page\".",
+    "avoid": "Listing the apps with nothing to say which one the reader is in."
+  },
+  {
+    "id": "show-the-running-version",
+    "goal": "Let the user see which version of the app they are using",
+    "phrases": [ "version number", "build number", "version badge", "release tag in the header", "preview build indicator" ],
+    "answer": [
+      { "page": "/topbar#version-tag", "role": "primary" }
+    ],
+    "how": ".topbar-version in the topbar's right cluster, holding a version the app already knows, such as its informational version or a build number. --pre marks a preview build, and as a link it leads to the release.",
+    "avoid": "Typing the version into the markup by hand, where it goes stale with the next deploy."
+  },
+  {
+    "id": "recover-a-dropped-connection",
+    "goal": "Let the user know the connection to the server dropped and get it back",
+    "phrases": [ "reconnect ui", "connection lost", "reconnecting banner", "circuit disconnected", "components-reconnect-modal" ],
+    "answer": [
+      { "page": "/status-bar#the-status-bar-in-the-host-page", "role": "primary" },
+      { "page": "/status-bar#status-bar", "role": "part" },
+      { "page": "/common-pages#session-expired", "role": "part" }
+    ],
+    "how": "One .status-bar row per state inside #components-reconnect-modal in the host page; Blazor sets the state class on the container and the matching row shows. Resume and Retry are plain onclick handlers that fall back to a reload.",
+    "avoid": "Putting .status-bar on the id itself, or leaving out a state's row, which shows that state as an empty strip."
+  },
+  {
+    "id": "report-an-unhandled-error",
+    "goal": "Let the user know an unexpected error stopped the app and reload it",
+    "phrases": [ "blazor-error-ui", "unhandled error bar", "unexpected error message", "error reload bar" ],
+    "answer": [
+      { "page": "/status-bar#the-unhandled-error-bar", "role": "primary" },
+      { "page": "/common-pages#something-went-wrong", "role": "part" }
+    ],
+    "how": "A .status-bar--error strip inside #blazor-error-ui with a Reload action and a dismiss button, both plain onclick handlers because the circuit is gone by then.",
+    "avoid": "Putting the class on #blazor-error-ui itself, whose inline display: block then lays the bar out as a line of text."
+  },
+  {
+    "id": "announce-to-everyone",
+    "goal": "Let the user see a notice about the whole app on every page",
+    "phrases": [ "site-wide banner", "announcement bar", "outage banner", "maintenance notice", "system message" ],
+    "answer": [
+      { "page": "/banner#under-the-topbar", "role": "primary" },
+      { "page": "/banner#tones", "role": "part" },
+      { "page": "/banner#more-than-one-line", "role": "part" },
+      { "page": "/banner#dismissing", "role": "part" }
+    ],
+    "how": "A .page-banner between the topbar and the page, toned by what the reader has to do: danger while something is broken, warn while it will be, go once it is over. Name it as a region, and let the reader dismiss it unless it is an outage in progress.",
+    "avoid": "Using a banner for one part of the page, which is an alert in place."
+  },
+  {
+    "id": "show-a-service-phase",
+    "goal": "Let the user know a service is new and still changing",
+    "phrases": [ "beta banner", "phase banner", "preview notice", "alpha label" ],
+    "answer": [
+      { "page": "/banner#phase", "role": "primary" },
+      { "page": "/badge", "role": "part" }
+    ],
+    "how": ".page-banner--phase with a .badge naming the phase, one line on what it means for the reader, and a link to tell the team. It has no tint, because it stays for the life of the phase.",
+    "avoid": "Giving the phase a coloured tone, which competes for months with the notices that matter today."
+  },
+  {
+    "id": "confirm-after-a-redirect",
+    "goal": "Let the user see that what they did finished after being sent to another page",
+    "phrases": [ "flash message", "success message after redirect", "message after navigation", "post redirect notice" ],
+    "answer": [
+      { "page": "/banner#after-a-redirect", "role": "primary" },
+      { "page": "/toast", "role": "part" }
+    ],
+    "how": "A .page-banner--go on the page the reader lands on, with tabindex=\"-1\" and focus moved to it after the navigation, shown once and not again on a reload.",
+    "avoid": "Using it where the reader stays on the page they acted on, where a toast or the page itself says so."
+  },
+  {
+    "id": "ask-for-cookie-consent",
+    "goal": "Let the user accept or reject cookies",
+    "phrases": [ "cookie banner", "cookie consent", "gdpr banner", "cookie notice", "privacy consent" ],
+    "answer": [
+      { "page": "/banner#asking", "role": "primary" },
+      { "page": "/banner#after-choosing", "role": "part" }
+    ],
+    "how": "A neutral .page-banner first under the topbar until the reader chooses: accept and reject side by side and looking the same, and a link to the page that lists the cookies. After the choice the same region says what was chosen and where to change it.",
+    "avoid": "Making reject harder to find than accept, which leaves the reader no real choice."
+  },
+  {
+    "id": "explain-a-control",
+    "goal": "Let the user find out what a control does before using it",
+    "phrases": [ "tooltip", "hover hint", "hover text", "info tip", "explain a button on hover" ],
+    "answer": [
+      { "page": "/hover-hints#on-any-control", "role": "primary" },
+      { "page": "/hover-hints#which-side", "role": "part" },
+      { "page": "/button#icon-only", "role": "part" }
+    ],
+    "how": "data-tip on the control, saying what it acts on and what changes; one bubble serves the whole document, on hover, on focus and on a press and hold. An icon button keeps its name in aria-label and its consequence in the hint.",
+    "avoid": "Repeating the label in the hint, or making the hint the only label, which a screen reader does not take as a name."
+  },
+  {
+    "id": "skip-to-the-content",
+    "goal": "Let the user skip straight to the content from the keyboard",
+    "phrases": [ "skip link", "skip to main content", "skip navigation", "bypass blocks", "jump between landmarks" ],
+    "answer": [
+      { "page": "/frame#skip-link", "role": "primary" },
+      { "page": "/frame#moving-between-regions", "role": "part" }
+    ],
+    "how": "A .skip-link as the first focusable thing on the page, pointing at a main with tabindex=\"-1\". F6 then moves between the frame's regions with nothing to write.",
+    "avoid": "Leaving tabindex off the main, so the jump only scrolls and focus stays in the navigation."
+  },
+  {
+    "id": "fill-the-screen-below-the-header",
+    "goal": "Let the user work on a map, a board or an editor that fills the screen",
+    "phrases": [ "full-bleed layout", "full screen map", "full height canvas", "map that fills the screen" ],
+    "answer": [
+      { "page": "/frame#full-bleed-layout", "role": "primary" },
+      { "page": "/toolbar", "role": "part" }
+    ],
+    "how": ".full-layout in place of .page, with a toolbar above and .full-layout-fill on the child that takes the height left.",
+    "avoid": "Nesting it inside .page, which pads and scrolls it."
+  },
+  {
+    "id": "show-on-a-wall-screen",
+    "goal": "Let the user read a screen nobody operates from across the room",
+    "phrases": [ "kiosk mode", "wall display", "tv dashboard", "information radiator", "big screen view" ],
+    "answer": [
+      { "page": "/frame#a-wall-screen", "role": "primary" },
+      { "page": "/workflow-run#on-a-wall-screen-or-a-tablet", "role": "part" }
+    ],
+    "how": ".kiosk takes the whole viewport, never scrolls and scales one canvas about 1280px wide to every screen; .kiosk-strip, .kiosk-stage and .kiosk-side keep their areas, and the app moves whatever moves.",
+    "avoid": "Putting a wall screen in the ordinary frame, whose sidebar and scrolling nobody there can use."
+  },
+  {
+    "id": "use-the-app-on-a-narrow-screen",
+    "goal": "Let the user keep the navigation on a narrow screen",
+    "phrases": [ "responsive layout", "responsive sidebar", "mobile layout", "sidebar on small screens" ],
+    "answer": [
+      { "page": "/frame#narrow-screens", "role": "primary" },
+      { "page": "/frame#on-a-phone-the-document-scrolls", "role": "part" },
+      { "page": "/bottombar#on-a-phone-only", "role": "part" },
+      { "page": "/nav#collapsed-rail", "role": "part" }
+    ],
+    "how": ".layout--responsive forces the sidebar to its rail below 900px, or at 560px or 1200px with a modifier; .layout--flow lets the document scroll on a phone, and .layout--bottombar trades the sidebar for the bottom bar there.",
+    "avoid": "Hiding parts of the frame with breakpoints of the app's own instead of .sidebar-wide and .topbar-wide."
+  },
+  {
+    "id": "pick-a-workspace",
+    "goal": "Let the user choose a workspace before entering the app",
+    "phrases": [ "workspace picker", "choose a tenant", "select an organisation", "select workspace" ],
+    "answer": [
+      { "page": "/frame#bare-shell", "role": "primary" }
+    ],
+    "how": ".bare-layout keeps the topbar and drops the sidebar, for the step before there is a workspace to navigate; the choice is a card of links.",
+    "avoid": "Showing the full sidebar before a workspace is chosen, when none of its links can work yet."
+  },
+  {
+    "id": "keep-a-footer-at-the-bottom",
+    "goal": "Let the user find the footer at the bottom of a short page",
+    "phrases": [ "page footer", "sticky footer", "footer at the bottom", "build info footer" ],
+    "answer": [
+      { "page": "/frame#a-footer-at-the-bottom-of-a-short-page", "role": "primary" },
+      { "page": "/empty-state#page-level", "role": "part" }
+    ],
+    "how": ".page--fill makes the page a flex column, so a .page-foot sits at the bottom of a short page and under the content of a long one, and a lone .empty-state--page centres between the top and the foot.",
+    "avoid": "Adding .page--fill to every page by habit: a flex column stops the margins between siblings collapsing, which the block page relies on."
+  },
+  {
+    "id": "sign-in",
+    "goal": "Let the user sign in with an e-mail and a password or a passkey",
+    "phrases": [ "login page", "sign-in form", "log in screen", "authentication page", "sign in with a passkey" ],
+    "answer": [
+      { "page": "/page-recipes#a-sign-in-page", "role": "primary" },
+      { "page": "/frame#auth-layout", "role": "part" }
+    ],
+    "how": "The content of .auth-layout: the brand, one .auth-card with the fields and Sign in, and the account line in .auth-foot. A failed attempt says so above the fields without naming the one that was wrong, and autocomplete lets a password manager fill both.",
+    "avoid": "Clearing the e-mail address after a failed attempt, or saying which of the two was wrong."
+  },
+  {
+    "id": "explain-access-denied",
+    "goal": "Let the user see why they cannot open a page and ask for access",
+    "phrases": [ "403 page", "access denied page", "forbidden page", "permission denied", "no access screen" ],
+    "answer": [
+      { "page": "/common-pages#access-denied", "role": "primary" },
+      { "page": "/frame#auth-layout", "role": "part" },
+      { "page": "/empty-state#page-level", "role": "part" }
+    ],
+    "how": ".auth-layout with one .empty-state--page: the code, a title naming what they cannot reach, the role and who grants it, and asking for it as the primary action. The account line goes in .auth-foot, since a 403 is often the wrong account.",
+    "avoid": "Saying only that access is denied, which leaves the reader nobody to ask."
+  },
+  {
+    "id": "say-a-page-was-not-found",
+    "goal": "Let the user see that what they asked for does not exist and carry on",
+    "phrases": [ "page not found", "404 page", "not found screen", "missing record page", "broken link page" ],
+    "answer": [
+      { "page": "/common-pages#not-found", "role": "primary" },
+      { "page": "/frame#full-shell", "role": "part" },
+      { "page": "/pager#breadcrumbs", "role": "part" }
+    ],
+    "how": "The frame stays, since the reader is signed in, and one .empty-state--page sits at the top of .page under the trail. It names the reference that was not found and offers to search for it.",
+    "avoid": "Dropping the frame, which takes away the nav the reader would carry on with."
+  },
+  {
+    "id": "recover-from-a-server-error",
+    "goal": "Let the user recover from a request that failed on the server",
+    "phrases": [ "error page", "crash page", "500 page", "something went wrong page", "server error screen" ],
+    "answer": [
+      { "page": "/common-pages#something-went-wrong", "role": "primary" },
+      { "page": "/empty-state#waiting-and-failed", "role": "part" }
+    ],
+    "how": ".empty-state--failed in .auth-layout, saying whether trying again is safe, with the reference in .empty-state-detail beside a data-copy button for the service desk.",
+    "avoid": "Leaving out whether the action went through, so the reader repeats it or gives up."
+  },
+  {
+    "id": "sign-in-after-the-session-expired",
+    "goal": "Let the user sign in again once their session has expired",
+    "phrases": [ "signed out page", "session expired page", "401 page", "login expired" ],
+    "answer": [
+      { "page": "/common-pages#session-expired", "role": "primary" },
+      { "page": "/frame#auth-layout", "role": "part" }
+    ],
+    "how": ".auth-layout with one .empty-state--page saying why they were signed out and what happened to their work, Sign in as the one action, and a line saying they come back to the page they were on.",
+    "avoid": "Using this page while the app still runs and only the connection dropped, which is the status bar's."
+  },
+  {
+    "id": "warn-before-the-session-ends",
+    "goal": "Let the user stay signed in before their session runs out",
+    "phrases": [ "session timeout warning", "idle timeout", "about to be signed out", "keep me signed in dialog", "inactivity warning" ],
+    "answer": [
+      { "page": "/common-pages#before-the-session-ends", "role": "primary" },
+      { "page": "/modal", "role": "part" },
+      { "page": "/live-state#countdown", "role": "part" }
+    ],
+    "how": "The app's own modal with role=\"alertdialog\", opened at least two minutes before the end with ShowModalAsync and the session's token, the time left as a countdown in its words, and Stay signed in as the primary beside Sign out.",
+    "avoid": "Ending a session on a timer the reader never saw, which loses their work."
+  },
+  {
+    "id": "say-when-maintenance-ends",
+    "goal": "Let the user know when the app is back during maintenance",
+    "phrases": [ "service unavailable page", "maintenance page", "503 page", "down for maintenance", "under maintenance" ],
+    "answer": [
+      { "page": "/common-pages#maintenance", "role": "primary" },
+      { "page": "/banner#more-than-one-line", "role": "part" }
+    ],
+    "how": ".auth-layout with one .empty-state--page whose title is the time the app is back, a line on what happens to work already sent, Check again and the status page. A banner warns of the window beforehand.",
+    "avoid": "Titling the page Maintenance rather than the time it comes back."
+  },
+  {
+    "id": "see-how-things-stand",
+    "goal": "Let the user see at a glance how things stand and what needs them",
+    "phrases": [ "overview page", "home dashboard", "dashboard page", "summary page", "home page" ],
+    "answer": [
+      { "page": "/page-recipes#an-overview", "role": "primary" },
+      { "page": "/stat#a-row-of-tiles", "role": "part" },
+      { "page": "/grid#a-dashboard", "role": "part" }
+    ],
+    "how": "The figures first, as a .stat-row in one card; the charts on a .sedna-grid-24 under them; then the lists that send the reader somewhere, each panel ending in a link to the page it summarises. A control for the period goes in the page head.",
+    "avoid": "A period control inside one card, which reads as that card's alone when it applies to the whole page."
+  },
+  {
+    "id": "find-a-record-on-a-list-page",
+    "goal": "Let the user find one record among many on a list page",
+    "phrases": [ "table page", "list page", "index page", "crud list page" ],
+    "answer": [
+      { "page": "/page-recipes#a-list-page", "role": "primary" },
+      { "page": "/toolbar#filters-and-a-count", "role": "part" },
+      { "page": "/table#with-a-toolbar-in-a-card", "role": "part" },
+      { "page": "/pager#pagination", "role": "part" },
+      { "page": "/chip#what-is-applied-under-the-toolbar", "role": "part" }
+    ],
+    "how": "Page head, toolbar, the chips of what is applied, the table in a card and the pager, each a child of .page so its rhythm spaces them. The toolbar's count and the pager agree.",
+    "avoid": "Swapping the table for an empty page when a filter finds nothing: the table keeps its head and one .tr-empty row."
+  },
+  {
+    "id": "read-a-record",
+    "goal": "Let the user read one record and act on it",
+    "phrases": [ "entity view", "detail page", "record overview", "item details page", "single record view" ],
+    "answer": [
+      { "page": "/page-recipes#a-detail-page", "role": "primary" },
+      { "page": "/pager#breadcrumbs", "role": "part" },
+      { "page": "/tabs#a-strip-of-links", "role": "part" },
+      { "page": "/card#key-value-rows", "role": "part" },
+      { "page": "/grid#sedna-split", "role": "part" }
+    ],
+    "how": "A breadcrumb back to the list, a head naming the record with its state, an alert for the one thing to know before acting, tabs as links, and a .sedna-split with the fields and lines in the main column and the people and history in the aside.",
+    "avoid": "Laying one record's fields out as a table, when they read top to bottom as .kv rows."
+  },
+  {
+    "id": "create-or-edit-a-record",
+    "goal": "Let the user create something new or change it in a form of its own",
+    "phrases": [ "edit page", "create page", "new record page", "crud form page", "add item page" ],
+    "answer": [
+      { "page": "/page-recipes#a-create-or-edit-page", "role": "primary" },
+      { "page": "/form#a-whole-form", "role": "part" },
+      { "page": "/form-validation", "role": "part" },
+      { "page": "/form-saving#actions-that-stay-in-reach", "role": "part" }
+    ],
+    "how": "One form in one card, in .form-sections that each name a subject. After a rejected submit a summary at the top links to every field at fault, and .form-actions--sticky keeps the commit button in reach, with the draft on the far side.",
+    "avoid": "Putting fields side by side because there is room, rather than because they belong together."
+  },
+  {
+    "id": "do-a-task-in-steps",
+    "goal": "Let the user do a task that takes several decisions, one step at a time",
+    "phrases": [ "wizard", "wizard page", "multi-step wizard", "setup wizard", "guided steps" ],
+    "answer": [
+      { "page": "/page-recipes#a-step-in-a-longer-task", "role": "primary" },
+      { "page": "/collections#steps", "role": "part" },
+      { "page": "/form-flow#task-list", "role": "part" }
+    ],
+    "how": "The .steps row says where the reader is and how far is left, the card asks one question with Continue as its only button, and a .back-link above the page head goes to the previous step. An option that cannot be chosen says why.",
+    "avoid": "A wizard where later questions do not depend on earlier ones; a long form filled in over several sittings is a task list."
+  },
+  {
+    "id": "work-through-records",
+    "goal": "Let the user work through records one after another beside their list",
+    "phrases": [ "two pane layout", "master detail", "master-detail layout", "inbox layout", "list detail view" ],
+    "answer": [
+      { "page": "/page-recipes#a-list-beside-its-record", "role": "primary" },
+      { "page": "/grid#sedna-split", "role": "part" },
+      { "page": "/list", "role": "part" }
+    ],
+    "how": "The list is the .sedna-split's aside and keeps its place while the record beside it changes, the open one marked aria-current. Each half is a card with its own head, so the record's actions plainly belong to it.",
+    "avoid": "Marking the open record with a class alone, which a screen reader never hears."
+  },
+  {
+    "id": "search-everything",
+    "goal": "Let the user search everything and narrow the results by kind",
+    "phrases": [ "search page", "search results page", "results by type", "full search results" ],
+    "answer": [
+      { "page": "/page-recipes#search-results", "role": "primary" },
+      { "page": "/tabs#a-strip-of-links", "role": "part" },
+      { "page": "/toolbar", "role": "part" },
+      { "page": "/pager", "role": "part" }
+    ],
+    "how": "The query stays in its field; tabs split the results by kind with a count each, a toolbar narrows them, and every row says what kind of thing it is and why it matched. The count is a live region.",
+    "avoid": "Emptying the field once the results show, so a typo has to be typed again."
+  },
+  {
+    "id": "change-settings",
+    "goal": "Let the user change how the app behaves for them",
+    "phrases": [ "options page", "settings page", "preferences page", "user preferences" ],
+    "answer": [
+      { "page": "/page-recipes#a-settings-page", "role": "primary" },
+      { "page": "/page-navigation#on-this-page", "role": "part" },
+      { "page": "/form#boxed-sections", "role": "part" },
+      { "page": "/form-saving#the-save-bar", "role": "part" }
+    ],
+    "how": "One boxed .form-section per subject beside a .page-toc that marks the one in view; what most readers never change folds away, and a save bar shows only while the form differs from what was saved.",
+    "avoid": "A switch that waits for Save: a switch applies at once, and a choice that waits is a checkbox."
+  },
+  {
+    "id": "manage-their-account",
+    "goal": "Let the user see and change what the app knows about them",
+    "phrases": [ "account page", "profile page", "my account", "active sessions", "sign out other devices" ],
+    "answer": [
+      { "page": "/page-recipes#an-account-page", "role": "primary" },
+      { "page": "/card#key-value-rows", "role": "part" },
+      { "page": "/avatar", "role": "part" }
+    ],
+    "how": ".kv rows with a change link each, a table of where they are signed in that names this device, and leaving the workspace last and alone in its card, saying what happens to their work.",
+    "avoid": "A sessions list that does not name the device in use, so the reader signs themselves out."
+  },
+  {
+    "id": "ask-if-a-page-helped",
+    "goal": "Let the user say whether a page was useful",
+    "phrases": [ "page feedback", "was this helpful", "feedback widget", "helpful yes or no", "report a problem with this page" ],
+    "answer": [
+      { "page": "/page-recipes#page-feedback", "role": "primary" }
+    ],
+    "how": "One region at the end of the page: the question with Yes and No, and Report a problem. No opens two open questions and Send replaces the form with the thanks, in the same region, so focus and the reader's place stay.",
+    "avoid": "Asking for personal details, or not saying above the fields that none are wanted."
+  }
+]

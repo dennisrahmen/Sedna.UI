@@ -1,0 +1,73 @@
+@page "/design-guide"
+@using Sedna.UI.Catalogue.Guide
+@inject DesignGuide Guide
+
+@* docs/design-guide/, rendered: the goals first, because a page is chosen from what its user has
+   to do, then the principles. Nothing here is written twice — the words are the files', and
+   every component page shows its own entry at its foot (CatGuide). *@
+
+@* The lede is principles.md's opening paragraph, so the page and get_guide("principles") say the same. *@
+<CatHead Title="Design guide" Tier="@CatHead.Site">
+    @((MarkupString)GuideMarkdown.InlineHtml(Guide.Intro)) Every component page carries its own entry
+    at its foot, under "Goes well with".
+</CatHead>
+
+<nav class="page-toc cat-guide-toc" aria-label="On this page">
+    <ol class="page-toc-list">
+        <li><a class="page-toc-link" href="/design-guide#goals">What the user can do</a></li>
+        @foreach (var section in Guide.Sections)
+        {
+            <li><a class="page-toc-link" href="/design-guide#@section.Id">@section.Title</a></li>
+        }
+    </ol>
+</nav>
+
+<h2 id="goals">What the user can do <CatAnchor Id="goals" /></h2>
+
+<p class="cat-lede">
+    Each goal names the part to start from and the parts around it. Search for a goal in your own
+    words from the box at the top of the page, or ask the MCP server's <code>search</code> and
+    <code>get_guide</code>.
+</p>
+
+@foreach (var group in CataloguePages.Groups)
+{
+    var goals = Guide.Goals.Where(g => g.Group == group).ToList();
+    if (goals.Count == 0) continue;
+
+    <h3 id="goals-@group.ToLowerInvariant()">@group</h3>
+    <div class="accordion">
+        @foreach (var goal in goals)
+        {
+            <details id="@goal.Id">
+                <summary><span>@goal.Goal</span></summary>
+                <div class="accordion-body cat-goal">
+                    <p>@goal.How</p>
+                    <p>
+                        <strong>Start from</strong>
+                        <a href="@goal.PrimaryPage">@DesignGuide.LabelOf(goal.PrimaryPage)</a>@if (Parts(goal) is { Count: > 0 } parts)
+                        {
+                            <text>, with </text>
+                            @for (var i = 0; i < parts.Count; i++)
+                            {
+                                @(i == 0 ? null : i == parts.Count - 1 ? " and " : ", ")<a href="@parts[i].Page">@DesignGuide.LabelOf(parts[i].Page)</a>
+                            }
+                        }.
+                    </p>
+                    <p><strong>Avoid</strong> @goal.Avoid</p>
+                </div>
+            </details>
+        }
+    </div>
+}
+
+@foreach (var section in Guide.Sections)
+{
+    <h2 id="@section.Id">@section.Title <CatAnchor Id="@section.Id" /></h2>
+    <div class="prose">@((MarkupString)GuideMarkdown.ToHtml(section.Markdown))</div>
+}
+
+@code {
+    private static List<GuideAnswer> Parts(GuideGoal goal) =>
+        goal.Answer.Where(a => a.Role == GuideAnswer.Part).ToList();
+}

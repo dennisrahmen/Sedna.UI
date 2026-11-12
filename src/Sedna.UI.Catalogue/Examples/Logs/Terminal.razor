@@ -6,7 +6,7 @@
             <i class="ri-file-copy-line"></i> <span>Copy all</span>
         </button>
     </div>
-    <ul class="output output--terminal" id="term-session" tabindex="0" aria-label="Terminal on build-runner-04" style="max-height:none">
+    <ul class="output output--terminal" id="term-session" tabindex="0" aria-label="Terminal on build-runner-04">
         <li class="output-line output-line--prompt">
             <span class="output-prompt" aria-hidden="true">$</span>
             <span class="output-cmd">dotnet test src/Orders.Tests --filter "FullyQualifiedName~Sync" --logger "console;verbosity=normal"</span>
@@ -18,7 +18,7 @@
         <li class="output-line">  Determining projects to restore...</li>
         <li class="output-line">  All projects are up-to-date for restore.</li>
         <li class="output-line output-line--error">Failed Orders.Tests.SyncTests.Reconcile_throws_on_an_empty_batch [12 ms]</li>
-        <li class="output-line output-line--go">Passed!  - Failed: 1, Passed: 11, Skipped: 0, Total: 12, Duration: 1.84 s</li>
+        <li class="output-line output-line--error">Failed!  - Failed: 1, Passed: 11, Skipped: 0, Total: 12, Duration: 1.84 s</li>
         <li class="output-line output-line--prompt">
             <span class="output-prompt" aria-hidden="true">$</span>
             <span class="output-cmd">git status --short</span>

@@ -50,7 +50,9 @@
         with <code>.output-details</code> inside the line: the columns go in its
         <code>&lt;summary&gt;</code> and the rest in <code>.output-trace</code>. The caret sits in the
         row gutter, so expanding and plain rows line up. Opening a row in a following pane lets go of
-        the tail when the row grows past the bottom, so the trace is not scrolled away.
+        the tail when the row grows past the bottom, so the trace is not scrolled away. The pane
+        stops at 320px and scrolls; <a href="/utility-scroll"><code>.sedna-scroll--lg</code></a> on it
+        lets a pane of rows that open grow to 32rem first.
     </p>
 </CatExample>
 

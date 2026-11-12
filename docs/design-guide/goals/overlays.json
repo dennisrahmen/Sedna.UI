@@ -1,0 +1,121 @@
+[
+  {
+    "id": "confirm-before-it-happens",
+    "goal": "Let the user confirm a destructive action before it happens",
+    "phrases": [ "confirm dialog", "are you sure", "delete confirmation", "confirmation modal", "confirm before deleting" ],
+    "answer": [
+      { "page": "/modal#destructive-confirm", "role": "primary" },
+      { "page": "/modal#a-confirmation-from-c", "role": "part" },
+      { "page": "/alert", "role": "part" }
+    ],
+    "how": "A .modal--sm the page writes, its heading the question, its body naming what will be lost, and its footer Cancel then the action repeated on a filled danger button. ShowModalAsync returns the value of the button pressed, and Escape comes back as null.",
+    "avoid": "Yes and No on the buttons: the confirming button repeats the action, so the reader knows what they agreed to without reading the question again."
+  },
+  {
+    "id": "answer-in-a-dialog",
+    "goal": "Let the user answer a dialog's question before anything else happens",
+    "phrases": [ "modal", "dialog", "modal dialog", "popup window", "dialog box" ],
+    "answer": [
+      { "page": "/modal#a-real-modal", "role": "primary" },
+      { "page": "/modal#opening-one-from-c", "role": "part" },
+      { "page": "/modal#widths", "role": "part" },
+      { "page": "/modal#closed-by-a-click-beside-it", "role": "part" }
+    ],
+    "how": "A dialog.modal opened with showModal(), aria-labelledby on its heading, header, body and footer rows, and the whole panel in a form method=\"dialog\" so each button closes it with its value. The platform gives the top layer, the focus trap, Escape and focus back on close.",
+    "avoid": "A div with a backdrop of the app's own for something that can be a dialog: the focus trap, Escape and the inert page behind are then the app's to write."
+  },
+  {
+    "id": "edit-in-a-dialog",
+    "goal": "Let the user edit a record in a dialog and come back to the page with the result",
+    "phrases": [ "edit dialog", "form in a modal", "modal form", "popup form", "dialog component with a result" ],
+    "answer": [
+      { "page": "/modal#a-modal-that-is-its-own-component", "role": "primary" },
+      { "page": "/modal#asking-before-it-closes", "role": "part" },
+      { "page": "/form#fields", "role": "part" }
+    ],
+    "how": "A component of its own that writes a dialog.modal with its form, presented with ISednaOverlays.ShowAsync from one SednaOverlayHost in the layout and closed with Overlay.CloseAsync(result). data-close-guard asks before Escape throws away what was typed.",
+    "avoid": "Rendering the dialog component inline in the page and opening it through a @ref: it is rendered on every visit and its state outlives each opening."
+  },
+  {
+    "id": "welcome-a-new-user",
+    "goal": "Let the user get started through a short welcome before using the app",
+    "phrases": [ "welcome modal", "onboarding slides", "intro carousel", "first run experience", "getting started deck" ],
+    "answer": [
+      { "page": "/modal#a-first-run-deck", "role": "primary" },
+      { "page": "/modal#dots-that-only-show-the-position", "role": "part" },
+      { "page": "/spotlight#a-three-step-tour", "role": "part" }
+    ],
+    "how": "A .modal.deck of a few slides, one rendered at a time and keyed on the step, with a dot button per step marked aria-current=\"step\", the position in words, and Back and Next. A tour of the page itself follows once the reader has seen it.",
+    "avoid": "A deck of more than a few slides: what the reader needs to start is short, and the rest is better shown on the page itself."
+  },
+  {
+    "id": "open-a-record-beside-the-list",
+    "goal": "Let the user open a record in a side panel without losing their place in the list",
+    "phrases": [ "drawer", "side sheet", "slide-over panel", "off-canvas panel", "detail panel from the side" ],
+    "answer": [
+      { "page": "/drawer#a-record-s-detail", "role": "primary" },
+      { "page": "/drawer#a-drawer-as-its-own-component", "role": "part" },
+      { "page": "/drawer#a-wider-drawer", "role": "part" },
+      { "page": "/timeline", "role": "part" }
+    ],
+    "how": "A dialog.drawer opened with showModal(), its header the record's lockup with .list-row--flush, everything that scrolls in .drawer-body and its decision in .drawer-footer. The list stays behind it, so closing it puts the reader back on the row.",
+    "avoid": "Using a drawer for a question that must be answered first: dismissing a drawer loses nothing, and a question that cannot be dismissed is a modal."
+  },
+  {
+    "id": "pull-up-a-bottom-sheet",
+    "goal": "Let the user pull a sheet up from the bottom of a phone screen",
+    "phrases": [ "bottom sheet", "pull up panel", "half height sheet", "draggable sheet", "mobile sheet" ],
+    "answer": [
+      { "page": "/drawer#a-sheet-that-rests-at-half-height", "role": "primary" },
+      { "page": "/drawer#from-each-edge", "role": "part" }
+    ],
+    "how": "A dialog.drawer.sheet with data-sheet, a .sheet-handle the reader drags and data-sheet-snap for the heights it rests at. Written as a button with data-sheet-expand, the handle is the keyboard's way to the next height, and a close button is still what dismisses it.",
+    "avoid": "Leaving the close button out because the sheet can be swiped down: a swipe is no way out for a keyboard or a switch."
+  },
+  {
+    "id": "choose-from-an-action-sheet",
+    "goal": "Let the user choose one of a record's actions from a sheet on a phone",
+    "phrases": [ "action sheet", "actions from the bottom of the screen", "mobile action menu", "sheet of actions" ],
+    "answer": [
+      { "page": "/drawer#a-sheet-of-actions", "role": "primary" },
+      { "page": "/list", "role": "part" }
+    ],
+    "how": "A .sheet whose body is .drawer-body--flush holding a list of button.list-row, each an icon, the action and a second line saying what it will do; the header names the record.",
+    "avoid": "A sheet for two or three short actions on a pointer screen, which a menu under the button does with less."
+  },
+  {
+    "id": "run-a-command-by-name",
+    "goal": "Let the user find and run any command by typing its name",
+    "phrases": [ "command palette", "ctrl k", "cmd k", "command menu", "quick launcher" ],
+    "answer": [
+      { "page": "/palette#open-it", "role": "primary" },
+      { "page": "/palette#registering-commands", "role": "part" },
+      { "page": "/palette#pages-separators-and-loading", "role": "part" }
+    ],
+    "how": "The app writes the palette's dialog once in its layout and registers what is available with sednaUi.palette.register, again whenever that changes; the library wires Ctrl+K, ranks the matches and runs the one chosen.",
+    "avoid": "Registering commands the reader may not run: register() replaces the list, so call it after the permission check."
+  },
+  {
+    "id": "take-a-guided-tour",
+    "goal": "Let the user learn a page through a guided tour of its controls",
+    "phrases": [ "product tour", "guided tour", "walkthrough", "coach marks", "onboarding tour" ],
+    "answer": [
+      { "page": "/spotlight#a-three-step-tour", "role": "primary" },
+      { "page": "/spotlight#the-bubble-in-sections", "role": "part" },
+      { "page": "/spotlight#making-the-rest-of-the-page-inert", "role": "part" }
+    ],
+    "how": "The app's own .spotlight-hole and .spotlight-tip with its steps, kept attached to each target by FollowSpotlightAsync; the bubble has a way out that is not Next, and the position in words as .spotlight-step.",
+    "avoid": "Treating a locked step as a security boundary: lock() stops a person's pointer, never a script."
+  },
+  {
+    "id": "point-out-something-new",
+    "goal": "Let the user notice one control the first time they see it",
+    "phrases": [ "feature highlight", "first run hint", "new feature hint", "highlight one element", "dim everything but one control" ],
+    "answer": [
+      { "page": "/spotlight#a-first-run-hint", "role": "primary" },
+      { "page": "/spotlight#the-markup", "role": "part" }
+    ],
+    "how": "One hole over the control and one bubble saying what it is for, with a single button to dismiss it and no step counter; at() places them where the target is known only at runtime.",
+    "avoid": "A step counter on a single hint: 1 of 1 promises a tour that is not coming."
+  }
+]

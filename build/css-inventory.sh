@@ -29,12 +29,21 @@
 # Usage:  build/css-inventory.sh <file.css> classes
 #         build/css-inventory.sh <file.css> tokens
 #         build/css-inventory.sh --count <file.css> classes
+#         build/css-inventory.sh --tally <file.css> classes
+#
+# --tally prints "<occurrences> <name>" per class instead, sorted by name: how many times
+# the file names each class in a selector. build/guide-stamp.sh reads it to find the part
+# a class is written in most, and a file that names no class prints nothing.
 #
 set -euo pipefail
 
 COUNT_ONLY=0
+TALLY=0
 if [[ "${1:-}" == "--count" ]]; then
     COUNT_ONLY=1
+    shift
+elif [[ "${1:-}" == "--tally" ]]; then
+    TALLY=1
     shift
 fi
 
@@ -65,6 +74,16 @@ strip() {
         { gsub(/@layer[^{;]*[;{]/, " ") ; print }
     ' "$1"
 }
+
+if [[ "$TALLY" == "1" ]]; then
+    if [[ "$WHAT" != "classes" ]]; then
+        echo "::error::--tally counts classes only." >&2
+        exit 2
+    fi
+    strip "$FILE" | grep -oE '\.-?[A-Za-z_][A-Za-z0-9_-]*' | sed 's/^\.//' | LC_ALL=C sort | uniq -c \
+        | awk '{ print $1, $2 }' || true
+    exit 0
+fi
 
 case "$WHAT" in
     classes)

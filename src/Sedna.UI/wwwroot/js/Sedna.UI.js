@@ -4516,6 +4516,15 @@ window.sednaUi = window.sednaUi || {};
             var other = score(term, text, fields[i][1]);
             if (other > s) s = other;
         }
+        if (item.keywords && item.keywords.indexOf(',') >= 0) {
+            var names = item.keywords.split(',');
+            for (var k = 0; k < names.length; k++) {
+                var name = names[k].trim();
+                if (name.toLowerCase().indexOf(term) < 0) continue;
+                var named = score(term, name, 250) + (name.length === term.length ? 10 : 0);
+                if (named > s) s = named;
+            }
+        }
         return s;
     }
     function rank(query) {

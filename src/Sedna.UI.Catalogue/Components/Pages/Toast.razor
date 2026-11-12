@@ -40,7 +40,8 @@
         toast, stacks a second under the first, and removes it after its timeout;
         <code>timeout: 0</code> keeps it until dismissed, which is what a failure wants. From C# it
         is <code>ToastAsync</code>. <code>kind</code> is <code>go</code>, <code>warn</code>,
-        <code>danger</code> or <code>info</code>, and <code>info</code> is the default.
+        <code>danger</code> or <code>info</code>, and <code>info</code> is the default. Each button
+        here takes the colour of what it does, not of the toast it raises.
     </p>
 </CatExample>
 
@@ -48,7 +49,9 @@
     <p>
         <strong>Live — upload it.</strong> <code>ToastAsync</code> returns a
         <code>SednaToast</code>: show <em>Uploading…</em> with <code>timeoutMs: 0</code>, and when the
-        work ends <code>ReplaceAsync</code> the outcome into the same toast, in place.
+        work ends <code>ReplaceAsync</code> the outcome into the same toast, in place. The button is
+        <code>aria-busy</code> while the work runs, and a failure is written on the page beside it
+        as well, where it stays until an upload succeeds.
         <code>DismissAsync</code> removes it early. A toast the reader already closed is not an error:
         replacing it shows a new one, because the outcome still has to reach them. The close button's
         name is <code>SednaUiOptions.ToastDismissLabel</code> — the one word the library writes
@@ -62,9 +65,11 @@
         running work from your own <code>&lt;template&gt;</code> &mdash; a <code>.spinner</code>
         where the icon goes, no close button, <code>timeout: 0</code> &mdash; and when the promise
         settles, <code>sednaUi.toast.replace(id, message, options)</code> turns it into the outcome
-        in place, with the usual timeout for a success and <code>timeout: 0</code> for a failure.
-        From C#, <code>PresentToastAsync</code> then <code>ReplaceAsync</code> on the handle it
-        returns does the same.
+        in place. A failure the reader has to act on is never only in the toast: show it on the page
+        too, beside the work, as an <a href="/alert">alert</a> that stays until a save succeeds. The
+        alert sits in a wrapper carrying <code>hidden</code>, because <code>.alert</code>&rsquo;s own
+        display outranks the attribute. From C#, <code>PresentToastAsync</code> then
+        <code>ReplaceAsync</code> on the handle it returns does the same.
     </p>
 </CatExample>
 

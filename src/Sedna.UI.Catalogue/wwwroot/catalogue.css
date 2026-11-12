@@ -450,6 +450,31 @@
     .ex-demo { padding: 14px; }
 }
 
+/* The page's design-guide entry, at its foot (Components/Docs/CatGuide.razor): a rule, a
+   heading row, the sentence it is for, then tiles like the landing page's. */
+.cat-guide { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); }
+.cat-guide-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cat-guide-head > h2 { margin: 0; }
+.cat-guide-use { margin: 6px 0 18px; color: var(--muted); max-width: 70ch; }
+.cat-guide > h3 { margin: 8px 0 12px; font-size: 14px; }
+.cat-guide .cat-tiles { margin-bottom: 20px; }
+.cat-tile-ic--quiet { background: var(--bg-elevated); color: var(--muted); }
+.cat-guide-goals { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.cat-guide-goals > li > a {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-size: 13px;
+}
+.cat-guide-goals > li > a:hover { border-color: var(--brand); color: var(--brand-text); text-decoration: none; }
+/* A link inside a sentence is told from the sentence by more than its colour. */
+.cat-goal a { text-decoration: underline; text-underline-offset: 2px; }
+
+/* The design guide page's contents, between its lede and its first section. */
+.cat-guide-toc { margin: 0 0 8px; }
+
 @media (max-width: 560px) {
     .cat-head { flex-direction: column; gap: 6px; }
     .cat-tier { margin-top: 0; }

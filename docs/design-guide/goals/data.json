@@ -1,0 +1,373 @@
+[
+  {
+    "id": "compare-records",
+    "goal": "Let the user scan and compare many records in columns",
+    "phrases": [ "data table", "data grid", "show records in a table", "list with columns", "compare rows" ],
+    "answer": [
+      { "page": "/table#with-a-toolbar-in-a-card", "role": "primary" },
+      { "page": "/toolbar", "role": "part" },
+      { "page": "/pager", "role": "part" },
+      { "page": "/badge", "role": "part" }
+    ],
+    "how": "A toolbar above a card, the table straight inside the card, and the pager after it. Figures go in .col-num columns so they line up, a row's state is a badge in words, and secondary columns take .col-muted.",
+    "avoid": "Using a table for the fields of one record, which reads better as key/value rows in a card."
+  },
+  {
+    "id": "sort-a-list",
+    "goal": "Let the user sort a list by one of its columns",
+    "phrases": [ "sort a table", "sortable columns", "order by column", "click a header to sort" ],
+    "answer": [
+      { "page": "/table#sortable-numeric-and-selected", "role": "primary" },
+      { "page": "/table-columns#moving-a-column", "role": "part" }
+    ],
+    "how": "A th-sort button fills each sortable heading and aria-sort on the th says the direction, which is what draws the arrow. SednaSort keeps the column and direction and carries them in the address.",
+    "avoid": "Sorting only the rows on screen when the list pages: the sort belongs to the query, or page two is in a different order from page one."
+  },
+  {
+    "id": "narrow-a-long-list",
+    "goal": "Let the user narrow a long list with filters",
+    "phrases": [ "filter a list", "faceted search", "filter panel", "filter by status", "facets" ],
+    "answer": [
+      { "page": "/filtering#filter-side-panel", "role": "primary" },
+      { "page": "/chip", "role": "part" },
+      { "page": "/drawer", "role": "part" },
+      { "page": "/toolbar", "role": "part" }
+    ],
+    "how": "Facets in a side panel beside the results, each choice with the count it would leave; the filters that apply repeated above the results as removable chips, then Clear all and the count left. On a narrow screen the same form goes in a drawer.",
+    "avoid": "Applying filters nobody can see once the panel is closed: every filter in force is shown as a chip in words."
+  },
+  {
+    "id": "filter-table-columns",
+    "goal": "Let the user filter a table's rows column by column",
+    "phrases": [ "column filters", "filter row", "header filter", "excel style filter" ],
+    "answer": [
+      { "page": "/table#a-filter-per-column", "role": "primary" },
+      { "page": "/table#a-filter-in-the-header", "role": "part" },
+      { "page": "/table-large#filter-choices-with-counts", "role": "part" },
+      { "page": "/popover", "role": "part" }
+    ],
+    "how": "A .tr-filter row under the headings with one small control per column, matched to the column's type; a .th-filter popover in the heading where the table is too narrow. A set filter marks its heading .col-filtered and repeats as a chip with the rows left.",
+    "avoid": "A free-text field for a column of a few states: a column of states is a select or checkboxes."
+  },
+  {
+    "id": "save-a-view",
+    "goal": "Let the user save filters as a named view and switch between views",
+    "phrases": [ "saved views", "saved filters", "save a search", "named views" ],
+    "answer": [
+      { "page": "/filtering#saved-views", "role": "primary" },
+      { "page": "/menu", "role": "part" },
+      { "page": "/modal", "role": "part" }
+    ],
+    "how": "A menu whose trigger names the view in use, the current one aria-current. Once the filters differ from the view, a Modified badge beside the trigger with Save view and Discard changes; Save as new view asks for the name in a modal.",
+    "avoid": "Saving a view silently whenever a filter changes, which leaves the reader no way back to the view they chose."
+  },
+  {
+    "id": "build-a-query",
+    "goal": "Let the user combine conditions with AND and OR",
+    "phrases": [ "query builder", "rule builder", "advanced search conditions", "and or conditions" ],
+    "answer": [
+      { "page": "/filtering#query-builder", "role": "primary" },
+      { "page": "/segmented", "role": "part" }
+    ],
+    "how": "A .rule-group per group, its head holding the AND/OR segmented choice, its body the condition rows and nested groups. A row is field, operator, value and its remove button, in that order.",
+    "avoid": "Offering a query builder where a handful of facets would do: most readers filter, few write queries."
+  },
+  {
+    "id": "edit-cells-in-place",
+    "goal": "Let the user edit a table's cells in place",
+    "phrases": [ "editable table", "inline editing", "spreadsheet", "edit a cell", "editable grid" ],
+    "answer": [
+      { "page": "/table-editing#editing-a-cell", "role": "primary" },
+      { "page": "/table-editing#a-row-in-edit-mode", "role": "part" },
+      { "page": "/form-saving", "role": "part" }
+    ],
+    "how": "A keyboard grid whose cells carry a .cell-editor after the value: Enter or F2 edits, Enter commits, Escape puts it back. The app renders data-dirty on a changed cell and aria-invalid on a rejected one, and saves with a button of its own.",
+    "avoid": "Making a table that is read, not worked in, a grid: role=\"grid\" stops a screen reader reading it as a table."
+  },
+  {
+    "id": "work-in-a-grid",
+    "goal": "Let the user move through a table cell by cell with the keyboard",
+    "phrases": [ "keyboard grid", "arrow key navigation in a table", "select a range of cells", "roving focus table" ],
+    "answer": [
+      { "page": "/table-editing#a-keyboard-grid", "role": "primary" }
+    ],
+    "how": "role=\"grid\" on the table makes it one tab stop walked with the arrow keys, Home, End and Page Up and Down; aria-multiselectable lets Shift select a range, read back with sednaUi.grid.range.",
+    "avoid": "Adding a tabindex to every cell yourself: the script keeps one cell in the tab order and the grid is one stop."
+  },
+  {
+    "id": "page-through-results",
+    "goal": "Let the user page through a long result set",
+    "phrases": [ "pagination", "pager", "next page", "page numbers", "previous and next" ],
+    "answer": [
+      { "page": "/pager#pagination", "role": "primary" },
+      { "page": "/pager#which-numbers-to-show-from-c", "role": "part" },
+      { "page": "/table", "role": "part" }
+    ],
+    "how": "A nav of page links straight after the card it pages, the ends, the pages around the current one and the gaps from SednaPager.Window, and the range of rows at the far end.",
+    "avoid": "Showing only the current page between Previous and Next for a list of known length, which says nothing about how far there is to go."
+  },
+  {
+    "id": "show-where-a-page-sits",
+    "goal": "Let the user see where a page sits and go back up a level",
+    "phrases": [ "breadcrumbs", "breadcrumb trail", "navigation path", "go up a level" ],
+    "answer": [
+      { "page": "/pager#breadcrumbs", "role": "primary" },
+      { "page": "/structure#page-head", "role": "part" }
+    ],
+    "how": "A .breadcrumb above the page head, every level a link and the current page a span with aria-current=\"page\".",
+    "avoid": "Adding breadcrumbs where the sidebar already shows the current page: they repeat it and earn nothing."
+  },
+  {
+    "id": "browse-thousands-of-rows",
+    "goal": "Let the user scroll through thousands of rows",
+    "phrases": [ "virtual scrolling", "virtualized table", "infinite scroll", "load more rows", "large data set" ],
+    "answer": [
+      { "page": "/table-large#virtualized-rows", "role": "primary" },
+      { "page": "/table-large#loading-more", "role": "part" },
+      { "page": "/table#sticky-header", "role": "part" }
+    ],
+    "how": "Blazor's Virtualize inside the tbody with SpacerElement=\"tr\", every row carrying aria-rowindex and the table aria-rowcount, in a scroller with a sticky header. A list paged on request ends in a .tr-more row instead.",
+    "avoid": "Rendering every row into the page, which is slow to draw and slower to scroll."
+  },
+  {
+    "id": "expand-a-hierarchy-in-a-table",
+    "goal": "Let the user open and close a hierarchy inside a table",
+    "phrases": [ "tree grid", "tree table", "nested rows", "expandable hierarchy", "treegrid" ],
+    "answer": [
+      { "page": "/table-large#a-tree-grid", "role": "primary" },
+      { "page": "/table-large#a-tree-grid-from-blazor", "role": "part" },
+      { "page": "/tree", "role": "part" }
+    ],
+    "how": "role=\"treegrid\" on the table, aria-level on each row and aria-expanded on each branch, a .tree-toggle in the tree column. The rows stay flat in the tbody and the script shows a row while every branch above it is open.",
+    "avoid": "Nesting tables inside rows to show children, which breaks the columns and the keyboard."
+  },
+  {
+    "id": "choose-table-columns",
+    "goal": "Let the user choose, resize and reorder a table's columns",
+    "phrases": [ "column chooser", "show and hide columns", "resize columns", "reorder columns", "customise columns" ],
+    "answer": [
+      { "page": "/table-columns#choosing-the-columns", "role": "primary" },
+      { "page": "/table-columns#resizing-a-column", "role": "part" },
+      { "page": "/table-columns#moving-a-column", "role": "part" },
+      { "page": "/menu", "role": "part" }
+    ],
+    "how": "A menu of checkboxes, one per column, bound to whether the app renders it; .table--fixed with a .col-resize grip per heading for widths; the header row as a drag zone for order. The app keeps all three per user and renders the table from them.",
+    "avoid": "Hiding a column with CSS: the app stops rendering it, so it leaves the accessibility tree and the data too."
+  },
+  {
+    "id": "show-a-key-figure",
+    "goal": "Let the user see the one number that matters and which way it moved",
+    "phrases": [ "kpi", "stat tile", "metric card", "big number", "dashboard figure" ],
+    "answer": [
+      { "page": "/stat", "role": "primary" },
+      { "page": "/stat#which-way-it-moved", "role": "part" },
+      { "page": "/sparkline#under-a-figure", "role": "part" },
+      { "page": "/grid#a-dashboard", "role": "part" }
+    ],
+    "how": "A .stat with its label above the value and a .stat-delta whose arrow carries the direction and whose modifier carries the judgement; a .stat-row for a set of them.",
+    "avoid": "Colouring a delta by direction: more open orders is up and bad, so the modifier says good or bad and the arrow says up or down."
+  },
+  {
+    "id": "compare-a-few-values",
+    "goal": "Let the user compare a handful of values at a glance",
+    "phrases": [ "bar list", "ranking bars", "top five", "horizontal bars", "compare values" ],
+    "answer": [
+      { "page": "/bars#a-list-of-bars", "role": "primary" },
+      { "page": "/chart#bars-for-long-names", "role": "part" }
+    ],
+    "how": "A .bar-list of label, bar and value, each fill a --value share of the widest. The figure is text as well as a bar, because the number is what the reader takes away.",
+    "avoid": "Drawing a chart with axes for five values a bar list states more plainly."
+  },
+  {
+    "id": "show-parts-of-a-whole",
+    "goal": "Let the user see how a total splits into parts",
+    "phrases": [ "stacked bar", "breakdown", "share of total", "proportions", "composition" ],
+    "answer": [
+      { "page": "/bars#one-bar-in-parts", "role": "primary" },
+      { "page": "/bars#a-list-of-bars-in-parts", "role": "part" },
+      { "page": "/chart#pies-and-donuts", "role": "part" }
+    ],
+    "how": "One .stack-bar whose segments add up, role=\"img\" with a label giving the numbers, and a .stack-bar-legend naming each part with its figure.",
+    "avoid": "Colouring parts that are merely different with semantic tones: categories take the .series-1 to .series-6 run."
+  },
+  {
+    "id": "show-usage-against-a-limit",
+    "goal": "Let the user see a value against its limit",
+    "phrases": [ "meter", "quota", "capacity", "usage bar", "threshold", "disk usage" ],
+    "answer": [
+      { "page": "/bars#a-value-against-its-thresholds", "role": "primary" },
+      { "page": "/bars#a-value-on-a-dial", "role": "part" },
+      { "page": "/stat#over-a-threshold", "role": "part" },
+      { "page": "/progress", "role": "part" }
+    ],
+    "how": "A .meter with a .meter-mark at each threshold and the fill in the tone the value has reached; a gauge where one figure is the point of a tile.",
+    "avoid": "Using a progress bar for usage: progress ends at 100% and is done, a meter has a line the fill should not cross."
+  },
+  {
+    "id": "compare-with-last-period",
+    "goal": "Let the user compare a figure with the period before",
+    "phrases": [ "this year against last", "compare to previous period", "year over year", "month over month" ],
+    "answer": [
+      { "page": "/bars#this-year-against-last", "role": "primary" },
+      { "page": "/bars#month-against-month-with-the-change", "role": "part" },
+      { "page": "/stat#which-way-it-moved", "role": "part" }
+    ],
+    "how": "A .bar-previous first in each track, hatched under the current fill, the previous figure beside the current one and a legend that names the hatch.",
+    "avoid": "Leaving the legend out, so the reader takes the hatch for a second series."
+  },
+  {
+    "id": "show-a-trend",
+    "goal": "Let the user see the trend of a figure at a glance",
+    "phrases": [ "sparkline", "trend line", "mini chart", "small trend graph" ],
+    "answer": [
+      { "page": "/sparkline#under-a-figure", "role": "primary" },
+      { "page": "/sparkline#in-a-table-cell", "role": "part" },
+      { "page": "/stat", "role": "part" }
+    ],
+    "how": "An inline SVG .sparkline under the figure it illustrates, its points scaled by the app into the viewBox, aria-hidden because the figure beside it is the answer.",
+    "avoid": "A sparkline with no figure beside it: a line with no axis says which way, never where."
+  },
+  {
+    "id": "show-status-history",
+    "goal": "Let the user see what happened in each slot of a period",
+    "phrases": [ "uptime history", "status history", "uptime bar", "incident history", "run history" ],
+    "answer": [
+      { "page": "/tracker#thirty-days-of-uptime", "role": "primary" },
+      { "page": "/hover-hints", "role": "part" }
+    ],
+    "how": "A .tracker of blocks, one per day or run, each in the semantic tone of what happened and with its detail in a data-tip; role=\"img\" and a label with the totals on the row.",
+    "avoid": "Leaving a day with no data in a success tone: it takes .series-muted."
+  },
+  {
+    "id": "show-activity-over-time",
+    "goal": "Let the user see how much happened on each day or hour",
+    "phrases": [ "heatmap", "contribution graph", "activity calendar", "busy hours" ],
+    "answer": [
+      { "page": "/tracker#a-calendar-of-activity", "role": "primary" },
+      { "page": "/tracker#hours-by-day-in-two-sizes", "role": "part" }
+    ],
+    "how": "A .heatmap of cells, each a step from --1 to --4 that the app bands from its own data, and a .heatmap-legend from less to more.",
+    "avoid": "Colouring cells by hand: the steps are one hue moving away from the card, which keeps their order in every theme and in forced colours."
+  },
+  {
+    "id": "plot-data",
+    "goal": "Let the user read figures over time or across categories as a chart",
+    "phrases": [ "line chart", "bar chart", "column chart", "pie chart", "area chart", "scatter plot" ],
+    "answer": [
+      { "page": "/chart#a-line-from-a-table", "role": "primary" },
+      { "page": "/chart#columns-a-tooltip-and-a-legend-that-switches", "role": "part" },
+      { "page": "/chart#loading-empty-and-failed", "role": "part" }
+    ],
+    "how": "A [data-chart] holding the app's own table of the figures, which is the data and the text alternative at once, with the app's legend and tooltip around the drawing.",
+    "avoid": "Reaching for a chart where a bar list, a meter or a sparkline would say it with no script."
+  },
+  {
+    "id": "see-a-schedule",
+    "goal": "Let the user see their schedule on a calendar",
+    "phrases": [ "calendar", "month view", "week view", "scheduler", "planner", "resource timeline" ],
+    "answer": [
+      { "page": "/calendar#a-month", "role": "primary" },
+      { "page": "/calendar#a-week-on-a-time-axis", "role": "part" },
+      { "page": "/calendar#a-resource-timeline", "role": "part" },
+      { "page": "/calendar-agenda#an-agenda", "role": "part" }
+    ],
+    "how": "A month, a week on a time axis or a resource timeline drawn from the app's own positions as custom properties; the agenda is the same events as a list.",
+    "avoid": "Expecting the library to work out dates, overlaps or recurrences: it paints where the app says."
+  },
+  {
+    "id": "list-upcoming-events",
+    "goal": "Let the user read upcoming events as a list by day",
+    "phrases": [ "agenda", "upcoming events", "event list", "list of appointments" ],
+    "answer": [
+      { "page": "/calendar-agenda#an-agenda", "role": "primary" },
+      { "page": "/calendar-agenda#an-agenda-in-a-narrow-panel", "role": "part" }
+    ],
+    "how": "A .cal-agenda of days, each heading pinned while its events scroll under it, each event a time, a dot in its hue, a title and a meta line.",
+    "avoid": "Leaving an empty day blank: say it in words, or leave the day out."
+  },
+  {
+    "id": "reschedule-by-dragging",
+    "goal": "Let the user reschedule events by dragging them",
+    "phrases": [ "drag events", "reschedule", "drag and drop calendar", "resize an event" ],
+    "answer": [
+      { "page": "/calendar-agenda#move-an-event-to-another-day", "role": "primary" },
+      { "page": "/calendar-agenda#move-and-resize-on-a-time-axis", "role": "part" },
+      { "page": "/drag-drop", "role": "part" }
+    ],
+    "how": "The calendar's events as drag items over its days as slots; the drop arrives as sedna-drop and a resize as sedna-resize, and the app changes the date in its own data and renders it there.",
+    "avoid": "Expecting the drop to move the event: nothing the library does survives a render it did not ask for."
+  },
+  {
+    "id": "see-how-things-connect",
+    "goal": "Let the user see how records connect to each other",
+    "phrases": [ "network graph", "node graph", "dependency map", "relationship diagram", "nodes and edges" ],
+    "answer": [
+      { "page": "/graph#a-graph-from-a-list", "role": "primary" },
+      { "page": "/graph-layouts", "role": "part" },
+      { "page": "/graph-exploring", "role": "part" },
+      { "page": "/graph-gallery", "role": "part" }
+    ],
+    "how": "A [data-graph] with the records and links as a list written in sentences, which is what the canvas draws and what a screen reader reads. The layout is chosen by the question the reader asks.",
+    "avoid": "Drawing a graph for something that is really a list or a tree: a graph is for links that cross."
+  },
+  {
+    "id": "explore-a-network",
+    "goal": "Let the user filter, search and inspect a large network",
+    "phrases": [ "filter a graph", "search nodes", "explore relationships", "neighbourhood of a node" ],
+    "answer": [
+      { "page": "/graph-exploring#all-of-it-together", "role": "primary" },
+      { "page": "/graph-exploring#filter-chips-that-are-the-legend", "role": "part" },
+      { "page": "/graph-plugins#the-minimap", "role": "part" },
+      { "page": "/graph-blazor", "role": "part" }
+    ],
+    "how": "Filter chips that are also the legend, a search field, a side panel for the chosen record and a minimap, each ordinary markup with a data-graph-* attribute and no script of the app's own.",
+    "avoid": "Writing a second legend beside the filter chips: the chips are the key."
+  },
+  {
+    "id": "show-an-org-chart",
+    "goal": "Let the user see who reports to whom",
+    "phrases": [ "org chart", "organisation chart", "hierarchy diagram", "reporting lines" ],
+    "answer": [
+      { "page": "/graph-gallery#an-org-chart", "role": "primary" },
+      { "page": "/graph-layouts#a-hierarchy-top-down", "role": "part" }
+    ],
+    "how": "A graph laid out top down with boxes so every name is read, right-angled links, and the role in each record's meta.",
+    "avoid": "A link that skips a level, which pulls the person it starts from down a rank."
+  },
+  {
+    "id": "draw-links-between-records",
+    "goal": "Let the user connect records by drawing links between them",
+    "phrases": [ "draw edges", "connect nodes", "link editor", "flow editor" ],
+    "answer": [
+      { "page": "/graph-plugins#drawing-links", "role": "primary" },
+      { "page": "/graph-blazor#links-the-reader-draws", "role": "part" },
+      { "page": "/graph-gallery#a-flow-being-edited", "role": "part" }
+    ],
+    "how": "The graph's link-drawing plugin reports each drawn link as sedna-graph-connect; the app decides whether it stands and adds it to its own records.",
+    "avoid": "Treating a drawn link as saved before the app has accepted it."
+  },
+  {
+    "id": "follow-a-process-run",
+    "goal": "Let the user follow a process run step by step",
+    "phrases": [ "workflow diagram", "pipeline status", "process flow", "run steps", "flowchart of a run" ],
+    "answer": [
+      { "page": "/workflow#a-run", "role": "primary" },
+      { "page": "/workflow#the-state-of-a-step", "role": "part" },
+      { "page": "/workflow-run", "role": "part" }
+    ],
+    "how": "An ol.workflow of steps, each with data-state; forks and branches are the structure. The wires take their state from the step they lead into, so the app writes one attribute per step.",
+    "avoid": "Putting the state on the node instead of the step, which leaves the wire into it unlit."
+  },
+  {
+    "id": "watch-a-run-live",
+    "goal": "Let the user watch an automated run as it happens",
+    "phrases": [ "live pipeline", "real time workflow", "automation monitor", "watch a run" ],
+    "answer": [
+      { "page": "/workflow-run#a-support-call-from-the-phone-to-the-engineer-on-call", "role": "primary" },
+      { "page": "/workflow#how-much-moves", "role": "part" },
+      { "page": "/graph-blazor#a-run-step-by-step", "role": "part" }
+    ],
+    "how": "An overview of the stages above the detailed run, both bound to one dictionary of step to state that the app updates from the automation's events, the detail following the step at work.",
+    "avoid": "Leaving the moving light on with no way to still it: .workflow--flow-off is the reader's control, and a run watched for hours wants it."
+  }
+]

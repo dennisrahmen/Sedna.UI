@@ -1,0 +1,56 @@
+[
+  {
+    "page": "/badge",
+    "useFor": "A record's state, category or rank as a short word in a tone, read beside a title, in a table cell or in a line of text.",
+    "combineWith": [
+      { "page": "/table#basic", "how": "A row's state in a column of its own, in words as well as a tone." },
+      { "page": "/card#head-and-body", "how": "In .card-head-right, the record's state beside its title." },
+      { "page": "/list#list", "how": "In .list-meta at the end of a row, the state of the person or record the row names." },
+      { "page": "/popover#popover", "how": "The AI label is a button that opens a popover saying where the value came from." }
+    ],
+    "notFor": [
+      { "text": "A filter or a pick the user can remove", "instead": "/chip#a-set-of-filters" },
+      { "text": "What an agent is doing right now", "instead": "/agent-status#the-status-pill" },
+      { "text": "Whether a person is available", "instead": "/avatar#presence" },
+      { "text": "A condition of the whole page", "instead": "/alert#every-tone" },
+      { "text": "A count on a navigation link", "instead": "/nav#nav-items" }
+    ],
+    "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
+    "stamp": "ec93f665cece56b9"
+  },
+  {
+    "page": "/chip",
+    "useFor": "A thing the user put there and can take away — an applied filter, a chosen person, a label on a record — with its remove button, in a set that wraps.",
+    "combineWith": [
+      { "page": "/toolbar#filters-and-a-count", "how": "The toolbar changes the filters; the chip set under it says what is applied, then Clear all." },
+      { "page": "/filtering#filter-side-panel", "how": "Every choice ticked in the facet panel repeats as a chip above the results." },
+      { "page": "/form-combo#multiselect-with-chips", "how": "Each pick in a multiselect field is a chip inside the field's box." },
+      { "page": "/avatar#sizes-and-fallbacks", "how": "An .avatar--sm inside the chip for a chosen person." }
+    ],
+    "notFor": [
+      { "text": "A state that reflects the data", "instead": "/badge#semantic" },
+      { "text": "An action", "instead": "/button" },
+      { "text": "A choice between a few views or settings", "instead": "/segmented#segmented-control" }
+    ],
+    "goals": [ "narrow-a-long-list", "search-a-list", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "pick-several-as-chips", "find-a-record-on-a-list-page", "approve-an-agent-action" ],
+    "stamp": "e9b9e8def838e8fc"
+  },
+  {
+    "page": "/avatar",
+    "useFor": "Who did something or who is involved — a picture, initials or an icon — as one person, a group or a pair, with their presence and whether someone is acting as them.",
+    "combineWith": [
+      { "page": "/list#list", "how": "An avatar, a name and a second line is a .list-row with .list-main; there is no person class." },
+      { "page": "/chip#chosen-people-in-a-field", "how": "An .avatar--sm inside a chip for a chosen person." },
+      { "page": "/topbar#user-menu", "how": "The user widget's .user-avatar, ringed while an administrator acts as someone." },
+      { "page": "/badge#with-an-icon", "how": "A .badge--warn that says Acting as in words beside the ring." },
+      { "page": "/menu#a-value-trigger-in-a-table-cell", "how": "A person's access in the next column of a table, changed from a value trigger." },
+      { "page": "/chat#the-conversations", "how": "A group conversation in a list takes .avatar-pair, so the names stay in one column." }
+    ],
+    "notFor": [
+      { "text": "An agent rather than a person", "instead": "/agent-avatar#a-roster-of-agents" },
+      { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
+    ],
+    "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
+    "stamp": "5a59f47a4fc61ccf"
+  }
+]

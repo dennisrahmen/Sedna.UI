@@ -296,11 +296,23 @@ Adding a page: create `Components/Pages/<Name>.razor` with a `@page` route, then
 JavaScript reads and never writes to the DOM** — Blazor owns the document, and anything it mutated
 would be reverted on the next render, silently and only sometimes.
 
+### The design guide
+
+`docs/design-guide/` is the design guide's one home: `principles.md`, and per catalogue group a
+`components/<group>.json` of entries — what each page is for, what it is combined with, what it is
+not for, which user goals it answers — and a `goals/<group>.json` of the goals whose primary answer
+is in that group. The `/design-guide` page, the panel under every page's title, the topbar search
+and the MCP server's `search`, `get_guide` and `get_page` read them. Each entry is stamped against
+its page, its examples and the parts behind the classes it teaches, so **changing a component fails
+`GuideStampTests` until its entry has been reviewed** — read the entry, correct it, then run the
+`build/guide-stamp.sh <route>` the failure names. Adding a page means adding its entry. The schema,
+the rules and the workflow are in `docs/design-guide/README.md`.
+
 ### The MCP server
 
 `/mcp` on the same app: Streamable HTTP, **public, unauthenticated and read-only**. The tools —
-`search`, `get_example`, `describe_class`, `get_page`, `get_tokens`, `get_integration_guide`,
-`check_markup`, `get_changes`, `describe_api` — and four resources. **There must never be a tool that
+`search`, `get_example`, `describe_class`, `get_page`, `get_guide`, `get_tokens`,
+`get_integration_guide`, `check_markup`, `get_changes`, `describe_api` — and four resources. **There must never be a tool that
 writes.** A client honouring the read-only hint calls these without prompting, which is only safe while
 that stays true.
 
@@ -347,10 +359,12 @@ assets/brand/                         icon, logo, favicon, social preview
 build/api-inventory.sh                lists the public C# surface — the C# half of css-inventory.sh
 build/verify-package.sh               unpacks the .nupkg and asserts its contents
 build/rename-classes.py               applies docs/renames/ to an app's files; packed as tooling/rename-classes.py
+build/guide-stamp.sh                  stamps each design-guide entry against its page's sources; --check fails on a stale one
 build/app-tooling.sh                  GENERATES tooling/stylelint/ from the stylesheet and skills/sedna-ui/ from docs/CLAUDE.consuming-app.md
 tooling/stylelint/                    GENERATED — the Stylelint config an app extends; packed under tooling/
 skills/sedna-ui/SKILL.md              GENERATED — the consuming-app block as an agent skill; packed under tooling/skills/
 docs/                                 long-form documentation
+docs/design-guide/                    the design guide: principles, an entry per page and the user goals, per group
 ```
 
 All four projects live under `src/`. Tests sit beside the project they test, and

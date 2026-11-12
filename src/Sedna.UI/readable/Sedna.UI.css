@@ -5305,6 +5305,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .alert > * { min-width: 0; }
 .alert i { font-size: var(--text-7); flex-shrink: 0; }
+/* A control in the row keeps its own width: the text beside it is what wraps, so a
+   button's label never spills out of the button at a phone's width. */
+.alert > :is(.btn, button) { flex-shrink: 0; }
 
 }
 

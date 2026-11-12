@@ -77,4 +77,6 @@ def main() -> None:
     sys.stdout.write(strip_css(text) if sys.argv[1] == "css" else strip_js(text))
 
 
-main()
+# Guarded, so build/guide-stamp.py can import strip_js rather than write a second one.
+if __name__ == "__main__":
+    main()

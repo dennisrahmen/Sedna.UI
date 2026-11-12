@@ -69,6 +69,13 @@
     <!-- The docs the MCP server serves verbatim. Never retyped: a test asserts the
          host-page block it returns is a substring of getting-started.md. -->
     <EmbeddedResource Include="..\..\docs\*.md" LinkBase="Docs" WithCulture="false" />
+    <!-- The design guide: the principles, and one file of entries and one of goals per catalogue
+         group. The design guide page, every page's guide panel, the topbar search and the MCP
+         server read these. The stamps and the pending list are for the tests, which read them from
+         disk. -->
+    <EmbeddedResource Include="..\..\docs\design-guide\principles.md" LinkBase="Guide" WithCulture="false" />
+    <EmbeddedResource Include="..\..\docs\design-guide\components\*.json" LinkBase="Guide\components" WithCulture="false" />
+    <EmbeddedResource Include="..\..\docs\design-guide\goals\*.json" LinkBase="Guide\goals" WithCulture="false" />
     <!-- Each release's class renames, which the MCP server answers an old class name with. -->
     <EmbeddedResource Include="..\..\docs\renames\*.json" LinkBase="Renames" WithCulture="false" />
     <!-- The class history build/class-history.sh writes into the library, which embeds it

@@ -1,0 +1,294 @@
+[
+  {
+    "id": "explain-a-page-condition",
+    "goal": "Let the user see a condition that stays true while the page is open",
+    "phrases": [ "inline alert", "alert message", "warning message", "info box", "read-only notice" ],
+    "answer": [
+      { "page": "/alert#variants", "role": "primary" },
+      { "page": "/alert#with-an-action", "role": "part" },
+      { "page": "/alert#read-only-mode", "role": "part" }
+    ],
+    "how": "An .alert straight on the page above what it is about, its tone what the condition means and an icon beside the words; a trailing button where one action resolves it. It stays until the state changes.",
+    "avoid": "Reporting what the reader just did in an alert, which outlives its news: a receipt is a toast."
+  },
+  {
+    "id": "summarise-form-errors",
+    "goal": "Let the user find each field that kept a form from being submitted",
+    "phrases": [ "validation summary", "error summary", "list of form errors", "errors at the top of the form" ],
+    "answer": [
+      { "page": "/alert#a-validation-summary", "role": "primary" },
+      { "page": "/form-validation#error-and-warning", "role": "part" }
+    ],
+    "how": "One danger alert at the top of the form says nothing was saved and links to each field that needs attention. Every field keeps aria-invalid and its own .form-error, which is what is read when focus arrives.",
+    "avoid": "A summary in place of the messages under the fields, which leaves a reader tabbing through the form with no word on what is wrong with the field in front of them."
+  },
+  {
+    "id": "confirm-an-action-done",
+    "goal": "Let the user know that what they just did has happened",
+    "phrases": [ "success message", "toast notification", "toast", "snackbar", "growl" ],
+    "answer": [
+      { "page": "/toast#raising-one", "role": "primary" },
+      { "page": "/toast#piled-and-opened-by-the-pointer", "role": "part" }
+    ],
+    "how": "sednaUi.toast or ToastAsync with the outcome as a short title and a sentence, in the tone of what happened; the library's stack places it, announces it and takes it away. A failure gets a timeout of 0, so it stays until dismissed.",
+    "avoid": "Putting anything the reader needs, or must act on, only in a toast: it goes on its own, and a screen reader or magnifier user can miss it."
+  },
+  {
+    "id": "show-saving-then-saved",
+    "goal": "Let the user follow work from running to its outcome in one message",
+    "phrases": [ "promise toast", "loading toast", "saving toast", "toast that updates" ],
+    "answer": [
+      { "page": "/toast#one-toast-from-saving-to-saved", "role": "primary" },
+      { "page": "/toast#work-that-ends-later", "role": "part" },
+      { "page": "/progress#spinner", "role": "part" }
+    ],
+    "how": "Present a toast from the app's template with a .spinner in the icon's place and no close button, then replace it in place with the outcome when the work settles. A failure is also written on the page, as an alert beside the work that stays until it succeeds, because the reader has to act on it.",
+    "avoid": "Two toasts for one piece of work, one when it starts and one when it ends, which stack up and read as two events."
+  },
+  {
+    "id": "announce-something-that-arrived",
+    "goal": "Let the user act on something that arrived while they were busy elsewhere",
+    "phrases": [ "actionable toast", "toast with buttons", "notification card", "in app notification popup" ],
+    "answer": [
+      { "page": "/toast#a-notification-card", "role": "primary" },
+      { "page": "/toast#notifications-from-c-with-n-more", "role": "part" },
+      { "page": "/notifications#arrives", "role": "part" }
+    ],
+    "how": "A card the app writes once in a template element and presents in the library's stack: a body that opens the record, or buttons that end it with a value the app awaits. The same item goes into the notification inbox, so nothing depends on the toast being seen.",
+    "avoid": "Positioning a second stack of the app's own, which collides with the library's and loses the top layer, the held timers and the shared corner."
+  },
+  {
+    "id": "catch-up-on-notifications",
+    "goal": "Let the user catch up on what happened while they were away",
+    "phrases": [ "unread count", "notification center", "notification inbox", "notification bell", "notifications panel" ],
+    "answer": [
+      { "page": "/notifications#from-the-bell", "role": "primary" },
+      { "page": "/notifications#the-bell-and-its-count", "role": "part" },
+      { "page": "/popover", "role": "part" },
+      { "page": "/tabs", "role": "part" },
+      { "page": "/menu#anchored-under-a-trigger", "role": "part" }
+    ],
+    "how": "A bell with an .inbox-count opens a .popover holding .inbox: tabs for All, Unread and Archived, each item who, what, when and its actions, and a menu per item. The count, the read state and the current tab are the app's own state, rendered.",
+    "avoid": "A count only a sighted reader gets: the number is hidden from assistive technology, so the bell's name says how many are unread."
+  },
+  {
+    "id": "show-progress-of-a-job",
+    "goal": "Let the user see how far a long job has got",
+    "phrases": [ "progress bar", "percent complete", "progress ring", "circular progress", "determinate progress" ],
+    "answer": [
+      { "page": "/progress#progress-bar", "role": "primary" },
+      { "page": "/progress#progress-ring", "role": "part" }
+    ],
+    "how": "A .progress track with its bar's width set to the share done and the figure in words beside it; where there is no width to fill, a .progress-ring with the same number in --progress and aria-valuenow. A wait with no total is the indeterminate bar.",
+    "avoid": "A bar with no figure: a reader deciding whether to wait needs the number, not only the shape."
+  },
+  {
+    "id": "show-busy-state",
+    "goal": "Let the user see that a control or a region is busy",
+    "phrases": [ "spinner", "loader", "loading indicator", "busy state", "activity indicator" ],
+    "answer": [
+      { "page": "/progress#busy-on-a-control-and-on-a-surface", "role": "primary" },
+      { "page": "/progress#spinner", "role": "part" },
+      { "page": "/button#while-its-action-runs", "role": "part" }
+    ],
+    "how": "aria-busy on what is busy is the one switch: a control's icon becomes the spinner and it takes no second press, and a surface keeps its content, dimmed, with a bar along its top. A .spinner on its own is for a wait with nothing else to show.",
+    "avoid": "Disabling a button while its action runs, which drops its focus and its announcement; mark it aria-busy instead."
+  },
+  {
+    "id": "list-running-jobs",
+    "goal": "Let the user watch background jobs and cancel one",
+    "phrases": [ "background jobs", "running jobs", "job list", "cancel a job", "task queue" ],
+    "answer": [
+      { "page": "/live-state#work-in-progress", "role": "primary" },
+      { "page": "/progress#a-list-of-running-work", "role": "part" },
+      { "page": "/list", "role": "part" }
+    ],
+    "how": "A .list-row per job with a progress bar in its subtext, determinate where the size is known and indeterminate where it is queued, and the figure and a cancel button in .list-meta. The row is aria-busy while it runs, and a finished one shows a badge in words.",
+    "avoid": "A cancel button with no name: an icon-only control says which job it cancels in its aria-label."
+  },
+  {
+    "id": "show-content-loading",
+    "goal": "Let the user see the shape of what is loading before it arrives",
+    "phrases": [ "skeleton", "skeleton screen", "loading placeholder", "shimmer", "content placeholder", "ghost elements" ],
+    "answer": [
+      { "page": "/skeleton#table-rows", "role": "primary" },
+      { "page": "/skeleton#list-rows", "role": "part" },
+      { "page": "/skeleton#a-surface-that-has-not-arrived", "role": "part" },
+      { "page": "/page-recipes#a-list-page-while-it-loads", "role": "part" }
+    ],
+    "how": "The real frame of the content, such as the card, the table's headings and the list's rows, with skeleton shapes where the words go, each the height of what replaces it, and aria-busy on the container so the bars are not announced. A few rows are enough to say a table is coming.",
+    "avoid": "A skeleton for a refresh of content already shown, which throws away what the reader was reading: keep the content and mark it aria-busy."
+  },
+  {
+    "id": "show-route-progress",
+    "goal": "Let the user see that the page they asked for is on its way",
+    "phrases": [ "route progress", "top loading bar", "navigation progress", "page transition bar" ],
+    "answer": [
+      { "page": "/progress#while-the-next-page-loads", "role": "primary" },
+      { "page": "/skeleton", "role": "part" }
+    ],
+    "how": "One .progress--route written in the layout, shown with the hidden attribute from the moment a navigation starts until it has arrived. It fades in only after a moment, so a page that arrives at once shows nothing.",
+    "avoid": "Keeping the bar up while the new page fetches its own data: once the page has arrived, its content loads as a skeleton."
+  },
+  {
+    "id": "show-app-starting",
+    "goal": "Let the user see that the app is starting before its first render",
+    "phrases": [ "boot screen", "splash screen", "app loading screen", "startup screen" ],
+    "answer": [
+      { "page": "/progress#a-splash-while-the-app-starts", "role": "primary" }
+    ],
+    "how": "A .splash inside the element the app renders into, so the first render replaces it, with a ring fed from --blazor-load-percentage while WebAssembly downloads.",
+    "avoid": "Putting the splash outside the app's root element, where nothing ever removes it."
+  },
+  {
+    "id": "explain-an-empty-view",
+    "goal": "Let the user see why a view is empty and what to do about it",
+    "phrases": [ "empty state", "no data", "nothing to show", "zero state", "blank slate", "nothing found message" ],
+    "answer": [
+      { "page": "/empty-state#empty", "role": "primary" },
+      { "page": "/state-art#the-thirteen-states", "role": "part" },
+      { "page": "/list#nothing-in-it", "role": "part" },
+      { "page": "/table#nothing-found-and-refreshing", "role": "part" },
+      { "page": "/page-recipes#a-list-with-nothing-in-it-yet", "role": "part" }
+    ],
+    "how": "An .empty-state in the content's place, inside its card, list or table row, with the toolbar and count still above it: the drawing for the state, a title that says what to do, a sentence and the one action that resolves it. Nothing yet invites, nothing found echoes the query, and filtered out names the filters and how to clear them.",
+    "avoid": "One empty state for every kind of empty: a cleared queue that looks like a broken search tells the reader the wrong thing."
+  },
+  {
+    "id": "recover-from-a-failed-load",
+    "goal": "Let the user see that part of a page could not load and try it again",
+    "phrases": [ "error state", "failed to load", "retry button", "load error", "offline state" ],
+    "answer": [
+      { "page": "/empty-state#waiting-and-failed", "role": "primary" },
+      { "page": "/chart#loading-empty-and-failed", "role": "part" }
+    ],
+    "how": ".empty-state--failed in the place of the part that failed, with what was tried in .empty-state-detail and a Try again button, while the rest of the page shows as usual. Offline has its own drawing, because only a request that never left is worth retrying at once.",
+    "avoid": "Replacing the whole page with an error when one panel failed, which takes away everything that did load."
+  },
+  {
+    "id": "keep-working-through-an-outage",
+    "goal": "Let the user keep working while a service behind the page is down",
+    "phrases": [ "degraded mode", "partial outage", "graceful degradation", "service unavailable", "dependency down" ],
+    "answer": [
+      { "page": "/live-state#a-degraded-page", "role": "primary" },
+      { "page": "/banner#under-the-topbar", "role": "part" },
+      { "page": "/stat#target-link-and-unavailable", "role": "part" },
+      { "page": "/empty-state#waiting-and-failed", "role": "part" }
+    ],
+    "how": "Each part that failed is replaced where it stands: a figure with .stat--unavailable and how old the last good one is, a panel with a failed empty state and a retry. A page banner says once what is down and what still works.",
+    "avoid": "Disabling controls or hiding the navigation because a service is down: the reader can still act, and an action that fails says so when it is taken."
+  },
+  {
+    "id": "show-connection-state",
+    "goal": "Let the user see whether a live feed is connected and how fresh its data is",
+    "phrases": [ "health badge", "connection indicator", "live badge", "streaming status", "stale data" ],
+    "answer": [
+      { "page": "/live-state#connection-state", "role": "primary" },
+      { "page": "/status-bar", "role": "part" }
+    ],
+    "how": "A .health-badge with its dot and a word, where live, streaming and connecting pulse and idle, degraded and down stand still, and a .stale beside the figure it dates, turned --warn when it is too old to trust.",
+    "avoid": "A dot with no word, which says nothing to a reader who cannot tell the colours apart."
+  },
+  {
+    "id": "show-how-long-ago",
+    "goal": "Let the user see how long ago something happened, kept up to date",
+    "phrases": [ "relative time", "time ago", "timeago", "last updated", "minutes ago" ],
+    "answer": [
+      { "page": "/live-state#relative-time-in-a-list", "role": "primary" },
+      { "page": "/live-state#relative-time-in-a-table", "role": "part" }
+    ],
+    "how": "A time element with datetime and data-relative, a format per unit in the app's own words, and the absolute time written inside it and in data-tip. One timer keeps every such time on the page current and sleeps while the tab is hidden.",
+    "avoid": "Leaving out the absolute time, which a reader without the script, or one who needs the exact moment, then cannot see."
+  },
+  {
+    "id": "count-down-to-a-deadline",
+    "goal": "Let the user see how long is left before a deadline",
+    "phrases": [ "countdown", "countdown timer", "time left", "expires in", "time remaining" ],
+    "answer": [
+      { "page": "/live-state#countdown", "role": "primary" },
+      { "page": "/common-pages#before-the-session-ends", "role": "part" }
+    ],
+    "how": "data-countdown on a time element counts down to its datetime in the same formats as a relative time, never reads zero early, and dispatches sedna-countdown-end once when it ends.",
+    "avoid": "Ending the session from the countdown in the page: it tells the reader, and the deadline stays the server's."
+  },
+  {
+    "id": "follow-live-output",
+    "goal": "Let the user follow a job's output as it is written",
+    "phrases": [ "log tail", "live log", "streaming output", "build log", "console output", "tail a log" ],
+    "answer": [
+      { "page": "/logs#live-tail", "role": "primary" },
+      { "page": "/live-state#output-pane", "role": "part" }
+    ],
+    "how": "An .output pane with data-follow in an .output-panel sticks to the newest line, lets go when the reader scrolls up, and shows a Jump to latest button that follows again. The head above the pane carries the stream's state and a pause.",
+    "avoid": "Pulling the reader back to the bottom while they read an earlier line: following stops when they scroll up, and they choose when to rejoin."
+  },
+  {
+    "id": "read-an-application-log",
+    "goal": "Let the user read an application log and filter it by level",
+    "phrases": [ "log viewer", "application log", "log levels", "filter logs", "logging ui" ],
+    "answer": [
+      { "page": "/logs#application-log", "role": "primary" },
+      { "page": "/logs#level-filters-and-wrapping", "role": "part" },
+      { "page": "/logs#expanding-rows", "role": "part" },
+      { "page": "/chip", "role": "part" },
+      { "page": "/toolbar", "role": "part" }
+    ],
+    "how": ".output--columns lays out time, level, source and message down the pane, each level an icon and its word. Level chips and a wrap setting go in a toolbar above it, and a line with a trace or fields expands as a details element.",
+    "avoid": "Tinting every line by its level, which hides the warnings among the info lines: info colours only its level, and an audit trail takes no level colour at all."
+  },
+  {
+    "id": "show-a-terminal-session",
+    "goal": "Let the user read commands and their output the way a shell shows them",
+    "phrases": [ "terminal", "shell output", "command line output", "terminal window" ],
+    "answer": [
+      { "page": "/logs#terminal", "role": "primary" }
+    ],
+    "how": ".output--terminal with each command an .output-line--prompt holding the prompt, hidden from a screen reader and from a selection, and the command; a copy button per command in its actions and one for the whole session in the head.",
+    "avoid": "Writing the prompt into the command's text, so it is copied and read aloud with every command."
+  },
+  {
+    "id": "read-a-stack-trace",
+    "goal": "Let the user read an exception frame by frame",
+    "phrases": [ "error trace", "stack trace", "exception details", "call stack" ],
+    "answer": [
+      { "page": "/logs#stack-trace", "role": "primary" },
+      { "page": "/logs#expanding-rows", "role": "part" }
+    ],
+    "how": "Inside the expanded log line, .output-exception says what was thrown and .output-frames lists each call with its location, a link where the app can open the file. Frames in code the reader does not own are quieter and fold together.",
+    "avoid": "Showing every framework frame at full weight, which buries the few frames in the reader's own code."
+  },
+  {
+    "id": "show-test-results",
+    "goal": "Let the user see which tests passed and which failed",
+    "phrases": [ "test results", "test report", "test run summary", "passed and failed tests" ],
+    "answer": [
+      { "page": "/logs#test-results", "role": "primary" },
+      { "page": "/bars#one-bar-in-parts", "role": "part" }
+    ],
+    "how": "One bar in parts for the run with its legend in words, then a details element per suite, open where something failed, each test with its outcome as an icon and a hidden word, and a failure's message under it.",
+    "avoid": "Telling passed from failed by colour alone: the count on the suite and a word on each test say it too."
+  },
+  {
+    "id": "show-environment-variables",
+    "goal": "Let the user read a service's settings with its secrets masked until asked",
+    "phrases": [ "environment variables", "env vars", "masked secret", "reveal a secret value", "configuration values" ],
+    "answer": [
+      { "page": "/logs#environment-variables", "role": "primary" },
+      { "page": "/card#key-value-rows", "role": "part" }
+    ],
+    "how": "Key/value rows with a .kv-action column; a secret is a .secret-value drawn as dots until a data-reveal button shows it, and each value has a copy button that works masked or not.",
+    "avoid": "Treating the mask as protection: the value is in the page either way, so one the page must not hold is fetched only when the reader asks."
+  },
+  {
+    "id": "illustrate-a-state",
+    "goal": "Let the user tell at a glance which state a view is in",
+    "phrases": [ "empty state illustration", "spot illustration", "state illustration", "error illustration" ],
+    "answer": [
+      { "page": "/state-art#the-thirteen-states", "role": "primary" },
+      { "page": "/state-art#three-sizes", "role": "part" },
+      { "page": "/empty-state", "role": "part" }
+    ],
+    "how": "One shipped drawing per state, referenced by id from the sprite SednaStateArt writes into the page, aria-hidden above the title that says the same. Its accent takes the state's family, and only a wait moves.",
+    "avoid": "Reusing one drawing for two states, which makes a cleared queue and a failed search look like the same page."
+  }
+]

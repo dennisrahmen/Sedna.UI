@@ -21,7 +21,7 @@ namespace Sedna.UI.Catalogue.Tests;
 public class McpToolTests(CatalogueAppFixture app)
 {
     private static readonly string[] Expected =
-        ["search", "get_example", "describe_class", "get_page", "get_tokens",
+        ["search", "get_example", "describe_class", "get_page", "get_guide", "get_tokens",
          "get_integration_guide", "check_markup", "get_changes", "describe_api"];
 
     /// <summary>One valid call per tool.</summary>
@@ -31,6 +31,7 @@ public class McpToolTests(CatalogueAppFixture app)
         ("get_example", new { ids = new[] { "Badge/Semantic" } }),
         ("describe_class", new { names = new[] { ".btn" } }),
         ("get_page", new { }),
+        ("get_guide", new { topic = "principles" }),
         ("get_tokens", new { filter = "brand" }),
         ("get_integration_guide", new { }),
         ("check_markup", new { markup = "<span class=\"badge\">x</span>" }),
@@ -143,6 +144,9 @@ public class McpToolTests(CatalogueAppFixture app)
     // A page whose route IS the query wins outright — "drawer" wants the Drawers page,
     // not the class it documents.
     [InlineData("drawer", "page", "/drawer")]
+    [InlineData("toast", "page", "/toast")]
+    [InlineData("tabs", "page", "/tabs")]
+    [InlineData("carousel", "page", "/carousel")]
     // A compound name is found by its compound name, not by its stem.
     [InlineData("badge go", "class", ".badge--go")]
     [InlineData("stat delta", "class", ".stat-delta")]

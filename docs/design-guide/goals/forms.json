@@ -1,0 +1,528 @@
+[
+  {
+    "id": "fill-in-a-form",
+    "goal": "Let the user fill in a form of several fields grouped into sections",
+    "phrases": [ "form layout", "form with sections", "two column form", "form fields", "form template" ],
+    "answer": [
+      { "page": "/form#a-whole-form", "role": "primary" },
+      { "page": "/form-validation#inside-a-two-up-row", "role": "part" },
+      { "page": "/grid#fields-side-by-side", "role": "part" }
+    ],
+    "how": "Each field is a .form-field with its label, control and hint; fields that belong together sit in a .form-section fieldset whose legend names them, two-up in a .sedna-grid--fit where they are short. A .form-actions row closes the form, the primary last.",
+    "avoid": "A heading above a div in place of a fieldset and legend, which a screen reader never announces with the controls."
+  },
+  {
+    "id": "group-settings-in-boxes",
+    "goal": "Let the user read and change settings grouped in framed boxes",
+    "phrases": [ "group box", "boxed fieldset", "settings groups", "collapsible settings section" ],
+    "answer": [
+      { "page": "/form#boxed-sections", "role": "primary" },
+      { "page": "/form#a-box-a-switch-turns-on", "role": "part" },
+      { "page": "/form#a-box-that-folds", "role": "part" },
+      { "page": "/page-recipes#a-settings-page", "role": "part" }
+    ],
+    "how": ".form-section--box frames each section with its legend in the frame, side by side in a .sedna-grid. A switch in the legend turns the body on, a details box folds with a summary of what is inside, and a .form-error under the legend is a rule about the whole section.",
+    "avoid": "A card per group of settings, which steps the surface up a level and loses the legend a screen reader announces with each control."
+  },
+  {
+    "id": "show-field-errors",
+    "goal": "Let the user see which field is wrong and how to put it right",
+    "phrases": [ "form validation", "field error message", "inline validation", "invalid input", "required field marker", "warning on a field" ],
+    "answer": [
+      { "page": "/form-validation#error-and-warning", "role": "primary" },
+      { "page": "/form-validation#inside-a-two-up-row", "role": "part" },
+      { "page": "/alert#a-validation-summary", "role": "part" }
+    ],
+    "how": "aria-invalid on the control draws the rejected edge, and a .form-error under it, tied by aria-describedby, says what is wrong and how to fix it; a value that is kept but unusual is data-state=\"warn\" with a .form-warning. A form that rejected several fields also lists them once at the top in a validation summary.",
+    "avoid": "Showing an error by colour or a class alone, which a screen reader never hears and a colour-blind reader may not see."
+  },
+  {
+    "id": "answer-one-question-at-a-time",
+    "goal": "Let the user complete a long transaction one question to a page",
+    "phrases": [ "multi-step form", "step by step form", "one question per page", "onboarding flow" ],
+    "answer": [
+      { "page": "/form-flow#one-question-to-a-page", "role": "primary" },
+      { "page": "/form-flow#one-field-to-a-page", "role": "part" },
+      { "page": "/collections#steps", "role": "part" },
+      { "page": "/page-recipes#a-step-in-a-longer-task", "role": "part" }
+    ],
+    "how": "Each page is one .form-section--question whose legend holds the page's h1, with a .back-link to the previous page above it and Continue as the only button. Show where the reader is with .steps when the pages are few and fixed, and with an eyebrow's Step 3 of 5 when they branch.",
+    "avoid": "A back button that goes through the browser's history, which leaves the transaction instead of returning to the last question."
+  },
+  {
+    "id": "finish-parts-in-any-order",
+    "goal": "Let the user finish the parts of a long application in any order",
+    "phrases": [ "task list page", "application sections", "complete sections in any order", "form progress checklist" ],
+    "answer": [
+      { "page": "/form-flow#task-list", "role": "primary" },
+      { "page": "/list", "role": "part" },
+      { "page": "/badge", "role": "part" }
+    ],
+    "how": "A .list--tasks in a card per section: a task that can be started is a link row, and one that cannot start yet is a plain row with .list-status--muted. Completed is plain text, and a status that needs attention is a badge in words.",
+    "avoid": "A coloured badge on every status, which makes Completed as loud as a problem."
+  },
+  {
+    "id": "check-answers-before-sending",
+    "goal": "Let the user check their answers before sending them",
+    "phrases": [ "review page", "check your answers", "summary before submit", "review before submitting" ],
+    "answer": [
+      { "page": "/form-flow#check-answers", "role": "primary" },
+      { "page": "/form-flow#answers-about-several-things", "role": "part" },
+      { "page": "/card#key-value-rows", "role": "part" }
+    ],
+    "how": "A dl of .kv rows per section, each with a .kv-action Change link whose hidden words say which answer it changes; several things of one kind each get a card. The declaration and the send button close the page.",
+    "avoid": "A column of links all called Change, which tells a screen reader nothing about which answer each one opens."
+  },
+  {
+    "id": "confirm-a-submission",
+    "goal": "Let the user see that what they sent has arrived, with its reference",
+    "phrases": [ "success page", "confirmation page", "thank you page", "reference number" ],
+    "answer": [
+      { "page": "/form-flow#confirmation", "role": "primary" }
+    ],
+    "how": ".confirmation-panel opens the last page with what was done as its h1 and the reference in .confirmation-panel-ref beside a copy button; what happens next is the page's own prose under the panel.",
+    "avoid": "Using the panel for a submission that failed, which goes back to the page it came from with the error under the field."
+  },
+  {
+    "id": "keep-unsaved-work",
+    "goal": "Let the user see that their changes are not saved, and not lose them by leaving",
+    "phrases": [ "unsaved changes", "save bar", "dirty form", "leave page warning", "confirm before leaving" ],
+    "answer": [
+      { "page": "/form-saving#the-save-bar", "role": "primary" },
+      { "page": "/form-saving#leaving-from-blazor", "role": "part" },
+      { "page": "/modal#asking-before-it-closes", "role": "part" }
+    ],
+    "how": "data-dirty on the form, written by the app while the screen differs from what was saved, shows the .form-actions--save-bar with its status, Discard and Save. data-close-guard beside it asks before a reload or a closed tab, and Blazor's NavigationLock opens the app's dialog before a link inside the app.",
+    "avoid": "Leaving data-dirty on after a save or a discard, so the reader is asked about changes that are already safe."
+  },
+  {
+    "id": "keep-save-in-reach",
+    "goal": "Let the user reach Save without scrolling to the end of a long form",
+    "phrases": [ "sticky save button", "sticky form footer", "sticky footer actions" ],
+    "answer": [
+      { "page": "/form-saving#actions-that-stay-in-reach", "role": "primary" },
+      { "page": "/form#where-the-actions-sit", "role": "part" }
+    ],
+    "how": ".form-actions--sticky keeps the same row in view while the form is on screen and settles at its end, in a card too, and on a phone it stands on the bottom bar. It needs no script, so it suits a page that saves without one.",
+    "avoid": "A sticky row inside a modal or a drawer, whose footer already never scrolls."
+  },
+  {
+    "id": "enter-a-short-text",
+    "goal": "Let the user type a short value into a field",
+    "phrases": [ "text input", "text field", "type text into a field", "textbox", "single line input" ],
+    "answer": [
+      { "page": "/form-text#the-text-input", "role": "primary" },
+      { "page": "/form#fields", "role": "part" },
+      { "page": "/form-text#making-one-narrower", "role": "part" }
+    ],
+    "how": ".form-input on the input, inside a .form-field with its label and hint. Pick the type for the keyboard and the checks a phone gives for free, and a .sedna-w width where the answer has a known short length.",
+    "avoid": "A placeholder in place of the label, which disappears as soon as the reader types."
+  },
+  {
+    "id": "ask-for-personal-details",
+    "goal": "Let the user give their name, address, email or phone number",
+    "phrases": [ "name field", "address form", "email field", "phone number input", "contact details form" ],
+    "answer": [
+      { "page": "/form-text#names", "role": "primary" },
+      { "page": "/form-text#addresses", "role": "part" },
+      { "page": "/form-text#email-addresses", "role": "part" },
+      { "page": "/form-text#phone-numbers", "role": "part" }
+    ],
+    "how": "One Full name field with autocomplete=\"name\", separate address fields under a legend that names the address, and type=\"email\" and type=\"tel\" with their autocomplete. spellcheck is off on anything that is not prose, and each field's width says how long the answer is.",
+    "avoid": "Restricting the characters in a name, or rejecting a phone number for its spaces and brackets."
+  },
+  {
+    "id": "enter-a-formatted-value",
+    "goal": "Let the user type a value with a fixed format, such as an IBAN or a card number",
+    "phrases": [ "input mask", "masked input", "formatted input", "credit card input", "iban field" ],
+    "answer": [
+      { "page": "/form-text#entering-a-format", "role": "primary" },
+      { "page": "/form-text#bank-details", "role": "part" }
+    ],
+    "how": "There is no mask: type and inputmode pick the keyboard, autocomplete fills the value in the shape it has, and pattern, maxlength and required say what is valid. The format goes in the hint and an example in the placeholder; accept spaces and dashes and strip them on the server.",
+    "avoid": "A mask that rewrites the value while it is typed, which moves the caret, fights a paste and reads every inserted character to a screen reader."
+  },
+  {
+    "id": "show-a-password",
+    "goal": "Let the user see the password they typed, and how strong a new one is",
+    "phrases": [ "password field", "show password", "password visibility toggle", "password strength meter" ],
+    "answer": [
+      { "page": "/form-text#showing-a-password", "role": "primary" },
+      { "page": "/form-text#a-new-password-and-how-strong-it-is", "role": "part" },
+      { "page": "/bars#a-value-against-its-thresholds", "role": "part" }
+    ],
+    "how": "An .input-reveal button with data-reveal in the field's input group switches the type and its own aria-pressed, and its label stays Show password. A new password takes autocomplete=\"new-password\" and a .meter with its strength in words, and the hint says what to do about it.",
+    "avoid": "Changing the button's label between Show and Hide, which a screen reader then announces as a different control."
+  },
+  {
+    "id": "add-a-unit-to-a-field",
+    "goal": "Let the user type a value with its unit, its currency or a button beside it",
+    "phrases": [ "input group", "input addon", "prefix and suffix", "input with a button", "clearable input" ],
+    "answer": [
+      { "page": "/form-text#input-groups", "role": "primary" },
+      { "page": "/form-text#what-an-affix-can-be", "role": "part" }
+    ],
+    "how": ".input-group draws one border around the control and its .input-affix siblings, in the order they are written, so a unit stays selectable and a button clickable. An .input-clear empties the field and shows only while it holds a value, and the size tier goes on the group.",
+    "avoid": "Drawing a unit with padding and a background image, which a reader cannot select and a screen reader never reads."
+  },
+  {
+    "id": "show-a-read-only-value",
+    "goal": "Let the user read a value they cannot change among fields they can",
+    "phrases": [ "read only field", "non editable field", "display value in a form", "readonly or disabled" ],
+    "answer": [
+      { "page": "/form-text#read-only-values", "role": "primary" },
+      { "page": "/form-text#not-editable-three-ways", "role": "part" },
+      { "page": "/form-text#editable-beside-read-only", "role": "part" }
+    ],
+    "how": "A value that never was editable is a .form-value-display at the input's height, so a row of mixed fields does not step up and down. A value the form still posts is readonly on the input, and disabled is for a control that does not apply.",
+    "avoid": "Disabling a field to show a value, which takes it out of the tab order and the post and greys out what the reader came to read."
+  },
+  {
+    "id": "enter-a-one-time-code",
+    "goal": "Let the user type a one-time code or a PIN",
+    "phrases": [ "otp input", "one time password", "pin code input", "verification code", "two factor code" ],
+    "answer": [
+      { "page": "/form-code#a-sign-in-code", "role": "primary" },
+      { "page": "/form-code#a-rejected-code", "role": "part" }
+    ],
+    "how": "A .form-code row of boxes with data-code-group, the first with autocomplete=\"one-time-code\", and one hidden data-code-value input that carries the name the form posts. Typing moves on, Backspace goes back, and a pasted or autofilled code fills every box.",
+    "avoid": "A name or a maxlength on each box, which posts the code a digit at a time and cuts an autofilled code to its first digit."
+  },
+  {
+    "id": "write-a-longer-text",
+    "goal": "Let the user write a note or a comment of several lines",
+    "phrases": [ "textarea", "multiline input", "comment box", "character counter" ],
+    "answer": [
+      { "page": "/form-textarea#the-text-area", "role": "primary" },
+      { "page": "/form-textarea#with-a-character-budget", "role": "part" },
+      { "page": "/form#a-field-across-the-whole-row", "role": "part" }
+    ],
+    "how": ".form-input on a textarea, rows for its starting height, and the field's label and hint. It resizes downwards only, so it never breaks the row it is in; maxlength stops the typing, and the count is the app's to write in the hint.",
+    "avoid": "Letting a text area be dragged wider inside a row of fields, which breaks that row and every row under it."
+  },
+  {
+    "id": "mention-someone",
+    "goal": "Let the user name a person in what they write",
+    "phrases": [ "mention", "at mention", "tag a person in a comment", "mention autocomplete" ],
+    "answer": [
+      { "page": "/form-textarea#naming-someone-in-the-text", "role": "primary" },
+      { "page": "/menu", "role": "part" }
+    ],
+    "how": ".mention-field wraps the text area and a .menu of the people it can name, and data-mention points at the menu. @ opens the list under the field, typing filters it, and Enter writes the item's data-mention-value in place of what was typed.",
+    "avoid": "Moving the focus into the list, which stops the reader typing the name they were half way through."
+  },
+  {
+    "id": "pick-a-date",
+    "goal": "Let the user pick a date or a time",
+    "phrases": [ "date picker", "datepicker", "time picker", "date input", "datetime picker" ],
+    "answer": [
+      { "page": "/form-datetime#the-four-inputs", "role": "primary" },
+      { "page": "/form-datetime#a-typeable-date-with-a-calendar", "role": "part" },
+      { "page": "/calendar#a-date-picker", "role": "part" }
+    ],
+    "how": ".form-input on a date, time, datetime-local or month input gives the platform's picker and keyboard, with the value in the wire format. Where dates are typed faster than picked, a text field and a calendar button in one input group open a .datepicker anchored to the field.",
+    "avoid": "A datetime-local with no word on its time zone, which lets two readers in two zones book the same hour."
+  },
+  {
+    "id": "pick-a-date-range",
+    "goal": "Let the user choose a start date and an end date",
+    "phrases": [ "date range picker", "from and to dates", "start and end date", "date range" ],
+    "answer": [
+      { "page": "/form-datetime#from-and-to", "role": "primary" }
+    ],
+    "how": "Two dates two-up inside one .form-section whose legend names the pair; min and max grey out what the server would reject, and the end's min moves with the start.",
+    "avoid": "Two loose date fields with no legend, which a screen reader announces as two unrelated dates."
+  },
+  {
+    "id": "set-a-time-range-for-a-dashboard",
+    "goal": "Let the user choose the span of time a dashboard or a log shows",
+    "phrases": [ "relative time range", "quick select time range", "last 15 minutes", "auto refresh interval", "time range picker" ],
+    "answer": [
+      { "page": "/form-datetime#a-time-range-with-quick-select-and-auto-refresh", "role": "primary" },
+      { "page": "/toolbar", "role": "part" },
+      { "page": "/popover", "role": "part" },
+      { "page": "/chip", "role": "part" }
+    ],
+    "how": "An input group in the toolbar holds a quick select button and a .form-trigger naming the range. The quick select is a popover with a relative range, the common ranges as pressed chips, the recent ones and the refresh interval; the trigger opens a .datepicker for an absolute start and end.",
+    "avoid": "Refreshing on a timer the reader cannot see or stop; the refresh button says the interval that is running."
+  },
+  {
+    "id": "enter-a-date-of-birth",
+    "goal": "Let the user give a date they already know, such as a date of birth",
+    "phrases": [ "date of birth", "birthday field", "day month year fields", "memorable date" ],
+    "answer": [
+      { "page": "/form-datetime#date-of-birth", "role": "primary" },
+      { "page": "/form-datetime#when-a-date-is-incomplete", "role": "part" }
+    ],
+    "how": "Separate day, month and year text fields with inputmode=\"numeric\" in a .form-section whose legend names the date, each sized to its answer, with bday-day, bday-month and bday-year for a phone to fill. One error for the whole date, with aria-invalid only on the parts that are wrong.",
+    "avoid": "A date picker for a date of birth, which opens on today and sends the reader paging back through decades."
+  },
+  {
+    "id": "pick-one-from-a-short-list",
+    "goal": "Let the user pick one answer from a short list",
+    "phrases": [ "dropdown", "drop down list", "select element", "select menu", "native select" ],
+    "answer": [
+      { "page": "/form-select#the-drop-down", "role": "primary" },
+      { "page": "/form-select#options-with-content", "role": "part" },
+      { "page": "/form-select#disabled-and-required", "role": "part" }
+    ],
+    "how": ".form-select on a plain select themes the box and its option list, and an option may carry an icon and a hint behind a selectedcontent button. A required select starts with an empty option, and a disabled option says why in its own text.",
+    "avoid": "A drop-down for two to five short options, which read at a glance as radios or a segmented control."
+  },
+  {
+    "id": "move-rows-between-two-lists",
+    "goal": "Let the user build a set by moving rows from one list to another",
+    "phrases": [ "transfer list", "dual listbox", "shuttle list", "picklist", "move items between lists" ],
+    "answer": [
+      { "page": "/form-select#moving-rows-between-two-lists", "role": "primary" }
+    ],
+    "how": "A .transfer grid of two multiple selects with a column of arrow buttons between them; data-transfer moves the chosen rows and sends change on both, and the right-hand list is the answer the form posts.",
+    "avoid": "A multiple select alone for a long set, which never shows the reader what they have chosen so far."
+  },
+  {
+    "id": "search-and-pick-one",
+    "goal": "Let the user find one option in a long list by typing",
+    "phrases": [ "select with search", "autocomplete", "combobox", "typeahead", "searchable dropdown" ],
+    "answer": [
+      { "page": "/form-combo#searchable-select", "role": "primary" },
+      { "page": "/form-combo#a-searchable-select-with-a-leading-icon", "role": "part" }
+    ],
+    "how": "A .form-combo with data-combo=\"single\": the chosen label shows as .form-combo-value under the input until the reader types, the list filters as they type, and Enter picks. In Blazor the value and the options render from the page's state.",
+    "avoid": "Leaving data-combo-managed on where C# renders the selection, so the script and the page both add each pick."
+  },
+  {
+    "id": "pick-several-as-chips",
+    "goal": "Let the user pick several options from a long list, shown as chips",
+    "phrases": [ "chips in a select", "multiselect", "multi select dropdown", "select multiple values" ],
+    "answer": [
+      { "page": "/form-combo#multiselect-with-chips", "role": "primary" },
+      { "page": "/form-combo#collapsed-until-focused", "role": "part" },
+      { "page": "/chip#chosen-people-in-a-field", "role": "part" }
+    ],
+    "how": "data-combo=\"multi\" with aria-multiselectable on the list: each pick is a .chip in the box with its dismiss button, the list stays open while the reader ticks, and Backspace twice removes the last chip. .form-combo--collapse keeps a long set to one row until the field is focused.",
+    "avoid": "A multiselect over a short list, which a group of checkboxes shows at a glance."
+  },
+  {
+    "id": "enter-several-addresses",
+    "goal": "Let the user type several free entries, such as email addresses",
+    "phrases": [ "tag input", "tags input", "token field", "email recipients field", "enter multiple emails" ],
+    "answer": [
+      { "page": "/form-combo#free-entry", "role": "primary" }
+    ],
+    "how": "data-combo=\"free\" has no list: Enter, a comma, a semicolon, leaving the field and a paste each commit an entry as a chip, and a pasted list is split. A rejected entry stays as a .chip--invalid, so the typo is fixed rather than typed again.",
+    "avoid": "Throwing away an entry that fails the check, so the reader has to type it again from the start."
+  },
+  {
+    "id": "search-a-server-list",
+    "goal": "Let the user search a list too long to send to the page",
+    "phrases": [ "server side autocomplete", "async select", "remote search dropdown", "load more options" ],
+    "answer": [
+      { "page": "/form-combo#server-backed-states", "role": "primary" },
+      { "page": "/skeleton", "role": "part" }
+    ],
+    "how": "data-combo-source=\"server\" leaves the filtering to the app: skeleton rows for the first page, aria-busy on the list while a query runs, .form-combo-empty when nothing came back, an error with a retry, and .form-combo-more after the list for the next page.",
+    "avoid": "Letting an older, slower search overwrite the results of the newer one the reader is looking at; cancel a superseded query."
+  },
+  {
+    "id": "pick-from-a-tree",
+    "goal": "Let the user pick an item from a hierarchy in a field",
+    "phrases": [ "nested select", "tree select", "tree picker", "hierarchical dropdown", "cascader" ],
+    "answer": [
+      { "page": "/form-combo#picking-from-a-tree", "role": "primary" },
+      { "page": "/form-combo#ticking-whole-branches", "role": "part" },
+      { "page": "/tree", "role": "part" }
+    ],
+    "how": "A .tree in the combo's panel with aria-haspopup=\"tree\" on the input: the arrows walk the items and open branches while the focus stays in the input, and typing opens the branches holding a match. data-combo=\"multi\" over a ticking tree shows a fully ticked branch as one chip.",
+    "avoid": "An item with no id, which aria-activedescendant needs to tell a screen reader where the reader is."
+  },
+  {
+    "id": "turn-a-setting-on-or-off",
+    "goal": "Let the user turn a setting on or off at once",
+    "phrases": [ "toggle switch", "on off switch", "on off toggle", "toggle" ],
+    "answer": [
+      { "page": "/form-choice#switches", "role": "primary" },
+      { "page": "/form-choice#which-of-the-two", "role": "part" }
+    ],
+    "how": ".switch on a label around a checkbox, for a setting that applies the moment it is flipped, with a .choice-hint under its label saying what it does. A setting saved with the form is a checkbox instead.",
+    "avoid": "A switch in a form that still needs Save, which tells the reader the change has already applied."
+  },
+  {
+    "id": "tick-an-option",
+    "goal": "Let the user agree to or opt into one thing with a tick",
+    "phrases": [ "checkbox", "tick box", "opt in", "accept terms checkbox" ],
+    "answer": [
+      { "page": "/form-choice#checkboxes", "role": "primary" },
+      { "page": "/form-choice#half-ticked", "role": "part" }
+    ],
+    "how": ".form-check on a label around a native checkbox, so the whole label toggles it; a hint goes in .choice-hint inside .choice-text, so it starts where the label does.",
+    "avoid": "A checkbox for a setting that applies at once, which the reader then expects to need Save."
+  },
+  {
+    "id": "choose-one-of-a-few",
+    "goal": "Let the user choose one of a few options that need reading",
+    "phrases": [ "radio buttons", "radio group", "single choice", "option group", "pick one option" ],
+    "answer": [
+      { "page": "/form-choice#radio-buttons", "role": "primary" },
+      { "page": "/form-choice#options-that-need-explaining", "role": "part" }
+    ],
+    "how": "Radios with one name in a .form-section fieldset, so the legend is announced with each option, every .form-check one line or a .choice-text with its hint.",
+    "avoid": "Radios with no fieldset, which a screen reader announces as loose options with no question."
+  },
+  {
+    "id": "choose-between-pictures",
+    "goal": "Let the user choose between options shown as pictures",
+    "phrases": [ "radio cards", "choice cards", "selectable cards", "layout picker", "image radio buttons" ],
+    "answer": [
+      { "page": "/form-choice#choice-tiles", "role": "primary" }
+    ],
+    "how": ".choice-tiles is a radio group whose .choice-tile labels each hold a real radio, a picture in .choice-tile-art, a title and a hint; the arrows move between them and the form posts the value with no script.",
+    "avoid": "Clickable cards built from divs, which the keyboard cannot reach and a form does not post."
+  },
+  {
+    "id": "show-dependent-options",
+    "goal": "Let the user see the options that apply only once another is chosen",
+    "phrases": [ "conditional fields", "dependent fields", "show fields when checked", "nested options" ],
+    "answer": [
+      { "page": "/form-choice#options-that-depend-on-another", "role": "primary" },
+      { "page": "/form-choice#inactive-while-off", "role": "part" }
+    ],
+    "how": "A .choice-dependent straight after the option it belongs to indents its fields to the label; --dim fades it and makes it inert while the option is off, --hide hides it, and both follow the control with no round trip.",
+    "avoid": "A hint between the option and its block, which breaks the pairing; the hint goes in .choice-hint."
+  },
+  {
+    "id": "pick-a-set-from-a-list",
+    "goal": "Let the user pick a set of items from a known list",
+    "phrases": [ "checkbox group", "checkbox list", "select all checkbox", "check all", "none of the above" ],
+    "answer": [
+      { "page": "/form-check-list#select-all-the-count-and-a-long-list", "role": "primary" },
+      { "page": "/form-check-list#agents-groups-or-every-agent", "role": "part" },
+      { "page": "/form-check-list#an-option-that-excludes-the-rest", "role": "part" }
+    ],
+    "how": "A fieldset.form-field with its legend, a .form-check-list of items, and a head with select all and a count kept by data-check-all and data-check-count. An every option and a none option are answers of their own, with data-check-exclusive on none.",
+    "avoid": "Taking every item ticked to mean every item, when the reader may also mean the ones added later; that is an option of its own."
+  },
+  {
+    "id": "switch-a-view-setting",
+    "goal": "Let the user switch a setting between a few short options in place",
+    "phrases": [ "segmented control", "toggle button group", "button toggle", "view switcher", "list or grid toggle" ],
+    "answer": [
+      { "page": "/segmented#segmented-control", "role": "primary" },
+      { "page": "/segmented#in-a-toolbar", "role": "part" },
+      { "page": "/toolbar#filters-and-actions", "role": "part" }
+    ],
+    "how": ".segmented over radios with one name, named by a fieldset or an aria-label, so the arrows move between the options and the chosen one is announced as chosen. In a toolbar a range goes with the filters and a layout switch at the far end.",
+    "avoid": "A segmented control that switches panels of content, which are tabs, or whose options do something, which is a button group."
+  },
+  {
+    "id": "rate-with-stars",
+    "goal": "Let the user give a score in stars",
+    "phrases": [ "star rating", "rating input", "rate out of five", "review stars", "half star rating" ],
+    "answer": [
+      { "page": "/form-rating#taking-a-score", "role": "primary" },
+      { "page": "/form-rating#half-stars", "role": "part" }
+    ],
+    "how": "A .rating radiogroup of .rating-star labels around radios, each radio with an aria-label that says its score; the keyboard, the post and the binding are the radios' own. Half stars are two .rating-half labels in one star.",
+    "avoid": "Stars with no aria-label, which a screen reader announces as five radios with no score."
+  },
+  {
+    "id": "show-a-score",
+    "goal": "Let the user read a score shown as stars",
+    "phrases": [ "show star rating", "average rating", "rating display", "display a rating" ],
+    "answer": [
+      { "page": "/form-rating#showing-a-score", "role": "primary" },
+      { "page": "/list", "role": "part" }
+    ],
+    "how": "A .rating with role=\"img\" and an aria-label that says the score in words, each star --on, --half or empty; a number printed beside it is for the eye and carries aria-hidden.",
+    "avoid": "Five drawn stars with no words, which are not a number to a screen reader."
+  },
+  {
+    "id": "upload-files",
+    "goal": "Let the user attach files to what they send",
+    "phrases": [ "file upload", "upload area", "drag and drop upload", "attachment field", "file picker" ],
+    "answer": [
+      { "page": "/form-file#dropzone-and-file-list", "role": "primary" },
+      { "page": "/form-file#limits-and-a-file-turned-away", "role": "part" },
+      { "page": "/form-file#inside-a-form", "role": "part" },
+      { "page": "/files#uploads", "role": "part" }
+    ],
+    "how": "A .dropzone label wrapping a real file input with data-dropzone, so a click, Enter and a drop all reach the same change event; the limits in a hint inside the zone, and what is attached in a .file-list under it, with the reason on each file turned away.",
+    "avoid": "A drop target with no file input inside, which the keyboard cannot use and a touch screen barely can."
+  },
+  {
+    "id": "drop-files-anywhere",
+    "goal": "Let the user drop files anywhere on the page",
+    "phrases": [ "full page dropzone", "drop files on the page", "drag files anywhere", "page drop overlay" ],
+    "answer": [
+      { "page": "/form-file#the-whole-page-as-a-drop-target", "role": "primary" }
+    ],
+    "how": "One .dropzone--page overlay with data-dropzone=\"page\" names the input that takes the drop; it shows while files are dragged over the window and hands a drop to that input as a change event, so the picker's handler serves both.",
+    "avoid": "Making the overlay the only way in: it is aria-hidden, and the picker beside it is what a keyboard uses."
+  },
+  {
+    "id": "choose-a-value-on-a-slider",
+    "goal": "Let the user set a value by dragging along a range",
+    "phrases": [ "slider", "range slider", "range input", "volume slider", "slider with value" ],
+    "answer": [
+      { "page": "/form-numeric#range", "role": "primary" },
+      { "page": "/form-numeric#value-bubble", "role": "part" },
+      { "page": "/form-numeric#ticks", "role": "part" }
+    ],
+    "how": ".form-range on a native range with its value in text beside it in .form-range-value, or a .form-range-bubble over the thumb; ticks come from a datalist the range lists.",
+    "avoid": "A slider with no readout, whose thumb position is not a number to anyone, least of all a screen reader."
+  },
+  {
+    "id": "choose-a-span-of-values",
+    "goal": "Let the user choose a low and a high value on one track",
+    "phrases": [ "dual slider", "two thumb slider", "min max slider", "price range slider", "range with two handles" ],
+    "answer": [
+      { "page": "/form-numeric#two-thumbs", "role": "primary" }
+    ],
+    "how": "Two native ranges in one .form-range-box, the low end first, each with its own label and name; the box draws one track with the fill between the thumbs, and the script keeps the low end at or below the high.",
+    "avoid": "Two ranges with different min, max or step, which no longer share the track they are drawn on."
+  },
+  {
+    "id": "step-a-count",
+    "goal": "Let the user adjust a number one step at a time",
+    "phrases": [ "number stepper", "quantity input", "plus minus buttons", "numeric up down", "increment decrement" ],
+    "answer": [
+      { "page": "/form-numeric#stepper", "role": "primary" },
+      { "page": "/form-numeric#three-sizes", "role": "part" }
+    ],
+    "how": "A .stepper of two real buttons around a number input, each button named with what it adds or takes away; the native spinner is removed, and the size tier comes from the children.",
+    "avoid": "Buttons labelled only + and −, which a screen reader reads as plus and minus without saying of what."
+  },
+  {
+    "id": "pick-any-colour",
+    "goal": "Let the user pick any colour",
+    "phrases": [ "colour picker", "color picker", "hex colour input", "hue saturation picker", "rgb picker" ],
+    "answer": [
+      { "page": "/form-color#any-colour-a-spectrum-picker", "role": "primary" },
+      { "page": "/form-color#rgb-fields-and-opacity", "role": "part" },
+      { "page": "/form-color#a-colour-field", "role": "part" }
+    ],
+    "how": ".form-color-picker holds an area for saturation and brightness, hue and opacity ranges, a preview and the app's own data-color-value field, which is the value to bind. A .form-color input beside a text field is enough where the platform's picker will do.",
+    "avoid": "Binding the area or the sliders rather than the data-color-value field, which is the one the script keeps."
+  },
+  {
+    "id": "pick-a-preset-colour",
+    "goal": "Let the user pick a colour from a set the app offers",
+    "phrases": [ "colour swatches", "color swatches", "preset colours", "colour palette picker" ],
+    "answer": [
+      { "page": "/form-color#a-preset-palette", "role": "primary" }
+    ],
+    "how": "A .swatch-grid of buttons, each with its colour as --swatch and a name in aria-label, the chosen one aria-pressed=\"true\" and drawn as a ring.",
+    "avoid": "Swatches named only by their colour, which a reader who cannot tell two greens apart cannot choose between."
+  },
+  {
+    "id": "sign-by-hand",
+    "goal": "Let the user sign by drawing their signature",
+    "phrases": [ "signature pad", "e-signature", "draw a signature", "sign on screen", "signature capture" ],
+    "answer": [
+      { "page": "/form-signature#a-signature-pad", "role": "primary" },
+      { "page": "/form-signature#read-only-disabled-and-rejected", "role": "part" },
+      { "page": "/form-text#names", "role": "part" }
+    ],
+    "how": "A .form-signature frame with data-signature: the pad, the app's hint, undo and clear buttons, and an input[data-signature-value] the form posts as SVG path data. A typed full name beside it signs as well, for every reader who cannot draw.",
+    "avoid": "A pad as the only way to sign, which nobody using a keyboard, a screen reader or voice control can use."
+  }
+]

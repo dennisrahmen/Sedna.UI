@@ -1,23 +1,23 @@
 <div class="card" data-chart-frame>
     <div class="card-head">
-        <h3>Tickets closed, by how they ended</h3>
+        <h3>Orders delivered, against the promised day</h3>
     </div>
     <div class="card-body">
         <div class="chart-legend">
-            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-go"></span><span>Within target</span></span>
-            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-warn"></span><span>Close to target</span></span>
-            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-danger"></span><span>Breached</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-go"></span><span>On time</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-warn"></span><span>1 day late</span></span>
+            <span class="chart-key"><span class="chart-swatch chart-swatch--block series-danger"></span><span>More than 1 day late</span></span>
         </div>
-        <div class="chart" data-chart="column" data-chart-stack id="chart-tickets"
-             aria-label="Tickets closed per week, by whether they met their target" aria-roledescription="chart">
+        <div class="chart" data-chart="column" data-chart-stack id="chart-deliveries"
+             aria-label="Orders delivered per week, by whether they arrived on the promised day" aria-roledescription="chart">
             <table class="chart-data" data-chart-data>
-                <caption>Tickets closed per week</caption>
+                <caption>Orders delivered per week</caption>
                 <thead>
                     <tr>
                         <th scope="col">Week</th>
-                        <th scope="col" data-tone="go">Within target</th>
-                        <th scope="col" data-tone="warn">Close to target</th>
-                        <th scope="col" data-tone="danger">Breached</th>
+                        <th scope="col" data-tone="go">On time</th>
+                        <th scope="col" data-tone="warn">1 day late</th>
+                        <th scope="col" data-tone="danger">More than 1 day late</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,6 +43,6 @@
             <div class="chart-wait skeleton skeleton-block"></div>
         </div>
         <p class="visually-hidden" data-chart-live aria-live="polite"
-           data-chart-announce="{category}, {series}: {value} tickets, {percent} of the week."></p>
+           data-chart-announce="{category}, {series}: {value} orders, {percent} of the week."></p>
     </div>
 </div>

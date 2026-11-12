@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text.Json;
+using Sedna.UI.Catalogue.Guide;
 using Sedna.UI.Catalogue.Navigation;
 using ModelContextProtocol;
 using ModelContextProtocol.Server;
@@ -15,7 +16,8 @@ namespace Sedna.UI.Catalogue.Mcp;
 /// Shaped around one workflow — an agent writing a page in a consuming app, knowing
 /// roughly what it wants ("a filter bar above a sortable table with status badges")
 /// and needing the exact markup plus enough semantics to pick the right variant.
-/// <c>search</c> → <c>get_example</c> → <c>describe_class</c> is the whole loop.
+/// <c>search</c> → <c>get_example</c> → <c>describe_class</c> is the whole loop, and
+/// <c>get_guide</c> answers the question before it: which part, for what the user has to do.
 /// </para>
 /// <para>
 /// Every tool is read-only, and <b>there must never be one that writes</b>.
@@ -45,18 +47,22 @@ namespace Sedna.UI.Catalogue.Mcp;
 /// </para>
 /// </remarks>
 [McpServerToolType]
-internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versions)
+internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versions, DesignGuide guide)
 {
     private const int MaxSearchResults = 25;
     private const int MaxExamples = 5;
     private const int MaxClasses = 10;
     private const int MaxMarkupBytes = 8 * 1024;
 
+    /// <summary>The mean tier at which a goal is a match on its words rather than on scattered
+    /// letters — a word start in its sentence or a phrase — and is ranked above the pages.</summary>
+    private const int GoalFloor = 800;
+
     /// <summary>What makes a name a selector rather than a class name.</summary>
     private static readonly char[] SelectorPunctuation = [' ', '[', ':', '>', ',', '+', '~'];
 
     /// <summary>The values <c>kind</c> accepts. An unknown one is an error, not zero hits.</summary>
-    private static readonly string[] Kinds = ["example", "class", "token", "page"];
+    private static readonly string[] Kinds = ["goal", "example", "class", "token", "page"];
 
     /// <summary>The sections <c>get_integration_guide</c> serves.</summary>
     private static readonly string[] Sections = ["host-page", "branding", "javascript", "rules", "graph", "editor", "charts", "upgrade"];
@@ -64,14 +70,15 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     [McpServerTool(Name = "search", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]
     [Description("""
-        Search the Sedna.UI catalogue for examples, CSS classes, design tokens and pages.
-        Returns references only — call get_example for the markup. This is the first call for
-        any "how do I build X" question.
+        Search the Sedna.UI catalogue for user goals, examples, CSS classes, design tokens and
+        pages. Returns references only — call get_example for the markup, get_guide for a goal.
+        This is the first call for any "how do I build X" question; phrase it as what the user
+        should be able to do ("let the user upload a file") and a goal comes first.
         """)]
     public object Search(
-        [Description("What you are looking for, e.g. \"sortable table\" or \"badge--go\".")]
+        [Description("What you are looking for, e.g. \"let the user sort a table\", \"sortable table\" or \"badge--go\".")]
         string query,
-        [Description("Restrict to one of: example, class, token, page. Omit for everything.")]
+        [Description("Restrict to one of: goal, example, class, token, page. Omit for everything.")]
         string? kind = null,
         [Description("How many hits to return. Clamped to 25.")]
         int limit = 10,
@@ -90,6 +97,38 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
 
         var terms = CatalogueRanker.Terms(query).ToList();
         var hits = new List<Hit>();
+
+        if (kind is null or "goal")
+        {
+            // A query that is a page's own name — "drawer", "tabs" — asks for that page, so no
+            // goal is lifted above it, even one that lists the name among its phrases.
+            var asked = string.Join(' ', terms);
+            var namesAPage = CataloguePages.All.Any(p =>
+                string.Equals(p.Route.TrimStart('/').Replace('-', ' '), asked, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(p.Label, asked, StringComparison.OrdinalIgnoreCase));
+
+            foreach (var goal in guide.Goals)
+            {
+                // Each phrase is scored as a name of the goal as well as its id, so a query that
+                // IS one of its phrases scores as an exact name; the goal's sentence and phrases
+                // are the short fields, its how and avoid the long ones.
+                (int Score, string MatchedOn)? best = null;
+                foreach (var name in goal.Phrases.Prepend(goal.Id))
+                {
+                    var score = CatalogueRanker.Score(terms, name,
+                        goal.Phrases.Prepend(goal.Goal), [goal.How, goal.Avoid]);
+                    if (score is not null && (best is null || score.Value.Score > best.Value.Score)) best = score;
+                }
+
+                if (best is null) continue;
+
+                // Above a page when every word lands in a name or a sentence: a reader who typed
+                // what the user should be able to do wants the answer before the parts.
+                var boost = best.Value.Score >= GoalFloor && !namesAPage ? 100 : 0;
+                hits.Add(new Hit("goal", goal.Id, goal.Goal, Trim(goal.How), goal.PrimaryPage, [],
+                    best.Value.Score + boost, best.Value.MatchedOn));
+            }
+        }
 
         if (kind is null or "example")
         {
@@ -328,8 +367,9 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
     [McpServerTool(Name = "get_page", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]
     [Description("""
-        With an id, every example on one catalogue page — one call instead of five. Without one,
-        the list of pages, which is the fastest way to see what the library covers.
+        With an id, every example on one catalogue page — one call instead of five — and the
+        page's design-guide entry: what it is for, what to combine it with, what it is not for.
+        Without one, the list of pages, which is the fastest way to see what the library covers.
         """)]
     public object GetPage(
         [Description("A route from search, e.g. \"/table\". Omit to list every page.")]
@@ -368,6 +408,9 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             id = page.Route,
             title = page.Label,
             blurb = page.Blurb,
+            // What the page is for, what it is combined with and what it is not for. Absent on a
+            // reference page, which documents no component.
+            guide = guide.EntryFor(page.Route) is { } entry ? Entry(entry) : null,
             examples = examples.Select(e => new
             {
                 id = e.Id,
@@ -379,6 +422,116 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
             }),
         };
     }
+
+    /// <summary>The fixed topics <c>get_guide</c> takes beside an id or a route.</summary>
+    private const string Principles = "principles";
+    private const string GoalList = "goals";
+
+    [McpServerTool(Name = "get_guide", ReadOnly = true, Destructive = false, Idempotent = true,
+        OpenWorld = false)]
+    [Description("""
+        The Sedna.UI design guide — which part answers what the app's user has to do, and how to
+        compose a page with it. A goal id (search returns them as kind "goal") gives the page to
+        start from, the parts around it, how they combine and the usual mistake. A page route,
+        e.g. "/table", gives that component's entry: use it for, combine with, not for, and the
+        goals it answers. "principles" lists the sections on composition, spacing, colour,
+        actions, feedback, density, motion and words, and a section id returns one; "goals" lists
+        every goal.
+        """)]
+    public object GetGuide(
+        [Description("\"principles\", a section id, \"goals\", a goal id, or a page route such as \"/table\". Omit for principles.")]
+        string? topic = null)
+    {
+        var name = string.IsNullOrWhiteSpace(topic) ? Principles : topic.Trim();
+        var meta = versions.For(null);
+
+        if (string.Equals(name, Principles, StringComparison.OrdinalIgnoreCase))
+        {
+            return new
+            {
+                meta,
+                topic = Principles,
+                intro = GuideMarkdown.Absolute(guide.Intro),
+                sections = guide.Sections.Select(s => new { id = s.Id, title = s.Title }),
+                next = "get_guide with a section id for its text, or with \"goals\" for what the user can do.",
+            };
+        }
+
+        if (string.Equals(name, GoalList, StringComparison.OrdinalIgnoreCase))
+        {
+            return new
+            {
+                meta,
+                topic = GoalList,
+                goals = guide.Goals.Select(g => new { id = g.Id, goal = g.Goal, group = g.Group, start = g.PrimaryPage }),
+            };
+        }
+
+        if (guide.Section(name.ToLowerInvariant()) is { } section)
+        {
+            return new
+            {
+                meta,
+                topic = section.Id,
+                title = section.Title,
+                url = CatalogueLinks.Site + "design-guide#" + section.Id,
+                markdown = GuideMarkdown.Absolute(section.Markdown),
+            };
+        }
+
+        if (guide.Goal(name.ToLowerInvariant()) is { } goal)
+        {
+            return new
+            {
+                meta,
+                topic = goal.Id,
+                goal = goal.Goal,
+                group = goal.Group,
+                phrases = goal.Phrases,
+                answer = goal.Answer.Select(a => new
+                {
+                    page = a.Page,
+                    title = DesignGuide.LabelOf(a.Page),
+                    role = a.Role,
+                    useFor = guide.EntryFor(DesignGuide.Split(a.Page).Route)?.UseFor,
+                }),
+                how = goal.How,
+                avoid = goal.Avoid,
+                next = "get_page or get_example on the primary page for the markup.",
+            };
+        }
+
+        var route = name.StartsWith('/') ? name : "/" + name;
+        if (CataloguePages.All.FirstOrDefault(p =>
+                string.Equals(p.Route, DesignGuide.Split(route).Route, StringComparison.OrdinalIgnoreCase)) is { } page)
+        {
+            if (guide.EntryFor(page.Route) is { } entry)
+                return new { meta, topic = page.Route, title = page.Label, entry = Entry(entry) };
+
+            return new
+            {
+                meta,
+                topic = page.Route,
+                title = page.Label,
+                note = "This page has no design-guide entry: it documents no component of its own, or its "
+                       + "group's entries are not written yet. get_guide with \"goals\" lists what the user can do.",
+            };
+        }
+
+        throw new McpException(
+            $"Unknown topic \"{topic}\". Use \"{Principles}\", a section id ({string.Join(", ", guide.Sections.Select(s => s.Id))}), "
+            + $"\"{GoalList}\", a goal id from search with kind \"goal\" (e.g. \"{guide.Goals.FirstOrDefault()?.Id}\"), "
+            + "or a page route such as \"/table\" — or omit it for principles.");
+    }
+
+    /// <summary>One page's guide entry, as get_page and get_guide return it.</summary>
+    private object Entry(GuideEntry entry) => new
+    {
+        useFor = entry.UseFor,
+        combineWith = entry.CombineWith.Select(c => new { page = c.Page, title = DesignGuide.LabelOf(c.Page), how = c.How }),
+        notFor = entry.NotFor.Select(n => new { text = n.Text, instead = n.Instead, title = DesignGuide.LabelOf(n.Instead) }),
+        goals = guide.GoalsOf(entry).Select(g => new { id = g.Id, goal = g.Goal }),
+    };
 
     [McpServerTool(Name = "get_tokens", ReadOnly = true, Destructive = false, Idempotent = true,
         OpenWorld = false)]

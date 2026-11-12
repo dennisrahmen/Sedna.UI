@@ -19,7 +19,7 @@
             <li data-edge data-source="orders-api" data-target="orders-db" data-label="writes" data-weight="heavy">The orders API writes each order to src-db-14</li>
             <li data-edge data-source="orders-db" data-target="replica" data-label="replicates · 40 s behind" data-tone="warn">src-db-14 replicates to src-db-15, forty seconds behind</li>
             <li data-edge data-source="orders-api" data-target="search" data-label="indexes, best effort" data-line="dotted" data-weight="light">The orders API indexes each order for search, on a best-effort basis</li>
-            <li data-edge data-source="replica" data-target="loader" data-label="read at 02:00" data-line="dashed">The nightly loader reads src-db-15 at two in the morning</li>
+            <li data-edge data-source="replica" data-target="loader" data-label="read at 02:00" data-line="dashed">The nightly loader reads src-db-15 at 02:00</li>
             <li data-edge data-source="loader" data-target="warehouse" data-label="loads" data-line="dashed">The nightly loader loads the data warehouse</li>
             <li data-edge data-source="warehouse" data-target="reports" data-label="feeds">The data warehouse feeds the reports</li>
             <li data-edge data-source="orders-api" data-target="audit" data-label="records" data-weight="light" data-muted>The orders API records each change in the audit log</li>

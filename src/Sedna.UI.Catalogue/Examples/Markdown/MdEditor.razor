@@ -15,14 +15,14 @@
                 <input type="radio" data-md-tab="preview" /> <span>Preview</span></label>
         </div>
     </div>
-    <textarea class="form-input md-input" data-md-input rows="8" aria-label="Markdown source">## Escalation policy
+    <textarea class="form-input md-input" data-md-input rows="8" aria-label="Markdown source">## Split delivery policy
 
-Raise to **P2** when _either_ condition holds:
+Split an order into **two shipments** when _either_ condition holds:
 
-- More than 20 users are affected
-- A `VIP` flag is set on the caller
+- More than 20 lines are waiting for stock
+- A `priority` flag is set on the customer
 
-> Never raise priority and reroute in the same decision.
+> Never split and change the carrier in the same decision.
 </textarea>
     <div class="markdown-body md-preview" data-md-preview></div>
 </div>

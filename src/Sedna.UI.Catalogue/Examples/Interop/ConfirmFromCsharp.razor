@@ -1,6 +1,6 @@
 @inject ISednaUi Ui
 
-<div class="sedna-row-wrap sedna-gap-3" style="align-items:center">
+<div class="sedna-row-wrap sedna-gap-3">
     <button class="btn btn--danger" type="button" @onclick="Discard">
         <i class="ri-delete-bin-line"></i> <span>Discard the reservation</span>
     </button>
@@ -16,11 +16,11 @@
             <h3 id="discard-reservation-title">Discard the reservation?</h3>
         </div>
         <div class="modal-body">
-            <p>The five lines on ORD-4209 go back into stock. This cannot be undone.</p>
+            <p>The 5 lines on ORD-4209 go back into stock. This cannot be undone.</p>
         </div>
         <div class="modal-footer">
-            <button class="btn" value="keep">Keep it</button>
-            <button class="btn btn--danger" value="discard"><i class="ri-delete-bin-line"></i> <span>Discard</span></button>
+            <button class="btn" value="keep">Cancel</button>
+            <button class="btn btn--danger btn--solid" value="discard"><i class="ri-delete-bin-line"></i> <span>Discard reservation</span></button>
         </div>
     </form>
 </dialog>

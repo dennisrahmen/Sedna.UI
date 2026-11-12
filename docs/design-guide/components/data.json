@@ -1,0 +1,353 @@
+[
+  {
+    "page": "/table",
+    "useFor": "Records the reader scans and compares down columns, with each row's state, a sort, filters and the row's own actions.",
+    "combineWith": [
+      { "page": "/toolbar#filters-and-a-count", "how": "Above the card: the search and filters leading, the count of rows and the list's actions trailing." },
+      { "page": "/card#a-table-in-a-card", "how": "The table goes straight in the card with no .card-body around it, so its rows meet the card's edges." },
+      { "page": "/pager#under-the-table-it-pages", "how": "Straight after the card, outside it, for a list that pages." },
+      { "page": "/badge#in-a-card-header-and-a-table-cell", "how": "A row's state in a column of its own, in words as well as a tone." },
+      { "page": "/skeleton#table-rows", "how": "Skeleton rows for the first load; a .tr-busy row for a refresh of rows already shown." },
+      { "page": "/menu#anchored-under-a-trigger", "how": "A row's further actions behind one button in a .table--pin-end column." }
+    ],
+    "notFor": [
+      { "text": "The fields of one record, read top to bottom", "instead": "/card#key-value-rows" },
+      { "text": "Records read one at a time, a title and a line under it", "instead": "/list" },
+      { "text": "Moving through cells and editing them in place", "instead": "/table-editing" },
+      { "text": "More rows than one page should hold", "instead": "/table-large" },
+      { "text": "Laying out a page in columns", "instead": "/grid" }
+    ],
+    "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
+    "stamp": "3d43f21e5a17d330"
+  },
+  {
+    "page": "/table-editing",
+    "useFor": "A table the reader works in: walking it cell by cell with the keyboard and editing a cell or a whole row in place.",
+    "combineWith": [
+      { "page": "/table#sortable-numeric-and-selected", "how": "The same headings, sort buttons and selected rows, inside the grid." },
+      { "page": "/form-saving", "how": "Edits the app has not saved yet are data-dirty cells; save them with a button of the app's, and ask before the reader leaves." },
+      { "page": "/form-validation", "how": "A rejected cell carries aria-invalid and says why in words, as a field does." },
+      { "page": "/toast", "how": "The receipt once the changed rows are saved." }
+    ],
+    "notFor": [
+      { "text": "A list of records that is only read", "instead": "/table" },
+      { "text": "Editing one record's fields", "instead": "/form" },
+      { "text": "A hierarchy of rows", "instead": "/table-large#a-tree-grid" }
+    ],
+    "goals": [ "edit-cells-in-place", "work-in-a-grid" ],
+    "stamp": "d706c400950eec0a"
+  },
+  {
+    "page": "/table-large",
+    "useFor": "A table with more rows than a page holds: rendered a window at a time, loaded a page at a time, folded into a hierarchy, with totals kept in view.",
+    "combineWith": [
+      { "page": "/table#sticky-header", "how": "A scroller with a height and .table--sticky, so the headings stay while the rows scroll." },
+      { "page": "/table-editing#a-keyboard-grid", "how": "A tree grid is a keyboard grid throughout, and a large table can be one." },
+      { "page": "/progress#while-the-next-page-loads", "how": "aria-busy on the load-more button while the next page arrives." },
+      { "page": "/popover", "how": "The .th-filter popover whose choices carry the count each would leave." }
+    ],
+    "notFor": [
+      { "text": "A list the reader pages through by number", "instead": "/pager" },
+      { "text": "A hierarchy with no columns to compare", "instead": "/tree" },
+      { "text": "A table of a few dozen rows", "instead": "/table" }
+    ],
+    "goals": [ "filter-table-columns", "browse-thousands-of-rows", "expand-a-hierarchy-in-a-table" ],
+    "stamp": "3b5fd50f0bb9c8de"
+  },
+  {
+    "page": "/table-columns",
+    "useFor": "A table whose reader sets its columns: their widths, their order and which are shown, kept per user.",
+    "combineWith": [
+      { "page": "/menu", "how": "The column chooser is a menu of checkboxes behind a toolbar button." },
+      { "page": "/toolbar", "how": "The chooser's button sits with the list's actions at the end of the toolbar." },
+      { "page": "/drag-drop", "how": "Moving a column is the drag zone the library already has, along the header row." },
+      { "page": "/utility-scroll#horizontal", "how": "A .sedna-scroll-x around the fixed table, so it scrolls once the columns outgrow the box." }
+    ],
+    "notFor": [
+      { "text": "A table whose columns are the same for everyone", "instead": "/table#column-widths" },
+      { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
+    ],
+    "goals": [ "sort-a-list", "choose-table-columns" ],
+    "stamp": "6f40e6f684f31757"
+  },
+  {
+    "page": "/filtering",
+    "useFor": "Narrowing a long list: facets in a side panel, the filters in force as chips, the reader's saved views, and conditions combined with AND and OR.",
+    "combineWith": [
+      { "page": "/grid#sedna-split", "how": "The panel first in a .sedna-split, so it sits at the start and stacks above the results when the list would get too narrow." },
+      { "page": "/chip#what-is-applied-under-the-toolbar", "how": "Every filter in force as a removable chip above the results, then Clear all and the count left." },
+      { "page": "/drawer", "how": "The same facets in a start drawer on a narrow screen, opened by a Filters button that shows how many apply." },
+      { "page": "/menu", "how": "The saved views, switched from a menu whose trigger names the view in use." },
+      { "page": "/form-check-list", "how": "Each facet is a group of checkboxes with the count each choice would leave." },
+      { "page": "/empty-state", "how": "When the filters leave nothing, say so in the results' place with a way to clear them." }
+    ],
+    "notFor": [
+      { "text": "One filter for each column of a table", "instead": "/table#a-filter-per-column" },
+      { "text": "A search box and a select or two above a list", "instead": "/toolbar#filters-and-a-count" },
+      { "text": "Searching the whole app from the header", "instead": "/topbar" }
+    ],
+    "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
+    "stamp": "131175e9d2241ca8"
+  },
+  {
+    "page": "/stat",
+    "useFor": "One figure that matters, with what it is, what it is measured against and which way it moved.",
+    "combineWith": [
+      { "page": "/grid#a-dashboard", "how": "A dashboard's tiles in a grid, or a .stat-row for a set that should line up." },
+      { "page": "/sparkline#under-a-figure", "how": "Under the value, for the shape of the way it moved." },
+      { "page": "/card#head-and-body", "how": "A .stat-row inside a card body takes dividing rules between its tiles." },
+      { "page": "/skeleton#stat-tiles", "how": "The tile's skeleton while the figure loads." }
+    ],
+    "notFor": [
+      { "text": "A handful of values the reader compares", "instead": "/bars#a-list-of-bars" },
+      { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" },
+      { "text": "A figure over time", "instead": "/chart" }
+    ],
+    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
+    "stamp": "375b0d6655046e10"
+  },
+  {
+    "page": "/bars",
+    "useFor": "The small charts a page of figures is made of: bars to compare a few values, one bar in parts, a meter against thresholds, a gauge, and a value against before.",
+    "combineWith": [
+      { "page": "/card", "how": "A bar list or a stack bar is the body of a card titled with what it measures." },
+      { "page": "/stat", "how": "The figure above, the bars that explain it below." },
+      { "page": "/table#column-widths", "how": "A small meter in a cell, with the figure in the next column; give the column a width." },
+      { "page": "/hover-hints", "how": "A data-tip on a mark says the whole threshold." }
+    ],
+    "notFor": [
+      { "text": "Progress towards being done", "instead": "/progress" },
+      { "text": "Many points over time, with axes", "instead": "/chart" },
+      { "text": "Which way a figure is going", "instead": "/sparkline" }
+    ],
+    "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period", "show-test-results", "show-a-password" ],
+    "stamp": "1d1e190b632029b6"
+  },
+  {
+    "page": "/sparkline",
+    "useFor": "Which way a figure is going, as one line with no axis, beside the figure that says where it is.",
+    "combineWith": [
+      { "page": "/stat", "how": "Under a tile's value." },
+      { "page": "/table", "how": "One per row in its own column, beside the change it illustrates." }
+    ],
+    "notFor": [
+      { "text": "A chart with axes, a tooltip or a legend", "instead": "/chart" },
+      { "text": "What happened in each slot of a period", "instead": "/tracker" }
+    ],
+    "goals": [ "show-a-key-figure", "show-a-trend" ],
+    "stamp": "98d04e2195c0eef6"
+  },
+  {
+    "page": "/tracker",
+    "useFor": "What happened in each slot of a period: a row of blocks in the tone of each day or run, or a grid of cells whose step says how much.",
+    "combineWith": [
+      { "page": "/hover-hints", "how": "Each block's detail is its data-tip." },
+      { "page": "/bars#three-thicknesses", "how": "A .meter-scale under the row for how far back it goes, and a .stack-bar-legend naming the tones." },
+      { "page": "/list", "how": "A small tracker per row, for a list of hosts or runners." },
+      { "page": "/utility-scroll#horizontal", "how": "A year of heatmap is wider than a phone; put it in a scroller." }
+    ],
+    "notFor": [
+      { "text": "A figure that moves continuously", "instead": "/sparkline" },
+      { "text": "Events with a time and a title", "instead": "/calendar" },
+      { "text": "Entries that each need words", "instead": "/timeline" }
+    ],
+    "goals": [ "show-status-history", "show-activity-over-time" ],
+    "stamp": "c17a7e2421693d10"
+  },
+  {
+    "page": "/calendar",
+    "useFor": "The grids a scheduling view is drawn on — a month, a week or a day on a time axis, a year, a resource timeline — and a date picker on the same grid.",
+    "combineWith": [
+      { "page": "/calendar-agenda", "how": "The agenda is the same events as a list, and business hours, background events and dragging are added there." },
+      { "page": "/popover", "how": "A day's markers and its +N more open a popover listing every event." },
+      { "page": "/hover-hints", "how": "A pill too short for its title, a marker or a holiday carries its name in a data-tip." },
+      { "page": "/form-datetime#a-typeable-date-with-a-calendar", "how": "A typed date field beside a button that opens the date picker drawn on this grid." }
+    ],
+    "notFor": [
+      { "text": "A date typed into a form field", "instead": "/form-datetime" },
+      { "text": "Upcoming events read in order", "instead": "/calendar-agenda#an-agenda" },
+      { "text": "A history of entries, each with words", "instead": "/timeline" },
+      { "text": "Activity per day with no events", "instead": "/tracker#a-calendar-of-activity" }
+    ],
+    "goals": [ "see-a-schedule", "pick-a-date" ],
+    "stamp": "cbdb0cbe3716f36a"
+  },
+  {
+    "page": "/calendar-agenda",
+    "useFor": "A calendar's list view, the hours a site is shut, stretches that colour a day, the rest of a busy day, and events the reader drags and stretches.",
+    "combineWith": [
+      { "page": "/calendar", "how": "The month, week and timeline the agenda lists and the drags happen on." },
+      { "page": "/drag-drop", "how": "Moving an event is the library's drag and drop: a drop event the app answers by changing the date." },
+      { "page": "/popover", "how": "The rest of a busy day, opened from its +N more." },
+      { "page": "/utility-scroll#vertical", "how": "An agenda in a scroller with a height keeps each day's heading pinned." }
+    ],
+    "notFor": [
+      { "text": "Appointments on a grid of days", "instead": "/calendar" },
+      { "text": "A feed of what has happened", "instead": "/timeline" }
+    ],
+    "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
+    "stamp": "538b934a23f09dcf"
+  },
+  {
+    "page": "/pager",
+    "useFor": "Moving through a long result set page by page, and showing where a page sits with breadcrumbs.",
+    "combineWith": [
+      { "page": "/table", "how": "Straight after the card holding the table, with the range of rows at the far end." },
+      { "page": "/list", "how": "The same, after a list of known length." },
+      { "page": "/structure#page-head", "how": "Breadcrumbs sit above the page head of a record several levels deep." },
+      { "page": "/toolbar", "how": "The compact previous, next and range where the pager has to share a toolbar row." }
+    ],
+    "notFor": [
+      { "text": "Thousands of rows scrolled through", "instead": "/table-large#virtualized-rows" },
+      { "text": "The steps of a form", "instead": "/form-flow" },
+      { "text": "Switching between views of one record", "instead": "/tabs" }
+    ],
+    "goals": [ "compare-records", "page-through-results", "show-where-a-page-sits", "say-a-page-was-not-found", "find-a-record-on-a-list-page", "read-a-record", "search-everything", "head-a-page", "browse-a-folder" ],
+    "stamp": "313c0ede461e7e13"
+  },
+  {
+    "page": "/chart",
+    "useFor": "Figures over time or across categories — lines, areas, columns, bars, pies, donuts and scatters — drawn from a table the app writes.",
+    "combineWith": [
+      { "page": "/card#head-body-and-foot", "how": "A chart is the body of a card titled with what it shows; the legend and its toggles sit in the card head or foot." },
+      { "page": "/skeleton#a-chart", "how": "The chart's own wait covers it until the drawing is there." },
+      { "page": "/empty-state", "how": "No data and a failed load, said in the chart's place in the app's words." },
+      { "page": "/hover-hints", "how": "With no tooltip of the app's, the hover-hint bubble says the category, the series and the value." }
+    ],
+    "notFor": [
+      { "text": "A handful of values compared", "instead": "/bars#a-list-of-bars" },
+      { "text": "Which way one figure is going", "instead": "/sparkline" },
+      { "text": "Records and the links between them", "instead": "/graph" },
+      { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" }
+    ],
+    "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "plot-data", "recover-from-a-failed-load" ],
+    "stamp": "9448c2176f306964"
+  },
+  {
+    "page": "/graph",
+    "useFor": "Records and the links between them drawn on a canvas — a dependency map, a network, a knowledge graph — from a list the app writes.",
+    "combineWith": [
+      { "page": "/graph-layouts", "how": "The layout that answers the reader's question about the records." },
+      { "page": "/graph-exploring", "how": "Filters, search, a side panel and a tooltip around the canvas." },
+      { "page": "/toolbar", "how": "The graph's toolbar above its frame." },
+      { "page": "/empty-state", "how": "Nothing to draw, filtered to nothing and a failed read, each in the canvas's place." },
+      { "page": "/card#body-without-padding", "how": "A small graph in a card body that drops its padding." }
+    ],
+    "notFor": [
+      { "text": "A hierarchy read as an indented list", "instead": "/tree" },
+      { "text": "A process run with the state of each step", "instead": "/workflow" },
+      { "text": "Figures over time", "instead": "/chart" }
+    ],
+    "goals": [ "see-how-things-connect" ],
+    "stamp": "fd3a8692f8996157"
+  },
+  {
+    "page": "/graph-layouts",
+    "useFor": "Choosing where a graph's records go, by the question the reader asks: the shape of the whole, what surrounds one record, who reports to whom, where things are.",
+    "combineWith": [
+      { "page": "/graph", "how": "The records and the frame the layout places." },
+      { "page": "/segmented", "how": "A control that switches layouts on one graph." },
+      { "page": "/graph-plugins#hierarchies", "how": "The tree and flow layouts load their plugin the first time they run." }
+    ],
+    "notFor": [
+      { "text": "A run whose steps follow one another", "instead": "/workflow" },
+      { "text": "A strict parent and child hierarchy read in order", "instead": "/tree" }
+    ],
+    "goals": [ "see-how-things-connect", "show-an-org-chart" ],
+    "stamp": "129b1a989fb7d691"
+  },
+  {
+    "page": "/graph-exploring",
+    "useFor": "Everything a reader does with a graph already drawn: filtering it, finding a record, following its links and reading one in full.",
+    "combineWith": [
+      { "page": "/chip", "how": "Filter chips that are the legend and the switch at once." },
+      { "page": "/drawer", "how": "A record's side panel, or a drawer on a narrow screen." },
+      { "page": "/menu", "how": "The context menu on a record." },
+      { "page": "/form-text", "how": "The search field that marks or hides records." }
+    ],
+    "notFor": [
+      { "text": "Filtering a list of records", "instead": "/filtering" },
+      { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
+    ],
+    "goals": [ "see-how-things-connect", "explore-a-network" ],
+    "stamp": "79461dc8e2157322"
+  },
+  {
+    "page": "/graph-plugins",
+    "useFor": "A graph's extra powers: a minimap for a large one, links the reader draws, groups that fold or are outlined, the drawing as a file, and two more layouts.",
+    "combineWith": [
+      { "page": "/graph-exploring", "how": "The minimap beside the zoom and the reset of an explored graph." },
+      { "page": "/graph-blazor#links-the-reader-draws", "how": "A drawn link reported to the component, which decides whether it stands." },
+      { "page": "/button", "how": "Export and fold buttons in the graph's tools." }
+    ],
+    "notFor": [
+      { "text": "A graph small enough to see whole", "instead": "/graph" },
+      { "text": "Reordering items in a list by dragging", "instead": "/drag-drop" }
+    ],
+    "goals": [ "explore-a-network", "draw-links-between-records" ],
+    "stamp": "92312fcceada6acc"
+  },
+  {
+    "page": "/graph-gallery",
+    "useFor": "Whole graphs for real jobs to copy from: an org chart, a service map, a network, lineage, a state machine, a mind map, a blast radius.",
+    "combineWith": [
+      { "page": "/graph", "how": "Each one's markup and its states." },
+      { "page": "/graph-exploring", "how": "The controls each one carries." },
+      { "page": "/page-recipes", "how": "The page around a graph." }
+    ],
+    "notFor": [
+      { "text": "A process run with step states", "instead": "/workflow" },
+      { "text": "A chart of figures", "instead": "/chart" }
+    ],
+    "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
+    "stamp": "75b33e49032a75cc"
+  },
+  {
+    "page": "/graph-blazor",
+    "useFor": "A graph fed from a component: records and changes sent through ISednaGraphs, and the reader's clicks, drawn links and filters coming back as events.",
+    "combineWith": [
+      { "page": "/graph", "how": "The same markup, rendered by the component." },
+      { "page": "/interop", "how": "The rest of the C# surface, registered with AddSednaUi." },
+      { "page": "/drawer", "how": "The selected record's detail, opened from the select event." }
+    ],
+    "notFor": [
+      { "text": "A graph whose records are known when the page renders", "instead": "/graph#a-graph-from-a-list" },
+      { "text": "A run whose steps change state", "instead": "/workflow-run" }
+    ],
+    "goals": [ "explore-a-network", "draw-links-between-records", "watch-a-run-live" ],
+    "stamp": "f6a6328a04500a6f"
+  },
+  {
+    "page": "/workflow",
+    "useFor": "A run through a process drawn as a diagram: what has happened, what is happening, what comes next, and which way each decision went.",
+    "combineWith": [
+      { "page": "/agent-status", "how": "A node holds an orb and a confidence for the step an agent works on, and the card head says what the run is doing now." },
+      { "page": "/progress", "how": "A progress bar inside the node of a long step." },
+      { "page": "/drawer", "how": "A step's full detail, opened from its node." },
+      { "page": "/card#head-and-body", "how": "The run in a card, its head naming the run with the button that brings the step at work back into view." }
+    ],
+    "notFor": [
+      { "text": "Records whose links cross", "instead": "/graph" },
+      { "text": "The steps of a form the reader fills in", "instead": "/form-flow" },
+      { "text": "An agent's plan and tool calls", "instead": "/agent-steps" },
+      { "text": "A history of events", "instead": "/timeline" }
+    ],
+    "goals": [ "follow-a-process-run", "watch-a-run-live" ],
+    "stamp": "b616edd8cdc54e9b"
+  },
+  {
+    "page": "/workflow-run",
+    "useFor": "A run followed as it happens: an overview of the stages, every step under it, and why each decision went as it did, updated from the automation's events.",
+    "combineWith": [
+      { "page": "/workflow", "how": "Both diagrams are workflow markup bound to one dictionary of step to state." },
+      { "page": "/live-state", "how": "The connection to the events, and relative times that keep themselves current." },
+      { "page": "/chat", "how": "The conversation the run started with, beside the diagram." }
+    ],
+    "notFor": [
+      { "text": "A finished run read afterwards", "instead": "/workflow" },
+      { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
+    ],
+    "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
+    "stamp": "d8022a1da995949a"
+  }
+]

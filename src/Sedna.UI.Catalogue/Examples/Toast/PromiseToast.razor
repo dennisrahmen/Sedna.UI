@@ -6,17 +6,33 @@
     </div>
 </template>
 
-<div class="sedna-row-wrap sedna-gap-3">
-    <button class="btn" type="button"
-            onclick="const id = sednaUi.toast.present('toast-saving', { title: 'Saving route plan 14', text: 'Six stops, two drivers.' }, { timeout: 0 });
-                     new Promise(done => setTimeout(done, 1500))
-                         .then(() => sednaUi.toast.replace(id, 'Route plan 14 goes out with the 14:30 run.', { kind: 'go', title: 'Saved' }));">
-        <i class="ri-route-line"></i> <span>Save the route plan</span>
-    </button>
-    <button class="btn" type="button"
-            onclick="const id = sednaUi.toast.present('toast-saving', { title: 'Saving route plan 14', text: 'Six stops, two drivers.' }, { timeout: 0 });
-                     new Promise((done, fail) => setTimeout(fail, 1500))
-                         .catch(() => sednaUi.toast.replace(id, 'The planner did not answer. Nothing was saved.', { kind: 'danger', title: 'Not saved', timeout: 0 }));">
-        <span>Save, and fail</span>
-    </button>
+<div class="sedna-col sedna-gap-2">
+    <div class="sedna-row-wrap">
+        <button class="btn" type="button"
+                onclick="const id = sednaUi.toast.present('toast-saving', { title: 'Saving route plan 14', text: '6 stops, 2 drivers.' }, { timeout: 0 });
+                         new Promise(done => setTimeout(done, 1500))
+                             .then(() => {
+                                 document.getElementById('route-plan-failed').hidden = true;
+                                 sednaUi.toast.replace(id, 'Route plan 14 goes out with the 14:30 run.', { kind: 'go', title: 'Saved' });
+                             });">
+            <i class="ri-route-line"></i> <span>Save the route plan</span>
+        </button>
+        <button class="btn" type="button"
+                onclick="const id = sednaUi.toast.present('toast-saving', { title: 'Saving route plan 14', text: '6 stops, 2 drivers.' }, { timeout: 0 });
+                         new Promise((done, fail) => setTimeout(fail, 1500))
+                             .catch(() => {
+                                 document.getElementById('route-plan-failed').hidden = false;
+                                 sednaUi.toast.replace(id, 'The planner did not answer. Nothing was saved.', { kind: 'danger', title: 'Not saved' });
+                             });">
+            <span>Save, and fail</span>
+        </button>
+    </div>
+
+    <!-- The failure stays on the page, beside the work, until a save succeeds. -->
+    <div id="route-plan-failed" hidden>
+        <div class="alert alert--danger">
+            <i class="ri-error-warning-line"></i>
+            <span>Route plan 14 is not saved: the planner did not answer. Your changes are still here; save again.</span>
+        </div>
+    </div>
 </div>

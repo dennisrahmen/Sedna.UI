@@ -879,10 +879,11 @@ honouring the read-only hint calls these without prompting.
 
 | Tool | Returns |
 | --- | --- |
-| `search` | References only, never markup, across examples, classes, tokens and pages. |
+| `search` | References only, never markup, across the design guide's goals, examples, classes, tokens and pages. A query that is, or says, what the user should be able to do ranks its goal first. |
 | `get_example` | The bytes the site renders for an example, valid in a `.razor` page and an `.html` file alike. |
 | `describe_class` | What the shipped stylesheet declares for a class, its layer, its modifiers, its family and variants, the attribute selectors and pseudo-classes written on it (`states`, from `build/class-states.sh`), and the examples using it. A class a release renamed comes back under `renamed`, with the classes that replace it. |
-| `get_page` | Every example on one catalogue page, or the list of pages. |
+| `get_page` | Every example on one catalogue page and its design-guide entry, or the list of pages. |
+| `get_guide` | The design guide in `docs/design-guide/`: a goal's primary page, its parts, how they combine and what to avoid; a page's entry — use it for, combine with, not for, its goals; the list of principles, or one section; or the list of goals. |
 | `get_tokens` | The token export, as an ordered array of blocks. |
 | `get_integration_guide` | This repository's own documentation, verbatim: `host-page`, `branding`, `javascript`, `rules`, `graph`, `editor`, `charts` — and `upgrade`, every class each release renamed, from `docs/renames/`. |
 | `check_markup` | For markup an agent wrote: every class the stylesheet does not declare, with the nearest library class; every class a release renamed or removed, judged against the installed version; every class newer than it; every icon the font does not have. Classes only. |
@@ -890,7 +891,8 @@ honouring the read-only hint calls these without prompting.
 | `describe_api` | A C# type or member's signatures, XML documentation, release and the examples using it, read by reflection and from the documentation file the library's build writes; a `sednaUi` member's row of the table under **JavaScript** above. |
 
 Nothing in the index is hand-listed. Examples come from the same embedded resources the pages render,
-classes from the stylesheet the app serves, docs from `docs/`.
+classes from the stylesheet the app serves, docs from `docs/`, and the guide from `docs/design-guide/`,
+which the site's own design guide page and every page's guide panel render too.
 
 ### No output schema
 

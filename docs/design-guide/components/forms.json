@@ -1,0 +1,307 @@
+[
+  {
+    "page": "/form",
+    "useFor": "A form of several fields: each field's label, control and hint, fields side by side, sections under a legend, and the row of actions that closes it.",
+    "combineWith": [
+      { "page": "/grid#fields-side-by-side", "how": "Short fields that belong together go two-up in a .sedna-grid--fit, which drops to one column when there is no room for two." },
+      { "page": "/form-validation#inside-a-two-up-row", "how": "Each field's error under its own control, and a summary at the top when more than one is wrong." },
+      { "page": "/form-choice#inactive-while-off", "how": "A switch in a boxed section's legend turns its body on, as a dependent block follows its option." },
+      { "page": "/form-check-list", "how": "A checkbox group is one more field in a section or a box." },
+      { "page": "/form-saving#the-save-bar", "how": "On a form longer than the screen the actions row becomes the save bar, or sticks." },
+      { "page": "/page-recipes#a-create-or-edit-page", "how": "The whole page around a form: the page head, the sections and the actions that stay in reach." }
+    ],
+    "notFor": [
+      { "text": "A long transaction asked one question to a page", "instead": "/form-flow#one-question-to-a-page" },
+      { "text": "Editing values in the rows of a table", "instead": "/table-editing" },
+      { "text": "Laying out a page that is not a form", "instead": "/grid" },
+      { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
+    ],
+    "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
+    "stamp": "399b6953265ec02d"
+  },
+  {
+    "page": "/form-validation",
+    "useFor": "Telling the reader a value was rejected, or is kept but unusual, under the field it is about and in words a screen reader hears with the field.",
+    "combineWith": [
+      { "page": "/alert#a-validation-summary", "how": "Above the form once more than one field is rejected, linking to each." },
+      { "page": "/form#a-box-in-error-and-a-disabled-box", "how": "A rule about a whole section goes under that section's legend and edges its frame." },
+      { "page": "/form#two-up-rows", "how": "In a two-up row the message stays under its own field, and the row stays aligned at the top." },
+      { "page": "/form-check-list#rejected-read-only-disabled", "how": "A rejected set is aria-invalid on each box, with the error after the legend." }
+    ],
+    "notFor": [
+      { "text": "A condition of the whole page, such as read-only or degraded", "instead": "/alert#read-only-mode" },
+      { "text": "A receipt that something was saved", "instead": "/toast" },
+      { "text": "A file turned away from an upload", "instead": "/form-file#limits-and-a-file-turned-away" }
+    ],
+    "goals": [ "fill-in-a-form", "show-field-errors", "summarise-form-errors", "create-or-edit-a-record" ],
+    "stamp": "16e1e992debc9be0"
+  },
+  {
+    "page": "/form-flow",
+    "useFor": "A long transaction as a run of pages: one question to a page, a task list of the parts, a page to check the answers, and a confirmation at the end.",
+    "combineWith": [
+      { "page": "/collections#steps", "how": "Above the question when the pages are few and fixed; an eyebrow's Step 3 of 5 when they branch." },
+      { "page": "/card#key-value-rows", "how": "Check answers is .kv rows with a Change link on each, and a card per thing added more than once." },
+      { "page": "/list", "how": "The task list is a .list--tasks in a card per section." },
+      { "page": "/badge", "how": "A task's status that needs attention, in words: in progress, not started, a problem." },
+      { "page": "/form-validation", "how": "A rejected answer goes back to its own question with the error under the field." },
+      { "page": "/page-recipes#a-step-in-a-longer-task", "how": "A whole page around one step, in the app's frame." }
+    ],
+    "notFor": [
+      { "text": "A form short enough for one page", "instead": "/form#a-whole-form" },
+      { "text": "The steps of a process the reader watches", "instead": "/workflow" },
+      { "text": "Views of one record the reader switches between", "instead": "/tabs" }
+    ],
+    "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
+    "stamp": "fed939b18006aa4d"
+  },
+  {
+    "page": "/form-saving",
+    "useFor": "Keeping Save in reach on a long form, saying that the work is not saved yet, and asking before the reader leaves it.",
+    "combineWith": [
+      { "page": "/form#where-the-actions-sit", "how": "The save bar and the sticky row are the .form-actions row, with the same order and the same --split." },
+      { "page": "/modal#asking-before-it-closes", "how": "A form in a dialog asks before it closes with the same data-close-guard." },
+      { "page": "/bottombar", "how": "On a phone the sticky row stands on the bottom bar rather than under it." },
+      { "page": "/toast#one-toast-from-saving-to-saved", "how": "The receipt once Save has gone through and the save bar has gone." }
+    ],
+    "notFor": [
+      { "text": "A form inside a modal or a drawer, whose footer never scrolls", "instead": "/modal#scrolling-body" },
+      { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
+    ],
+    "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
+    "stamp": "4475c573c978df6f"
+  },
+  {
+    "page": "/form-text",
+    "useFor": "A single line of text the reader types, such as a name, an address, an email, a phone number or a password, with its unit, its width and its state.",
+    "combineWith": [
+      { "page": "/form#fields", "how": "Each input in a .form-field with its label above and its hint below." },
+      { "page": "/form-validation#error-and-warning", "how": "A rejected value carries aria-invalid and a .form-error under it that says how to fix it." },
+      { "page": "/bars#a-value-against-its-thresholds", "how": "A .meter under a new password says its strength, with the words in its label." },
+      { "page": "/toolbar#a-wider-search-box", "how": "A search field in a toolbar is a .toolbar-input, its width set with a custom property." }
+    ],
+    "notFor": [
+      { "text": "Several lines of text", "instead": "/form-textarea" },
+      { "text": "A code typed a character to a box", "instead": "/form-code" },
+      { "text": "A date or a time", "instead": "/form-datetime" },
+      { "text": "Picking from a known list while typing", "instead": "/form-combo#searchable-select" },
+      { "text": "A number adjusted one step at a time", "instead": "/form-numeric#stepper" }
+    ],
+    "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
+    "stamp": "20ac26be44a4f89e"
+  },
+  {
+    "page": "/form-code",
+    "useFor": "A short code typed a character to a box, such as a sign-in code, a PIN or a recovery code, posted as one value.",
+    "combineWith": [
+      { "page": "/form#fields", "how": "The row of boxes takes a field's label and hint like any other control." },
+      { "page": "/form-validation", "how": "A rejected code is aria-invalid on every box, all pointing at one .form-error." },
+      { "page": "/page-recipes#a-sign-in-page", "how": "The page a sign-in code is asked on." }
+    ],
+    "notFor": [
+      { "text": "A password", "instead": "/form-text#showing-a-password" },
+      { "text": "A long number with a format, such as an IBAN or a card number", "instead": "/form-text#entering-a-format" }
+    ],
+    "goals": [ "enter-a-one-time-code" ],
+    "stamp": "c166018799f81196"
+  },
+  {
+    "page": "/form-textarea",
+    "useFor": "Several lines of text, such as a note, a reason or a comment, with room to write it, a budget of characters and the people it can name.",
+    "combineWith": [
+      { "page": "/form#a-field-across-the-whole-row", "how": "In a two-up form the text area takes the whole row with .sedna-span-full." },
+      { "page": "/menu", "how": "A .menu of people inside a .mention-field opens on @ and writes the chosen name." },
+      { "page": "/form-validation", "how": "A rejected text area takes aria-invalid and a .form-error, as a field does." },
+      { "page": "/form-file#compact-under-a-composer", "how": "A compact dropzone under a reply's text area for its attachments." }
+    ],
+    "notFor": [
+      { "text": "Formatted text with headings, lists and links", "instead": "/editor" },
+      { "text": "Markdown with a toolbar and a preview", "instead": "/markdown" },
+      { "text": "One line of text", "instead": "/form-text" }
+    ],
+    "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
+    "stamp": "32f57c8f60452870"
+  },
+  {
+    "page": "/form-datetime",
+    "useFor": "A date, a time, a month or a week the reader enters: a single day, a from and to pair, a date of birth, or a span of time for a dashboard.",
+    "combineWith": [
+      { "page": "/calendar#a-date-picker", "how": "The .datepicker a typed date field opens from the calendar button beside it." },
+      { "page": "/form#two-up-rows", "how": "A from and to pair two-up in one section, so the legend names the pair." },
+      { "page": "/toolbar#filters-and-actions", "how": "A dashboard's time range among the toolbar's filters, its refresh button at the far end." },
+      { "page": "/popover", "how": "The quick select and the absolute range open as popovers anchored to the input group." },
+      { "page": "/chip", "how": "The common ranges in the quick select are pressed chips." }
+    ],
+    "notFor": [
+      { "text": "A schedule of events on a grid", "instead": "/calendar" },
+      { "text": "A length of time in days or hours", "instead": "/form-text#what-an-affix-can-be" },
+      { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
+    ],
+    "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
+    "stamp": "1af43e70892b3ceb"
+  },
+  {
+    "page": "/form-select",
+    "useFor": "Picking one answer, or a few, from a short list known in advance: a drop-down, a list box, or two lists the rows move between.",
+    "combineWith": [
+      { "page": "/form#fields", "how": "In a .form-field with its label and hint, as any control." },
+      { "page": "/toolbar#filters-and-a-count", "how": "A filter in a toolbar, sized to its value with .sedna-w-fit and the toolbar's small tier." },
+      { "page": "/form-validation#across-every-control", "how": "A required select needs an empty first option for required to take effect." }
+    ],
+    "notFor": [
+      { "text": "A list long enough to need searching", "instead": "/form-combo#searchable-select" },
+      { "text": "Several picks shown as chips", "instead": "/form-combo#multiselect-with-chips" },
+      { "text": "Two to five short options always in view", "instead": "/segmented" },
+      { "text": "A set of options ticked on sight", "instead": "/form-check-list" },
+      { "text": "Actions on a record", "instead": "/menu" }
+    ],
+    "goals": [ "pick-one-from-a-short-list", "move-rows-between-two-lists", "pick-a-microphone" ],
+    "stamp": "33570d35c97bca6b"
+  },
+  {
+    "page": "/form-combo",
+    "useFor": "A field the reader types into to find and pick: one value from a long list, several as chips, a list the server searches, a tree, or free entries such as addresses.",
+    "combineWith": [
+      { "page": "/chip#chosen-people-in-a-field", "how": "Each pick is a .chip with its dismiss button inside the box." },
+      { "page": "/tree", "how": "A .tree in the panel, in place of the list, for a pick from a hierarchy." },
+      { "page": "/skeleton", "how": "Skeleton rows in the panel while a server list loads its first page." },
+      { "page": "/form#fields", "how": "In a .form-field with its label and hint, as any control." }
+    ],
+    "notFor": [
+      { "text": "A short list read at a glance", "instead": "/form-select#the-drop-down" },
+      { "text": "A set of up to about thirty options ticked on sight", "instead": "/form-check-list" },
+      { "text": "Searching the whole app from the header", "instead": "/topbar" },
+      { "text": "Running a command by name", "instead": "/palette" }
+    ],
+    "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model" ],
+    "stamp": "613618630b1d604e"
+  },
+  {
+    "page": "/form-choice",
+    "useFor": "A yes or no, one answer from a few, or a setting that applies the moment it is flipped: checkboxes, radios, switches and picture tiles.",
+    "combineWith": [
+      { "page": "/form#sections-and-actions", "how": "A set of radios is a .form-section fieldset, so its legend is announced with each option." },
+      { "page": "/form#a-box-a-switch-turns-on", "how": "A switch in a boxed section's legend turns that section's body on." },
+      { "page": "/form-check-list", "how": "Several checkboxes that answer one question become a checkbox group, with select all and a count." }
+    ],
+    "notFor": [
+      { "text": "A set picked from a list, with select all", "instead": "/form-check-list" },
+      { "text": "A view setting of two to five short options", "instead": "/segmented" },
+      { "text": "An action that runs when pressed", "instead": "/button" },
+      { "text": "Filters that narrow a list", "instead": "/chip#a-set-of-filters" }
+    ],
+    "goals": [ "turn-a-setting-on-or-off", "tick-an-option", "choose-one-of-a-few", "choose-between-pictures", "show-dependent-options", "answer-an-agents-question" ],
+    "stamp": "629eb761ddf1db24"
+  },
+  {
+    "page": "/form-check-list",
+    "useFor": "A field whose answer is a set picked from a known list, such as the agents a job runs on, with select all, a count, an every option and a none option.",
+    "combineWith": [
+      { "page": "/form#boxed-sections", "how": "A checkbox group goes in a section or a box like any other field." },
+      { "page": "/filtering#filter-side-panel", "how": "A facet is a compact group with the count each choice would leave." },
+      { "page": "/skeleton", "how": "Skeleton rows while the items load, as tall as the rows coming." },
+      { "page": "/form-validation", "how": "The error after the legend and hint, with aria-invalid on each box it is about." }
+    ],
+    "notFor": [
+      { "text": "One answer from a list", "instead": "/form-choice#radio-buttons" },
+      { "text": "More than about thirty options", "instead": "/form-combo#multiselect-with-chips" },
+      { "text": "Options that are pictures", "instead": "/form-choice#choice-tiles" },
+      { "text": "A long set the reader builds up row by row", "instead": "/form-select#moving-rows-between-two-lists" }
+    ],
+    "goals": [ "pick-a-set-from-a-list" ],
+    "stamp": "6d6698914db6a821"
+  },
+  {
+    "page": "/segmented",
+    "useFor": "Changing a setting in place from two to five short options, such as a time range, a layout or a unit.",
+    "combineWith": [
+      { "page": "/toolbar#filters-and-actions", "how": "A range among the filters, because it narrows the list; a layout switch at the far end, because it changes how the list is drawn." },
+      { "page": "/form#sections-and-actions", "how": "In a form, a .form-section fieldset names the group with its legend." },
+      { "page": "/filtering#query-builder", "how": "AND and OR between a query builder's conditions." },
+      { "page": "/graph-layouts", "how": "A control that switches the layout of one graph." }
+    ],
+    "notFor": [
+      { "text": "Panels of content switched below it", "instead": "/tabs" },
+      { "text": "Buttons that each do something", "instead": "/button-group" },
+      { "text": "Many options, or long ones", "instead": "/form-select#the-drop-down" },
+      { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
+    ],
+    "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
+    "stamp": "5b78bd3697fd8663"
+  },
+  {
+    "page": "/form-rating",
+    "useFor": "Showing a score as stars, or taking one from the reader in whole or half stars.",
+    "combineWith": [
+      { "page": "/list", "how": "A shown score sits in a list row's meta, the number beside it for the eye." },
+      { "page": "/form#fields", "how": "A score to give is a field with its label and hint, and a hint that says why when rating is closed." }
+    ],
+    "notFor": [
+      { "text": "A value against its limit", "instead": "/bars#a-value-against-its-thresholds" },
+      { "text": "A choice between named options", "instead": "/form-choice#radio-buttons" }
+    ],
+    "goals": [ "rate-with-stars", "show-a-score" ],
+    "stamp": "e97ff414d1d47a36"
+  },
+  {
+    "page": "/form-file",
+    "useFor": "Choosing files to send: a picker button, a dropzone that is also a picker, the list of what is attached, and a drop anywhere on the page.",
+    "combineWith": [
+      { "page": "/files#uploads", "how": "Each file's progress once it is sent, under the same dropzone." },
+      { "page": "/form#where-the-actions-sit", "how": "The zone in a form section, closed by the form's actions row." },
+      { "page": "/form-validation", "how": "A rejected drop is aria-invalid on the zone, with a .form-error that names the file and the limit." },
+      { "page": "/form-textarea", "how": "A compact zone under a reply's text area." }
+    ],
+    "notFor": [
+      { "text": "Files already stored, to open or download", "instead": "/files#a-list-of-files" },
+      { "text": "Reordering items by dragging", "instead": "/drag-drop" }
+    ],
+    "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
+    "stamp": "2f9aa71f61fb32e1"
+  },
+  {
+    "page": "/form-numeric",
+    "useFor": "A number set by dragging or stepping: a range with its readout, a span with two thumbs, ticks, a vertical fader, and a stepper with two buttons.",
+    "combineWith": [
+      { "page": "/form#fields", "how": "Each control in a .form-field with its label and hint." },
+      { "page": "/form-validation#unusual-not-rejected", "how": "aria-invalid or data-state=\"warn\" on the range colours its thumb and fill; the message is the field's own." },
+      { "page": "/button#three-sizes", "how": "A stepper beside a field and a button keeps one control height across the row." }
+    ],
+    "notFor": [
+      { "text": "A value against its limit, only read", "instead": "/bars#a-value-against-its-thresholds" },
+      { "text": "The progress of a job", "instead": "/progress#progress-bar" },
+      { "text": "An exact amount typed with its unit", "instead": "/form-text#what-an-affix-can-be" }
+    ],
+    "goals": [ "choose-a-value-on-a-slider", "choose-a-span-of-values", "step-a-count" ],
+    "stamp": "7afc0ac5ba915933"
+  },
+  {
+    "page": "/form-color",
+    "useFor": "Picking a colour: the platform's picker beside its value, a preset palette of named swatches, or a spectrum for any colour at all.",
+    "combineWith": [
+      { "page": "/form#fields", "how": "Each picker in a .form-field with its label." },
+      { "page": "/form-numeric#range", "how": "The hue and opacity sliders are .form-range inputs, with their states and sizes." }
+    ],
+    "notFor": [
+      { "text": "A status shown in a colour", "instead": "/badge" },
+      { "text": "A category told apart by colour", "instead": "/chip" }
+    ],
+    "goals": [ "pick-any-colour", "pick-a-preset-colour" ],
+    "stamp": "b668b843f76c1288"
+  },
+  {
+    "page": "/form-signature",
+    "useFor": "A signature drawn with a mouse, a pen or a finger and posted with the form, beside a typed name that signs as well.",
+    "combineWith": [
+      { "page": "/form#where-the-actions-sit", "how": "The pad in a form section that closes with the form's actions." },
+      { "page": "/form-text#names", "how": "The typed full name beside the pad, for a reader who cannot draw." },
+      { "page": "/form-validation", "how": "aria-invalid on the field edges the pad, with a .form-error under it." }
+    ],
+    "notFor": [
+      { "text": "A name typed only", "instead": "/form-text#names" },
+      { "text": "A document the reader uploads already signed", "instead": "/form-file" }
+    ],
+    "goals": [ "sign-by-hand" ],
+    "stamp": "6df58e8d02c2d116"
+  }
+]

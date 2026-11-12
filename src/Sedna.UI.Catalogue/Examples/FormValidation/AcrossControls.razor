@@ -1,11 +1,11 @@
-<div class="sedna-col" style="max-width:520px; gap:16px">
+<div class="form-section-body" style="max-width:520px">
     <div class="form-field">
         <label class="form-label form-label--required" for="av-mail">Notification address</label>
         <input class="form-input" id="av-mail" type="email" required
                aria-invalid="true" aria-describedby="av-mail-err" value="ops.example" />
         <p class="form-error" id="av-mail-err">
             <i class="ri-error-warning-line"></i>
-            <span>Not a complete address — nothing would be delivered.</span>
+            <span>This is not a complete address. Enter it as name@example.com.</span>
         </p>
     </div>
     <div class="form-field">
@@ -18,7 +18,7 @@
         </select>
         <p class="form-error" id="av-team-err">
             <i class="ri-error-warning-line"></i>
-            <span>Pick a team, or nobody is paged.</span>
+            <span>Nobody would be paged. Choose a team.</span>
         </p>
     </div>
     <div class="form-field">
@@ -30,7 +30,7 @@
         </div>
         <p class="form-error" id="av-qty-err">
             <i class="ri-error-warning-line"></i>
-            <span>At least one pallet, or there is nothing to dispatch.</span>
+            <span>There is nothing to dispatch. Enter at least 1 pallet.</span>
         </p>
     </div>
     <div class="form-field">
@@ -39,7 +39,7 @@
                   aria-invalid="true" aria-describedby="av-reason-err"></textarea>
         <p class="form-error" id="av-reason-err">
             <i class="ri-error-warning-line"></i>
-            <span>An override is recorded against your name, so it needs a reason.</span>
+            <span>An override is recorded against your name. Enter a reason for it.</span>
         </p>
     </div>
 </div>

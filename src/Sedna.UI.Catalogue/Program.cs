@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using Sedna.UI;
 using Sedna.UI.Catalogue.Components;
+using Sedna.UI.Catalogue.Guide;
 using Sedna.UI.Catalogue.Health;
 using Sedna.UI.Catalogue.Mcp;
 using Sedna.UI.Catalogue.Navigation;
@@ -41,6 +42,10 @@ builder.Services.AddHostedService<ReleasedHistoryFetcher>();
 // The topbar search's index, derived from the same two sources. A singleton
 // because it is the same list for everyone: the circuit only pushes it.
 builder.Services.AddSingleton<CatalogueSearch>();
+
+// docs/design-guide/, embedded: the design guide page, each page's guide panel, the topbar
+// search's goals and the MCP server's get_guide all read the one parse.
+builder.Services.AddSingleton(_ => DesignGuide.Embedded);
 
 // The theme builder's tokens, read from the token export the index already holds.
 builder.Services.AddSingleton(services => ThemeTokens.From(services.GetRequiredService<CatalogueIndex>().Tokens));

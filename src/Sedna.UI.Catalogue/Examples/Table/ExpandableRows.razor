@@ -1,19 +1,25 @@
 <table class="table">
-    <thead><tr><th>Order</th><th>Reservation</th></tr></thead>
+    <thead><tr><th class="col-fit"><span class="visually-hidden">Details</span></th><th>Order</th><th>Reservation</th></tr></thead>
     <tbody>
         <tr class="tr-clickable">
+            <td class="col-fit">
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-expanded="true" aria-controls="ord-4209-detail" aria-label="Details of ORD-4209"><i class="ri-arrow-down-s-line"></i></button>
+            </td>
             <td>ORD-4209</td><td>Reroute to EU-West</td>
         </tr>
-        <tr class="tr-detail">
-            <td colspan="2">
+        <tr class="tr-detail" id="ord-4209-detail">
+            <td colspan="3">
                 <div class="tr-detail-body">
                     <div class="kv"><span class="k">Confidence</span><span class="v">0.87</span></div>
-                    <div class="kv"><span class="k">Matched on</span><span class="v">"VPN" + "disconnect"</span></div>
+                    <div class="kv"><span class="k">Reason</span><span class="v">EU-Central carrier full</span></div>
                 </div>
             </td>
         </tr>
         <tr class="tr-clickable">
-            <td>ORD-4204</td><td>Ask for the client version</td>
+            <td class="col-fit">
+                <button class="btn btn--sm btn--ghost btn--icon" type="button" aria-expanded="false" aria-label="Details of ORD-4204"><i class="ri-arrow-right-s-line"></i></button>
+            </td>
+            <td>ORD-4204</td><td>Hold for an address check</td>
         </tr>
     </tbody>
 </table>

@@ -1,0 +1,82 @@
+@* The page's design-guide entry, at the foot of the page: what goes well with it, what to reach
+   for instead and which goals it answers, as tiles like the landing page's. The layout renders
+   it after every page's body, found by the route, so no page writes it and none can leave it
+   out. The words are docs/design-guide/components/, and a page with no entry — a reference
+   page — shows nothing. *@
+@using Sedna.UI.Catalogue.Guide
+@using Sedna.UI.Catalogue.Navigation
+@inject NavigationManager Nav
+@inject DesignGuide Guide
+
+@if (Entry is { } entry)
+{
+    <section class="cat-guide" aria-labelledby="cat-guide-title">
+        <div class="cat-guide-head">
+            <h2 id="cat-guide-title">Goes well with</h2>
+            <a class="btn btn--sm btn--ghost" href="/design-guide"><i class="ri-compass-3-line"></i> <span>Design guide</span></a>
+        </div>
+        <p class="cat-guide-use">@entry.UseFor</p>
+
+        <div class="cat-tiles">
+            @foreach (var link in entry.CombineWith)
+            {
+                <a class="card cat-tile" href="@link.Page">
+                    <span class="cat-tile-ic"><i class="@IconOf(link.Page)"></i></span>
+                    <span class="cat-tile-text">
+                        <strong>@DesignGuide.LabelOf(link.Page)</strong>
+                        <span>@link.How</span>
+                    </span>
+                    <i class="ri-arrow-right-line cat-tile-go"></i>
+                </a>
+            }
+        </div>
+
+        @if (entry.NotFor.Count > 0)
+        {
+            <h3>Reach for something else</h3>
+            <div class="cat-tiles">
+                @foreach (var not in entry.NotFor)
+                {
+                    <a class="card cat-tile" href="@not.Instead">
+                        <span class="cat-tile-ic cat-tile-ic--quiet"><i class="@IconOf(not.Instead)"></i></span>
+                        <span class="cat-tile-text">
+                            <strong>@DesignGuide.LabelOf(not.Instead)</strong>
+                            <span>@not.Text</span>
+                        </span>
+                        <i class="ri-arrow-right-line cat-tile-go"></i>
+                    </a>
+                }
+            </div>
+        }
+
+        @if (Guide.GoalsOf(entry) is { Count: > 0 } goals)
+        {
+            <h3>Goals it answers</h3>
+            <ul class="cat-guide-goals">
+                @foreach (var goal in goals)
+                {
+                    <li><a href="/design-guide#@goal.Id">@goal.Goal</a></li>
+                }
+            </ul>
+        }
+    </section>
+}
+
+@code {
+    private GuideEntry? Entry
+    {
+        get
+        {
+            var path = "/" + Nav.ToBaseRelativePath(Nav.Uri);
+            var end = path.IndexOfAny(['?', '#']);
+            return Guide.EntryFor(end < 0 ? path : path[..end]);
+        }
+    }
+
+    private static string IconOf(string page)
+    {
+        var end = page.IndexOf('#');
+        var route = end < 0 ? page : page[..end];
+        return CataloguePages.All.FirstOrDefault(p => p.Route == route)?.Icon ?? "ri-file-line";
+    }
+}

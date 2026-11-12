@@ -2733,6 +2733,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .alert > * { min-width: 0; }
 .alert i { font-size: var(--text-7); flex-shrink: 0; }
+.alert > :is(.btn, button) { flex-shrink: 0; }
 }
 @layer sedna.paint {
 .toast-stack {

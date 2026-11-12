@@ -1,0 +1,310 @@
+[
+  {
+    "id": "look-through-pictures",
+    "goal": "Let the user look through the pictures attached to a record",
+    "phrases": [ "image gallery", "photo gallery", "thumbnail grid", "gallery of attachments", "photo grid" ],
+    "answer": [
+      { "page": "/media#a-gallery-of-attachments", "role": "primary" },
+      { "page": "/media#looking-at-one-large", "role": "part" },
+      { "page": "/media#pictures-sharing-one-frame", "role": "part" }
+    ],
+    "how": "A .gallery of square frames, each a real button that opens the picture large; files in the same set get a frame with their type icon so the row lines up. Pictures that belong to one message or card share a frame as a .gallery--tight.",
+    "avoid": "Making each thumbnail a div with a click handler, which neither the keyboard nor a screen reader can reach."
+  },
+  {
+    "id": "view-a-picture-large",
+    "goal": "Let the user open a picture full size and step to the next one",
+    "phrases": [ "lightbox", "image viewer", "full screen image", "enlarge an image", "image preview dialog" ],
+    "answer": [
+      { "page": "/media#looking-at-one-large", "role": "primary" },
+      { "page": "/media#a-gallery-of-attachments", "role": "part" },
+      { "page": "/modal", "role": "part" }
+    ],
+    "how": "A .lightbox dialog opened with showModal(), the picture as large as the viewport allows in its stage, the title, meta and actions in its head and the previous and next buttons beside it. closedby=\"any\" closes it on a click beside the picture.",
+    "avoid": "Building the overlay out of a div, which loses the focus trap, Escape and the inert page the dialog gives for nothing."
+  },
+  {
+    "id": "frame-an-image-of-any-size",
+    "goal": "Let the user see an image of any size, whole or cropped, without the page jumping as it loads",
+    "phrases": [ "responsive image", "aspect ratio box", "object fit contain", "image frame", "letterbox an image" ],
+    "answer": [
+      { "page": "/media#contain-or-cover", "role": "primary" },
+      { "page": "/media#any-ratio-one-token", "role": "part" },
+      { "page": "/media#seeing-transparency", "role": "part" }
+    ],
+    "how": "A .media-frame holds its shape from --media-ratio before the first byte, and contains the picture whole by default; --cover crops it to fill, for a thumbnail or a banner. A logo or a cut-out takes --transparency, so its clear background can be told from white.",
+    "avoid": "Cropping a screenshot or a scanned document to fill its frame, which silently removes the corner somebody needed."
+  },
+  {
+    "id": "preview-a-link",
+    "goal": "Let the user see where a link goes before opening it",
+    "phrases": [ "link preview", "url preview", "unfurl a link", "rich link card", "open graph card" ],
+    "answer": [
+      { "page": "/media#a-link-preview", "role": "primary" },
+      { "page": "/chat#a-link-a-voice-message-an-upload", "role": "part" }
+    ],
+    "how": "A .link-preview is the link itself: the picture, then the title, a line and the host. The app fetches the preview and decides whether to show one; the picture's alt is empty because the title names the link.",
+    "avoid": "Showing a preview the app could not fetch as an empty card, rather than the plain link."
+  },
+  {
+    "id": "step-through-slides",
+    "goal": "Let the user move through a row of slides one at a time",
+    "phrases": [ "carousel", "slideshow", "image slider", "content rotator", "swipeable cards" ],
+    "answer": [
+      { "page": "/carousel#slides-with-dots", "role": "primary" },
+      { "page": "/carousel#several-in-view-and-a-peek", "role": "part" }
+    ],
+    "how": "A .carousel-track that scrolls and snaps a slide at a time, with the app's previous, next and dot buttons wired by data-carousel and the position said through its live region. Several slides in view with a peek at the next tell the reader there is more without a control.",
+    "avoid": "Rotating the slides on a timer, or putting content every reader needs on the second slide, which most never reach."
+  },
+  {
+    "id": "browse-a-folder",
+    "goal": "Let the user browse the files in a folder and act on them",
+    "phrases": [ "file browser", "file manager", "folder view", "document library", "file explorer" ],
+    "answer": [
+      { "page": "/files#a-folder", "role": "primary" },
+      { "page": "/files#a-grid-of-tiles", "role": "part" },
+      { "page": "/files#an-empty-folder", "role": "part" },
+      { "page": "/pager#breadcrumbs", "role": "part" }
+    ],
+    "how": "A table in a card, the path above it as breadcrumbs, folders first, and each name a .file-cell that cuts in the middle so two names that differ at the end stay apart. A folder of pictures is a grid of tiles whose checkbox, open link and menu are three controls.",
+    "avoid": "Cutting long file names at the end, where -signed.pdf and -unsigned.pdf both become the same ellipsis."
+  },
+  {
+    "id": "follow-uploads",
+    "goal": "Let the user upload files and follow each one until it is done",
+    "phrases": [ "upload progress", "upload queue", "retry a failed upload", "multiple file upload" ],
+    "answer": [
+      { "page": "/files#uploads", "role": "primary" },
+      { "page": "/files#pause-resume-retry-and-the-whole-batch", "role": "part" },
+      { "page": "/form-file#dropzone-and-file-list", "role": "part" },
+      { "page": "/progress#progress-bar", "role": "part" }
+    ],
+    "how": "The dropzone above, one .file-item per file under it with a progress bar while it goes, and --done or --error once it lands, the failure's reason in its meta line. A .file-batch over the list counts the whole batch in words and holds the actions on all of it.",
+    "avoid": "Saying a failure only by its red colour: the status glyph's shape and the meta line say it too, with a retry beside it."
+  },
+  {
+    "id": "show-attachments",
+    "goal": "Let the user see and download the files attached to a record",
+    "phrases": [ "attachments", "attachment list", "attached files", "download attachments" ],
+    "answer": [
+      { "page": "/files#attached-to-a-record", "role": "primary" },
+      { "page": "/files#type-icons", "role": "part" },
+      { "page": "/files#a-list-of-files", "role": "part" }
+    ],
+    "how": "A .file-list of .file-item links, each the type icon, the name over its meta line and a trailing glyph, so a file downloads like any link. Where there are a lot of them and no columns to compare, the rows are a list.",
+    "avoid": "Putting other controls inside an item that is itself a link; an item with actions is a list item with the link inside it."
+  },
+  {
+    "id": "play-a-video",
+    "goal": "Let the user watch a video with its title, captions and transcript",
+    "phrases": [ "video player", "embed a video", "video transcript", "video with captions", "video library" ],
+    "answer": [
+      { "page": "/video#a-player", "role": "primary" },
+      { "page": "/video#video-tiles", "role": "part" }
+    ],
+    "how": "A .media-player figure around the native video element, sized before it loads, with the title, meta line and actions as its caption and a .media-transcript under it that opens with no script. A library of videos is a grid of wide file tiles carrying their length.",
+    "avoid": "Redrawing the player's own controls, which loses the keyboard, captions and full screen the browser already gives."
+  },
+  {
+    "id": "play-a-recording",
+    "goal": "Let the user play a call recording, a voicemail or a track list",
+    "phrases": [ "audio player", "voicemail", "call recording", "podcast player", "playlist", "track list" ],
+    "answer": [
+      { "page": "/audio#a-player", "role": "primary" },
+      { "page": "/audio#a-waveform", "role": "part" },
+      { "page": "/audio#a-track-list", "role": "part" }
+    ],
+    "how": "The native audio element inside a .media-player under its title, with the transcript speaker by speaker; a voice message is an .audio-wave whose play button names the length. A playlist is an ordered list whose rows play, the one playing marked aria-current.",
+    "avoid": "Drawing a stored recording with the live voice bars, which follow a microphone rather than the file."
+  },
+  {
+    "id": "show-text-from-elsewhere",
+    "goal": "Let the user read an article or a mail body the app did not write",
+    "phrases": [ "article body", "rich content", "html content", "cms content", "email body", "sanitized html" ],
+    "answer": [
+      { "page": "/prose#html-from-somewhere-else", "role": "primary" },
+      { "page": "/prose#prose", "role": "part" }
+    ],
+    "how": ".prose sets the headings, lists, quotes, code and links on the tokens at a readable measure, and --foreign contains what a wide table, an unbroken address or a huge image would do to the card it lands in.",
+    "avoid": "Treating .prose--foreign as a sanitiser: it contains the HTML, and the server still has to clean it."
+  },
+  {
+    "id": "mark-changed-words",
+    "goal": "Let the user see which words changed between two versions of a text",
+    "phrases": [ "track changes", "redline", "inserted and deleted words", "highlight changes in text" ],
+    "answer": [
+      { "page": "/prose#what-changed", "role": "primary" },
+      { "page": "/diff#a-unified-diff", "role": "part" }
+    ],
+    "how": "ins and del around the words added and removed, in prose or any running text, with no class; the tint is said again by an underline and a strike-through. A visually hidden \"added:\" or \"removed:\" inside each says it to a screen reader.",
+    "avoid": "Marking a change by its colour alone, which forced colours, print and a reader who cannot tell green from red all lose."
+  },
+  {
+    "id": "withhold-a-value",
+    "goal": "Let the user see that a value is withheld from them",
+    "phrases": [ "redacted", "masked value", "hidden secret", "redact text" ],
+    "answer": [
+      { "page": "/prose#redacted-values", "role": "primary" }
+    ],
+    "how": "The server sends a placeholder in place of the value and the class marks it as withheld, so nothing secret reaches the page.",
+    "avoid": "Sending the real value and hiding it with the class, which leaves it in the HTML for anyone to read."
+  },
+  {
+    "id": "write-markdown",
+    "goal": "Let the user write Markdown and preview what it renders",
+    "phrases": [ "markdown editor", "markdown preview", "md editor", "write and preview tabs" ],
+    "answer": [
+      { "page": "/markdown#md-editor", "role": "primary" },
+      { "page": "/markdown#as-a-form-field", "role": "part" },
+      { "page": "/markdown#inserting-at-the-caret", "role": "part" },
+      { "page": "/segmented", "role": "part" }
+    ],
+    "how": "An .md-editor of toolbar, textarea and preview, switched between Write and Preview by a segmented control; the textarea is the field, labelled and bound, and toolbar edits fire its input event. A picker of the app's own puts its text at the caret with InsertMarkdownAsync.",
+    "avoid": "Labelling the editor's wrapper rather than the textarea, which is the control the reader types in."
+  },
+  {
+    "id": "render-markdown",
+    "goal": "Let the user read Markdown rendered as formatted text",
+    "phrases": [ "render markdown", "markdown viewer", "show markdown", "markdown to html" ],
+    "answer": [
+      { "page": "/markdown#markdown-body", "role": "primary" },
+      { "page": "/markdown#tables-and-nested-lists", "role": "part" },
+      { "page": "/chat#what-a-bubble-holds", "role": "part" }
+    ],
+    "how": ".markdown-body on the container of the rendered HTML sets it on the tokens and sits flush in a card body; a table in it takes the table's own look, and a wide one scrolls rather than widening the page.",
+    "avoid": "Rendering untrusted Markdown for other readers without sanitising it on the server as well."
+  },
+  {
+    "id": "compare-two-versions",
+    "goal": "Let the user compare two versions of a file line by line",
+    "phrases": [ "diff viewer", "code diff", "side by side diff", "unified diff", "compare files", "git diff" ],
+    "answer": [
+      { "page": "/diff#a-unified-diff", "role": "primary" },
+      { "page": "/diff#side-by-side", "role": "part" },
+      { "page": "/prose#what-changed", "role": "part" }
+    ],
+    "how": "A .diff with the app's head and a .diff-table of old number, new number and text, each changed row marked .diff-add or .diff-del and drawn with a + or a − as well as a tint. --split puts the old beside the new; a .diff-fold row stands for lines left out.",
+    "avoid": "Computing the diff in the browser from two whole files: the app computes it and writes the rows."
+  },
+  {
+    "id": "read-a-pdf",
+    "goal": "Let the user read a PDF without leaving the page",
+    "phrases": [ "pdf viewer", "embed a pdf", "inline pdf", "show a pdf", "document preview" ],
+    "answer": [
+      { "page": "/pdf#a-pdf-in-the-page", "role": "primary" },
+      { "page": "/pdf#one-page-at-a-time", "role": "part" },
+      { "page": "/media#a-document-in-it", "role": "part" }
+    ],
+    "how": "A .pdf-frame with a bar naming the file and offering open and download, and an object the browser's own viewer draws in. A fallback written inside the object shows where there is no viewer.",
+    "avoid": "Deciding whether to show the fallback from navigator.pdfViewerEnabled, which is wrong in both directions; write the fallback every time."
+  },
+  {
+    "id": "show-a-qr-code",
+    "goal": "Let the user scan a code with a phone camera to open an address",
+    "phrases": [ "qr code", "qr code generator", "2d barcode", "scan to open", "pairing code" ],
+    "answer": [
+      { "page": "/qr#a-code-with-its-text", "role": "primary" },
+      { "page": "/qr#error-correction", "role": "part" },
+      { "page": "/qr#sizes", "role": "part" }
+    ],
+    "how": "A .qr with the text in data-qr and an aria-label saying what scanning it does, over a .qr-caption with the address written out, and a way to use it without a camera beside it. A printed code that may be scuffed takes a higher error-correction level.",
+    "avoid": "A code with nothing beside it, which a reader without a camera or a screen reader cannot use at all."
+  },
+  {
+    "id": "write-formatted-text",
+    "goal": "Let the user write formatted text with headings, lists and links",
+    "phrases": [ "wysiwyg", "rich text editor", "wysiwyg editor", "html editor", "formatted text field", "text formatting toolbar" ],
+    "answer": [
+      { "page": "/editor#an-editor", "role": "primary" },
+      { "page": "/editor#every-control", "role": "part" },
+      { "page": "/editor#in-a-form", "role": "part" },
+      { "page": "/form#fields", "role": "part" }
+    ],
+    "how": "An .editor frame with the app's toolbar and a hidden textarea[data-editor-value] that holds the HTML, so a form posts it and Blazor binds it. The toolbar's formats are the only ones the document can hold; what is pasted is cut down to them.",
+    "avoid": "Offering a format in the toolbar the server will not keep, or keeping one the toolbar does not offer: the two lists are the same list."
+  },
+  {
+    "id": "insert-blocks-with-a-slash",
+    "goal": "Let the user turn a line into a heading or a list by typing a slash",
+    "phrases": [ "slash commands", "slash menu", "block menu", "insert block menu" ],
+    "answer": [
+      { "page": "/editor#the-slash-menu", "role": "primary" },
+      { "page": "/menu", "role": "part" }
+    ],
+    "how": "A .menu.editor-slash inside the editor, one item per kind of block the toolbar offers; what follows the slash filters it while the focus stays in the document, and Enter turns the line into the lit item.",
+    "avoid": "Listing a block in the slash menu that the toolbar does not offer, which the editor would cut out again."
+  },
+  {
+    "id": "put-pictures-in-text",
+    "goal": "Let the user put pictures and videos into what they write",
+    "phrases": [ "insert image in editor", "video in rich text", "image upload in editor", "paste a screenshot" ],
+    "answer": [
+      { "page": "/editor#images-and-videos", "role": "primary" },
+      { "page": "/editor#your-own-picker-for-images", "role": "part" },
+      { "page": "/editor#when-a-pasted-picture-is-not-taken", "role": "part" },
+      { "page": "/markdown#images-and-videos", "role": "part" }
+    ],
+    "how": "The image and video buttons open the app's own media form, or the app cancels sedna-editor-media and opens its own picker, uploads the file and hands the editor its address. A pasted file the app does not take shows the editor's notice instead of vanishing.",
+    "avoid": "Expecting a pasted picture to be inlined: the editor never inlines a file, so uploading it is the app's job."
+  },
+  {
+    "id": "chat-with-people",
+    "goal": "Let the user chat with other people",
+    "phrases": [ "chat", "chat bubble", "messenger", "message thread", "direct messages", "chat ui" ],
+    "answer": [
+      { "page": "/chat#a-conversation", "role": "primary" },
+      { "page": "/chat#the-composer", "role": "part" },
+      { "page": "/chat#while-it-loads", "role": "part" },
+      { "page": "/avatar", "role": "part" }
+    ],
+    "how": "A .chat with role=\"log\" holds the messages, theirs on the start with an avatar and mine on the end, a run by one author reading as one turn, the day and the unread line across it. The composer under it quotes what is answered, holds the attachments and sends.",
+    "avoid": "Leaving the thread unannounced: role=\"log\" with a name is what tells a screen reader a message arrived."
+  },
+  {
+    "id": "follow-a-channel",
+    "goal": "Let the user follow a channel where many people post",
+    "phrases": [ "channel", "group chat", "team chat", "threaded replies", "chat channel" ],
+    "answer": [
+      { "page": "/chat#flat-like-a-channel", "role": "primary" },
+      { "page": "/chat#a-group", "role": "part" },
+      { "page": "/chat#a-page-of-it", "role": "part" }
+    ],
+    "how": ".chat--flat drops the bubbles: every message full width on the start with its author beside the time, and .chat-replies under one says who answered it and how often. As the page's whole height, the thread scrolls between a pinned bar and the composer.",
+    "avoid": "Putting my messages on the end in a channel of forty people, where whose a message is is the name."
+  },
+  {
+    "id": "react-to-a-message",
+    "goal": "Let the user react to a message with an emoji",
+    "phrases": [ "emoji reactions", "message reactions", "emoji picker", "like a message" ],
+    "answer": [
+      { "page": "/chat#reactions", "role": "primary" },
+      { "page": "/popover", "role": "part" }
+    ],
+    "how": "A pill per emoji under the bubble with its count, aria-pressed on the reader's own and a name that says the emoji and the count; the last pill opens a popover of named emoji buttons.",
+    "avoid": "Leaving the emoji as the pill's only name, which a screen reader reads as nothing useful."
+  },
+  {
+    "id": "open-a-chat-from-any-page",
+    "goal": "Let the user open a conversation from any page without leaving it",
+    "phrases": [ "chat widget", "chat launcher", "live chat", "support chat", "floating chat button" ],
+    "answer": [
+      { "page": "/chat#the-launcher-and-the-flyover", "role": "primary" },
+      { "page": "/button#floating-action-button", "role": "part" }
+    ],
+    "how": "A round .chat-launcher in the floating button's corner, carrying the unread count, opens a .chat-flyover through popovertarget; the flyover stays open while the reader works and holds the same thread and composer, the whole screen on a phone.",
+    "avoid": "A launcher on a page that already has a floating action of its own: there is one floating action per page."
+  },
+  {
+    "id": "pick-a-conversation",
+    "goal": "Let the user pick a conversation from the list of chats",
+    "phrases": [ "conversation list", "chat inbox", "list of chats", "recent conversations" ],
+    "answer": [
+      { "page": "/chat#the-conversations", "role": "primary" },
+      { "page": "/list", "role": "part" },
+      { "page": "/avatar#pair", "role": "part" }
+    ],
+    "how": "A list of rows that navigate: an avatar, the name and the last line, the time and an unread badge. A group is an avatar pair inside one avatar's square, so the column of names stays straight.",
+    "avoid": "An avatar group for a group chat, which is as wide as its count and pushes that row's name out of line."
+  }
+]

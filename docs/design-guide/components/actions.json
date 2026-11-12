@@ -1,0 +1,116 @@
+[
+  {
+    "page": "/button",
+    "useFor": "Every action the reader takes, chosen by what it does and how loudly it should speak: a tone, an emphasis, three sizes, icon-only, in flight, in a line of text, and the floating button on a phone.",
+    "combineWith": [
+      { "page": "/structure#page-head", "how": "In .page-head-actions for what applies to the whole page, end-aligned with the primary last." },
+      { "page": "/card#head-body-and-foot", "how": "In .card-foot for what decides the card's content, the primary last." },
+      { "page": "/modal#a-real-modal", "how": "In .modal-footer, Cancel first and the confirming button last, its label repeating the action." },
+      { "page": "/toolbar#filters-and-actions", "how": ".btn--sm on the toolbar's trailing side, the primary last." },
+      { "page": "/table#pinned-actions", "how": "Ghost icon buttons in a .table--pin-end column keep a row's actions in reach on a wide table." },
+      { "page": "/hover-hints#on-any-control", "how": "A data-tip on an icon-only button, and on a disabled one to say why it cannot be used." }
+    ],
+    "notFor": [
+      { "text": "Several actions on the same thing joined into one control", "instead": "/button-group#button-group" },
+      { "text": "Picking one of a few options", "instead": "/segmented#segmented-control" },
+      { "text": "More actions than a row has room for", "instead": "/menu#anchored-under-a-trigger" },
+      { "text": "A state or a category shown on a record", "instead": "/badge#semantic" }
+    ],
+    "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
+    "stamp": "cda0c54e7eeecc91"
+  },
+  {
+    "page": "/button-group",
+    "useFor": "A few actions on the same thing joined into one control, and the split button that runs an action or opens a menu of its variants.",
+    "combineWith": [
+      { "page": "/menu#anchored-under-a-trigger", "how": "The split button's caret carries data-menu-toggle and opens a .menu in the same .menu-anchor, the destructive variant last." },
+      { "page": "/button#three-sizes", "how": "Every button in the group takes the same size class; the group itself carries none." },
+      { "page": "/form-text#three-sizes", "how": "A field beside the group takes the matching size, so the row lines up." }
+    ],
+    "notFor": [
+      { "text": "Picking one of several options", "instead": "/segmented#segmented-control" },
+      { "text": "Switching between views of one record", "instead": "/tabs#tabs" },
+      { "text": "Paging through a list of results", "instead": "/pager#pagination" }
+    ],
+    "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
+    "stamp": "87e675fadb8eb554"
+  },
+  {
+    "page": "/toolbar",
+    "useFor": "The bar above a list or table: the search and filters on the leading side, the count and the list's actions on the trailing side, and the actions on a selection while there is one.",
+    "combineWith": [
+      { "page": "/table#with-a-toolbar-in-a-card", "how": "Straight above the card that holds the table, outside it." },
+      { "page": "/structure#page-head", "how": "Under the page head on a list page; the page's own actions stay in the head." },
+      { "page": "/chip#what-is-applied-under-the-toolbar", "how": "The filters in force as removable chips in a row under the toolbar." },
+      { "page": "/form-text#input-groups", "how": "A search with a leading icon is an .input-group, and .toolbar-input goes on the group." },
+      { "page": "/segmented#in-a-toolbar", "how": "A view or a setting switched in place, among the filters." },
+      { "page": "/menu#anchored-under-a-trigger", "how": "The trailing actions that do not fit, behind one button at the end, the destructive one last." }
+    ],
+    "notFor": [
+      { "text": "Facets in a side panel with counts", "instead": "/filtering#filter-side-panel" },
+      { "text": "A filter for each column of a table", "instead": "/table#a-filter-per-column" },
+      { "text": "Actions that apply to the whole page", "instead": "/structure#page-head" },
+      { "text": "Switching between views of one record", "instead": "/tabs#tabs" }
+    ],
+    "goals": [ "compare-records", "narrow-a-long-list", "search-a-list", "act-on-a-selection", "fold-actions-into-a-menu", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "switch-a-view-setting", "fill-the-screen-below-the-header", "find-a-record-on-a-list-page", "search-everything" ],
+    "stamp": "28019cd79c0c1cb7"
+  },
+  {
+    "page": "/menu",
+    "useFor": "A short list of actions opened from a button, from a right-click, or from a value trigger that changes what it shows, with labels, separators, submenus and a filter.",
+    "combineWith": [
+      { "page": "/button-group#a-split-button-that-opens-a-menu", "how": "The caret of a split button opens the action's variants." },
+      { "page": "/toolbar#with-a-selection", "how": "The selection's further actions at the end of the toolbar, the destructive one last naming how many it acts on." },
+      { "page": "/structure#actions-that-fold-into-a-menu", "how": "The page head's actions fold into one menu behind .actions-more when the head is narrow." },
+      { "page": "/filtering#saved-views", "how": "The saved views, switched from a menu whose trigger names the view in use." },
+      { "page": "/table-columns#choosing-the-columns", "how": "The column chooser is a menu of checkboxes behind a toolbar button." },
+      { "page": "/topbar#user-menu", "how": "The user widget's menu is the same .menu; there is no second panel style." }
+    ],
+    "notFor": [
+      { "text": "Content that explains something", "instead": "/popover#popover" },
+      { "text": "Picking a value from a plain list", "instead": "/form-select#the-drop-down" },
+      { "text": "A few options that stay in view", "instead": "/segmented#segmented-control" },
+      { "text": "The places in the app", "instead": "/nav#nav-items" },
+      { "text": "Searching every command in the app", "instead": "/palette" }
+    ],
+    "goals": [ "save-a-view", "choose-table-columns", "offer-variants-of-an-action", "act-on-a-selection", "fold-actions-into-a-menu", "open-a-menu-of-actions", "open-a-context-menu", "find-an-action-in-a-long-menu", "change-a-value-in-place", "catch-up-on-notifications", "mention-someone", "see-who-is-signed-in", "write-a-prompt", "insert-blocks-with-a-slash" ],
+    "stamp": "0784265f06636bdf"
+  },
+  {
+    "page": "/popover",
+    "useFor": "A small amount of content anchored to what opened it — why a row is pending, what a figure means, a glance at a record — opened by a click or by resting on it.",
+    "combineWith": [
+      { "page": "/card#key-value-rows", "how": "A record's detail in the panel is .kv rows, whose gap keeps key and value apart in the shrink-to-fit box." },
+      { "page": "/table#basic", "how": "A small table in .popover--flush reaches the panel's rounded corners." },
+      { "page": "/badge#the-ai-label-on-a-generated-value", "how": "An AI label opens one that says which agent, how sure and what was there before, with the way back at its foot." },
+      { "page": "/nav#nav-items", "how": "A count on a nav link opens one through data-popover without following the link." },
+      { "page": "/modal#a-real-modal", "how": "A hover card on the button that opens a dialog previews what the dialog holds, and closes when it opens." }
+    ],
+    "notFor": [
+      { "text": "A list of actions", "instead": "/menu#anchored-under-a-trigger" },
+      { "text": "One line of help on a control", "instead": "/hover-hints#on-any-control" },
+      { "text": "A question the reader must answer before going on", "instead": "/modal#a-real-modal" },
+      { "text": "A record's whole detail beside the list", "instead": "/drawer#a-record-s-detail" }
+    ],
+    "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message" ],
+    "stamp": "257dfbcb1fe2786f"
+  },
+  {
+    "page": "/drag-drop",
+    "useFor": "Rearranging what the app shows — a list's order, cards across lanes, tiles in a grid — by pointer, by a finger held still and by the keyboard, with each move reported for the app to make.",
+    "combineWith": [
+      { "page": "/card#head-and-body", "how": "A whole card can be the item, dragged from a handle in its head." },
+      { "page": "/utility-scroll#vertical", "how": "A zone inside a .sedna-scroll scrolls while a row is held near its edge." },
+      { "page": "/calendar-agenda#move-an-event-to-another-day", "how": "data-drag-axis=\"slot\" makes a day or a half hour a place an event is put." },
+      { "page": "/tree#reordering-by-drag", "how": "A tree's rows reorder and move between branches with the same attributes." },
+      { "page": "/table-columns#moving-a-column", "how": "Moving a column is a zone along the header row." },
+      { "page": "/grid#panels-the-reader-arranges", "how": "A dashboard's panels are the items of one grid zone." }
+    ],
+    "notFor": [
+      { "text": "Files dropped from the desktop", "instead": "/form-file#dropzone-and-file-list" },
+      { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
+    ],
+    "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels" ],
+    "stamp": "4e3433ebdc1658db"
+  }
+]

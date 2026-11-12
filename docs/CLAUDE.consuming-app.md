@@ -22,8 +22,16 @@ The catalogue is a hosted site with an MCP server. Add it to this project's MCP 
 { "type": "http", "url": "https://www.sedna-ui.com/mcp" }
 ```
 
-Search it, then fetch the exact markup — `search` → `get_example`. Use `describe_class` to choose
-between variants. **Do not write shared-UI markup from memory**, and do not invent class names: a class
+Start from what the user of this app has to be able to do, not from a component: `search` for it in
+plain words — "let the user upload a file", "confirm a destructive action" — and a hit of kind
+`goal` names the page to start from. `get_guide` with the goal's id says which parts go around it,
+how they combine and the usual mistake; with a page route it says what that part is for, what it is
+combined with and what it is not for; with `"principles"` it covers composition, spacing, colour,
+actions, feedback, density, motion and words. The same guide is at
+<https://www.sedna-ui.com/design-guide>.
+
+Then fetch the exact markup — `search` → `get_example`. Use `describe_class` to choose between
+variants. **Do not write shared-UI markup from memory**, and do not invent class names: a class
 that is not in the stylesheet does nothing at all, silently.
 
 The site is built from the library's `main` branch and can be ahead of the version pinned here. Every

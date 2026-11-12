@@ -13,7 +13,11 @@ up here first, and reading this project shows how the library is actually used.
 1. `Components/Pages/<Name>.razor`, with `@page "/<route>"` and a `<CatHead>`.
 2. One file per example under `Examples/<Name>/`.
 3. Register the page in `Navigation/CataloguePages.cs`.
-4. `dotnet test`. An orphaned page and a registry entry with no page both fail.
+4. Give it an entry in `docs/design-guide/components/<group>.json` and run
+   `build/guide-stamp.sh /<route>` — `docs/design-guide/README.md` has the schema. The layout shows the
+   entry at the foot of the page by itself.
+5. `dotnet test`. An orphaned page, a registry entry with no page and a page with no guide entry all
+   fail.
 
 ## Examples
 
@@ -132,7 +136,9 @@ immune.
 
 ## The MCP server
 
-`Mcp/` — read-only tools and four resources at `/mcp`. **There must never be a tool that writes.** The endpoint is public and unauthenticated, and a client honouring the read-only hint calls
+`Mcp/` — read-only tools and four resources at `/mcp`. `get_guide`, the goal hits of `search` and the
+entry `get_page` returns read the design guide from `Guide/DesignGuide.cs`, which embeds
+`docs/design-guide/` as the pages do. **There must never be a tool that writes.** The endpoint is public and unauthenticated, and a client honouring the read-only hint calls
 these without prompting.
 
 Nothing in the index is hand-listed: examples come from the same embedded resources the pages render,
