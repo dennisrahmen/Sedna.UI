@@ -27,69 +27,73 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Pager.Pagination" Title="Pagination" Demo="ex-demo--block">
-    <p>
-        Wrap it in <code>&lt;nav aria-label="Pagination"&gt;</code> and put
-        <code>aria-current="page"</code> on the current one. The class colours it;
-        <code>aria-current</code> is what is announced. <code>.page-count</code> pushes the range
-        to the far end, which is where the reader looks to find out how much is left.
-    </p>
-</CatExample>
+<CatGroup Title="Pagination">
+    <CatExample TExample="Examples.Pager.Pagination" Title="Numbered pages" Demo="ex-demo--block">
+        <p>
+            Wrap it in <code>&lt;nav aria-label="Pagination"&gt;</code> and put
+            <code>aria-current="page"</code> on the current one. The class colours it;
+            <code>aria-current</code> is what is announced. <code>.page-count</code> pushes the range
+            to the far end, which is where the reader looks to find out how much is left.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Pager.UnderATable" Title="Under the table it pages" Demo="ex-demo--block">
-    <p>
-        The pager follows the card that holds the table, outside it, and keeps a toolbar's distance
-        from it with no class or wrapper of its own &mdash; in a tab panel or a card body as much as
-        on the page. The range counts rows, the numbers count pages: &ldquo;41&ndash;60 of
-        1,204&rdquo; beside page 3 of 61.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Pager.UnderATable" Title="Under its table" Demo="ex-demo--block">
+        <p>
+            The pager follows the card that holds the table, outside it, and keeps a toolbar's distance
+            from it with no class or wrapper of its own &mdash; in a tab panel or a card body as much as
+            on the page. The range counts rows, the numbers count pages: &ldquo;41&ndash;60 of
+            1,204&rdquo; beside page 3 of 61.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Pager.PaginationViewState" Title="When the page is view state" Demo="ex-demo--block">
-    <p>
-        Where the page number is view state rather than a location — a Blazor Server table whose
-        page, sort and filters live in the circuit — use
-        <code>&lt;button class="page-link" type="button"&gt;</code> throughout, with
-        <code>disabled</code> on the ends rather than <code>aria-disabled</code>. Judge it by
-        whether the page has an address: if a reader could reasonably send someone a link to page 4,
-        use the anchors above.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Pager.PaginationViewState" Title="Pages as view state" Demo="ex-demo--block">
+        <p>
+            Where the page number is view state rather than a location — a Blazor Server table whose
+            page, sort and filters live in the circuit — use
+            <code>&lt;button class="page-link" type="button"&gt;</code> throughout, with
+            <code>disabled</code> on the ends rather than <code>aria-disabled</code>. Judge it by
+            whether the page has an address: if a reader could reasonably send someone a link to page 4,
+            use the anchors above.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.PagerFromCsharp" Title="Which numbers to show, from C#" Demo="ex-demo--block">
-    <p>
-        <strong>Live — page through it.</strong> <code>SednaPager.Window(current, total)</code>
-        returns the slots to render — page numbers and <code>.page-gap</code>s — so the markup stays
-        a <code>foreach</code>. The count of slots is the same on every page, so the buttons do not
-        shift under the pointer, and a gap never hides a single page. <code>edge</code> and
-        <code>around</code> widen the ends and the neighbourhood.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.PagerFromCsharp" Title="Page numbers from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live — page through it.</strong> <code>SednaPager.Window(current, total)</code>
+            returns the slots to render — page numbers and <code>.page-gap</code>s — so the markup stays
+            a <code>foreach</code>. The count of slots is the same on every page, so the buttons do not
+            shift under the pointer, and a gap never hides a single page. <code>edge</code> and
+            <code>around</code> widen the ends and the neighbourhood.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumbs" Demo="ex-demo--block">
-    <p>
-        For where a page sits when the sidebar cannot show it — a record three levels inside a
-        section; if the sidebar already highlights the page, a breadcrumb earns nothing. The last
-        item is the current page: mark it <code>aria-current="page"</code> and leave it a
-        <code>&lt;span&gt;</code>, not a link to where you already are.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Pager.PagerCompact" Title="Previous and next only" Demo="ex-demo--block">
+        <p>
+            For a result whose length is not known, and for a pager that has to live inside a
+            <a href="/toolbar">toolbar</a> row. <code>.page-count</code> is what makes it usable without
+            numbers, and the disabled ends are <code>&lt;span aria-disabled="true"&gt;</code>, not links
+            to nowhere. A list whose pages are known still shows them: the toolbar's pager keeps its
+            numbers.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Pager.PagerCompact" Title="Prev, next and the range" Demo="ex-demo--block">
-    <p>
-        For a result whose length is not known, and for a pager that has to live inside a
-        <a href="/toolbar">toolbar</a> row. <code>.page-count</code> is what makes it usable without
-        numbers, and the disabled ends are <code>&lt;span aria-disabled="true"&gt;</code>, not links
-        to nowhere. A list whose pages are known still shows them: the toolbar's pager keeps its
-        numbers.
-    </p>
-</CatExample>
+<CatGroup Title="Breadcrumbs">
+    <CatExample TExample="Examples.Pager.Breadcrumbs" Title="Breadcrumb trail" Demo="ex-demo--block">
+        <p>
+            For where a page sits when the sidebar cannot show it — a record three levels inside a
+            section; if the sidebar already highlights the page, a breadcrumb earns nothing. The last
+            item is the current page: mark it <code>aria-current="page"</code> and leave it a
+            <code>&lt;span&gt;</code>, not a link to where you already are.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Pager.BreadcrumbAbovePageHead" Title="Above the page head" Demo="ex-demo--block">
-    <p>
-        Where a breadcrumb belongs: above the heading, so the trail is read before the title it leads
-        to, with <a href="/structure"><code>.page-head</code></a> carrying the title, the supporting
-        line and the actions that apply to the whole page. One <code>&lt;h1&gt;</code> per page and
-        it is this one — the breadcrumb is navigation, not a heading level.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Pager.BreadcrumbAbovePageHead" Title="Above the page head" Demo="ex-demo--block">
+        <p>
+            Where a breadcrumb belongs: above the heading, so the trail is read before the title it leads
+            to, with <a href="/structure"><code>.page-head</code></a> carrying the title, the supporting
+            line and the actions that apply to the whole page. One <code>&lt;h1&gt;</code> per page and
+            it is this one — the breadcrumb is navigation, not a heading level.
+        </p>
+    </CatExample>
+</CatGroup>

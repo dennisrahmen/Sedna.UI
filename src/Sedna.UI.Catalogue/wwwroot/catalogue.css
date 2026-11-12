@@ -118,7 +118,25 @@
     transition: opacity 0.12s;
 }
 .cat-main h2:hover .cat-anchor,
+.cat-main h3:hover .cat-anchor,
 .cat-anchor:focus-visible { opacity: 1; text-decoration: none; }
+
+/* A topic on a long page (CatGroup): its heading a step up from an example's, and a rule
+   above every topic after the first, so the page reads as a few topics rather than one
+   run of examples. Inside a topic an example's heading is an h3 that looks exactly like an
+   example's h2 does outside one, and a hand-written section is an h3 spaced the same. */
+.cat-group { margin: 0 0 44px; }
+.cat-main > * + .cat-group {
+    margin-top: 0;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+}
+.cat-group > h2 { margin: 0 0 8px; font-size: 20px; scroll-margin-top: 16px; }
+.cat-group > p { margin: 0 0 28px; font-size: 13px; color: var(--muted); line-height: 1.65; }
+.cat-group > h3 { margin: 38px 0 10px; font-size: 16px; scroll-margin-top: 16px; }
+.cat-group > h3:first-child { margin-top: 0; }
+.cat-group > .card + .cat-ex { margin-top: 38px; }
+.cat-group:last-child { margin-bottom: 16px; }
 
 /* ── Hero (overview page) ─────────────────────────────────────────────────── */
 .cat-hero {
@@ -294,7 +312,8 @@
 /* The last example on the page, whatever follows it: the guide's section after it brings its
    own rule, and two rules one above the other read as a gap. */
 .cat-ex:not(:has(~ .cat-ex)) { margin-bottom: 16px; padding-bottom: 0; border-bottom: 0; }
-.cat-ex > h2 { margin: 0 0 6px; font-size: 16px; }
+.cat-ex > h2,
+.cat-ex > h3 { margin: 0 0 6px; font-size: 16px; scroll-margin-top: 16px; }
 /* No measure cap. A `ch` cap looks like a reading measure and is not one here: the
    prose is 13px, so 84ch resolved to under 600px inside an 1100px column and every
    paragraph stopped half way across while the demo, the code block and the note beside
@@ -464,7 +483,7 @@
 .cat-guide { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); }
 .cat-guide-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .cat-guide-head > h2 { margin: 0; }
-.cat-guide-use { margin: 6px 0 18px; color: var(--muted); max-width: 70ch; }
+.cat-guide-use { margin: 6px 0 18px; color: var(--muted); }
 .cat-guide > h3 { margin: 8px 0 12px; font-size: 14px; }
 .cat-guide .cat-tiles { margin-bottom: 20px; }
 .cat-tile-ic--quiet { background: var(--bg-elevated); color: var(--muted); }

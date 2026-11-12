@@ -22,7 +22,7 @@ public class TableColumnsBlazorTests(CatalogueAppFixture app)
         await page.GotoAsync(app.Url("/table-columns"), new() { WaitUntil = WaitUntilState.Load });
         await page.WaitForSelectorAsync("[data-interactive='true']", new() { Timeout = 15_000 });
         var demo = page.Locator("section[data-example]")
-            .Filter(new() { Has = page.Locator("h2", new() { HasTextString = "All three from Blazor" }) })
+            .Filter(new() { Has = page.Locator("h2, h3", new() { HasTextString = "All three from Blazor" }) })
             .Locator(".ex-demo");
         return (page, demo);
     }

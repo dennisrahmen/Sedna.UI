@@ -14,9 +14,13 @@
     at its foot, under "Goes well with".
 </CatHead>
 
+@* Two topics, laid out as a CatGroup would: the goals by catalogue group, then the principles.
+   Written as its markup rather than the component, because every heading under them comes from
+   data, and PageContents nests the same sections from the guide. *@
+<section class="cat-group">
 <h2 id="goals">What the user can do <CatAnchor Id="goals" /></h2>
 
-<p class="cat-lede">
+<p>
     Each goal names the part to start from and the parts around it. Search for a goal in your own
     words from the box at the top of the page, or ask the MCP server's <code>search</code> and
     <code>get_guide</code>.
@@ -27,7 +31,7 @@
     var goals = Guide.Goals.Where(g => g.Group == group).ToList();
     if (goals.Count == 0) continue;
 
-    <h3 id="goals-@group.ToLowerInvariant()">@group</h3>
+    <h3 id="@GoalsId(group)">@group<CatAnchor Id="@GoalsId(group)" /></h3>
     <div class="accordion">
         @foreach (var goal in goals)
         {
@@ -53,15 +57,23 @@
     </div>
 }
 
+</section>
+
+<section class="cat-group">
+<h2 id="principles">Principles <CatAnchor Id="principles" /></h2>
 @foreach (var section in Guide.Sections)
 {
-    <h2 id="@section.Id">@section.Title <CatAnchor Id="@section.Id" /></h2>
+    <h3 id="@section.Id">@section.Title <CatAnchor Id="@section.Id" /></h3>
     @* The library's prose keeps a 72ch reading measure; this is the page's own column, as wide
        as every other page's text, so the measure is lifted with its token. *@
     <div class="prose" style="--prose-measure: none">@((MarkupString)GuideMarkdown.ToHtml(section.Markdown))</div>
 }
+</section>
 
 @code {
+    /// The id of a catalogue group's goals, which the page's contents link to.
+    public static string GoalsId(string group) => "goals-" + Slug.From(group);
+
     // The goal the address names, opened: a component page's "Goals it answers" links here
     // with the goal's id, and a closed entry would show only its sentence.
     private string? Named

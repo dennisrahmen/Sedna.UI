@@ -3,6 +3,7 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// <summary>
 /// One heading on the Tokens page and the tokens under it.
 /// </summary>
+/// <param name="Section">The topic it is listed under on the Tokens page; <see cref="TokenGroups.Sections"/> orders them.</param>
 /// <param name="Name">The heading.</param>
 /// <param name="Tokens">The token names, in the order they are declared.</param>
 /// <param name="Swatch">
@@ -14,6 +15,7 @@ namespace Sedna.UI.Catalogue.Navigation;
 /// read as broken: the safe-area group, and the voice level, which is unset on purpose.
 /// </param>
 internal sealed record TokenGroup(
+    string Section,
     string Name,
     IReadOnlyList<string> Tokens,
     bool Swatch = true,
@@ -39,22 +41,29 @@ internal sealed record TokenGroup(
 /// </remarks>
 internal static class TokenGroups
 {
+    /// <summary>The palette's section: the ramps every role resolves to.</summary>
+    public const string Palette = "Palette";
+
+    /// <summary>The Tokens page's topics, in the order it shows them; each group names one.</summary>
+    public static IReadOnlyList<string> Sections { get; } =
+        ["Colour roles", "Controls and chrome", "Status", "Data", "Agents", "Type, space and shape", Palette];
+
     public static IReadOnlyList<TokenGroup> All { get; } =
     [
-        new("Typography", ["--font-sans", "--font-mono"], Swatch: false),
+        new("Type, space and shape", "Typography", ["--font-sans", "--font-mono"], Swatch: false),
 
-        new("Surfaces, text, lines", [
+        new("Colour roles", "Surfaces, text, lines", [
             "--bg", "--bg-elevated", "--bg-hover", "--fg", "--fg-soft", "--muted", "--placeholder",
             "--border", "--border-strong", "--border-hover", "--divider", "--card-bg",
             "--surface-soft", "--surface-strong", "--on-solid", "--on-viz", "--redacted",
         ]),
 
-        new("Named surfaces and elevation", [
+        new("Colour roles", "Named surfaces and elevation", [
             "--surface-app", "--surface-chrome", "--surface-content",
             "--surface-raised-1", "--surface-raised-2", "--surface-raised-3",
         ]),
 
-        new("Brand — the app override point", [
+        new("Colour roles", "Brand", [
             "--brand", "--brand-hover", "--brand-active", "--brand-soft", "--brand-text",
             "--brand-tint", "--brand-tint-strong",
             "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
@@ -71,54 +80,54 @@ internal static class TokenGroups
         // The mark on the one chosen, and the line under where you are. Both point at the
         // brand until an app separates them — a red ring on a red-brand status board reads
         // as "failed".
-        new("Selection", ["--selected", "--tab-indicator", "--row-hover-accent"]),
+        new("Colour roles", "Selection", ["--selected", "--tab-indicator", "--row-hover-accent"]),
 
         // The edge of every box a reader types or picks into, at rest and focused, apart
         // from --border so fields can be firmed up without firming up every divider.
-        new("Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--rating-on", "--rating-off", "--focus-ring"]),
+        new("Controls and chrome", "Fields", ["--field-border", "--field-border-focus", "--field-border-danger", "--field-border-warn", "--control-border", "--control-on", "--rating-on", "--rating-off", "--focus-ring"]),
 
         // A disabled control: its label, fill and edge — the label still at 4.5:1.
-        new("Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),
+        new("Controls and chrome", "Disabled", ["--disabled-fg", "--disabled-bg", "--disabled-border"]),
 
         // How far a disabled control's graphic fades — the check, the switch, the range. A number.
-        new("Disabled graphics", ["--disabled-opacity"], Swatch: false),
+        new("Controls and chrome", "Disabled graphics", ["--disabled-opacity"], Swatch: false),
 
-        new("Sidebar", [
+        new("Controls and chrome", "Sidebar", [
             "--sidebar-bg", "--sidebar-border", "--sidebar-fg", "--sidebar-muted", "--sidebar-active",
             "--sidebar-hover",
         ]),
 
         // The header's surface and what is drawn straight on it. Aliases of the roles it
         // always used, so a brand-coloured header is four tokens and no rule.
-        new("Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
-        new("Sizes", ["--topbar-height", "--touch-target", "--checker-size"], Swatch: false),
+        new("Controls and chrome", "Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
+        new("Type, space and shape", "Sizes", ["--topbar-height", "--touch-target", "--checker-size"], Swatch: false),
 
         // A modal's header and footer and a card's head as bars of their own.
-        new("Panel bars", ["--modal-head-bg", "--modal-foot-bg", "--card-head-bg"]),
+        new("Controls and chrome", "Panel bars", ["--modal-head-bg", "--modal-foot-bg", "--card-head-bg"]),
 
-        new("Status — go (sends outward)", [
+        new("Status", "Go (sends outward)", [
             "--go-solid", "--go-hover", "--go-active", "--go-bg", "--go-bg-hover", "--go-bg-active",
             "--go-border", "--go-fg", "--go-ring",
         ]),
 
-        new("Status — warn (control changes)", [
+        new("Status", "Warn (control changes)", [
             "--warn-solid", "--warn-hover", "--warn-active", "--warn-bg", "--warn-bg-hover",
             "--warn-bg-active", "--warn-border", "--warn-fg", "--warn-ring", "--warn-ring-solid",
         ]),
 
-        new("Status — danger", [
+        new("Status", "Danger", [
             "--danger-solid", "--danger-hover", "--danger-active", "--danger-bg", "--danger-bg-hover", "--danger-bg-active",
             "--danger-border", "--danger-border-strong", "--danger-fg", "--danger-ring",
         ]),
 
-        new("Status — info & secret", [
+        new("Status", "Info and secret", [
             "--info-bg", "--info-bg-hover", "--info-bg-active", "--info-border", "--info-fg",
             "--info-solid", "--info-on-solid", "--info-hover", "--info-active", "--info-ring",
             "--secret-bg", "--secret-bg-hover", "--secret-bg-active", "--secret-border", "--secret-fg",
             "--secret-hover", "--secret-active",
         ]),
 
-        new("Severity — an ordered five-step ramp", [
+        new("Status", "Severity ramp", [
             "--sev-1-solid", "--sev-1-bg", "--sev-1-border", "--sev-1-fg",
             "--sev-2-solid", "--sev-2-bg", "--sev-2-border", "--sev-2-fg",
             "--sev-3-solid", "--sev-3-bg", "--sev-3-border", "--sev-3-fg",
@@ -126,13 +135,13 @@ internal static class TokenGroups
             "--sev-5-solid", "--sev-5-bg", "--sev-5-border", "--sev-5-fg",
         ]),
 
-        new("Categorical badge hues", [
+        new("Status", "Categorical hues", [
             "--badge-cyan-bg", "--badge-cyan-border", "--badge-cyan-fg", "--badge-cyan-bg-hover", "--badge-cyan-bg-active", "--badge-cyan-hover", "--badge-cyan-active",
             "--badge-orange-bg", "--badge-orange-border", "--badge-orange-fg", "--badge-orange-bg-hover", "--badge-orange-bg-active", "--badge-orange-hover", "--badge-orange-active",
             "--badge-teal-bg", "--badge-teal-border", "--badge-teal-fg", "--badge-teal-bg-hover", "--badge-teal-bg-active", "--badge-teal-hover", "--badge-teal-active",
         ]),
 
-        new("Component surfaces", [
+        new("Controls and chrome", "Component surfaces", [
             "--badge-bg", "--table-head-bg", "--btn-active-bg", "--code-fg", "--code-bg",
             "--backdrop", "--overlay", "--spotlight-dim", "--media-bg", "--media-scrim", "--tip-bg", "--tip-border", "--tip-fg",
             "--scrollbar", "--scrollbar-hover", "--scroll-shade",
@@ -140,54 +149,54 @@ internal static class TokenGroups
             "--presence-out-of-office",
         ]),
 
-        new("Shadows", [
+        new("Colour roles", "Shadows", [
             "--shadow-topbar", "--shadow-bottombar", "--shadow-nav-tools", "--shadow-modal", "--shadow-tip",
             "--shadow-flyout", "--shadow-dropdown", "--shadow-float", "--shadow-pop",
             "--shadow-tile", "--shadow-edge-start", "--shadow-edge-end",
         ], Swatch: false),
 
-        new("Reconnect banner", [
+        new("Controls and chrome", "Reconnect banner", [
             "--reconnect-warn-bg", "--reconnect-warn-border", "--reconnect-warn-fg",
             "--reconnect-fail-bg", "--reconnect-fail-border", "--reconnect-fail-fg",
         ]),
 
-        new("Spacing scale", [
+        new("Type, space and shape", "Spacing scale", [
             "--space-1", "--space-2", "--space-3", "--space-4", "--space-5", "--space-6",
             "--space-7", "--space-8", "--space-9", "--space-10", "--space-11",
         ], Swatch: false),
 
-        new("Type scale", [
+        new("Type, space and shape", "Type scale", [
             "--text-1", "--text-2", "--text-3", "--text-4", "--text-5", "--text-6",
             "--text-7", "--text-8", "--text-9", "--text-10", "--text-11", "--text-field-touch",
         ], Swatch: false),
 
-        new("Control height", [
+        new("Type, space and shape", "Control height", [
             "--control-height-sm", "--control-height", "--control-height-lg",
         ], Swatch: false),
 
-        new("Choice inset", [
+        new("Type, space and shape", "Choice inset", [
             "--choice-inset-check", "--choice-inset-switch",
         ], Swatch: false),
 
-        new("Corner rounding", [
+        new("Type, space and shape", "Corner rounding", [
             "--radius-control", "--radius-surface", "--radius-panel", "--radius-inner",
             "--radius-small", "--radius-pill",
         ], Swatch: false),
 
-        new("Motion", [
+        new("Type, space and shape", "Motion", [
             "--motion-fast", "--motion-mid", "--motion-slow",
             "--spin-duration", "--progress-duration", "--skeleton-duration", "--pulse-duration",
             "--shimmer-duration", "--caret-duration", "--flow-duration", "--stagger-step", "--hover-delay", "--roll-duration",
         ], Swatch: false),
 
-        new("Density and metrics", [
+        new("Type, space and shape", "Density and metrics", [
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
             "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--kv-key-width", "--code-clamp", "--page-rhythm", "--page-pad", "--page-banner-pad-block",
             "--cap-gap",
         ], Swatch: false),
 
         // Where a panel anchored to a trigger opens: a keyword, read with a style query.
-        new("Placement", ["--panel-placement"], Swatch: false),
+        new("Type, space and shape", "Placement", ["--panel-placement"], Swatch: false),
 
         // How much of each viewport edge the device has taken — a home indicator, a
         // notch, a rounded corner. 0px on a desktop, a real value on a phone or a
@@ -197,7 +206,7 @@ internal static class TokenGroups
         // The Note exists because four zeros in a list where every other group shows
         // a real value read as a broken page on a desktop. It is the one group whose
         // printed value needs a sentence.
-        new("Safe area", [
+        new("Type, space and shape", "Safe area", [
             "--safe-block-start", "--safe-block-end", "--safe-inline-start", "--safe-inline-end",
         ], Swatch: false,
             Note: "What this device has taken from each edge: 0px on a desktop and wherever "
@@ -209,25 +218,25 @@ internal static class TokenGroups
         // The six series colours the charts read through .series-1 … .series-6: the
         // brand, then hues ordered so neighbours differ. Remapped two steps darker in
         // the light theme, where a 400 is a pastel.
-        new("Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6", "--viz-previous"]),
+        new("Data", "Data visualisation", ["--viz-1", "--viz-2", "--viz-3", "--viz-4", "--viz-5", "--viz-6", "--viz-previous"]),
 
         // A heatmap's intensity: step 0 is the empty track, 1–4 rise in strength.
-        new("Heatmap steps", ["--heat-0", "--heat-1", "--heat-2", "--heat-3", "--heat-4"]),
+        new("Data", "Heatmap steps", ["--heat-0", "--heat-1", "--heat-2", "--heat-3", "--heat-4"]),
 
         // A workflow's light: the streak running into the step at work, the line under
         // it, and the step's ring and glow — aliases of the info colours.
-        new("Data in motion", ["--flow-light", "--flow-line", "--flow-tint", "--flow-glow"]),
+        new("Data", "Data in motion", ["--flow-light", "--flow-line", "--flow-tint", "--flow-glow"]),
 
         // The agent parts: the two bodies of the mark that the orb, the beam and the shimmer
         // draw with, then the roles derived from them.
-        new("Agents", [
+        new("Agents", "Agent parts", [
             "--agent-from", "--agent-to", "--agent-trail", "--agent-tint", "--agent-edge",
             "--agent-glow", "--agent-glow-dim",
             "--agent-skeleton-cool", "--agent-skeleton-warm",
         ]),
 
         // An agent avatar's six tones, three lights and a glow each, and the glass over them.
-        new("Agent avatar tones", [
+        new("Agents", "Avatar tones", [
             "--agent-sedna-1", "--agent-sedna-2", "--agent-sedna-3",
             "--agent-aurora-1", "--agent-aurora-2", "--agent-aurora-3",
             "--agent-ember-1", "--agent-ember-2", "--agent-ember-3",
@@ -241,17 +250,17 @@ internal static class TokenGroups
         ]),
 
         // The number the app's audio code writes; declared only so it inherits.
-        new("Voice level", ["--level"], Swatch: false,
+        new("Agents", "Voice level", ["--level"], Swatch: false,
             Note: "Unset until the app writes one, from 0 to 1, on any element above the parts that follow it."),
 
         // Mochi keeps its own colours under every theme: a character that turned grey in
         // the light theme would be a different character.
-        new("Mochi tones", [
+        new("Agents", "Mochi tones", [
             "--mochi-pink", "--mochi-pink-limb", "--mochi-mint", "--mochi-mint-limb",
             "--mochi-sky", "--mochi-sky-limb", "--mochi-lemon", "--mochi-lemon-limb",
             "--mochi-lilac", "--mochi-lilac-limb", "--mochi-coral", "--mochi-coral-limb",
         ]),
-        new("Mochi details", [
+        new("Agents", "Mochi details", [
             "--mochi-ink", "--mochi-band", "--mochi-leg-hi", "--mochi-leg-mid", "--mochi-leg-lo",
             "--mochi-blush", "--mochi-tongue", "--mochi-shade", "--mochi-light", "--mochi-dark",
             "--mochi-bubble", "--mochi-bubble-edge", "--mochi-sweat", "--mochi-zzz",
@@ -263,7 +272,7 @@ internal static class TokenGroups
         // makes native scrollbars, a <select>'s option list and the date picker's panel
         // follow the theme; `--picker-invert` is how far to invert the calendar glyph,
         // which is a UA glyph in a fixed colour.
-        new("Browser-drawn chrome", ["--color-scheme", "--picker-invert"], Swatch: false),
+        new("Controls and chrome", "Browser-drawn chrome", ["--color-scheme", "--picker-invert"], Swatch: false),
 
         // ── Tier 1: the palette ────────────────────────────────────────────────
         // The ramps every semantic token above resolves to. Listed here because the
@@ -274,61 +283,65 @@ internal static class TokenGroups
         // A palette token is never remapped by theme, variant, colour-vision or
         // contrast, so unlike every group above, what the page reads here is the same
         // in every state.
-        new("Palette — the two absolutes", [
+        new("Palette", "White and black", [
             "--white", "--black"
         ]),
-        new("Palette — slate (the neutral spine)", [
+        new("Palette", "Slate (the neutral spine)", [
             "--slate-50", "--slate-100", "--slate-200", "--slate-300", "--slate-400",
             "--slate-500", "--slate-600", "--slate-700", "--slate-750", "--slate-800",
             "--slate-850", "--slate-900", "--slate-925", "--slate-950"
         ]),
-        new("Palette — coral (the brand ramp)", [
+        new("Palette", "Coral (the brand ramp)", [
             "--coral-50", "--coral-100", "--coral-200", "--coral-300", "--coral-400",
             "--coral-500", "--coral-600", "--coral-700", "--coral-800", "--coral-900",
             "--coral-950"
         ]),
-        new("Palette — orbit (accent and information)", [
+        new("Palette", "Orbit (accent and information)", [
             "--orbit-50", "--orbit-100", "--orbit-200", "--orbit-300", "--orbit-400",
             "--orbit-500", "--orbit-600", "--orbit-700", "--orbit-800", "--orbit-900",
             "--orbit-950"
         ]),
-        new("Palette — navy (mark and illustration only)", [
+        new("Palette", "Navy (mark and illustration only)", [
             "--navy-50", "--navy-100", "--navy-200", "--navy-300", "--navy-400", "--navy-500",
             "--navy-600", "--navy-700", "--navy-800", "--navy-900", "--navy-950"
         ]),
-        new("Palette — green (go)", [
+        new("Palette", "Green (go)", [
             "--green-200", "--green-300", "--green-400", "--green-500", "--green-600",
             "--green-700", "--green-800", "--green-900"
         ]),
-        new("Palette — amber (warn)", [
+        new("Palette", "Amber (warn)", [
             "--amber-200", "--amber-300", "--amber-400", "--amber-500", "--amber-600",
             "--amber-700", "--amber-800", "--amber-900"
         ]),
-        new("Palette — crimson (danger)", [
+        new("Palette", "Crimson (danger)", [
             "--crimson-200", "--crimson-300", "--crimson-400", "--crimson-500",
             "--crimson-600", "--crimson-700", "--crimson-800", "--crimson-900"
         ]),
-        new("Palette — violet (secret)", [
+        new("Palette", "Violet (secret)", [
             "--violet-200", "--violet-300", "--violet-400", "--violet-500", "--violet-600",
             "--violet-700", "--violet-800", "--violet-900"
         ]),
-        new("Palette — cyan", [
+        new("Palette", "Cyan", [
             "--cyan-200", "--cyan-300", "--cyan-400", "--cyan-500", "--cyan-600", "--cyan-700",
             "--cyan-800", "--cyan-900"
         ]),
-        new("Palette — orange", [
+        new("Palette", "Orange", [
             "--orange-200", "--orange-300", "--orange-400", "--orange-500", "--orange-600",
             "--orange-700", "--orange-800", "--orange-900"
         ]),
-        new("Palette — teal", [
+        new("Palette", "Teal", [
             "--teal-200", "--teal-300", "--teal-400", "--teal-500", "--teal-600", "--teal-700",
             "--teal-800", "--teal-900"
         ]),
-        new("Palette — indigo (inline code)", [
+        new("Palette", "Indigo (inline code)", [
             "--indigo-200", "--indigo-300", "--indigo-400", "--indigo-500", "--indigo-600",
             "--indigo-700", "--indigo-800", "--indigo-900"
         ]),
     ];
+
+    /// <summary>The groups of each section, in the order the page shows them.</summary>
+    public static IReadOnlyList<(string Section, IReadOnlyList<TokenGroup> Groups)> BySection { get; } =
+        [.. Sections.Select(s => (s, (IReadOnlyList<TokenGroup>)[.. All.Where(g => g.Section == s)]))];
 
     /// <summary>Every token named on the page, in display order.</summary>
     public static IReadOnlyList<string> AllTokens { get; } =

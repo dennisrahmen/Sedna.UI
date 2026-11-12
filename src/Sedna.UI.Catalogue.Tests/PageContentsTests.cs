@@ -6,15 +6,16 @@ using Sedna.UI.Catalogue.Tests.TestSupport;
 namespace Sedna.UI.Catalogue.Tests;
 
 /// <summary>
-/// The contents beside every page list its sections, in order, and nothing else. A section is a
-/// heading carrying its link icon (<c>CatAnchor</c>), which a heading inside an example never
-/// does, so the served HTML says exactly which sections a page has.
+/// The contents beside every page list its sections, in order, and nothing else — a topic's
+/// sections nested under it. A section is a heading, an h2 or a topic's h3, carrying its link
+/// icon (<c>CatAnchor</c>), which a heading inside an example never does, so the served HTML says
+/// exactly which sections a page has.
 /// </summary>
 [Trait(Scope.Name, Scope.Site)]
 [Collection(CatalogueAppCollection.Name)]
 public partial class PageContentsTests(CatalogueAppFixture app)
 {
-    [GeneratedRegex(@"<h2 id=""(?<id>[^""]+)""[^>]*>(?:(?!</h2>).)*?class=""cat-anchor""", RegexOptions.Singleline)]
+    [GeneratedRegex(@"<h(?<level>[23]) id=""(?<id>[^""]+)""[^>]*>(?:(?!</h\k<level>>).)*?class=""cat-anchor""", RegexOptions.Singleline)]
     private static partial Regex SectionHeading();
 
     [GeneratedRegex("""<div class="sedna-split-aside cat-toc">(?<toc>.*?)</nav>""", RegexOptions.Singleline)]

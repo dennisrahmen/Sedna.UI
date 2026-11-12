@@ -7,151 +7,157 @@
     after the caret and the toolbar over a selection need the script.
 </CatHead>
 
-<CatExample TExample="Examples.AgentChat.Turn" Title="An agent's turn" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.chat-message--agent</code> sets the answer as prose on the thread's ground rather than in a
-        bubble: an agent's answer is read like a document, and a bubble around four paragraphs and a code
-        block reads as a wall. The reader's own messages stay <code>--mine</code> bubbles. Inside the
-        body, in order: <a href="/agent-steps"><code>details.reasoning</code></a>, the
-        <a href="/agent-steps"><code>.agent-steps</code></a> it took, the answer, its sources, and what to
-        do next.
-    </p>
-    <p>
-        <code>.citation</code> is a numbered button inline in the answer, opening a
-        <a href="/popover"><code>.popover</code></a> on the source through <code>popovertarget</code>, so it
-        needs no script. Give each an <code>aria-label</code>; the digit alone reads as a number.
-        <code>.citation-sources</code> lists the same sources under the answer as <code>.source-card</code>
-        links, with <code>.source-card-n</code> matching the citation.
-    </p>
-    <p>
-        <code>.chat-feedback</code> is the row under the answer: copy, regenerate, a rating with
-        <code>aria-pressed</code>, and <code>.chat-versions</code> to page between regenerated answers. Its
-        first glyph lines up with the text above it. <a href="/chat"><code>.chat-quick-replies</code></a>
-        offers the likely next questions.
-    </p>
-</CatExample>
+<CatGroup Title="Answers">
+    <CatExample TExample="Examples.AgentChat.Turn" Title="Agent's turn" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.chat-message--agent</code> sets the answer as prose on the thread's ground rather than in a
+            bubble: an agent's answer is read like a document, and a bubble around four paragraphs and a code
+            block reads as a wall. The reader's own messages stay <code>--mine</code> bubbles. Inside the
+            body, in order: <a href="/agent-steps"><code>details.reasoning</code></a>, the
+            <a href="/agent-steps"><code>.agent-steps</code></a> it took, the answer, its sources, and what to
+            do next.
+        </p>
+        <p>
+            <code>.citation</code> is a numbered button inline in the answer, opening a
+            <a href="/popover"><code>.popover</code></a> on the source through <code>popovertarget</code>, so it
+            needs no script. Give each an <code>aria-label</code>; the digit alone reads as a number.
+            <code>.citation-sources</code> lists the same sources under the answer as <code>.source-card</code>
+            links, with <code>.source-card-n</code> matching the citation.
+        </p>
+        <p>
+            <code>.chat-feedback</code> is the row under the answer: copy, regenerate, a rating with
+            <code>aria-pressed</code>, and <code>.chat-versions</code> to page between regenerated answers. Its
+            first glyph lines up with the text above it. <a href="/chat"><code>.chat-quick-replies</code></a>
+            offers the likely next questions.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.ContextUsage" Title="What the context holds" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; rest the pointer on the ring, or tab to it.</strong> The
-        <a href="/agent-status"><code>.context-ring</code></a> in a ghost button opens a hover card
-        (<a href="/popover"><code>data-popover</code> with <code>data-popover-hover</code></a>); a click
-        pins it. <code>.context-usage</code> on the <code>.popover</code> is what the window is made of:
-        <code>.context-usage-head</code> with the total, a <a href="/bars"><code>.meter</code></a> in
-        the ring's colour, <code>dl.context-usage-rows</code> &mdash; input, output, reasoning and cached
-        tokens, with what each cost, the figures in shared columns &mdash; and
-        <code>.context-usage-foot</code> for the total cost.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.Streaming" Title="Streaming answer" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.chat-bubble--streaming</code> puts a caret after the last block while text is still arriving.
+            The app appends the text and removes the class when the answer is complete; mark the bubble
+            <code>aria-busy</code> meanwhile, so a screen reader in the log waits for the whole answer rather
+            than reading every word as it lands. An <a href="/agent-status">agent status</a> under it says what
+            the agent is doing.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.Checkpoint" Title="A checkpoint" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        A <a href="/structure"><code>.divider-labelled</code></a> across the thread marks a point the
-        conversation and its changes can go back to: a bookmark icon, the time, and a button that
-        restores to there. A button in the break keeps its own case.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.Checkpoint" Title="Checkpoints" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            A <a href="/structure"><code>.divider-labelled</code></a> across the thread marks a point the
+            conversation and its changes can go back to: a bookmark icon, the time, and a button that
+            restores to there. A button in the break keeps its own case.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.Streaming" Title="While the answer streams" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.chat-bubble--streaming</code> puts a caret after the last block while text is still arriving.
-        The app appends the text and removes the class when the answer is complete; mark the bubble
-        <code>aria-busy</code> meanwhile, so a screen reader in the log waits for the whole answer rather
-        than reading every word as it lands. An <a href="/agent-status">agent status</a> under it says what
-        the agent is doing.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.ContextUsage" Title="Context usage" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; rest the pointer on the ring, or tab to it.</strong> The
+            <a href="/agent-status"><code>.context-ring</code></a> in a ghost button opens a hover card
+            (<a href="/popover"><code>data-popover</code> with <code>data-popover-hover</code></a>); a click
+            pins it. <code>.context-usage</code> on the <code>.popover</code> is what the window is made of:
+            <code>.context-usage-head</code> with the total, a <a href="/bars"><code>.meter</code></a> in
+            the ring's colour, <code>dl.context-usage-rows</code> &mdash; input, output, reasoning and cached
+            tokens, with what each cost, the figures in shared columns &mdash; and
+            <code>.context-usage-foot</code> for the total cost.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.AgentChat.Prompt" Title="The prompt" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.chat-composer--prompt</code> draws a <a href="/chat"><code>.chat-composer</code></a> as one
-        rounded field: the text on top, <code>.chat-composer-tools</code> under it for attachments, toggles
-        as <code>button.chip</code> with <code>aria-pressed</code>, and a model choice, and
-        <code>.chat-composer-send</code> holding the send button at the end. The field's focus ring is the
-        composer's, so the whole box lights up as one control.
-    </p>
-</CatExample>
+<CatGroup Title="Prompt">
+    <CatExample TExample="Examples.AgentChat.Prompt" Title="Prompt field" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.chat-composer--prompt</code> draws a <a href="/chat"><code>.chat-composer</code></a> as one
+            rounded field: the text on top, <code>.chat-composer-tools</code> under it for attachments, toggles
+            as <code>button.chip</code> with <code>aria-pressed</code>, and a model choice, and
+            <code>.chat-composer-send</code> holding the send button at the end. The field's focus ring is the
+            composer's, so the whole box lights up as one control.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.PromptToolbar" Title="The prompt's toolbar" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Under the text, in order: a <a href="/menu"><code>.menu</code></a> behind &ldquo;+&rdquo; for what can
-        be added &mdash; a file, a screenshot, a link &mdash; the model, and in
-        <code>.chat-composer-send</code> the screenshot, the <a href="/voice"><code>.btn-mic</code></a> and
-        the submit button. What may be attached is said once, as a <code>.form-hint</code> the field names in
-        <code>aria-describedby</code>; a file that breaks the limit is a <code>.form-error</code> in the same
-        place, saying which file and why.
-    </p>
-    <p>
-        The submit button is send, stop or retry depending on where the answer is. Write all three inside
-        it, each in a span whose <code>data-when</code> names the states it belongs to, and set
-        <code>data-state</code> on <code>.chat-composer-send</code> to <code>idle</code>,
-        <code>submitted</code>, <code>streaming</code> or <code>error</code>: the stylesheet shows the one
-        that matches. A hidden span is out of the accessibility tree too, so the button's name is the
-        shown state's words; give each icon <code>aria-hidden</code>, or its glyph joins the name.
-        Without <code>data-state</code> it is idle.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.PromptToolbar" Title="Prompt toolbar" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Under the text, in order: a <a href="/menu"><code>.menu</code></a> behind &ldquo;+&rdquo; for what can
+            be added &mdash; a file, a screenshot, a link &mdash; the model, and in
+            <code>.chat-composer-send</code> the screenshot, the <a href="/voice"><code>.btn-mic</code></a> and
+            the submit button. What may be attached is said once, as a <code>.form-hint</code> the field names in
+            <code>aria-describedby</code>; a file that breaks the limit is a <code>.form-error</code> in the same
+            place, saying which file and why.
+        </p>
+        <p>
+            The submit button is send, stop or retry depending on where the answer is. Write all three inside
+            it, each in a span whose <code>data-when</code> names the states it belongs to, and set
+            <code>data-state</code> on <code>.chat-composer-send</code> to <code>idle</code>,
+            <code>submitted</code>, <code>streaming</code> or <code>error</code>: the stylesheet shows the one
+            that matches. A hidden span is out of the accessibility tree too, so the button's name is the
+            shown state's words; give each icon <code>aria-hidden</code>, or its glyph joins the name.
+            Without <code>data-state</code> it is idle.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.SendStates" Title="Send, stop and retry" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        The same button in each of the four states. <code>submitted</code> &mdash; sent, nothing back yet
-        &mdash; and <code>streaming</code> both offer stop here, which is why one span names both.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.SendStates" Title="Send, stop and retry" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            The same button in each of the four states. <code>submitted</code> &mdash; sent, nothing back yet
+            &mdash; and <code>streaming</code> both offer stop here, which is why one span names both.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.ModelPicker" Title="Choosing the model" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; press the model.</strong> The button in the toolbar names the model in use and
-        opens a <a href="/popover"><code>.popover--flush</code></a> holding a
-        <a href="/form-combo"><code>.form-combo--inline</code></a>: a search over the models, grouped by
-        where they run under <code>.form-combo-group</code>. Each <code>.form-combo-option</code> leads with
-        its provider's icon, puts a <code>.form-combo-option-note</code> under the name inside
-        <code>.form-combo-option-text</code>, and ends with its shortcut in a
-        <a href="/palette"><code>.kbd</code></a>. The shortcut is the app's to bind. Close the popover when
-        a model is picked and write its name into the button.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.ModelPicker" Title="Model picker" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; press the model.</strong> The button in the toolbar names the model in use and
+            opens a <a href="/popover"><code>.popover--flush</code></a> holding a
+            <a href="/form-combo"><code>.form-combo--inline</code></a>: a search over the models, grouped by
+            where they run under <code>.form-combo-group</code>. Each <code>.form-combo-option</code> leads with
+            its provider's icon, puts a <code>.form-combo-option-note</code> under the name inside
+            <code>.form-combo-option-text</code>, and ends with its shortcut in a
+            <a href="/palette"><code>.kbd</code></a>. The shortcut is the app's to bind. Close the popover when
+            a model is picked and write its name into the button.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.GhostText" Title="Suggesting the rest" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; click into the field, then type or press Tab.</strong> Put the textarea and an
-        empty <code>.ghost-text</code> with <code>aria-hidden</code> in a <code>.ghost-field</code>, and the
-        suggestion in the textarea's <code>data-suggestion</code>. While the field has the focus, the caret
-        is at the end and what is typed is the start of the suggestion, ignoring case, the rest shows after
-        the caret in the placeholder's colour. Tab writes it into the value and fires <code>input</code>,
-        so a binding on <code>oninput</code> sees it; Escape dismisses it, and so does typing something it
-        does not start with, until the app writes a different suggestion.
-    </p>
-    <p>
-        Update <code>data-suggestion</code> as the reader types, and remove it when there is nothing to
-        suggest. Say that Tab accepts in a hint the field names in <code>aria-describedby</code>: the ghost
-        is not read out. Textarea only; the browser's undo does not take an accepted suggestion back.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.PromptBusy" Title="Busy state" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Put <a href="/agent-status"><code>.beam</code></a> on the composer while an answer is being written,
+            and swap send for stop. The reader can keep typing the next question.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.AgentChat.SelectionToolbar" Title="Acting on a selection" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; select a few words of the answer.</strong> <code>data-selection-toolbar</code>
-        on the thread names a <code>.selection-toolbar</code> the app wrote, a
-        <code>popover="manual"</code> with <code>role="toolbar"</code>. Once text inside the thread is
-        selected, the script opens it above the selection &mdash; below it near the top of the screen,
-        never past an edge &mdash; and closes it when the selection goes, on Escape and on a scroll. A
-        selection is no element and cannot be an anchor, so this one panel is placed by the script.
-    </p>
-    <p>
-        A press on a control with <code>data-selection-action</code> closes it and fires
-        <code>sedna-selection</code> on the toolbar &mdash; <code>&#64;onsedna-selection</code> in Razor
-        &mdash; with the <code>action</code>, the selected <code>text</code>, the
-        <code>data-selection-item</code> of the message it came from as <code>item</code>, and the
-        thread's id as <code>source</code>. From the keyboard, Alt+F10 moves into the toolbar and the arrow
-        keys move along it; say so where the reader will find it. <code>.selection-toolbar-sep</code>
-        divides its groups.
-    </p>
-</CatExample>
+<CatGroup Title="Typing and selecting">
+    <CatExample TExample="Examples.AgentChat.GhostText" Title="Suggested completion" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; click into the field, then type or press Tab.</strong> Put the textarea and an
+            empty <code>.ghost-text</code> with <code>aria-hidden</code> in a <code>.ghost-field</code>, and the
+            suggestion in the textarea's <code>data-suggestion</code>. While the field has the focus, the caret
+            is at the end and what is typed is the start of the suggestion, ignoring case, the rest shows after
+            the caret in the placeholder's colour. Tab writes it into the value and fires <code>input</code>,
+            so a binding on <code>oninput</code> sees it; Escape dismisses it, and so does typing something it
+            does not start with, until the app writes a different suggestion.
+        </p>
+        <p>
+            Update <code>data-suggestion</code> as the reader types, and remove it when there is nothing to
+            suggest. Say that Tab accepts in a hint the field names in <code>aria-describedby</code>: the ghost
+            is not read out. Textarea only; the browser's undo does not take an accepted suggestion back.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.AgentChat.PromptBusy" Title="While the agent writes" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        Put <a href="/agent-status"><code>.beam</code></a> on the composer while an answer is being written,
-        and swap send for stop. The reader can keep typing the next question.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.AgentChat.SelectionToolbar" Title="Selection toolbar" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; select a few words of the answer.</strong> <code>data-selection-toolbar</code>
+            on the thread names a <code>.selection-toolbar</code> the app wrote, a
+            <code>popover="manual"</code> with <code>role="toolbar"</code>. Once text inside the thread is
+            selected, the script opens it above the selection &mdash; below it near the top of the screen,
+            never past an edge &mdash; and closes it when the selection goes, on Escape and on a scroll. A
+            selection is no element and cannot be an anchor, so this one panel is placed by the script.
+        </p>
+        <p>
+            A press on a control with <code>data-selection-action</code> closes it and fires
+            <code>sedna-selection</code> on the toolbar &mdash; <code>&#64;onsedna-selection</code> in Razor
+            &mdash; with the <code>action</code>, the selected <code>text</code>, the
+            <code>data-selection-item</code> of the message it came from as <code>item</code>, and the
+            thread's id as <code>source</code>. From the keyboard, Alt+F10 moves into the toolbar and the arrow
+            keys move along it; say so where the reader will find it. <code>.selection-toolbar-sep</code>
+            divides its groups.
+        </p>
+    </CatExample>
+</CatGroup>

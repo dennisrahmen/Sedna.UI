@@ -7,101 +7,105 @@
     <a href="/hover-hints">hover hint</a>.
 </CatHead>
 
-<CatExample TExample="Examples.Popover.Popover" Title="Popover" Demo="ex-demo--pad">
-    <p>
-        <strong>Live &mdash; open it.</strong> <strong>The <code>popover</code> attribute is
-        required</strong>, and so is opening it from a <code>popovertarget</code> control, which
-        also makes that button the popover's implicit anchor, so nothing here declares an
-        <code>anchor-name</code>. The platform then supplies the top layer, light dismiss,
-        <kbd>Escape</kbd> and focus handling, so unlike <code>.menu</code> this needs no scrim and
-        no key handler. It closes on a scroll that moves its trigger, because an anchored panel's
-        position is fixed at the moment it opens.
-    </p>
-</CatExample>
+<CatGroup Title="Opened by a click">
+    <CatExample TExample="Examples.Popover.Popover" Title="From a button" Demo="ex-demo--pad">
+        <p>
+            <strong>Live &mdash; open it.</strong> <strong>The <code>popover</code> attribute is
+            required</strong>, and so is opening it from a <code>popovertarget</code> control, which
+            also makes that button the popover's implicit anchor, so nothing here declares an
+            <code>anchor-name</code>. The platform then supplies the top layer, light dismiss,
+            <kbd>Escape</kbd> and focus handling, so unlike <code>.menu</code> this needs no scrim and
+            no key handler. It closes on a scroll that moves its trigger, because an anchored panel's
+            position is fixed at the moment it opens.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Popover.Placement" Title="Where it opens" Demo="ex-demo--block">
-    <p>
-        <strong>Live.</strong> <code>--panel-placement</code> is the token every anchored panel
-        reads &mdash; <code>block-end</code> below, the default, <code>block-start</code> above,
-        <code>inline-end</code> and <code>inline-start</code> beside the invoker &mdash; and a
-        popover still turns round where its side has no room. It is read from the element the
-        popover is written in, so set it there or on anything above it, such as a bar pinned to the
-        foot of a pane; on the popover itself it does nothing. The <a href="/menu#where-it-opens">menu</a>
-        uses the same four values.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Popover.FromAnyElement" Title="From any element" Demo="ex-demo--pad">
+        <p>
+            A count inside a link, an avatar or a table cell cannot be a <code>popovertarget</code>
+            button. <code>data-popover="&lt;id&gt;"</code> on any element opens that popover by click,
+            <kbd>Enter</kbd> or <kbd>Space</kbd> and anchors it there, placed exactly as a button's
+            would be; the click is taken, so the link around it does not follow. Give the trigger a
+            role and a <code>tabindex</code> when it is not focusable already.
+            <code>sednaUi.popover.show(panel, trigger)</code> does the same from your own script.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Popover.FromAnyElement" Title="Opened from something that is not a button" Demo="ex-demo--pad">
-    <p>
-        A count inside a link, an avatar or a table cell cannot be a <code>popovertarget</code>
-        button. <code>data-popover="&lt;id&gt;"</code> on any element opens that popover by click,
-        <kbd>Enter</kbd> or <kbd>Space</kbd> and anchors it there, placed exactly as a button's
-        would be; the click is taken, so the link around it does not follow. Give the trigger a
-        role and a <code>tabindex</code> when it is not focusable already.
-        <code>sednaUi.popover.show(panel, trigger)</code> does the same from your own script.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Popover.Placement" Title="Where it opens" Demo="ex-demo--block">
+        <p>
+            <strong>Live.</strong> <code>--panel-placement</code> is the token every anchored panel
+            reads &mdash; <code>block-end</code> below, the default, <code>block-start</code> above,
+            <code>inline-end</code> and <code>inline-start</code> beside the invoker &mdash; and a
+            popover still turns round where its side has no room. It is read from the element the
+            popover is written in, so set it there or on anything above it, such as a bar pinned to the
+            foot of a pane; on the popover itself it does nothing. The <a href="/menu#where-it-opens">menu</a>
+            uses the same four values.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Popover.HoverCard" Title="A hover card" Demo="ex-demo--pad">
-    <p>
-        <code>data-popover-hover</code> beside <code>data-popover</code> opens the panel when the
-        pointer rests on the trigger or the focus reaches it, after <code>--hover-delay</code>
-        (400ms), and closes it once the pointer has left both — so the reader can move onto the card.
-        A click pins it until it is dismissed or the trigger is clicked again. Use it for a detail
-        worth a glance; a word of help is a <a href="/hover-hints">hover hint</a>.
-    </p>
-    <p>
-        <strong>On a touch screen, a long press.</strong> A finger has no hover, so holding it on the
-        trigger for half a second opens the card, pinned, without following the trigger's link or
-        running its click &mdash; and the platform's own long-press menu stays shut. A tap is unchanged.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Popover.Shapes" Title="Four content shapes" Demo="ex-demo--block">
+        <p>
+            A definition, a key/value detail block, a small table, and one with an action in it. One
+            trailing action that acts on what the panel is explaining is fine; a list of actions is a
+            <code>.menu</code>. <code>popovertargetaction="hide"</code> closes it from inside with no
+            script at all.
+        </p>
+        <p>
+            The panel is <code>width: max-content</code>, so each of these is as wide as what is in it
+            and no wider. That is what makes <code>.kv</code>'s gap load-bearing here and nowhere else:
+            <code>space-between</code> has no free space to distribute in a shrink-to-fit box, so
+            without the gap the key would run straight into the value. The table takes
+            <code>.popover--flush</code>, which drops the panel's padding so the table reaches the
+            rounded corners instead of sitting in a frame inside a frame — the title keeps its own
+            inset, and the last row gives up its rule to the panel's border.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Popover.HoverOnly" Title="A hover card beside a click of its own" Demo="ex-demo--pad">
-    <p>
-        <strong>Live &mdash; rest on the button, then click it.</strong>
-        <code>data-popover-hover="only"</code> is for a trigger whose click does something else &mdash;
-        here it opens a dialog, and the card is a glance at what the dialog holds. Hover and focus open
-        the card; a click neither opens nor pins it, runs the trigger's own action and closes the card,
-        so it never sits above the dialog the click opened.
-    </p>
-</CatExample>
+<CatGroup Title="Hover cards">
+    <CatExample TExample="Examples.Popover.HoverCard" Title="Hover and long press" Demo="ex-demo--pad">
+        <p>
+            <code>data-popover-hover</code> beside <code>data-popover</code> opens the panel when the
+            pointer rests on the trigger or the focus reaches it, after <code>--hover-delay</code>
+            (400ms), and closes it once the pointer has left both — so the reader can move onto the card.
+            A click pins it until it is dismissed or the trigger is clicked again. Use it for a detail
+            worth a glance; a word of help is a <a href="/hover-hints">hover hint</a>.
+        </p>
+        <p>
+            <strong>On a touch screen, a long press.</strong> A finger has no hover, so holding it on the
+            trigger for half a second opens the card, pinned, without following the trigger's link or
+            running its click &mdash; and the platform's own long-press menu stays shut. A tap is unchanged.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Interop.PopoverPerTrigger" Title="One card for many triggers, filled for each" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; rest on one order, then on another.</strong> Any number of
-        <code>data-popover</code> triggers can name the same popover, and it opens at whichever one
-        the reader reached &mdash; moving from one to the next moves the card. A list of hundreds
-        renders one card, not hundreds: <code>data-popover-for</code> on the panel says it holds one
-        trigger's content at a time, and before it opens at a trigger,
-        <code>&#64;onsedna-popover-fill</code> names that trigger's id. Render its content and write the
-        same id into <code>data-popover-for</code> in that render; the card opens when it reads it.
-        A trigger needs an id for this.
-    </p>
-    <p>
-        A request the reader has already left behind opens nothing when its render arrives, and a
-        hover card does not open over another open popover &mdash; a picker, a menu, a pinned card
-        &mdash; that opening it would close, unless its trigger is inside that popover.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Popover.HoverOnly" Title="Beside a click of its own" Demo="ex-demo--pad">
+        <p>
+            <strong>Live &mdash; rest on the button, then click it.</strong>
+            <code>data-popover-hover="only"</code> is for a trigger whose click does something else &mdash;
+            here it opens a dialog, and the card is a glance at what the dialog holds. Hover and focus open
+            the card; a click neither opens nor pins it, runs the trigger's own action and closes the card,
+            so it never sits above the dialog the click opened.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Popover.Shapes" Title="Four shapes" Demo="ex-demo--block">
-    <p>
-        A definition, a key/value detail block, a small table, and one with an action in it. One
-        trailing action that acts on what the panel is explaining is fine; a list of actions is a
-        <code>.menu</code>. <code>popovertargetaction="hide"</code> closes it from inside with no
-        script at all.
-    </p>
-    <p>
-        The panel is <code>width: max-content</code>, so each of these is as wide as what is in it
-        and no wider. That is what makes <code>.kv</code>'s gap load-bearing here and nowhere else:
-        <code>space-between</code> has no free space to distribute in a shrink-to-fit box, so
-        without the gap the key would run straight into the value. The table takes
-        <code>.popover--flush</code>, which drops the panel's padding so the table reaches the
-        rounded corners instead of sitting in a frame inside a frame — the title keeps its own
-        inset, and the last row gives up its rule to the panel's border.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.PopoverPerTrigger" Title="One card for many triggers" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; rest on one order, then on another.</strong> Any number of
+            <code>data-popover</code> triggers can name the same popover, and it opens at whichever one
+            the reader reached &mdash; moving from one to the next moves the card. A list of hundreds
+            renders one card, not hundreds: <code>data-popover-for</code> on the panel says it holds one
+            trigger's content at a time, and before it opens at a trigger,
+            <code>&#64;onsedna-popover-fill</code> names that trigger's id. Render its content and write the
+            same id into <code>data-popover-for</code> in that render; the card opens when it reads it.
+            A trigger needs an id for this.
+        </p>
+        <p>
+            A request the reader has already left behind opens nothing when its render arrives, and a
+            hover card does not open over another open popover &mdash; a picker, a menu, a pinned card
+            &mdash; that opening it would close, unless its trigger is inside that popover.
+        </p>
+    </CatExample>
+</CatGroup>
 
 <div class="callout callout--info">
     <i class="ri-stack-line"></i>

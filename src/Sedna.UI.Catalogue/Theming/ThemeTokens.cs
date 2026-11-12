@@ -138,7 +138,7 @@ internal sealed class ThemeTokens
         var placed = new HashSet<string>(StringComparer.Ordinal);
         foreach (var group in TokenGroups.All)
         {
-            var palette = group.Name.StartsWith(PaletteSection, StringComparison.Ordinal);
+            var palette = group.Section == TokenGroups.Palette;
             var tokens = group.Tokens.Select(n => Token(n, palette)).OfType<ThemeToken>().ToList();
             placed.UnionWith(group.Tokens);
             if (tokens.Count == 0) continue;

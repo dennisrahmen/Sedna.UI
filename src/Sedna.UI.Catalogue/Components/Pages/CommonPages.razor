@@ -15,114 +15,118 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.CommonPages.AccessDenied" Title="Access denied" Demo="ex-demo--block">
+<CatGroup Title="Pages">
+    <CatExample TExample="Examples.CommonPages.AccessDenied" Title="Access denied" Demo="ex-demo--block">
+        <p>
+            <code>.auth-layout</code>, because there is no navigation to offer somebody who cannot get
+            in. <strong>Name the role and who can grant it</strong>, make asking for it the primary
+            action, and put the account line in <code>.auth-foot</code> &mdash; a 403 is often the
+            wrong account rather than a missing role.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.CommonPages.NotFound" Title="Not found" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            The one that keeps the frame: the reader is signed in and the nav still works, so
+            <code>.layout</code> stays and the block goes in <code>.page</code>, where it sits at the
+            top rather than centring. <strong>Name the thing that was not found</strong> &mdash; the
+            reference is what the reader will paste into a search or quote to a colleague.
+        </p>
+        <p>
+            The topbar is the app's ordinary one, unchanged. The trail to the missing record belongs to
+            the page, so the <a href="/pager#breadcrumbs"><code>.breadcrumb</code></a> goes at the top of
+            <code>.page</code>, never in <code>.topbar</code>.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.CommonPages.ServerError" Title="Something went wrong" Demo="ex-demo--block">
+        <p>
+            <code>.empty-state--failed</code> colours the drawing and nothing else. Say whether
+            retrying is safe, because the reader cannot know whether the write went through, and give
+            them the reference in <code>.empty-state-detail</code> with a <code>data-copy</code> button
+            beside it.
+        </p>
+        <p>
+            This is the one drawing on the page that does <em>not</em> change when you switch theme in
+            the header, and that is the modifier working: it re-points
+            <code>--state-accent</code> at <code>--danger-fg</code>, and the danger ramp is deliberately
+            outside the brand's — a failure must not turn green because the brand did. The other four
+            pages are not failures, so they keep the brand accent and move with it.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.CommonPages.SessionExpired" Title="Session expired" Demo="ex-demo--block">
+        <p>
+            For the hard redirect. Where the app is still running and only the circuit dropped, that is
+            the <a href="/status-bar"><code>.status-bar</code></a>'s job instead; say what happened to
+            the work in progress, or the reader redoes something they did not need to.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.SessionTimeoutWarning" Title="Before the session ends" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; start the session; the warning opens a few seconds later.</strong> A session
+            that ends on its own warns first, with a way to stay, so nobody loses work to a timer they could
+            not see. Open it at least <strong>two minutes</strong> before the end: an app's own
+            <code>&lt;dialog class="modal" role="alertdialog"&gt;</code>, shown with
+            <code>ShowModalAsync</code> and the session's <code>CancellationToken</code>, with
+            <em>Stay signed in</em> and <em>Sign out</em>.
+        </p>
+        <p>
+            The countdown is a <a href="/live-state#countdown"><code>&lt;time data-countdown&gt;</code></a>
+            in the app's words. When it reaches zero, <code>sedna-countdown-end</code> closes the warning
+            and the app goes to the session-expired page above. The server still ends the session on its
+            own clock; the page only shows it.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.CommonPages.Maintenance" Title="Maintenance" Demo="ex-demo--block">
+        <p>
+            <strong>The title is the time it comes back</strong>, not the word
+            &ldquo;maintenance&rdquo;. Give a window and a way to check, and keep the same page for the
+            planned and unplanned cases.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Guidance">
+    <h3 id="which-shell">Which shell, which drawing <CatAnchor Id="which-shell" /></h3>
+
     <p>
-        <code>.auth-layout</code>, because there is no navigation to offer somebody who cannot get
-        in. <strong>Name the role and who can grant it</strong>, make asking for it the primary
-        action, and put the account line in <code>.auth-foot</code> &mdash; a 403 is often the
-        wrong account rather than a missing role.
+        Each page has its own drawing, chosen by what the page is. Reusing one across two of them makes
+        them look like the same page to somebody scanning a screenshot in a ticket.
+        <a href="/state-art">The full set is on State art</a>.
     </p>
-</CatExample>
 
-<CatExample TExample="Examples.CommonPages.NotFound" Title="Not found" Demo="ex-demo--block ex-demo--flush">
+    <table class="table">
+        <thead>
+            <tr><th>Page</th><th>Shell</th><th>Drawing</th><th>Primary action</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Access denied</td><td><code>.auth-layout</code></td><td><code>#no-access</code></td><td>Request the role</td></tr>
+            <tr><td>Not found</td><td><code>.layout</code> &rarr; <code>.page</code></td><td><code>#not-found</code></td><td>Search for the reference</td></tr>
+            <tr><td>Server error</td><td><code>.auth-layout</code></td><td><code>#server-error</code></td><td>Try again</td></tr>
+            <tr><td>Session expired</td><td><code>.auth-layout</code></td><td><code>#session-expired</code></td><td>Sign in</td></tr>
+            <tr><td>Maintenance</td><td><code>.auth-layout</code></td><td><code>#maintenance</code></td><td>Check again</td></tr>
+        </tbody>
+    </table>
+
     <p>
-        The one that keeps the frame: the reader is signed in and the nav still works, so
-        <code>.layout</code> stays and the block goes in <code>.page</code>, where it sits at the
-        top rather than centring. <strong>Name the thing that was not found</strong> &mdash; the
-        reference is what the reader will paste into a search or quote to a colleague.
+        Sign-in itself is not on this list because it is not a state — it is a form, and it belongs in an
+        <a href="/frame"><code>.auth-card</code></a>.
     </p>
+
+    <h3 id="writing-one">Writing one <CatAnchor Id="writing-one" /></h3>
+
     <p>
-        The topbar is the app's ordinary one, unchanged. The trail to the missing record belongs to
-        the page, so the <a href="/pager#breadcrumbs"><code>.breadcrumb</code></a> goes at the top of
-        <code>.page</code>, never in <code>.topbar</code>.
+        Three lines, in this order: what would normally be here, why it is not, and the one action that
+        changes that. <code>.empty-state-code</code> carries the status code above the title, small and
+        quotable, and the drawing is <code>.state-art--lg</code> here.
     </p>
-</CatExample>
 
-<CatExample TExample="Examples.CommonPages.ServerError" Title="Something went wrong" Demo="ex-demo--block">
     <p>
-        <code>.empty-state--failed</code> colours the drawing and nothing else. Say whether
-        retrying is safe, because the reader cannot know whether the write went through, and give
-        them the reference in <code>.empty-state-detail</code> with a <code>data-copy</code> button
-        beside it.
+        <strong>One primary action, and at most two beside it.</strong>
+        <code>.empty-state-actions</code> wraps and centres them and takes the top margin off the
+        buttons, so a second action does not stagger against the first on a narrow screen.
     </p>
-    <p>
-        This is the one drawing on the page that does <em>not</em> change when you switch theme in
-        the header, and that is the modifier working: it re-points
-        <code>--state-accent</code> at <code>--danger-fg</code>, and the danger ramp is deliberately
-        outside the brand's — a failure must not turn green because the brand did. The other four
-        pages are not failures, so they keep the brand accent and move with it.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.CommonPages.SessionExpired" Title="Session expired" Demo="ex-demo--block">
-    <p>
-        For the hard redirect. Where the app is still running and only the circuit dropped, that is
-        the <a href="/status-bar"><code>.status-bar</code></a>'s job instead; say what happened to
-        the work in progress, or the reader redoes something they did not need to.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.Interop.SessionTimeoutWarning" Title="Before the session ends" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; start the session; the warning opens a few seconds later.</strong> A session
-        that ends on its own warns first, with a way to stay, so nobody loses work to a timer they could
-        not see. Open it at least <strong>two minutes</strong> before the end: an app's own
-        <code>&lt;dialog class="modal" role="alertdialog"&gt;</code>, shown with
-        <code>ShowModalAsync</code> and the session's <code>CancellationToken</code>, with
-        <em>Stay signed in</em> and <em>Sign out</em>.
-    </p>
-    <p>
-        The countdown is a <a href="/live-state#countdown"><code>&lt;time data-countdown&gt;</code></a>
-        in the app's words. When it reaches zero, <code>sedna-countdown-end</code> closes the warning
-        and the app goes to the session-expired page above. The server still ends the session on its
-        own clock; the page only shows it.
-    </p>
-</CatExample>
-
-<CatExample TExample="Examples.CommonPages.Maintenance" Title="Maintenance" Demo="ex-demo--block">
-    <p>
-        <strong>The title is the time it comes back</strong>, not the word
-        &ldquo;maintenance&rdquo;. Give a window and a way to check, and keep the same page for the
-        planned and unplanned cases.
-    </p>
-</CatExample>
-
-<h2 id="which-shell">Which shell, which drawing <CatAnchor Id="which-shell" /></h2>
-
-<p>
-    Each page has its own drawing, chosen by what the page is. Reusing one across two of them makes
-    them look like the same page to somebody scanning a screenshot in a ticket.
-    <a href="/state-art">The full set is on State art</a>.
-</p>
-
-<table class="table">
-    <thead>
-        <tr><th>Page</th><th>Shell</th><th>Drawing</th><th>Primary action</th></tr>
-    </thead>
-    <tbody>
-        <tr><td>Access denied</td><td><code>.auth-layout</code></td><td><code>#no-access</code></td><td>Request the role</td></tr>
-        <tr><td>Not found</td><td><code>.layout</code> &rarr; <code>.page</code></td><td><code>#not-found</code></td><td>Search for the reference</td></tr>
-        <tr><td>Server error</td><td><code>.auth-layout</code></td><td><code>#server-error</code></td><td>Try again</td></tr>
-        <tr><td>Session expired</td><td><code>.auth-layout</code></td><td><code>#session-expired</code></td><td>Sign in</td></tr>
-        <tr><td>Maintenance</td><td><code>.auth-layout</code></td><td><code>#maintenance</code></td><td>Check again</td></tr>
-    </tbody>
-</table>
-
-<p>
-    Sign-in itself is not on this list because it is not a state — it is a form, and it belongs in an
-    <a href="/frame"><code>.auth-card</code></a>.
-</p>
-
-<h2 id="writing-one">Writing one <CatAnchor Id="writing-one" /></h2>
-
-<p>
-    Three lines, in this order: what would normally be here, why it is not, and the one action that
-    changes that. <code>.empty-state-code</code> carries the status code above the title, small and
-    quotable, and the drawing is <code>.state-art--lg</code> here.
-</p>
-
-<p>
-    <strong>One primary action, and at most two beside it.</strong>
-    <code>.empty-state-actions</code> wraps and centres them and takes the top margin off the
-    buttons, so a second action does not stagger against the first on a narrow screen.
-</p>
+</CatGroup>

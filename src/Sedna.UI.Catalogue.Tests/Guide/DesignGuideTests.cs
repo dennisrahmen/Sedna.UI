@@ -223,7 +223,7 @@ public partial class DesignGuideTests
             .Concat(guide.Goals.Select(g => (g.Id, $"goal \"{g.Id}\"")))
             .Concat(CataloguePages.All.Select(p => (p.Route.TrimStart('/'), $"page {p.Route}")))
             .Concat([("principles", "the topic \"principles\""), ("goals", "the topic \"goals\"")])
-            .Concat(CataloguePages.Groups.Select(g => ("goals-" + g.ToLowerInvariant(), $"the {g} goals heading")));
+            .Concat(CataloguePages.Groups.Select(g => (Components.Pages.DesignGuidePage.GoalsId(g), $"the {g} goals heading")));
 
         var clashes = names.GroupBy(n => n.Item1).Where(g => g.Count() > 1)
             .Select(g => $"\"{g.Key}\" is {string.Join(" and ", g.Select(n => n.Item2))}.").ToList();

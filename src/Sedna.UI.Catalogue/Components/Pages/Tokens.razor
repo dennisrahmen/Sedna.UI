@@ -43,39 +43,46 @@
     </p>
 </CatSnippet>
 
-@foreach (var group in TokenGroups.All)
+@* The groups under their topics, as a CatGroup would set them out — written as its markup
+   rather than the component because the topic comes from data, and PageContents nests the
+   same sections from TokenGroups.BySection. *@
+@foreach (var (section, groups) in TokenGroups.BySection)
 {
-    <h2 id="@Slug.From(group.Name)">
-        <CatTitle Text="@group.Name" /><CatAnchor Id="@Slug.From(group.Name)" />
-    </h2>
-    @if (group.Note is not null)
-    {
-        <p class="cat-lede">@group.Note</p>
-    }
-    <div class="cat-swatches">
-        @foreach (var token in group.Tokens)
+    <section class="cat-group">
+        <h2 id="@Slug.From(section)">@section<CatAnchor Id="@Slug.From(section)" /></h2>
+        @foreach (var group in groups)
         {
-            <div class="cat-swatch">
-                @if (group.Swatch)
+            <h3 id="@Slug.From(group.Name)">@group.Name<CatAnchor Id="@Slug.From(group.Name)" /></h3>
+            @if (group.Note is not null)
+            {
+                <p class="cat-lede">@group.Note</p>
+            }
+            <div class="cat-swatches">
+                @foreach (var token in group.Tokens)
                 {
-                    @* Painted by the token, not by a value read in JavaScript — so it
-                       is correct before the circuit connects and with scripting off. *@
-                    <span class="cat-chip" style="background: var(@token)"></span>
+                    <div class="cat-swatch">
+                        @if (group.Swatch)
+                        {
+                            @* Painted by the token, not by a value read in JavaScript — so it
+                               is correct before the circuit connects and with scripting off. *@
+                            <span class="cat-chip" style="background: var(@token)"></span>
+                        }
+                        @* .cat-swatch-text, not a bare div with an inline min-width, and
+                           .cat-swatch-value rather than the library's .col-muted — which is a
+                           table-column modifier and was being borrowed for "small grey text".
+                           Borrowing it also put the fix out of reach: catalogue.css may not
+                           style a library class, so the long values (a font stack, a
+                           color-mix()) had nothing to wrap them and pushed a horizontal
+                           scrollbar onto the whole page. *@
+                        <div class="cat-swatch-text">
+                            <div class="cat-swatch-name">@token</div>
+                            <div class="cat-swatch-value">@Value(token)</div>
+                        </div>
+                    </div>
                 }
-                @* .cat-swatch-text, not a bare div with an inline min-width, and
-                   .cat-swatch-value rather than the library's .col-muted — which is a
-                   table-column modifier and was being borrowed for "small grey text".
-                   Borrowing it also put the fix out of reach: catalogue.css may not
-                   style a library class, so the long values (a font stack, a
-                   color-mix()) had nothing to wrap them and pushed a horizontal
-                   scrollbar onto the whole page. *@
-                <div class="cat-swatch-text">
-                    <div class="cat-swatch-name">@token</div>
-                    <div class="cat-swatch-value">@Value(token)</div>
-                </div>
             </div>
         }
-    </div>
+    </section>
 }
 
 @code {

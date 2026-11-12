@@ -5,63 +5,69 @@
     button families; the three categorical hues carry none at all.
 </CatHead>
 
-<CatExample TExample="Examples.Badge.ToneMatrix" Title="Tone and emphasis" Demo="ex-demo--block">
-    <p>
-        Every badge tone — the semantic ones, <code>.badge--brand</code> among them, and the three
-        categorical hues — comes soft, <code>.badge--solid</code> or <code>.badge--ghost</code>, an outline.
-    </p>
-</CatExample>
+<CatGroup Title="Tones">
+    <CatExample TExample="Examples.Badge.ToneMatrix" Title="Tone and emphasis" Demo="ex-demo--block">
+        <p>
+            Every badge tone — the semantic ones, <code>.badge--brand</code> among them, and the three
+            categorical hues — comes soft, <code>.badge--solid</code> or <code>.badge--ghost</code>, an outline.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Badge.Semantic" Title="Semantic">
-    <p>Use these when the colour means something. They follow the colour-blind toggle.</p>
-</CatExample>
+    <CatExample TExample="Examples.Badge.Semantic" Title="Semantic tones">
+        <p>Use these when the colour means something. They follow the colour-blind toggle.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Badge.Sizes" Title="Three sizes" Demo="ex-demo--block">
-    <p>
-        A badge is a label, not a target, so its sizes are a <strong>type</strong> scale rather than
-        the <a href="/concepts">control heights</a> &mdash; <code>.badge--lg</code> is 12px text, not
-        a 36px pill.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Badge.Categorical" Title="Categorical hues">
+        <p>
+            For distinguishing categories that have no ranking &mdash; a type, a queue, a source. Reach
+            for these only after the semantic set, and never to imply good or bad.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Badge.Categorical" Title="Categorical">
-    <p>
-        For distinguishing categories that have no ranking &mdash; a type, a queue, a source. Reach
-        for these only after the semantic set, and never to imply good or bad.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Badge.Severity" Title="Severity scale" Demo="ex-demo--block">
+        <p>
+            For a scale whose steps <strong>rank</strong>: an incident priority P1&ndash;P5, a CVSS band,
+            a triage tier. <strong>The label has to say the rank</strong> &mdash; &ldquo;P2&rdquo;,
+            &ldquo;High&rdquo;, &ldquo;3 of 5&rdquo; &mdash; because a bare coloured pill is a colour,
+            not a position; <a href="/progress">Progress</a> takes the same ramp through
+            <code>.progress-bar--sev-N</code>.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Badge.Severity" Title="Severity — an ordered scale" Demo="ex-demo--block">
-    <p>
-        For a scale whose steps <strong>rank</strong>: an incident priority P1&ndash;P5, a CVSS band,
-        a triage tier. <strong>The label has to say the rank</strong> &mdash; &ldquo;P2&rdquo;,
-        &ldquo;High&rdquo;, &ldquo;3 of 5&rdquo; &mdash; because a bare coloured pill is a colour,
-        not a position; <a href="/progress">Progress</a> takes the same ramp through
-        <code>.progress-bar--sev-N</code>.
-    </p>
-</CatExample>
+<CatGroup Title="Size and icon">
+    <CatExample TExample="Examples.Badge.Sizes" Title="Three sizes" Demo="ex-demo--block">
+        <p>
+            A badge is a label, not a target, so its sizes are a <strong>type</strong> scale rather than
+            the <a href="/concepts">control heights</a> &mdash; <code>.badge--lg</code> is 12px text, not
+            a 36px pill.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Badge.WithAnIcon" Title="With an icon" />
+    <CatExample TExample="Examples.Badge.WithAnIcon" Title="With an icon" />
+</CatGroup>
 
-<CatExample TExample="Examples.Badge.InContext" Title="In a card header and a table cell"
-            Demo="ex-demo--block">
-    <p>The two places badges actually live.</p>
-</CatExample>
+<CatGroup Title="In context">
+    <CatExample TExample="Examples.Badge.InContext" Title="Card headers and table cells"
+                Demo="ex-demo--block">
+        <p>The two places badges actually live.</p>
+    </CatExample>
 
-<CatExample TExample="Examples.Badge.AiLabel" Title="The AI label on a generated value" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; open each.</strong> <a href="/agent-status"><code>.badge-ai</code></a> as a
-        <code>&lt;button&gt;</code> marks one value an agent filled in and opens a
-        <a href="/popover"><code>.popover</code></a> through <code>popovertarget</code> that says which
-        model, from what, how sure &mdash; <code>.confidence</code> &mdash; and what was there before.
-        <code>.popover-actions</code> holds the way back, &ldquo;Revert to the original&rdquo;, at the
-        panel's foot; reverting is the app's, which then drops the label.
-    </p>
-    <p>
-        <code>.badge-ai--icon</code> is the sparkle alone, a square the height of a word badge, for a
-        field or a cell where a word would crowd the value. It has no words on screen, so
-        <strong>its name is a <code>.visually-hidden</code> span</strong> and says that the value was
-        generated. In an <code>.input-group</code> it sits inside the field's border after the value; in a
-        cell or a line of text, after the value it marks.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Badge.AiLabel" Title="AI label on a value" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; open each.</strong> <a href="/agent-status"><code>.badge-ai</code></a> as a
+            <code>&lt;button&gt;</code> marks one value an agent filled in and opens a
+            <a href="/popover"><code>.popover</code></a> through <code>popovertarget</code> that says which
+            model, from what, how sure &mdash; <code>.confidence</code> &mdash; and what was there before.
+            <code>.popover-actions</code> holds the way back, &ldquo;Revert to the original&rdquo;, at the
+            panel's foot; reverting is the app's, which then drops the label.
+        </p>
+        <p>
+            <code>.badge-ai--icon</code> is the sparkle alone, a square the height of a word badge, for a
+            field or a cell where a word would crowd the value. It has no words on screen, so
+            <strong>its name is a <code>.visually-hidden</code> span</strong> and says that the value was
+            generated. In an <code>.input-group</code> it sits inside the field's border after the value; in a
+            cell or a line of text, after the value it marks.
+        </p>
+    </CatExample>
+</CatGroup>

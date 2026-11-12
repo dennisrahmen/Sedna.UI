@@ -20,200 +20,210 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.FormCombo.Multi" Title="Multiselect with chips" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> Each pick is a <code>.chip</code> inside <code>.form-combo-box</code>, and the
-        list stays open while you pick. A chip goes by its &times;, by unticking its row, or by
-        <kbd class="kbd">Backspace</kbd> twice in the empty input &mdash; the first press only marks it, so
-        holding the key to fix a typo never eats the chips in front of it.
-    </p>
-    <p>
-        <code>aria-multiselectable="true"</code> on the list is what draws the checkboxes. Open is
-        <code>aria-expanded="true"</code> on the input, and nothing else: the attribute a screen reader
-        announces is the one that shows the panel.
-    </p>
-</CatExample>
+<CatGroup Title="Picking from a list">
+    <CatExample TExample="Examples.FormCombo.Multi" Title="Multiselect with chips" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> Each pick is a <code>.chip</code> inside <code>.form-combo-box</code>, and the
+            list stays open while you pick. A chip goes by its &times;, by unticking its row, or by
+            <kbd class="kbd">Backspace</kbd> twice in the empty input &mdash; the first press only marks it, so
+            holding the key to fix a typo never eats the chips in front of it.
+        </p>
+        <p>
+            <code>aria-multiselectable="true"</code> on the list is what draws the checkboxes. Open is
+            <code>aria-expanded="true"</code> on the input, and nothing else: the attribute a screen reader
+            announces is the one that shows the panel.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.Single" Title="Searchable select" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> <code>.form-combo-value</code> holds the chosen label, under the input in the
-        same cell, so it reads like a <code>.form-select</code> until you type. The input needs a
-        <code>placeholder</code> &mdash; <code>:placeholder-shown</code> is how the stylesheet knows nothing
-        is typed. A managed field writes the value into its <code>input[data-combo-field]</code>; a Blazor
-        page renders <code>.form-combo-value</code> from its own state instead.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.Single" Title="Searchable select" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> <code>.form-combo-value</code> holds the chosen label, under the input in the
+            same cell, so it reads like a <code>.form-select</code> until you type. The input needs a
+            <code>placeholder</code> &mdash; <code>:placeholder-shown</code> is how the stylesheet knows nothing
+            is typed. A managed field writes the value into its <code>input[data-combo-field]</code>; a Blazor
+            page renders <code>.form-combo-value</code> from its own state instead.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.SingleWithIcon" Title="A searchable select with a leading icon" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        A <code>.form-combo-icon</code> before the value takes a column of its own, so the value, the
-        typed query and the actions keep their places beside it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.SingleWithIcon" Title="Select with a leading icon" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            A <code>.form-combo-icon</code> before the value takes a column of its own, so the value, the
+            typed query and the actions keep their places beside it.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.TreeSingle" Title="Picking from a tree" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> A <a href="/tree"><code>.tree</code></a> in the panel in place of the
-        listbox, and <code>aria-haspopup="tree"</code> on the input. The keyboard stays in the input:
-        <kbd class="kbd">&darr;</kbd> <kbd class="kbd">&uarr;</kbd> walk the visible items,
-        <kbd class="kbd">&rarr;</kbd> and <kbd class="kbd">&larr;</kbd> open and close the branch while
-        nothing is typed, and <kbd class="kbd">Enter</kbd> picks. Typing hides every branch with no match
-        and opens the ones holding one. Each item needs an <code>id</code>, for
-        <code>aria-activedescendant</code>, and <code>aria-selected</code> if it can be picked &mdash; a
-        hub here can be picked as well as an aisle.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.GroupAction" Title="Selecting a whole group" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> A <code>.form-combo-group</code> heading holds one
+            <code>.form-combo-group-action</code>: the group's name on the left, a small button on the right,
+            set in the panel's own case rather than the heading's capitals. With
+            <code>data-combo-toggle-group</code> the script clicks every enabled row of the group that is not
+            ticked yet &mdash; or, once all of them are, every ticked one &mdash; so an option's own click handler
+            is the whole integration, and a search that hides a row does not keep it out of the group.
+        </p>
+        <p>
+            The script marks a heading <code>data-all-selected</code> while every enabled row under it is
+            ticked, which shows <code>.form-combo-group-unpick</code> in place of
+            <code>.form-combo-group-pick</code>. Focus stays in the input, as it does for an option: the arrow
+            keys stop on the action between the rows and <kbd class="kbd">Enter</kbd> presses it, so give it
+            an <code>id</code> and <code>tabindex="-1"</code>. Name it with <code>aria-labelledby</code> pointing
+            at itself and the group's name, so a reader hears which group it selects. Without
+            <code>data-combo-toggle-group</code> the button is the app's own, for any other one action.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.TreeChecks" Title="Ticking whole branches" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> <code>data-combo="multi"</code> over a tree that ticks: ticking a hub ticks
-        its docks, and a managed field shows a fully ticked branch as one chip rather than one per dock.
-        Dismissing a chip unticks what it stands for. <code>data-label</code> on an item is the chip's
-        text when the row's own label needs its parent to make sense.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.Collapse" Title="Collapsed until focused" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.form-combo--collapse</code> keeps a long set of picks to one row while the field is not in
+            use: the first three chips, then a count of the rest from a CSS counter. Focus it and every chip
+            wraps back and the list opens, because the reader came to change the picks. Without the modifier the box grows a row at a time, which is right in a form where the
+            picks are the thing being reviewed.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormCombo.GroupAction" Title="Selecting a whole group" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> A <code>.form-combo-group</code> heading holds one
-        <code>.form-combo-group-action</code>: the group's name on the left, a small button on the right,
-        set in the panel's own case rather than the heading's capitals. With
-        <code>data-combo-toggle-group</code> the script clicks every enabled row of the group that is not
-        ticked yet &mdash; or, once all of them are, every ticked one &mdash; so an option's own click handler
-        is the whole integration, and a search that hides a row does not keep it out of the group.
-    </p>
-    <p>
-        The script marks a heading <code>data-all-selected</code> while every enabled row under it is
-        ticked, which shows <code>.form-combo-group-unpick</code> in place of
-        <code>.form-combo-group-pick</code>. Focus stays in the input, as it does for an option: the arrow
-        keys stop on the action between the rows and <kbd class="kbd">Enter</kbd> presses it, so give it
-        an <code>id</code> and <code>tabindex="-1"</code>. Name it with <code>aria-labelledby</code> pointing
-        at itself and the group's name, so a reader hears which group it selects. Without
-        <code>data-combo-toggle-group</code> the button is the app's own, for any other one action.
-    </p>
-</CatExample>
+<CatGroup Title="Trees">
+    <CatExample TExample="Examples.FormCombo.TreeSingle" Title="Picking one item" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> A <a href="/tree"><code>.tree</code></a> in the panel in place of the
+            listbox, and <code>aria-haspopup="tree"</code> on the input. The keyboard stays in the input:
+            <kbd class="kbd">&darr;</kbd> <kbd class="kbd">&uarr;</kbd> walk the visible items,
+            <kbd class="kbd">&rarr;</kbd> and <kbd class="kbd">&larr;</kbd> open and close the branch while
+            nothing is typed, and <kbd class="kbd">Enter</kbd> picks. Typing hides every branch with no match
+            and opens the ones holding one. Each item needs an <code>id</code>, for
+            <code>aria-activedescendant</code>, and <code>aria-selected</code> if it can be picked &mdash; a
+            hub here can be picked as well as an aisle.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.PanelWidth" Title="A panel wider than its field" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live.</strong> In a narrow form column a long option is cut, and two names that differ only
-        at the end cannot be told apart. <code>--form-combo-panel-width</code> on the field opens the list
-        wider than the box; <code>.form-combo--fit</code> sizes it to its longest row, up to 36rem. Either
-        way the panel is never narrower than the box, never wider than the viewport, and opens back
-        towards the start when the end side has no room for it.
-    </p>
-    <p>
-        <code>.form-combo--wrap</code> lets an option's <code>.form-combo-option-text</code> run onto a
-        second line instead of ending in an ellipsis &mdash; for a phone, where even the widest panel is
-        too narrow.
-    </p>
-    <p>
-        <strong>On a phone, a sheet.</strong> Below 768px the panel opens as a sheet on the bottom
-        edge of the screen, its full width and clear of the home indicator, whatever the width knobs
-        say; the field keeps the focus, and a tap outside closes the list. A
-        <code>.form-combo--inline</code> list stays in the flow. On a page whose viewport does not
-        resize for the on-screen keyboard, the keyboard covers that edge &mdash; set
-        <code>interactive-widget=resizes-content</code> in the viewport meta.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.TreeChecks" Title="Ticking whole branches" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> <code>data-combo="multi"</code> over a tree that ticks: ticking a hub ticks
+            its docks, and a managed field shows a fully ticked branch as one chip rather than one per dock.
+            Dismissing a chip unticks what it stands for. <code>data-label</code> on an item is the chip's
+            text when the row's own label needs its parent to make sense.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormCombo.OpensUpward" Title="A list that opens upward" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; type in it.</strong> A field in a bar at the foot of a pane opens its
-        list above itself with <code>--panel-placement: block-start</code> on the bar, the
-        <code>.form-combo</code> or anything above them &mdash; the token every anchored panel reads,
-        with the <a href="/menu#where-it-opens">menu's</a> four values. Where there is no room above
-        it still opens below, and on a phone it is a sheet as before.
-    </p>
-</CatExample>
+<CatGroup Title="Placing the list">
+    <CatExample TExample="Examples.FormCombo.PanelWidth" Title="Panel wider than its field" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live.</strong> In a narrow form column a long option is cut, and two names that differ only
+            at the end cannot be told apart. <code>--form-combo-panel-width</code> on the field opens the list
+            wider than the box; <code>.form-combo--fit</code> sizes it to its longest row, up to 36rem. Either
+            way the panel is never narrower than the box, never wider than the viewport, and opens back
+            towards the start when the end side has no room for it.
+        </p>
+        <p>
+            <code>.form-combo--wrap</code> lets an option's <code>.form-combo-option-text</code> run onto a
+            second line instead of ending in an ellipsis &mdash; for a phone, where even the widest panel is
+            too narrow.
+        </p>
+        <p>
+            <strong>On a phone, a sheet.</strong> Below 768px the panel opens as a sheet on the bottom
+            edge of the screen, its full width and clear of the home indicator, whatever the width knobs
+            say; the field keeps the focus, and a tap outside closes the list. A
+            <code>.form-combo--inline</code> list stays in the flow. On a page whose viewport does not
+            resize for the on-screen keyboard, the keyboard covers that edge &mdash; set
+            <code>interactive-widget=resizes-content</code> in the viewport meta.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.FreeEntry" Title="Free entry" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <strong>Live &mdash; try pasting <code>ops@example.org, billing@example.net; ops@example</code>.</strong>
-        <code>data-combo="free"</code> has no list. <kbd class="kbd">Enter</kbd>, a comma, a semicolon,
-        leaving the field and pasting all commit; a pasted list is split and entries already there are
-        skipped. An address field also splits on spaces, which an address never holds.
-    </p>
-    <p>
-        <code>.chip--invalid</code> keeps a rejected entry as a chip rather than throwing the typo away;
-        clicking its label in a managed field puts it back in the input. A managed field checks addresses
-        with <code>data-combo-validate="email"</code>, which, unlike <code>type="email"</code>, rejects a
-        domain with no dot.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.OpensUpward" Title="Panel that opens upward" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type in it.</strong> A field in a bar at the foot of a pane opens its
+            list above itself with <code>--panel-placement: block-start</code> on the bar, the
+            <code>.form-combo</code> or anything above them &mdash; the token every anchored panel reads,
+            with the <a href="/menu#where-it-opens">menu's</a> four values. Where there is no room above
+            it still opens below, and on a phone it is a sheet as before.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.FormCombo.Collapse" Title="Collapsed until focused" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.form-combo--collapse</code> keeps a long set of picks to one row while the field is not in
-        use: the first three chips, then a count of the rest from a CSS counter. Focus it and every chip
-        wraps back and the list opens, because the reader came to change the picks. Without the modifier the box grows a row at a time, which is right in a form where the
-        picks are the thing being reviewed.
-    </p>
-</CatExample>
+<CatGroup Title="Free entry and server lists">
+    <CatExample TExample="Examples.FormCombo.FreeEntry" Title="Free entry" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; try pasting <code>ops@example.org, billing@example.net; ops@example</code>.</strong>
+            <code>data-combo="free"</code> has no list. <kbd class="kbd">Enter</kbd>, a comma, a semicolon,
+            leaving the field and pasting all commit; a pasted list is split and entries already there are
+            skipped. An address field also splits on spaces, which an address never holds.
+        </p>
+        <p>
+            <code>.chip--invalid</code> keeps a rejected entry as a chip rather than throwing the typo away;
+            clicking its label in a managed field puts it back in the input. A managed field checks addresses
+            with <code>data-combo-validate="email"</code>, which, unlike <code>type="email"</code>, rejects a
+            domain with no dot.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.FormCombo.ServerStates" Title="Server-backed states" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>data-combo-source="server"</code> tells the script the app filters, so it hides no rows. The
-        states are the app's markup: <code>.form-combo-skeleton</code> rows for the first page,
-        <code>aria-busy="true"</code> on the list while a query runs &mdash; which dims the rows that are
-        there and shows <code>.form-combo-busy</code> &mdash;, <code>.form-combo-empty</code> when a result
-        came back empty, and <code>.form-combo-status--error</code> with a retry.
-    </p>
-    <p>
-        <code>.form-combo-more</code>, straight after the list, asks for the next page &mdash; after it
-        rather than in it, because a listbox may hold only options. It is a real button, and the script
-        clicks it once the list is scrolled to its end. These are drawn with
-        <code>.form-combo--inline</code>, which keeps the list open in the flow &mdash; the shape for a
-        picker that is the whole content of a drawer or a popover.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.FormCombo.ServerStates" Title="Server-backed states" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>data-combo-source="server"</code> tells the script the app filters, so it hides no rows. The
+            states are the app's markup: <code>.form-combo-skeleton</code> rows for the first page,
+            <code>aria-busy="true"</code> on the list while a query runs &mdash; which dims the rows that are
+            there and shows <code>.form-combo-busy</code> &mdash;, <code>.form-combo-empty</code> when a result
+            came back empty, and <code>.form-combo-status--error</code> with a retry.
+        </p>
+        <p>
+            <code>.form-combo-more</code>, straight after the list, asks for the next page &mdash; after it
+            rather than in it, because a listbox may hold only options. It is a real button, and the script
+            clicks it once the list is scrolled to its end. These are drawn with
+            <code>.form-combo--inline</code>, which keeps the list open in the flow &mdash; the shape for a
+            picker that is the whole content of a drawer or a popover.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatSnippet Name="FormCombo/MultiInBlazor.txt" Title="A multiselect in Blazor">
-    <p>
-        The whole list is on the page, so the script filters it and the component binds nothing to the
-        input. <code>@@onclick</code> on an option and on a chip's dismiss button is the integration;
-        <code>aria-selected</code> is rendered as the string <code>"true"</code> or <code>"false"</code>,
-        because a Razor boolean attribute is written with no value at all.
-    </p>
-</CatSnippet>
+<CatGroup Title="Keyboard and Blazor">
+    <h3 id="keyboard">Keyboard <CatAnchor Id="keyboard" /></h3>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead>
+                <tr><th>Key</th><th>Single</th><th>Multi</th><th>Free entry</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><kbd class="kbd">↓</kbd> <kbd class="kbd">↑</kbd></td><td>open, then move</td><td>open, then move, stopping on a group's action</td><td>move through suggestions, if any</td></tr>
+                <tr><td><kbd class="kbd">Enter</kbd></td><td>pick and close</td><td>tick or untick, stay open; on a group's action, press it</td><td>add what was typed</td></tr>
+                <tr><td><kbd class="kbd">,</kbd> <kbd class="kbd">;</kbd> paste</td><td>&mdash;</td><td>&mdash;</td><td>add; a pasted list is split</td></tr>
+                <tr><td><kbd class="kbd">Backspace</kbd> in an empty input</td><td>&mdash;</td><td>mark the last chip, then remove it</td><td>mark the last chip, then remove it</td></tr>
+                <tr><td><kbd class="kbd">Esc</kbd></td><td>close and clear the query</td><td>close and clear the query</td><td>clear what was typed</td></tr>
+                <tr><td><kbd class="kbd">Tab</kbd></td><td>close</td><td>close</td><td>add what was typed, then move on</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-<CatSnippet Name="FormCombo/GroupActionInBlazor.txt" Title="Selecting a whole group in Blazor">
-    <p>
-        Nothing is bound to the group's button. The script clicks the rows that have to change, and each
-        click reaches <code>Toggle</code> as a pointer's would &mdash; one event per row, in the order they are
-        listed. A page that would rather take the whole group in one call leaves
-        <code>data-combo-toggle-group</code> off and puts its own <code>@@onclick</code> on the button.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="FormCombo/MultiInBlazor.txt" Title="Multiselect in Blazor">
+        <p>
+            The whole list is on the page, so the script filters it and the component binds nothing to the
+            input. <code>@@onclick</code> on an option and on a chip's dismiss button is the integration;
+            <code>aria-selected</code> is rendered as the string <code>"true"</code> or <code>"false"</code>,
+            because a Razor boolean attribute is written with no value at all.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="FormCombo/ServerInBlazor.txt" Title="A server-backed list in Blazor">
-    <p>
-        The picks render from the record being edited, not from the search results, so a tag already on
-        the note is a chip before any search has run. The query is bound on <code>oninput</code> and
-        debounced in C#, and a superseded search is cancelled rather than allowed to overwrite a newer one.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="FormCombo/GroupActionInBlazor.txt" Title="Group selection in Blazor">
+        <p>
+            Nothing is bound to the group's button. The script clicks the rows that have to change, and each
+            click reaches <code>Toggle</code> as a pointer's would &mdash; one event per row, in the order they are
+            listed. A page that would rather take the whole group in one call leaves
+            <code>data-combo-toggle-group</code> off and puts its own <code>@@onclick</code> on the button.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="FormCombo/FreeEntryInBlazor.txt" Title="Free entry in Blazor">
-    <p>
-        One <code>change</code> arrives per entry, already split and de-duplicated, and the script clears
-        the input afterwards. The platform's own <code>change</code> on leaving the field is replaced by
-        the same commit, so a typed entry is never added twice.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="FormCombo/ServerInBlazor.txt" Title="Server-backed list in Blazor">
+        <p>
+            The picks render from the record being edited, not from the search results, so a tag already on
+            the note is a chip before any search has run. The query is bound on <code>oninput</code> and
+            debounced in C#, and a superseded search is cancelled rather than allowed to overwrite a newer one.
+        </p>
+    </CatSnippet>
 
-<h2 id="keyboard">Keyboard <CatAnchor Id="keyboard" /></h2>
-<div class="sedna-scroll-x">
-    <table class="table">
-        <thead>
-            <tr><th>Key</th><th>Single</th><th>Multi</th><th>Free entry</th></tr>
-        </thead>
-        <tbody>
-            <tr><td><kbd class="kbd">↓</kbd> <kbd class="kbd">↑</kbd></td><td>open, then move</td><td>open, then move, stopping on a group's action</td><td>move through suggestions, if any</td></tr>
-            <tr><td><kbd class="kbd">Enter</kbd></td><td>pick and close</td><td>tick or untick, stay open; on a group's action, press it</td><td>add what was typed</td></tr>
-            <tr><td><kbd class="kbd">,</kbd> <kbd class="kbd">;</kbd> paste</td><td>&mdash;</td><td>&mdash;</td><td>add; a pasted list is split</td></tr>
-            <tr><td><kbd class="kbd">Backspace</kbd> in an empty input</td><td>&mdash;</td><td>mark the last chip, then remove it</td><td>mark the last chip, then remove it</td></tr>
-            <tr><td><kbd class="kbd">Esc</kbd></td><td>close and clear the query</td><td>close and clear the query</td><td>clear what was typed</td></tr>
-            <tr><td><kbd class="kbd">Tab</kbd></td><td>close</td><td>close</td><td>add what was typed, then move on</td></tr>
-        </tbody>
-    </table>
-</div>
+    <CatSnippet Name="FormCombo/FreeEntryInBlazor.txt" Title="Free entry in Blazor">
+        <p>
+            One <code>change</code> arrives per entry, already split and de-duplicated, and the script clears
+            the input afterwards. The platform's own <code>change</code> on leaving the field is replaced by
+            the same commit, so a typed entry is never added twice.
+        </p>
+    </CatSnippet>
+</CatGroup>

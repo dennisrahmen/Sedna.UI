@@ -6,84 +6,88 @@
     platform's.
 </CatHead>
 
-<CatExample TExample="Examples.Palette.CommandPalette" Title="Open it" Demo="ex-demo--block">
-    <p>
-        <strong>Live.</strong> This site registers one command per page with
-        <code>sednaUi.palette.register</code>, and writes the palette itself in its layout — the
-        markup below. Until something is registered, or with no palette in the page, the library
-        leaves the browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone. A command registered from C# carries an
-        <code>Href</code> and navigates. A <code>run</code> callback is a JavaScript function, and a
-        function does not cross into C# — navigation is what a serialisable command carries.
-    </p>
-</CatExample>
+<CatGroup Title="Commands">
+    <CatExample TExample="Examples.Palette.CommandPalette" Title="Opening the palette" Demo="ex-demo--block">
+        <p>
+            <strong>Live.</strong> This site registers one command per page with
+            <code>sednaUi.palette.register</code>, and writes the palette itself in its layout — the
+            markup below. Until something is registered, or with no palette in the page, the library
+            leaves the browser's own <kbd>Ctrl</kbd>+<kbd>K</kbd> alone. A command registered from C# carries an
+            <code>Href</code> and navigates. A <code>run</code> callback is a JavaScript function, and a
+            function does not cross into C# — navigation is what a serialisable command carries.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Palette/RegisterCommands.txt" Title="Registering commands">
-    <p>
-        <code>register()</code> replaces the whole list, so call it again whenever what is
-        available changes — after a permission check, or on navigation. <code>keywords</code> makes
-        a command findable by a word that is not in its label.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Palette/RegisterCommands.txt" Title="Registering commands">
+        <p>
+            <code>register()</code> replaces the whole list, so call it again whenever what is
+            available changes — after a permission check, or on navigation. <code>keywords</code> makes
+            a command findable by a word that is not in its label.
+        </p>
+    </CatSnippet>
 
-<CatExample TExample="Examples.Interop.PaletteFromCsharp" Title="Its ranking, from C#" Demo="ex-demo--block">
-    <p>
-        <strong>Live &mdash; type &ldquo;drawer&rdquo;.</strong> <code>RankCommandsAsync</code> ranks the registered
-        commands against a query with the palette's own matcher and answers them best first &mdash; an empty query
-        answers every one in registration order &mdash; for an app that shows the same ranking in a list of its own:
-        the start of a page, an empty state. <code>OpenPaletteAsync</code> opens the palette itself, and
-        <code>ClosePaletteAsync</code> closes it, which a layout does after a navigation the palette did not
-        start; <a href="/interop">From C#</a> has that layout.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Interop.PaletteFromCsharp" Title="Ranking from C#" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; type &ldquo;drawer&rdquo;.</strong> <code>RankCommandsAsync</code> ranks the registered
+            commands against a query with the palette's own matcher and answers them best first &mdash; an empty query
+            answers every one in registration order &mdash; for an app that shows the same ranking in a list of its own:
+            the start of a page, an empty state. <code>OpenPaletteAsync</code> opens the palette itself, and
+            <code>ClosePaletteAsync</code> closes it, which a layout does after a navigation the palette did not
+            start; <a href="/interop">From C#</a> has that layout.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatExample TExample="Examples.Palette.PaletteStates" Title="Matching, and nothing found" Demo="ex-demo--block">
-    <p>
-        The two states side by side, laid out statically so both are visible at once. The panel is
-        <code>.palette</code>'s wherever its markup is, so a <code>&lt;div class="palette"&gt;</code>
-        draws the same box as the dialog &mdash; for a picture of the palette in help text, or commands
-        kept on screen &mdash; and only the place near the top and the backdrop belong to
-        <code>&lt;dialog class="palette"&gt;</code>. Here with
-        <code>.palette-footer</code> carrying the keys as <code>.kbd</code> literals.
-        <code>.palette-group</code> heads a run of commands from the same group and is dropped once
-        a query has reordered the list; its <code>&lt;li&gt;</code> needs
-        <code>role="presentation"</code>, because a <code>listbox</code> may own only
-        <code>option</code>s and a bare <code>&lt;li&gt;</code> breaks
-        <code>aria-required-children</code>.
-    </p>
-</CatExample>
+<CatGroup Title="States and markup">
+    <CatExample TExample="Examples.Palette.PaletteStates" Title="Matching and nothing found" Demo="ex-demo--block">
+        <p>
+            The two states side by side, laid out statically so both are visible at once. The panel is
+            <code>.palette</code>'s wherever its markup is, so a <code>&lt;div class="palette"&gt;</code>
+            draws the same box as the dialog &mdash; for a picture of the palette in help text, or commands
+            kept on screen &mdash; and only the place near the top and the backdrop belong to
+            <code>&lt;dialog class="palette"&gt;</code>. Here with
+            <code>.palette-footer</code> carrying the keys as <code>.kbd</code> literals.
+            <code>.palette-group</code> heads a run of commands from the same group and is dropped once
+            a query has reordered the list; its <code>&lt;li&gt;</code> needs
+            <code>role="presentation"</code>, because a <code>listbox</code> may own only
+            <code>option</code>s and a bare <code>&lt;li&gt;</code> breaks
+            <code>aria-required-children</code>.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Palette.PalettePages" Title="Pages, separators and loading" Demo="ex-demo--block">
-    <p>
-        A command with <code>opens</code> opens a page of the commands registered with the same
-        <code>page</code>, instead of running &mdash; &ldquo;Change theme&hellip;&rdquo; and the themes.
-        <kbd>Backspace</kbd> in an empty search, <kbd>Escape</kbd> and the app's
-        <code>data-palette-back</code> button go back one page, to the query and the row the reader left;
-        <kbd>Escape</kbd> on the root closes. The script shows <code>.palette-path</code> on a page, hides it on
-        the root, and fills <code>data-palette-trail</code> with one <code>.palette-crumb</code> per page
-        opened. With nothing typed, <code>.palette-separator</code> goes between two groups; a query drops
-        both. While the dialog has <code>aria-busy="true"</code>, the list ends with the app's
-        <code>.palette-loading</code> row and &ldquo;nothing matches&rdquo; is held back. A
-        <code>pinned</code> command follows the matches whatever is typed. The arrow keys wrap. Laid out
-        statically here, with every state at once.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Palette.PalettePages" Title="Pages, separators and loading" Demo="ex-demo--block">
+        <p>
+            A command with <code>opens</code> opens a page of the commands registered with the same
+            <code>page</code>, instead of running &mdash; &ldquo;Change theme&hellip;&rdquo; and the themes.
+            <kbd>Backspace</kbd> in an empty search, <kbd>Escape</kbd> and the app's
+            <code>data-palette-back</code> button go back one page, to the query and the row the reader left;
+            <kbd>Escape</kbd> on the root closes. The script shows <code>.palette-path</code> on a page, hides it on
+            the root, and fills <code>data-palette-trail</code> with one <code>.palette-crumb</code> per page
+            opened. With nothing typed, <code>.palette-separator</code> goes between two groups; a query drops
+            both. While the dialog has <code>aria-busy="true"</code>, the list ends with the app's
+            <code>.palette-loading</code> row and &ldquo;nothing matches&rdquo; is held back. A
+            <code>pinned</code> command follows the matches whatever is typed. The arrow keys wrap. Laid out
+            statically here, with every state at once.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Interop/PalettePages.txt" Title="Pages from C#">
-    <p>
-        <code>PaletteCommand.Opens</code>, <code>Page</code> and <code>Pinned</code> carry the same three
-        things across the interop boundary. <code>RankCommandsAsync</code> ranks the root page.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Interop/PalettePages.txt" Title="Pages from C#">
+        <p>
+            <code>PaletteCommand.Opens</code>, <code>Page</code> and <code>Pinned</code> carry the same three
+            things across the interop boundary. <code>RankCommandsAsync</code> ranks the root page.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Palette/PaletteMarkup.html" Title="The markup">
-    <p>
-        What the library builds, for an app rendering its own command list — if you are calling
-        <code>register()</code> you write none of it. The list is a real
-        <code>role="listbox"</code> of <code>role="option"</code> items with the input as the
-        combobox owning it through <code>aria-activedescendant</code>,
-        <code>aria-selected</code> is the keyboard's position and not <code>:hover</code>, and
-        <code>.palette-empty</code> should name what was searched rather than say &ldquo;no
-        results&rdquo;; the ranking is <code>sednaUi._.score</code>, shared with the
-        <a href="/topbar">header search</a> so the two cannot rank one query differently.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Palette/PaletteMarkup.html" Title="Markup for your own list">
+        <p>
+            What the library builds, for an app rendering its own command list — if you are calling
+            <code>register()</code> you write none of it. The list is a real
+            <code>role="listbox"</code> of <code>role="option"</code> items with the input as the
+            combobox owning it through <code>aria-activedescendant</code>,
+            <code>aria-selected</code> is the keyboard's position and not <code>:hover</code>, and
+            <code>.palette-empty</code> should name what was searched rather than say &ldquo;no
+            results&rdquo;; the ranking is <code>sednaUi._.score</code>, shared with the
+            <a href="/topbar">header search</a> so the two cannot rank one query differently.
+        </p>
+    </CatSnippet>
+</CatGroup>

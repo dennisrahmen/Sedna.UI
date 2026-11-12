@@ -15,123 +15,131 @@
     </div>
 </div>
 
-<CatExample TExample="Examples.Frame.FullShell" Title="Full shell" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.layout</code> is the flex row that fills the viewport — shown here at a fixed
-        height — <code>.content</code> is the column beside the sidebar, and <code>.page</code> is
-        the only scroll container. Width is two knobs on <code>.sidebar</code>,
-        <code>--sidebar-width</code> (220px) and <code>--sidebar-width-collapsed</code> (56px);
-        nothing else about the frame changes with them.
-    </p>
-</CatExample>
+<CatGroup Title="Layouts">
+    <CatExample TExample="Examples.Frame.FullShell" Title="Full shell" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.layout</code> is the flex row that fills the viewport — shown here at a fixed
+            height — <code>.content</code> is the column beside the sidebar, and <code>.page</code> is
+            the only scroll container. Width is two knobs on <code>.sidebar</code>,
+            <code>--sidebar-width</code> (220px) and <code>--sidebar-width-collapsed</code> (56px);
+            nothing else about the frame changes with them.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Frame.BareShell" Title="Bare shell" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.bare-layout</code> — topbar and body, no sidebar, for the page that comes before
-        there is a workspace to navigate: choosing one, accepting an invitation, a first-run step.
-        Where there is nothing to offer at all use <code>.auth-layout</code> below;
-        <a href="/common-pages">Common pages</a> has the finished pages.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Frame.BareShell" Title="Bare shell" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.bare-layout</code> — topbar and body, no sidebar, for the page that comes before
+            there is a workspace to navigate: choosing one, accepting an invitation, a first-run step.
+            Where there is nothing to offer at all use <code>.auth-layout</code> below;
+            <a href="/common-pages">Common pages</a> has the finished pages.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Frame.AuthLayout" Title="Auth layout" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        Sign-in, sign-out, &ldquo;check your e-mail&rdquo;, an invitation — one centred card and no
-        navigation. <code>.auth-card</code> is capped rather than stretched.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Frame.AuthLayout" Title="Auth layout" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            Sign-in, sign-out, &ldquo;check your e-mail&rdquo;, an invitation — one centred card and no
+            navigation. <code>.auth-card</code> is capped rather than stretched.
+        </p>
+    </CatExample>
 
-<CatSnippet Name="Frame/FullBleedLayout.html" Title="Full-bleed layout">
-    <p>
-        For content that owns the whole area below the header — a map, a board, a diagram editor.
-        Use it <em>instead of</em> <code>.page</code> and never nested inside it, and put
-        <code>.full-layout-fill</code> on the child that takes the height that is left.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Frame/FullBleedLayout.html" Title="Full-bleed layout">
+        <p>
+            For content that owns the whole area below the header — a map, a board, a diagram editor.
+            Use it <em>instead of</em> <code>.page</code> and never nested inside it, and put
+            <code>.full-layout-fill</code> on the child that takes the height that is left.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatExample TExample="Examples.Frame.PageRhythm" Title="The rhythm between page sections" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        Every direct child of <code>.page</code> after the first gets <code>--page-gap</code> above
-        it, so a card after a card needs no class and no <code>style="margin-top"</code>. Set
-        <code>--page-gap: 0</code> on <code>.page</code> to manage the rhythm yourself, or
-        <code>.sedna-mt-0</code> on the one child that should sit flush; inside
-        <code>.card-body</code> there is no equivalent — reach for
-        <a href="/utility-layout"><code>.sedna-col</code></a> with a gap step.
-    </p>
-</CatExample>
+<CatGroup Title="Inside the page">
+    <CatExample TExample="Examples.Frame.PageRhythm" Title="Spacing between sections" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            Every direct child of <code>.page</code> after the first gets <code>--page-gap</code> above
+            it, so a card after a card needs no class and no <code>style="margin-top"</code>. Set
+            <code>--page-gap: 0</code> on <code>.page</code> to manage the rhythm yourself, or
+            <code>.sedna-mt-0</code> on the one child that should sit flush; inside
+            <code>.card-body</code> there is no equivalent — reach for
+            <a href="/utility-layout"><code>.sedna-col</code></a> with a gap step.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Frame.PageFoot" Title="A footer at the bottom of a short page" Demo="ex-demo--block ex-demo--flush">
-    <p>
-        <code>.page--fill</code> makes the page a flex column, so a <code>.page-foot</code> &mdash;
-        a footer, a build line &mdash; sits at the bottom of a page that is shorter than the
-        viewport rather than under its last paragraph, and a lone
-        <a href="/empty-state"><code>.empty-state--page</code></a> centres itself between the top
-        and the foot. Opt in per page: a flex column stops sibling margins collapsing, which the
-        block page relies on. This site's own pages use it.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Frame.PageFoot" Title="Footer on a short page" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.page--fill</code> makes the page a flex column, so a <code>.page-foot</code> &mdash;
+            a footer, a build line &mdash; sits at the bottom of a page that is shorter than the
+            viewport rather than under its last paragraph, and a lone
+            <a href="/empty-state"><code>.empty-state--page</code></a> centres itself between the top
+            and the foot. Opt in per page: a flex column stops sibling margins collapsing, which the
+            block page relies on. This site's own pages use it.
+        </p>
+    </CatExample>
+</CatGroup>
 
-<CatSnippet Name="Frame/NarrowScreens.html" Title="Narrow screens">
-    <p>
-        Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the
-        rail below 900px, where it is forced — so hide a collapse toggle at that width or accept
-        the no-op. <code>.layout--compact-at-sm</code> moves that width to 560px and
-        <code>.layout--compact-at-lg</code> to 1200px. A topbar outside a <code>.layout</code> opts in with
-        <code>.topbar--responsive</code> on the <code>.topbar</code> instead. Put
-        <code>.sidebar-wide</code> on your own content in the sidebar that has no place in the
-        rail — it goes whenever the labels do, toggled or forced — and <code>.topbar-wide</code> on
-        your own header content that can go below 560px.
-    </p>
-</CatSnippet>
+<CatGroup Title="Screen sizes">
+    <CatSnippet Name="Frame/NarrowScreens.html" Title="Narrow screens">
+        <p>
+            Add <code>.layout--responsive</code> to <code>.layout</code> and the sidebar becomes the
+            rail below 900px, where it is forced — so hide a collapse toggle at that width or accept
+            the no-op. <code>.layout--compact-at-sm</code> moves that width to 560px and
+            <code>.layout--compact-at-lg</code> to 1200px. A topbar outside a <code>.layout</code> opts in with
+            <code>.topbar--responsive</code> on the <code>.topbar</code> instead. Put
+            <code>.sidebar-wide</code> on your own content in the sidebar that has no place in the
+            rail — it goes whenever the labels do, toggled or forced — and <code>.topbar-wide</code> on
+            your own header content that can go below 560px.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Frame/PhoneFlow.html" Title="On a phone, the document scrolls">
-    <p>
-        <code>.page</code> is the frame's only scroll container, and that is the one thing a
-        phone's browser cannot see: Safari collapses its toolbar only while the <em>document</em>
-        scrolls, so a page scrolling inside a box keeps the full toolbar on screen for ever.
-        <code>.layout--flow</code> hands the scrolling to the document below 560px &mdash; the
-        shell grows with its content, the topbar sticks under the notch, a sidebar sticks to the
-        top of its column and a bottom bar to the bottom of the viewport &mdash; and changes
-        nothing above it. This site uses it. Keep the box for a page that must never move under
-        its header, a full-bleed map or an editor. Safari on iOS 26 can leave its viewport offset
-        after the page has scrolled to its end or the keyboard has closed, which draws the bottom
-        bar and the header in the middle of the page; <code>Sedna.UI.js</code> notices and nudges
-        it back, once, and only then.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Frame/PhoneFlow.html" Title="Document scrolling on phones">
+        <p>
+            <code>.page</code> is the frame's only scroll container, and that is the one thing a
+            phone's browser cannot see: Safari collapses its toolbar only while the <em>document</em>
+            scrolls, so a page scrolling inside a box keeps the full toolbar on screen for ever.
+            <code>.layout--flow</code> hands the scrolling to the document below 560px &mdash; the
+            shell grows with its content, the topbar sticks under the notch, a sidebar sticks to the
+            top of its column and a bottom bar to the bottom of the viewport &mdash; and changes
+            nothing above it. This site uses it. Keep the box for a page that must never move under
+            its header, a full-bleed map or an editor. Safari on iOS 26 can leave its viewport offset
+            after the page has scrolled to its end or the keyboard has closed, which draws the bottom
+            bar and the header in the middle of the page; <code>Sedna.UI.js</code> notices and nudges
+            it back, once, and only then.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Frame/Kiosk.html" Title="A wall screen">
-    <p>
-        <code>.kiosk</code> is a screen nobody operates: the whole viewport, never scrolled, no
-        cursor, and the same canvas about 1280px wide scaled up to every screen — 1.5 at 1080p, 2 at
-        1440p, 3 at 4K — so a page designed once reads the same on each; <code>--kiosk-zoom</code>
-        sets a factor of your own. No scrollbar is drawn inside it, because what moves is moved by
-        the app. <code>.kiosk-strip</code>, <code>.kiosk-stage</code> and <code>.kiosk-side</code>
-        keep their areas when one is empty; <code>--kiosk-side</code> is the side column's width.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Frame/Kiosk.html" Title="Wall screens">
+        <p>
+            <code>.kiosk</code> is a screen nobody operates: the whole viewport, never scrolled, no
+            cursor, and the same canvas about 1280px wide scaled up to every screen — 1.5 at 1080p, 2 at
+            1440p, 3 at 4K — so a page designed once reads the same on each; <code>--kiosk-zoom</code>
+            sets a factor of your own. No scrollbar is drawn inside it, because what moves is moved by
+            the app. <code>.kiosk-strip</code>, <code>.kiosk-stage</code> and <code>.kiosk-side</code>
+            keep their areas when one is empty; <code>--kiosk-side</code> is the side column's width.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<CatSnippet Name="Frame/SkipLink.html" Title="Skip link">
-    <p>
-        The first focusable thing on the page, jumping past the navigation to the content —
-        off-screen rather than hidden, so it stays focusable. <code>tabindex="-1"</code> on
-        <code>&lt;main&gt;</code> is not optional: without it the jump only scrolls and focus stays
-        back in the navigation. Neither is <code>Sedna.UI.js</code>: under the host page's
-        <code>&lt;base href="/"&gt;</code> a bare <code>#main</code> means the start page, and the
-        script is what keeps the jump here. This site has one &mdash; press Tab on any page.
-    </p>
-</CatSnippet>
+<CatGroup Title="Keyboard navigation">
+    <CatSnippet Name="Frame/SkipLink.html" Title="Skip link">
+        <p>
+            The first focusable thing on the page, jumping past the navigation to the content —
+            off-screen rather than hidden, so it stays focusable. <code>tabindex="-1"</code> on
+            <code>&lt;main&gt;</code> is not optional: without it the jump only scrolls and focus stays
+            back in the navigation. Neither is <code>Sedna.UI.js</code>: under the host page's
+            <code>&lt;base href="/"&gt;</code> a bare <code>#main</code> means the start page, and the
+            script is what keeps the jump here. This site has one &mdash; press Tab on any page.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Frame/Regions.html" Title="Moving between regions">
-    <p>
-        <kbd>F6</kbd> moves focus to the next region of the frame and <kbd>Shift</kbd>+<kbd>F6</kbd> to the
-        previous, wrapping at both ends: every landmark &mdash; <code>header</code>, <code>nav</code>,
-        <code>main</code>, <code>aside</code>, <code>footer</code> or a landmark role &mdash; every
-        <code>.topbar</code>, <code>.sidebar</code> and <code>.bottombar</code>, and an open
-        <code>data-modeless</code> drawer or sheet, outermost only and in document order. A hidden region, an
-        inert one and an off-canvas drawer are skipped. Focus lands on the region's first control, or on the
-        region itself when it has none. While a modal dialog is open the key is left to the browser. Nothing
-        to write: <code>Sedna.UI.js</code> does it for the markup above, and
-        <code>sednaUi.nav.moveRegion(1)</code> does it from code. Press <kbd>F6</kbd> on this page.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Frame/Regions.html" Title="Moving between regions">
+        <p>
+            <kbd>F6</kbd> moves focus to the next region of the frame and <kbd>Shift</kbd>+<kbd>F6</kbd> to the
+            previous, wrapping at both ends: every landmark &mdash; <code>header</code>, <code>nav</code>,
+            <code>main</code>, <code>aside</code>, <code>footer</code> or a landmark role &mdash; every
+            <code>.topbar</code>, <code>.sidebar</code> and <code>.bottombar</code>, and an open
+            <code>data-modeless</code> drawer or sheet, outermost only and in document order. A hidden region, an
+            inert one and an off-canvas drawer are skipped. Focus lands on the region's first control, or on the
+            region itself when it has none. While a modal dialog is open the key is left to the browser. Nothing
+            to write: <code>Sedna.UI.js</code> does it for the markup above, and
+            <code>sednaUi.nav.moveRegion(1)</code> does it from code. Press <kbd>F6</kbd> on this page.
+        </p>
+    </CatSnippet>
+</CatGroup>

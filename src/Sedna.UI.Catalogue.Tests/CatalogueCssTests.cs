@@ -154,6 +154,24 @@ public class CatalogueCssTests
         Compound(part).IndexOfAny(['.', '#', '[']) >= 0;
 
     [Fact]
+    public void No_text_in_the_catalogue_is_capped_at_a_measure()
+    {
+        // The content column is the measure. A `ch` cap on 13px prose resolved to under 600px
+        // inside an 1100px column, so a paragraph stopped half way across while the demo, the
+        // code block and the tiles beside it ran the full width — on the examples first, then
+        // again on the design guide's foot.
+        var css = Assets.StripComments(File.ReadAllText(CatalogueAssets.CatalogueCssPath));
+
+        var offenders = System.Text.RegularExpressions.Regex
+            .Matches(css, @"(?:max-width|max-inline-size)\s*:\s*[^;}]*\d(?:ch|em)\b")
+            .Select(m => m.Value)
+            .ToList();
+
+        Assert.True(offenders.Count == 0,
+            $"Let the column set the width of the text: {string.Join(", ", offenders)}");
+    }
+
+    [Fact]
     public void Every_colour_in_the_catalogue_stylesheet_is_a_library_token()
     {
         // The same rule the library holds itself to, for the same reason: the docs have

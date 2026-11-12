@@ -54,8 +54,15 @@ bytes, so a demo and its snippet cannot drift.
   frame's height for a recipe whose point is something that sticks, and `AuthShell` uses
   `.auth-layout` instead. The code block still prints only the example. It is for a whole page — the
   page recipes — and the example holds no frame markup of its own.
-- A backtick in a `Title` renders as `<code>`. `Title` stays a plain string because it is also the
-  anchor slug, the accessible name, and what the MCP server returns.
+- **A `Title` is a short topic name**: sentence case, at most six words, no leading "A", "An" or
+  "The", and no code — the class or member the example teaches goes in the sentence under it, in
+  `<code>`. It is also the anchor slug, the accessible name, and what the MCP server returns.
+  `SectionHeadingTests` holds every heading to this.
+- **A long page is grouped into topics.** `<CatGroup Title="Splits">` wraps the examples of one
+  topic, with an optional sentence before them; inside it an example's heading is an `h3`, a
+  hand-written section is `<h3 id="…">` with its `CatAnchor`, and the contents beside the page nest
+  them under the topic. More than eight sections at the top of a page fail the test, and a group
+  holds two or more. On a grouped page every section sits in a group.
 
 **Every folder under `Examples/` must be a valid C# identifier** — `ButtonGroup`, not `button-group`.
 MSBuild builds the manifest resource name from the folder path and the Razor SDK builds the component
@@ -101,11 +108,11 @@ survives re-renders by construction.
   - in an example, a fragment names an id the same example declares, or is the placeholder `#`, which
     `catalogue.js` cancels inside a demo. `ExampleSourceTests` fails on any other.
 - **Every page has its contents beside it**, built from its sections by `Navigation/PageContents.cs`.
-  A section is a `CatExample`, a `CatSnippet`, or a hand-written `<h2 id="…">` with a
-  `<CatAnchor Id="…" />` in it — the same id, and every page heading has one, so its link can be
-  copied. A heading written in a loop has no literal id to read: the page's sections are then
+  A section is a `CatGroup`, a `CatExample`, a `CatSnippet`, or a hand-written `<h2 id="…">` — `<h3>`
+  inside a group — with a `<CatAnchor Id="…" />` in it — the same id, and every page heading has
+  one, so its link can be copied. A heading written in a loop has no literal id to read: the page's sections are then
   added in `PageContents` from the data the loop renders, as the design guide's and the tokens'
-  are. `PageContentsTests` fails when a page's contents and its anchored headings disagree.
+  are — the tokens' groups under the sections `TokenGroups.Sections` names. `PageContentsTests` fails when a page's contents and its anchored headings disagree.
 - **An unknown address renders `Components/Pages/NotFound.razor`** with a 404, through the router's
   `NotFoundPage` and `UseStatusCodePagesWithReExecute`. Its route is `CataloguePages.NotFoundRoute` and
   it is not in `All`; `NotFoundTests` covers it.
@@ -125,6 +132,9 @@ survives re-renders by construction.
   check in `PageLoadTests`, which ignores a failure from that host rather than failing the suite on
   somebody else's uptime. **Credit the photographer where the photograph is**, which is what
   Unsplash asks for and what a `figcaption` is.
+- **No text is capped at a measure.** The content column is the measure; a `max-width` in `ch` or
+  `em` stops a paragraph half way across while the demo beside it runs the full width.
+  `CatalogueCssTests` fails on one.
 - **The examples are the documentation.** Prefer realistic content — a real-sounding queue, an actual
   error message — over `Foo` and `Lorem ipsum`. Say what a class is *for* and which mistake it avoids;
   do not narrate the CSS, which the reader can read.

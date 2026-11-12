@@ -20,78 +20,75 @@
     </div>
 </div>
 
-<h2 id="class-check">The class check in the build <CatAnchor Id="class-check" /></h2>
-<p class="cat-lede">
-    On by default. After each build it reads the app's <code>.razor</code>, <code>.cshtml</code>,
-    <code>.html</code> and <code>.css</code> files and warns once per use of a class that no longer
-    exists, with the file and the line, so an IDE jumps to it.
-</p>
-
-<CatSnippet Name="Tooling/ClassCheckOutput.txt" Title="What the build says">
-    <p>
-        <code>SEDNAUI001</code> is a class a release renamed, with the class or classes that look the
-        same now; <code>SEDNAUI002</code> is a class a release removed with nothing alike. In markup a
-        class counts as a whole token, in a stylesheet as a selector, so <code>my-btn-go</code> and
-        <code>btn-go-x</code> are never reported. They stay warnings under
-        <code>TreatWarningsAsErrors</code>.
+<CatGroup Title="Class check">
+    <p class="cat-lede">
+        On by default. After each build it reads the app's <code>.razor</code>, <code>.cshtml</code>,
+        <code>.html</code> and <code>.css</code> files and warns once per use of a class that no longer
+        exists, with the file and the line, so an IDE jumps to it.
     </p>
-</CatSnippet>
 
-<CatSnippet Name="Tooling/ClassCheckOptions.txt" Title="Turning it off or narrowing it">
-    <p>
-        The renames come from each release's map in the package and the removals from its class
-        history, so the check never names a class the installed version has.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Tooling/ClassCheckOutput.txt" Title="Reading the warnings">
+        <p>
+            <code>SEDNAUI001</code> is a class a release renamed, with the class or classes that look the
+            same now; <code>SEDNAUI002</code> is a class a release removed with nothing alike. In markup a
+            class counts as a whole token, in a stylesheet as a selector, so <code>my-btn-go</code> and
+            <code>btn-go-x</code> are never reported. They stay warnings under
+            <code>TreatWarningsAsErrors</code>.
+        </p>
+    </CatSnippet>
 
-<h2 id="renames">Applying the renames <CatAnchor Id="renames" /></h2>
-<p class="cat-lede">
-    <code>tooling/rename-classes.py</code> rewrites the app's files by every rename between two versions.
-    It needs Python 3 and nothing else.
-</p>
+    <CatSnippet Name="Tooling/ClassCheckOptions.txt" Title="Turning it off or narrowing it">
+        <p>
+            The renames come from each release's map in the package and the removals from its class
+            history, so the check never names a class the installed version has.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Tooling/RenameDryRun.txt" Title="Dry run, then write">
-    <p>
-        <code>--from</code> is the version the app had; <code>--to</code> defaults to the newest release in the package.
-        A class is replaced whole, never as a prefix, and one that became two is written as two
-        &mdash; two tokens in markup, one compound selector in a stylesheet. A class already on the
-        element is not written twice. A removed class is left alone: the release notes say what replaces it.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Tooling/RenameDryRun.txt" Title="Applying the renames">
+        <p>
+            <code>tooling/rename-classes.py</code> rewrites the app's files by every rename between two versions.
+            It needs Python 3 and nothing else. Run it dry first, then let it write.
+        </p>
+        <p>
+            <code>--from</code> is the version the app had; <code>--to</code> defaults to the newest release in the package.
+            A class is replaced whole, never as a prefix, and one that became two is written as two
+            &mdash; two tokens in markup, one compound selector in a stylesheet. A class already on the
+            element is not written twice. A removed class is left alone: the release notes say what replaces it.
+        </p>
+    </CatSnippet>
+</CatGroup>
 
-<h2 id="stylelint">Stylelint <CatAnchor Id="stylelint" /></h2>
-<p class="cat-lede">
-    A config generated from the stylesheet of the same version. It reports a selector that names a
-    class the library owns and a colour literal anywhere but as a token's value in
-    <code>brand.css</code>, and holds <code>brand.css</code> to the tokens the library declares.
-</p>
+<CatGroup Title="Stylelint and the agent skill">
+    <CatSnippet Name="Tooling/StylelintConfig.txt" Title="Extending the Stylelint config">
+        <p>
+            A config generated from the stylesheet of the same version. It reports a selector that names a
+            class the library owns and a colour literal anywhere but as a token's value in
+            <code>brand.css</code>, and holds <code>brand.css</code> to the tokens the library declares.
+        </p>
+        <p>
+            Copy the file beside the app's own Stylelint config and extend it from there: its
+            <code>brand.css</code> rules are matched relative to the file. Copy it again after each upgrade,
+            so the class list is the installed version's.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Tooling/StylelintConfig.txt" Title="Extend it">
-    <p>
-        Copy the file beside the app's own Stylelint config and extend it from there: its
-        <code>brand.css</code> rules are matched relative to the file. Copy it again after each upgrade,
-        so the class list is the installed version's.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Tooling/StylelintOutput.txt" Title="Reading what Stylelint reports">
+        <p>
+            A rule for a library class is the override the <a href="/concepts">concepts</a> page rules out:
+            set a token, use a variant, or put a class with the app's prefix on the element.
+        </p>
+    </CatSnippet>
 
-<CatSnippet Name="Tooling/StylelintOutput.txt" Title="What it reports">
-    <p>
-        A rule for a library class is the override the <a href="/concepts">concepts</a> page rules out:
-        set a token, use a variant, or put a class with the app's prefix on the element.
-    </p>
-</CatSnippet>
-
-<h2 id="skill">The agent skill <CatAnchor Id="skill" /></h2>
-<p class="cat-lede">
-    The rules an agent follows in a consuming app, as a skill: the same text as the
-    <code>CLAUDE.md</code> block in the repository's <code>docs/CLAUDE.consuming-app.md</code>, with
-    front matter.
-</p>
-
-<CatSnippet Name="Tooling/SkillInstall.txt" Title="Install it">
-    <p>
-        Copy the folder into the app's <code>.claude/skills/</code>. Use the skill or the
-        <code>CLAUDE.md</code> block, not both. Pair it with the <a href="/mcp-server">MCP server</a>,
-        which the skill tells the agent to use for every piece of markup.
-    </p>
-</CatSnippet>
+    <CatSnippet Name="Tooling/SkillInstall.txt" Title="Installing the agent skill">
+        <p>
+            The rules an agent follows in a consuming app, as a skill: the same text as the
+            <code>CLAUDE.md</code> block in the repository's <code>docs/CLAUDE.consuming-app.md</code>, with
+            front matter.
+        </p>
+        <p>
+            Copy the folder into the app's <code>.claude/skills/</code>. Use the skill or the
+            <code>CLAUDE.md</code> block, not both. Pair it with the <a href="/mcp-server">MCP server</a>,
+            which the skill tells the agent to use for every piece of markup.
+        </p>
+    </CatSnippet>
+</CatGroup>
