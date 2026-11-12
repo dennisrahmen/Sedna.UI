@@ -2,11 +2,14 @@
    for instead and which goals it answers, as tiles like the landing page's. The layout renders
    it after every page's body, found by the route, so no page writes it and none can leave it
    out. The words are docs/design-guide/components/, and a page with no entry — a reference
-   page — shows nothing. *@
+   page — shows nothing.
+
+   The route is a parameter, not read from NavigationManager here: the layout survives an
+   in-app navigation, and a child whose parameters are unchanged is not rendered again, so
+   this section kept the first page's entry — none, from the landing page — until a reload. *@
 @using Sedna.UI.Catalogue.Guide
 @using Sedna.UI.Catalogue.Navigation
 @using Sedna.UI.Catalogue.Components.Pages
-@inject NavigationManager Nav
 @inject DesignGuide Guide
 
 @if (Entry is { } entry)
@@ -67,15 +70,10 @@
     /// The id of the section's heading, which the page's contents link to.
     public const string HeadingId = "goes-well-with";
 
-    private GuideEntry? Entry
-    {
-        get
-        {
-            var path = "/" + Nav.ToBaseRelativePath(Nav.Uri);
-            var end = path.IndexOfAny(['?', '#']);
-            return Guide.EntryFor(end < 0 ? path : path[..end]);
-        }
-    }
+    /// The page's route, without query or fragment.
+    [Parameter, EditorRequired] public string Route { get; set; } = "";
+
+    private GuideEntry? Entry => Guide.EntryFor(Route);
 
     private static string IconOf(string page)
     {
