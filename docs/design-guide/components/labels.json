@@ -33,7 +33,7 @@
       { "text": "A choice between a few views or settings", "instead": "/segmented#one-choice-of-a-few" }
     ],
     "goals": [ "narrow-a-long-list", "search-a-list", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "pick-several-as-chips", "find-a-record-on-a-list-page", "approve-an-agent-action" ],
-    "stamp": "a90387cfc3f70d2a"
+    "stamp": "c66ce10f01b00828"
   },
   {
     "page": "/avatar",

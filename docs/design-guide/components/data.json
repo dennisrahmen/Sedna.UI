@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "f30e17e6f2e094d0"
+    "stamp": "6d711c80f6a5864c"
   },
   {
     "page": "/table-editing",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "5b4431f43a76ac54"
+    "stamp": "3ba03fab6ee817fe"
   },
   {
     "page": "/stat",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "a8ea66da2c9b9d85"
+    "stamp": "c8add283677516e5"
   },
   {
     "page": "/graph-plugins",
