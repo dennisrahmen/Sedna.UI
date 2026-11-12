@@ -1,0 +1,93 @@
+<div class="toolbar">
+    <button class="btn btn--sm" type="button" aria-pressed="@(_arranging ? "true" : "false")" @onclick="() => _arranging = !_arranging">
+        <i class="@(_arranging ? "ri-check-line" : "ri-layout-masonry-line")" aria-hidden="true"></i>
+        <span>@(_arranging ? "Done" : "Arrange")</span>
+    </button>
+</div>
+
+<p class="visually-hidden" aria-live="assertive" data-drag-live
+   data-drag-pickup="Picked up {item}, column {column}, row {row}. Arrow keys move it, Space drops it, Escape cancels."
+   data-drag-move="{item}, column {column}, row {row}."
+   data-drag-drop="{item} dropped at column {column}, row {row}."
+   data-drag-cancel="Cancelled. {item} is back at column {column}, row {row}."></p>
+
+<div class="panel-grid" data-drag-zone="dashboard" data-drag-axis="cells" data-arrange="@(_arranging ? "" : null)"
+     aria-label="Warehouse dashboard" @onsedna-drop="Dropped" @onsedna-resize="Resized">
+    @foreach (var panel in _panels)
+    {
+        var content = Contents[panel.Id];
+        <section class="card card--resizable" @key="panel.Id" data-drag-item="@panel.Id" data-drag-label="@content.Title"
+                 data-panel-ratio="@content.Ratio"
+                 style="--panel-x: @panel.X; --panel-y: @panel.Y; --panel-w: @panel.W; --panel-h: @panel.H">
+            <div class="card-head">
+                <span class="card-head-lead">
+                    <button class="drag-handle" type="button" data-drag-handle aria-label="@($"Move {content.Title}")">
+                        <i class="ri-draggable" aria-hidden="true"></i>
+                    </button>
+                </span>
+                <h3 id="@($"{panel.Id}-title")">@content.Title</h3>
+            </div>
+            @if (content.Ratio is null)
+            {
+                <div class="card-body">
+                    <div class="stat">
+                        <span class="stat-label">@content.Label</span>
+                        <span class="stat-value">@content.Value</span>
+                        <span class="stat-note">@content.Note</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card-body card-body--flush">
+                    <div class="media-frame" style="--media-ratio: auto; block-size: 100%; border: 0; border-radius: 0">
+                        <i class="ri-live-line" aria-hidden="true"></i>
+                        <span class="visually-hidden">@content.Note</span>
+                    </div>
+                </div>
+            }
+            <div class="card-resize card-resize--inline" data-resize="--panel-w" role="separator" aria-orientation="vertical"
+                 aria-label="@($"Width of {content.Title}")" aria-valuemin="@content.MinW" aria-valuemax="12" aria-valuenow="@panel.W" tabindex="0"></div>
+            <div class="card-resize" data-resize="--panel-h" role="separator" aria-orientation="horizontal"
+                 aria-label="@($"Height of {content.Title}")" aria-valuemin="@content.MinH" aria-valuenow="@panel.H" tabindex="0"></div>
+            <div class="card-resize card-resize--corner" data-resize="--panel-w --panel-h" aria-hidden="true"></div>
+        </section>
+    }
+</div>
+
+@code {
+    private const int Columns = 12;
+
+    private sealed record Content(string Title, string Label, string Value, string Note, int MinW, int MinH, string? Ratio = null);
+
+    private static readonly Dictionary<string, Content> Contents = new()
+    {
+        ["orders"] = new("Open orders", "Open now", "1 204", "37 awaiting stock", 3, 3),
+        ["dispatch"] = new("Dispatch", "Median time", "4.2 h", "20 min faster than last week", 3, 3),
+        ["returns"] = new("Returns", "This week", "12", "3 awaiting inspection", 3, 3),
+        ["dock"] = new("Dock 4 camera", "", "", "Live view of dock 4", 3, 2, Ratio: "16:9"),
+    };
+
+    private bool _arranging = true;
+
+    // The arrangement a reader made, which an app stores per reader. Settled once here, so
+    // whatever was stored renders without an overlap.
+    private IReadOnlyList<SednaPanel> _panels = SednaPanels.Arrange(
+    [
+        new("orders", 0, 0, 4, 3),
+        new("dispatch", 4, 0, 4, 3),
+        new("dock", 8, 0, 4, 3),
+        new("returns", 0, 3, 8, 3),
+    ], Columns);
+
+    // A drop and a resize both carry the whole arrangement: store it and render it back.
+    private void Dropped(SednaDropEventArgs e)
+    {
+        if (e.Panels is { } panels) _panels = panels;
+    }
+
+    private void Resized(SednaResizeEventArgs e)
+    {
+        if (e.Panels is { } panels) _panels = panels;
+    }
+}

@@ -4777,7 +4777,7 @@ window.sednaUi = window.sednaUi || {};
         return false;
     }
     function carriedWith(item, from) {
-        if (!selected(item)) return [item];
+        if (!selected(item) || isCells(from)) return [item];
         return itemsOf(from).filter(function (el) {
             return el === item || (selected(el) && !disabled(el));
         });
@@ -4801,9 +4801,19 @@ window.sednaUi = window.sednaUi || {};
     }
     function effectOf(item, from) {
         var own = item.getAttribute('data-drag-effect');
+        if (isCells(from)) return 'move';
         return (own || from.getAttribute('data-drag-effect')) === 'copy' ? 'copy' : 'move';
     }
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
+    function isCells(zone) { return !!zone && axisOf(zone) === 'cells' && !!ui._.panels; }
+    function resting(zone) { return isCells(zone) && ui._.panels.resting(zone); }
+    function cellOf(index) { var c = drag.cells.cols; return { x: index % c, y: Math.floor(index / c) }; }
+    function indexOfCell(cell) { return cell.y * drag.cells.cols + cell.x; }
+    function panelNow(back) {
+        var s = drag.cells, list = (!back && s.result) || s.start;
+        var p = ui._.panels.find(list, drag.detail.item);
+        return { position: list.indexOf(p), x: p.x, y: p.y };
+    }
     function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
     function validSlot(zone) { return isSlot(zone) && zone.getAttribute('data-drop-state') === 'valid'; }
     function slotAt(x, y, from) {
@@ -4823,7 +4833,7 @@ window.sednaUi = window.sednaUi || {};
     function liftable(target) {
         if (!(target instanceof Element)) return null;
         var item = target.closest('[data-drag-item]');
-        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
+        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item)) || resting(zoneOf(item))) return null;
         var handle = handleOf(item);
         if (handle) return handle.contains(target) ? item : null;
         var control = target.closest(CONTROL);
@@ -4838,6 +4848,7 @@ window.sednaUi = window.sednaUi || {};
     }
     function accepts(zone, item, from, effect) {
         if (disabled(zone) || item.contains(zone)) return false;
+        if (isCells(zone) || isCells(from)) return zone === from;
         if (effect === 'copy' && zone === from) return false;
         if (zone !== from) {
             var group = zone.getAttribute('data-drag-group');
@@ -4870,11 +4881,15 @@ window.sednaUi = window.sednaUi || {};
         if (!sentence) return;
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
-        var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
+        var cell = drag.cells ? panelNow(back) : null;
+        if (cell) index = cell.position;
+        var said = sentence.replace(/\{(item|items|zone|position|count|column|row)\}/g, function (all, name) {
             if (name === 'item') return drag.name;
             if (name === 'items') return String(drag.carried.length);
             if (name === 'zone') return zoneName(zone);
             if (name === 'position') return String(index + 1);
+            if (name === 'column') return cell ? String(cell.x + 1) : '';
+            if (name === 'row') return cell ? String(cell.y + 1) : '';
             return String(count);
         });
         live.textContent = live.textContent === said ? said + ' ' : said;
@@ -4909,7 +4924,13 @@ window.sednaUi = window.sednaUi || {};
         drag.zone = zone;
         drag.index = index;
         setOver(zone);
-        if (zone && zone.getAttribute('data-drop-state') === 'valid') markEdge(zone, index, y);
+        var valid = !!zone && zone.getAttribute('data-drop-state') === 'valid';
+        if (drag.cells) {
+            if (valid) ui._.panels.moveTo(drag.cells, drag.detail.item, cellOf(index));
+            else ui._.panels.moveTo(drag.cells, drag.detail.item, cellOf(drag.start));
+            return;
+        }
+        if (valid) markEdge(zone, index, y);
         else clearEdge();
     }
     function begin(item, mode, x, y) {
@@ -4938,9 +4959,13 @@ window.sednaUi = window.sednaUi || {};
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
-            left0: rect.left, top0: rect.top, ref: null,
-            zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0
+            left0: rect.left, top0: rect.top, width: rect.width, ref: null,
+            zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0, cells: null
         };
+        if (isCells(from)) {
+            drag.cells = ui._.panels.begin(from);
+            start = drag.start = drag.index = indexOfCell(ui._.panels.find(drag.cells.start, detail.item));
+        }
         toArray(document.querySelectorAll('[data-drag-zone]')).forEach(function (zone) {
             var group = zone.getAttribute('data-drag-group');
             if (zone !== from && (!group || group !== from.getAttribute('data-drag-group'))) return;
@@ -5009,7 +5034,7 @@ window.sednaUi = window.sednaUi || {};
             clearSlot();
             return;
         }
-        if (axis === 'grid') { follow(next || prev); return; }
+        if (axis === 'grid' || axis === 'cells') { follow(next || prev); return; }
         var inline = axis === 'x';
         if (next) {
             var after = next.getBoundingClientRect();
@@ -5062,6 +5087,8 @@ window.sednaUi = window.sednaUi || {};
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
         var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
+        if (d.cells) moved = landed && ui._.panels.changed(d.cells);
+        var landing = d.cells ? panelNow(!moved) : null;
         var effect = d.detail.effect;
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
         clearEdge();
@@ -5081,26 +5108,34 @@ window.sednaUi = window.sednaUi || {};
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
+        var arranged = d.cells ? ui._.panels.end(d.cells, moved) : null;
+        var index = landing ? landing.position : d.index;
         var id = d.detail.item;
         if (moved) {
-            send(zone, 'sedna-drop', {
+            var dropped = {
                 item: id,
                 items: d.detail.items,
                 type: d.detail.type,
                 from: d.detail.zone,
                 to: zone.getAttribute('data-drag-zone'),
-                index: d.index,
+                index: index,
                 fromIndex: d.fromIndex,
                 keyboard: d.mode === 'keyboard',
                 fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null,
                 effect: effect
-            });
+            };
+            if (arranged) {
+                dropped.x = landing.x;
+                dropped.y = landing.y;
+                dropped.panels = arranged;
+            }
+            send(zone, 'sedna-drop', dropped);
         }
         var went = moved && !d.copy;
         var end = {
             item: id, items: d.detail.items, type: d.detail.type,
             zone: went ? zone.getAttribute('data-drag-zone') : d.detail.zone,
-            index: went ? d.index : d.fromIndex,
+            index: went ? index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
             dropped: !!moved,
             effect: effect
@@ -5231,8 +5266,15 @@ window.sednaUi = window.sednaUi || {};
         d.item.style.setProperty('--drag-x', d.tx + 'px');
         d.item.style.setProperty('--drag-y', d.ty + 'px');
         var zone = zoneAt(d.x, d.y);
-        var index = zone && zone.getAttribute('data-drop-state') === 'valid'
-            ? indexAt(zone, d.x, d.y) : 0;
+        var valid = zone && zone.getAttribute('data-drop-state') === 'valid';
+        if (d.cells) {
+            var left = d.x - d.grabX, top = d.y - d.grabY;
+            var cell = valid ? indexOfCell(ui._.panels.cellAt(d.cells, d.detail.item,
+                { left: left, top: top, right: left + d.width })) : d.index;
+            if (zone !== d.zone || cell !== d.index) target(zone, cell);
+            return;
+        }
+        var index = valid ? indexAt(zone, d.x, d.y) : 0;
         if (zone !== d.zone || index !== d.index || !d.edge) target(zone, index, d.y);
     }
     function tick() {
@@ -5347,6 +5389,14 @@ window.sednaUi = window.sednaUi || {};
     }
     function move(key) {
         var zone = drag.zone && drag.zone.getAttribute('data-drop-state') === 'valid' ? drag.zone : drag.from;
+        if (drag.cells) {
+            var cell = ui._.panels.stepFrom(drag.cells, drag.detail.item, key);
+            if (!cell) return;
+            target(drag.from, indexOfCell(cell));
+            try { drag.item.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* old engine */ }
+            announce('move');
+            return;
+        }
         if (isSlot(zone)) {
             var next = /^Arrow/.test(key) ? slotToward(zone, key) : null;
             if (!next) return;
@@ -5407,7 +5457,7 @@ window.sednaUi = window.sednaUi || {};
     function keyTarget(el) {
         if (!(el instanceof Element)) return null;
         var item = el.closest('[data-drag-item]');
-        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
+        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item)) || resting(zoneOf(item))) return null;
         return el === keyOwner(item) ? item : null;
     }
     var MOVES = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
@@ -5558,6 +5608,268 @@ window.sednaUi = window.sednaUi || {};
     });
 })(window.sednaUi);
 (function (ui) {
+    function whole(value, fallback) {
+        var n = Math.round(Number(value));
+        return isFinite(n) ? n : fallback;
+    }
+    function fit(p, columns) {
+        var w = Math.min(columns, Math.max(1, whole(p.w, 1)));
+        return {
+            id: String(p.id),
+            x: Math.min(columns - w, Math.max(0, whole(p.x, 0))),
+            y: Math.max(0, whole(p.y, 0)),
+            w: w,
+            h: Math.max(1, whole(p.h, 1))
+        };
+    }
+    function blocker(p, y, placed) {
+        for (var i = 0; i < placed.length; i++) {
+            var q = placed[i];
+            if (p.x < q.x + q.w && q.x < p.x + p.w && y < q.y + q.h && q.y < y + p.h) return q;
+        }
+        return null;
+    }
+    function arrange(panels, columns, moved) {
+        var cols = Math.max(1, whole(columns, 1));
+        var list = [], seen = {};
+        (panels || []).forEach(function (p) {
+            if (!p || seen[p.id]) return;
+            seen[p.id] = true;
+            list.push(fit(p, cols));
+        });
+        var mover = null, down = false;
+        if (moved) {
+            var at = -1;
+            for (var i = 0; i < list.length; i++) if (list[i].id === String(moved.id)) at = i;
+            var was = at === -1 ? null : list[at];
+            mover = fit({
+                id: moved.id,
+                x: moved.x === undefined ? (was ? was.x : 0) : moved.x,
+                y: moved.y === undefined ? (was ? was.y : 0) : moved.y,
+                w: moved.w === undefined ? (was ? was.w : 1) : moved.w,
+                h: moved.h === undefined ? (was ? was.h : 1) : moved.h
+            }, cols);
+            down = !!was && mover.y > was.y;
+            if (at === -1) list.push(mover); else list[at] = mover;
+        }
+        var order = list.slice().sort(function (a, b) {
+            if (a.y !== b.y) return a.y - b.y;
+            if (a === mover || b === mover) return (a === mover) === down ? 1 : -1;
+            return a.x - b.x;
+        });
+        var placed = [];
+        order.forEach(function (p) {
+            var y = p.y, hit;
+            while ((hit = blocker(p, y, placed))) y = hit.y + hit.h;
+            while (y > 0 && !blocker(p, y - 1, placed)) y--;
+            p.y = y;
+            placed.push(p);
+        });
+        return placed.slice().sort(function (a, b) { return a.y - b.y || a.x - b.x; });
+    }
+    function find(panels, id) {
+        for (var i = 0; i < panels.length; i++) if (panels[i].id === id) return panels[i];
+        return null;
+    }
+    function same(a, b) {
+        if (a.length !== b.length) return false;
+        for (var i = 0; i < a.length; i++) {
+            var q = find(b, a[i].id);
+            if (!q || q.x !== a[i].x || q.y !== a[i].y || q.w !== a[i].w || q.h !== a[i].h) return false;
+        }
+        return true;
+    }
+    var AXES = ['x', 'y', 'w', 'h'];
+    var HOLD = 3000;          // ms a preview waits for the app to render the arrangement
+    var held = [];            // grids whose preview waits for the app
+    function isGrid(el) {
+        return !!el && el.nodeType === 1 && el.hasAttribute('data-drag-zone')
+            && el.getAttribute('data-drag-axis') === 'cells';
+    }
+    function panelsOf(grid) {
+        return Array.prototype.filter.call(grid.children, function (el) {
+            return el.hasAttribute('data-drag-item');
+        });
+    }
+    function stacked(grid) {
+        var first = panelsOf(grid)[0];
+        return !!first && getComputedStyle(first).getPropertyValue('--panel-stacked').trim() === '1';
+    }
+    function resting(grid) { return !grid.hasAttribute('data-arrange') || stacked(grid); }
+    function read(grid) {
+        return panelsOf(grid).map(function (el) {
+            var cs = getComputedStyle(el), p = { id: el.getAttribute('data-drag-item') };
+            AXES.forEach(function (a) { p[a] = whole(parseFloat(cs.getPropertyValue('--panel-' + a)), a === 'w' || a === 'h' ? 1 : 0); });
+            return p;
+        });
+    }
+    function px(value) { var n = parseFloat(value); return isFinite(n) ? n : 0; }
+    function geometry(grid) {
+        var cs = getComputedStyle(grid), r = grid.getBoundingClientRect();
+        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 12));
+        var gapX = px(cs.columnGap), gapY = px(cs.rowGap);
+        var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
+        var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
+        var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
+        var col = (right - left - gapX * (cols - 1)) / cols;
+        var row = px(cs.gridAutoRows) || 48;
+        return {
+            cols: cols, col: col, row: row, gapX: gapX, gapY: gapY,
+            pitchX: col + gapX, pitchY: row + gapY,
+            left: left, right: right, top: top, rtl: cs.direction === 'rtl'
+        };
+    }
+    function show(grid, result, mark) {
+        panelsOf(grid).forEach(function (el) {
+            var p = find(result, el.getAttribute('data-drag-item'));
+            if (!p) return;
+            AXES.forEach(function (a) { el.style.setProperty('--panel-preview-' + a, String(p[a])); });
+        });
+        if (mark) AXES.forEach(function (a) { grid.style.setProperty('--panel-drop-' + a, String(mark[a])); });
+    }
+    function clear(s) {
+        var i = held.indexOf(s);
+        if (i !== -1) {
+            held.splice(i, 1);
+            clearTimeout(s.timer);
+            if (s.observer) s.observer.disconnect();
+        }
+        panelsOf(s.grid).forEach(function (el) {
+            AXES.forEach(function (a) { el.style.removeProperty('--panel-preview-' + a); });
+        });
+        AXES.forEach(function (a) { s.grid.style.removeProperty('--panel-drop-' + a); });
+        if (!s.hadStyle && !s.grid.getAttribute('style')) s.grid.removeAttribute('style');
+    }
+    function hold(s) {
+        var grid = s.grid;
+        try {
+            s.observer = new MutationObserver(function (records) {
+                for (var i = 0; i < records.length; i++) {
+                    var r = records[i];
+                    if (r.type === 'childList' ? r.target === grid : r.target.parentElement === grid) {
+                        clear(s);
+                        return;
+                    }
+                }
+            });
+            s.observer.observe(grid, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+        } catch (e) { clear(s); return; }
+        s.timer = setTimeout(function () { clear(s); }, HOLD);
+        held.push(s);
+    }
+    function begin(grid) {
+        var before = null;
+        held.slice().forEach(function (h) {
+            if (h.grid !== grid) return;
+            before = h.result;
+            clear(h);
+        });
+        var g = geometry(grid);
+        var s = {
+            grid: grid, geo: g, cols: g.cols, hadStyle: grid.hasAttribute('style'),
+            start: arrange(before || read(grid), g.cols), result: null, observer: null, timer: 0
+        };
+        if (before) show(grid, s.start, null);
+        return s;
+    }
+    function changed(s) { return !!s.result && !same(s.result, s.start); }
+    function end(s, keep) {
+        keep = keep && changed(s);
+        if (keep) hold(s); else clear(s);
+        return keep ? copy(s.result) : null;
+    }
+    function copy(panels) {
+        return panels.map(function (p) { return { id: p.id, x: p.x, y: p.y, w: p.w, h: p.h }; });
+    }
+    function moveTo(s, id, cell) {
+        var was = find(s.start, id);
+        s.result = arrange(s.start, s.cols, { id: id, x: cell.x, y: cell.y, w: was.w, h: was.h });
+        s.cell = cell;
+        var now = find(s.result, id);
+        show(s.grid, s.result, now);
+        return now;
+    }
+    function cellAt(s, id, box) {
+        var g = s.geo = geometry(s.grid);
+        var dx = g.rtl ? g.right - box.right : box.left - g.left;
+        var w = find(s.start, id).w;
+        return {
+            x: Math.max(0, Math.min(s.cols - w, Math.round(dx / g.pitchX))),
+            y: Math.max(0, Math.round((box.top - g.top) / g.pitchY))
+        };
+    }
+    function stepFrom(s, id, key) {
+        var now = find(s.result || s.start, id);
+        var across = { ArrowLeft: -1, ArrowRight: 1 }[key];
+        if (across) {
+            if (s.geo.rtl) across = -across;
+            var x = Math.max(0, Math.min(s.cols - now.w, now.x + across));
+            return x === now.x ? null : { x: x, y: now.y };
+        }
+        var by = { ArrowUp: -1, ArrowDown: 1 }[key];
+        if (!by) return null;
+        var bottom = 0;
+        s.start.forEach(function (p) { bottom = Math.max(bottom, p.y + p.h); });
+        var was = find(s.start, id);
+        for (var y = now.y + by; y >= 0 && y <= bottom; y += by) {
+            var p = find(arrange(s.start, s.cols, { id: id, x: now.x, y: y, w: was.w, h: was.h }), id);
+            if (p.y !== now.y) return { x: now.x, y: y };
+        }
+        return null;
+    }
+    function gridOfPanel(el) {
+        var grid = el && el.parentElement;
+        return isGrid(grid) && el.hasAttribute('data-drag-item') ? grid : null;
+    }
+    function ratioOf(el) {
+        var raw = el.getAttribute('data-panel-ratio');
+        if (!raw) return null;
+        var parts = raw.split(/[:/]/);
+        var r = parts.length === 2 ? parseFloat(parts[0]) / parseFloat(parts[1]) : parseFloat(raw);
+        return isFinite(r) && r > 0 ? r : null;
+    }
+    function sized(s, panel, w, h, limits, lead) {
+        var g = s.geo, ratio = ratioOf(panel);
+        function clampW(v) { return Math.max(limits.w[0], Math.min(limits.w[1], v)); }
+        function clampH(v) { return Math.max(limits.h[0], Math.min(limits.h[1], v)); }
+        w = clampW(w);
+        h = clampH(h);
+        if (!ratio) return { w: w, h: h };
+        function hFor(cw) { return Math.max(1, Math.round((cw * g.col + (cw - 1) * g.gapX) / ratio / g.pitchY + g.gapY / g.pitchY)); }
+        function wFor(ch) { return Math.max(1, Math.round((ch * g.row + (ch - 1) * g.gapY) * ratio / g.pitchX + g.gapX / g.pitchX)); }
+        if (lead === 'h') {
+            var wide = wFor(h);
+            w = clampW(wide);
+            if (w !== wide) h = clampH(hFor(w));
+        } else {
+            var tall = hFor(w);
+            h = clampH(tall);
+            if (h !== tall) w = clampW(wFor(h));
+        }
+        return { w: w, h: h };
+    }
+    function resizeTo(s, panel, size) {
+        var id = panel.getAttribute('data-drag-item');
+        var was = find(s.start, id);
+        s.result = arrange(s.start, s.cols, { id: id, x: was.x, y: was.y, w: size.w, h: size.h });
+        show(s.grid, s.result, null);
+        return find(s.result, id);
+    }
+    ui.panels = {
+        arrange: function (panels, columns, moved) { return copy(arrange(panels, columns, moved)); }
+    };
+    ui._.panels = {
+        isGrid: isGrid, resting: resting, gridOfPanel: gridOfPanel,
+        begin: begin, changed: changed, end: end, find: find,
+        moveTo: moveTo, cellAt: cellAt, stepFrom: stepFrom,
+        sized: sized, resizeTo: resizeTo
+    };
+})(window.sednaUi);
+(function (ui) {
+    function toArray(list) { return Array.prototype.slice.call(list); }
+    function properties(handle) {
+        return (handle.getAttribute('data-resize') || '').trim().split(/\s+/).filter(Boolean);
+    }
     function parts(handle) {
         var on = handle.getAttribute('data-resize-on');
         var target = on ? document.getElementById(on) : handle.parentElement;
@@ -5568,8 +5880,37 @@ window.sednaUi = window.sednaUi || {};
         var block = handle.getAttribute('aria-orientation') !== 'vertical';
         return {
             target: target, measured: measured, block: block,
-            property: handle.getAttribute('data-resize'), key: handle.getAttribute('data-resize-key')
+            property: properties(handle)[0], key: handle.getAttribute('data-resize-key')
         };
+    }
+    function edgeOf(handle, target, property) {
+        var found = toArray(target.querySelectorAll('[data-resize]'));
+        if (target.id) {
+            found = found.concat(toArray(document.querySelectorAll('[data-resize-on]')).filter(function (h) {
+                return h.getAttribute('data-resize-on') === target.id;
+            }));
+        }
+        for (var i = 0; i < found.length; i++) {
+            var h = found[i], props = properties(h);
+            if (h === handle || props.length !== 1 || props[0] !== property) continue;
+            var q = parts(h);
+            if (q && q.target === target) return h;
+        }
+        return null;
+    }
+    function axes(handle) {
+        var p = parts(handle);
+        if (!p) return null;
+        var props = properties(handle);
+        if (props.length < 2) return [{ handle: handle, p: p, aria: true }];
+        return props.slice(0, 2).map(function (property, i) {
+            var edge = edgeOf(handle, p.target, property);
+            var q = edge ? parts(edge) : null;
+            return {
+                handle: edge || handle, aria: !!edge,
+                p: { target: p.target, measured: q ? q.measured : p.measured, block: i === 1, property: property, key: p.key }
+            };
+        });
     }
     function size(p) {
         var r = p.measured.getBoundingClientRect();
@@ -5595,18 +5936,20 @@ window.sednaUi = window.sednaUi || {};
         var s = parseFloat(handle.getAttribute('data-resize-step'));
         return isNaN(s) || s <= 0 ? 8 : s;
     }
-    function apply(handle, p, value) {
-        var b = bounds(handle), step = stepOf(handle);
+    function apply(a, value) {
+        var b = bounds(a.handle), step = stepOf(a.handle);
         value = Math.min(b.max, Math.max(b.min, Math.round(value / step) * step));
-        p.target.style.setProperty(p.property, value + 'px');
-        handle.setAttribute('aria-valuenow', String(value));
+        a.p.target.style.setProperty(a.p.property, value + 'px');
+        if (a.aria) a.handle.setAttribute('aria-valuenow', String(value));
         return value;
     }
-    function done(p, value, folded) {
-        p.target.dispatchEvent(new CustomEvent('sedna-resize', {
+    function done(p, value, folded, panels) {
+        var event = new CustomEvent('sedna-resize', {
             bubbles: true,
             detail: { property: p.property, value: value, folded: !!folded, key: p.key }
-        }));
+        });
+        if (panels) event.detail.panels = panels;
+        p.target.dispatchEvent(event);
     }
     function foldAt(handle) {
         var f = parseFloat(handle.getAttribute('data-resize-fold'));
@@ -5623,43 +5966,129 @@ window.sednaUi = window.sednaUi || {};
         var value = parseFloat(before);
         done(p, isNaN(value) ? null : value, true);
     }
+    function panelGrid(target) { return ui._.panels ? ui._.panels.gridOfPanel(target) : null; }
     function reset(handle) {
         var p = parts(handle);
-        if (!p) return;
-        p.target.style.removeProperty(p.property);
-        handle.removeAttribute('aria-valuenow');
-        done(p, null);
+        if (!p || panelGrid(p.target)) return;
+        properties(handle).forEach(function (property, i) {
+            p.target.style.removeProperty(property);
+            var edge = i === 0 && properties(handle).length === 1 ? handle : edgeOf(handle, p.target, property);
+            if (edge) edge.removeAttribute('aria-valuenow');
+            done({ target: p.target, property: property, key: p.key }, null);
+        });
     }
     ui.resize = { reset: reset };
+    function sizeSession(handle, list, x0, y0) {
+        var single = list.length === 1, a0 = list[0];
+        var threshold = single ? foldAt(handle) : null, folding = false;
+        var before = a0.p.target.style.getPropertyValue(a0.p.property), now = handle.getAttribute('aria-valuenow');
+        list.forEach(function (a) {
+            a.start = a.value = size(a.p);
+            a.dir = sign(handle, a.p);
+        });
+        return {
+            move: function (ev) {
+                list.forEach(function (a) {
+                    var wanted = a.start + ((a.p.block ? ev.clientY - y0 : ev.clientX - x0) * a.dir);
+                    if (single) {
+                        folding = threshold !== null && wanted < threshold;
+                        if (folding) handle.setAttribute('data-resize-folding', '');
+                        else handle.removeAttribute('data-resize-folding');
+                    }
+                    a.value = apply(a, wanted);
+                });
+            },
+            end: function (released) {
+                handle.removeAttribute('data-resize-folding');
+                if (folding && released) fold(handle, a0.p, before, now);
+                else if (folding) restore(handle, a0.p, before, now);
+                else list.forEach(function (a) { if (a.value !== a.start) done(a.p, a.value); });
+            }
+        };
+    }
+    function dimOf(property) { return property === '--panel-h' ? 'h' : 'w'; }
+    function panelLimits(handle, target, cols, was) {
+        var limits = {};
+        ['w', 'h'].forEach(function (dim) {
+            var property = '--panel-' + dim, props = properties(handle);
+            var edge = props.length === 1 && props[0] === property ? handle : edgeOf(handle, target, property);
+            var min = edge ? parseFloat(edge.getAttribute('aria-valuemin')) : NaN;
+            var max = edge ? parseFloat(edge.getAttribute('aria-valuemax')) : NaN;
+            var widest = dim === 'w' ? cols - was.x : Infinity;
+            limits[dim] = [isNaN(min) ? 1 : Math.max(1, Math.round(min)), Math.min(widest, isNaN(max) ? Infinity : Math.round(max))];
+        });
+        return limits;
+    }
+    function panelPreview(s, target, want, limits, lead) {
+        var P = ui._.panels;
+        return P.resizeTo(s, target, P.sized(s, target, want.w, want.h, limits, lead));
+    }
+    function panelDone(s, target, was, keep) {
+        var arranged = ui._.panels.end(s, keep);
+        if (!arranged) return;
+        var id = target.getAttribute('data-drag-item');
+        var now = ui._.panels.find(arranged, id);
+        ['w', 'h'].forEach(function (dim) {
+            if (now[dim] === was[dim]) return;
+            done({ target: target, property: '--panel-' + dim, key: id }, now[dim], false, arranged);
+        });
+    }
+    function panelSession(handle, list, grid, x0, y0) {
+        var P = ui._.panels, target = list[0].p.target, s = P.begin(grid);
+        var was = P.find(s.start, target.getAttribute('data-drag-item'));
+        var limits = panelLimits(handle, target, s.cols, was);
+        list.forEach(function (a) {
+            a.dim = dimOf(a.p.property);
+            a.dir = sign(handle, { block: a.dim === 'h', measured: target });
+        });
+        return {
+            move: function (ev) {
+                var want = { w: was.w, h: was.h }, lead = list[0].dim, most = -1;
+                list.forEach(function (a) {
+                    var moved = (a.dim === 'h' ? ev.clientY - y0 : ev.clientX - x0) * a.dir;
+                    var cells = moved / (a.dim === 'h' ? s.geo.pitchY : s.geo.pitchX);
+                    want[a.dim] = was[a.dim] + Math.round(cells);
+                    if (Math.abs(cells) > most) { most = Math.abs(cells); lead = a.dim; }
+                });
+                panelPreview(s, target, want, limits, lead);
+            },
+            end: function (released) { panelDone(s, target, was, released); }
+        };
+    }
+    function panelKey(handle, p, grid, key, steps) {
+        var props = properties(handle);
+        var by = arrow(handle, key);
+        if (props.length !== 1 || !by) return false;
+        var P = ui._.panels, s = P.begin(grid);
+        var was = P.find(s.start, p.target.getAttribute('data-drag-item'));
+        var dim = dimOf(props[0]);
+        var want = { w: was.w, h: was.h };
+        want[dim] += by * sign(handle, { block: dim === 'h', measured: p.target }) * steps;
+        panelPreview(s, p.target, want, panelLimits(handle, p.target, s.cols, was), dim);
+        panelDone(s, p.target, was, true);
+        return true;
+    }
     document.addEventListener('pointerdown', function (e) {
         if (e.button !== 0) return;
         var handle = e.target instanceof Element ? e.target.closest('[data-resize]') : null;
         if (!handle) return;
-        var p = parts(handle);
-        if (!p) return;
+        var list = axes(handle);
+        if (!list) return;
+        var grid = panelGrid(list[0].p.target);
+        if (grid && ui._.panels.resting(grid)) return;
         e.preventDefault();
-        var start = size(p), dir = sign(handle, p), origin = p.block ? e.clientY : e.clientX;
-        var value = start, folding = false, threshold = foldAt(handle);
-        var before = p.target.style.getPropertyValue(p.property), now = handle.getAttribute('aria-valuenow');
         try { handle.setPointerCapture(e.pointerId); } catch (err) { /* already released */ }
         handle.setAttribute('data-resizing', '');
-        function move(ev) {
-            var at = p.block ? ev.clientY : ev.clientX;
-            var wanted = start + (at - origin) * dir;
-            folding = threshold !== null && wanted < threshold;
-            if (folding) handle.setAttribute('data-resize-folding', '');
-            else handle.removeAttribute('data-resize-folding');
-            value = apply(handle, p, wanted);
-        }
+        var session = grid
+            ? panelSession(handle, list, grid, e.clientX, e.clientY)
+            : sizeSession(handle, list, e.clientX, e.clientY);
+        function move(ev) { session.move(ev); }
         function up(ev) {
             handle.removeEventListener('pointermove', move);
             handle.removeEventListener('pointerup', up);
             handle.removeEventListener('pointercancel', up);
             handle.removeAttribute('data-resizing');
-            handle.removeAttribute('data-resize-folding');
-            if (folding && ev.type === 'pointerup') fold(handle, p, before, now);
-            else if (folding) restore(handle, p, before, now);
-            else if (value !== start) done(p, value);
+            session.end(ev.type === 'pointerup');
         }
         handle.addEventListener('pointermove', move);
         handle.addEventListener('pointerup', up);
@@ -5677,15 +6106,18 @@ window.sednaUi = window.sednaUi || {};
     function press(handle, key, steps) {
         var p = parts(handle);
         if (!p) return false;
+        var grid = panelGrid(p.target);
+        if (grid) return !ui._.panels.resting(grid) && panelKey(handle, p, grid, key, steps);
         if (key === 'Home') { reset(handle); return true; }
         var by = arrow(handle, key);
         if (!by) return false;
+        var a = { handle: handle, p: p, aria: true };
         var current = size(p), wanted = current + by * sign(handle, p) * stepOf(handle) * steps;
         if (foldAt(handle) !== null && wanted < current && current <= bounds(handle).min + 0.5) {
             fold(handle, p, p.target.style.getPropertyValue(p.property), handle.getAttribute('aria-valuenow'));
             return true;
         }
-        done(p, apply(handle, p, wanted));
+        done(p, apply(a, wanted));
         return true;
     }
     function ownGrip(el) {

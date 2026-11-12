@@ -17,7 +17,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "cda0c54e7eeecc91"
+    "stamp": "f06c3447907f407c"
   },
   {
     "page": "/button-group",
@@ -93,24 +93,25 @@
       { "text": "A record's whole detail beside the list", "instead": "/drawer#a-record-s-detail" }
     ],
     "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message" ],
-    "stamp": "257dfbcb1fe2786f"
+    "stamp": "5de89c506d5d77fe"
   },
   {
     "page": "/drag-drop",
-    "useFor": "Rearranging what the app shows — a list's order, cards across lanes, tiles in a grid — by pointer, by a finger held still and by the keyboard, with each move reported for the app to make.",
+    "useFor": "Rearranging what the app shows — a list's order, cards across lanes, tiles in a grid, panels on cells — by pointer, by a finger held still and by the keyboard, with each move reported for the app to make.",
     "combineWith": [
       { "page": "/card#head-and-body", "how": "A whole card can be the item, dragged from a handle in its head." },
       { "page": "/utility-scroll#vertical", "how": "A zone inside a .sedna-scroll scrolls while a row is held near its edge." },
       { "page": "/calendar-agenda#move-an-event-to-another-day", "how": "data-drag-axis=\"slot\" makes a day or a half hour a place an event is put." },
       { "page": "/tree#reordering-by-drag", "how": "A tree's rows reorder and move between branches with the same attributes." },
       { "page": "/table-columns#moving-a-column", "how": "Moving a column is a zone along the header row." },
-      { "page": "/grid#panels-the-reader-arranges", "how": "A dashboard's panels are the items of one grid zone." }
+      { "page": "/grid#panels-the-reader-arranges", "how": "A dashboard's panels are the items of one grid zone." },
+      { "page": "/grid#a-panel-grid-the-reader-arranges", "how": "A .panel-grid is a zone along cells, whose drop carries the whole arrangement." }
     ],
     "notFor": [
       { "text": "Files dropped from the desktop", "instead": "/form-file#dropzone-and-file-list" },
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
-    "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels" ],
-    "stamp": "4e3433ebdc1658db"
+    "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
+    "stamp": "485c0ca27948b7d5"
   }
 ]

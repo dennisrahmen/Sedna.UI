@@ -6,7 +6,8 @@ namespace Sedna.UI;
 /// </summary>
 /// <remarks>
 /// It fires once a drag ends, on each arrow key, and on a reset, so an app can keep the size
-/// the reader chose and write it back as the same property next time.
+/// the reader chose and write it back as the same property next time. A corner handle, which
+/// names two properties, fires once for each one it changed.
 /// </remarks>
 public sealed class SednaResizeEventArgs : EventArgs
 {
@@ -25,7 +26,15 @@ public sealed class SednaResizeEventArgs : EventArgs
 
     /// <summary>
     /// The handle's <c>data-resize-key</c> — which column of a <c>.table--fixed</c> a
-    /// <c>.col-resize</c> grip sized — or null when it has none.
+    /// <c>.col-resize</c> grip sized — or null when it has none. For a panel of a
+    /// <c>.panel-grid</c>, the panel's <c>data-drag-item</c>.
     /// </summary>
     public string? Key { get; set; }
+
+    /// <summary>
+    /// For a panel of a <c>.panel-grid</c>, the whole arrangement once it was resized, in reading
+    /// order: store it and render it back. <see cref="Property"/> is then <c>--panel-w</c> or
+    /// <c>--panel-h</c> and <see cref="Value"/> the new size in cells. Null for any other handle.
+    /// </summary>
+    public SednaPanel[]? Panels { get; set; }
 }

@@ -103,8 +103,21 @@
       { "page": "/card#a-ceiling-and-a-fold-by-dragging", "role": "part" },
       { "page": "/drag-drop#reorder-a-grid-of-tiles", "role": "part" }
     ],
-    "how": "A .drag-grid of .card--resizable panels: a drop arrives as sedna-drop and a resize as sedna-resize, and the app moves the panel in its own list, keeps its height and its fold per reader, and renders them back.",
+    "how": "A .drag-grid of .card--resizable panels: a drop arrives as sedna-drop and a resize as sedna-resize, and the app moves the panel in its own list, keeps its height and its fold per reader, and renders them back. Where a panel needs a width and a place of its own, the dashboard is a .panel-grid instead.",
     "avoid": "Keeping the arrangement only in the page: the next visit starts from the default unless the app stores it per reader."
+  },
+  {
+    "id": "place-panels-freely",
+    "goal": "Let the user arrange panels freely on a dashboard",
+    "phrases": [ "free dashboard layout", "drag and resize widgets anywhere", "react grid layout", "gridstack", "panel grid with cells", "operator screen layout" ],
+    "answer": [
+      { "page": "/grid#a-panel-grid-the-reader-arranges", "role": "primary" },
+      { "page": "/grid#panel-grid", "role": "part" },
+      { "page": "/card#wider-taller-or-both-from-the-corner", "role": "part" },
+      { "page": "/drag-drop#keyboard", "role": "part" }
+    ],
+    "how": "A .panel-grid places each card on cells from the app's stored SednaPanels; in arrange mode, data-arrange, the reader drags a panel by its grip and resizes it from its side, bottom or corner, the panels in the way move down and the rest float up, and sedna-drop and sedna-resize carry the whole arrangement to store and render back.",
+    "avoid": "Writing collision and compaction rules of the app's own: the preview and the events already settle the arrangement, and SednaPanels.Arrange settles any the app changes itself."
   },
   {
     "id": "work-beside-a-side-panel",

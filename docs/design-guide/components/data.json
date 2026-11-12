@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "6f40e6f684f31757"
+    "stamp": "f6f0768d5a0f5a8e"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/topbar" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "131175e9d2241ca8"
+    "stamp": "7e564042df7ab6a3"
   },
   {
     "page": "/stat",
@@ -104,7 +104,7 @@
       { "text": "A figure over time", "instead": "/chart" }
     ],
     "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
-    "stamp": "375b0d6655046e10"
+    "stamp": "862c5579885e5a04"
   },
   {
     "page": "/bars",
@@ -186,7 +186,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "538b934a23f09dcf"
+    "stamp": "4236ea4817b9fa80"
   },
   {
     "page": "/pager",
@@ -239,7 +239,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "fd3a8692f8996157"
+    "stamp": "68bd6e38c4101d48"
   },
   {
     "page": "/graph-layouts",
@@ -270,7 +270,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "79461dc8e2157322"
+    "stamp": "28afeee0292f6302"
   },
   {
     "page": "/graph-plugins",
@@ -333,7 +333,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "b616edd8cdc54e9b"
+    "stamp": "b99ee1dfdf480581"
   },
   {
     "page": "/workflow-run",
@@ -348,6 +348,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#a-list-of-running-work" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "d8022a1da995949a"
+    "stamp": "71b73ab8f202f2f8"
   }
 ]

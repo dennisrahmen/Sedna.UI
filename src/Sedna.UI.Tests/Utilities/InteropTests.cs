@@ -394,6 +394,33 @@ public class InteropTests : BunitContext
     }
 
     [Fact]
+    public void A_panel_grid_s_drop_and_resize_carry_the_whole_arrangement()
+    {
+        // As 26-drag.js and 26-resize.js send them for a .panel-grid; the initializer passes
+        // event.detail through as it is.
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        var drop = System.Text.Json.JsonSerializer.Deserialize<SednaDropEventArgs>("""
+            {"item":"orders","items":["orders"],"type":null,"from":"dashboard","to":"dashboard","index":0,"fromIndex":0,
+             "keyboard":false,"fromSlot":null,"effect":"move","x":6,"y":0,
+             "panels":[{"id":"orders","x":6,"y":0,"w":6,"h":4},{"id":"dispatch","x":6,"y":4,"w":6,"h":4}]}
+            """, web)!;
+        Assert.Equal((6, 0), (drop.X, drop.Y));
+        Assert.Equal([new SednaPanel("orders", 6, 0, 6, 4), new SednaPanel("dispatch", 6, 4, 6, 4)], drop.Panels!);
+
+        var resize = System.Text.Json.JsonSerializer.Deserialize<SednaResizeEventArgs>("""
+            {"property":"--panel-w","value":8,"folded":false,"key":"orders","panels":[{"id":"orders","x":0,"y":0,"w":8,"h":4}]}
+            """, web)!;
+        Assert.Equal("orders", resize.Key);
+        Assert.Equal(8, resize.Value);
+        Assert.Equal([new SednaPanel("orders", 0, 0, 8, 4)], resize.Panels!);
+
+        // Any other drop or resize carries none of it.
+        var plain = System.Text.Json.JsonSerializer.Deserialize<SednaDropEventArgs>("""{"item":"a","index":2}""", web)!;
+        Assert.Null(plain.Panels);
+        Assert.Null(plain.X);
+    }
+
+    [Fact]
     public void The_resize_and_follow_events_carry_what_the_script_sends()
     {
         // The initializer passes event.detail through as it is; these are its names.

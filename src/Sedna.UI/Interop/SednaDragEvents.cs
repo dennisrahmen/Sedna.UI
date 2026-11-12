@@ -55,6 +55,21 @@ public sealed class SednaDropEventArgs : EventArgs
     /// as it is. <c>"move"</c> for every other drop.
     /// </summary>
     public string Effect { get; set; } = "move";
+
+    /// <summary>
+    /// For a drop on a panel grid — a <c>.panel-grid</c> with <c>data-drag-axis="cells"</c> —
+    /// the column the panel landed on, from 0 at the inline start. Null for any other drop.
+    /// </summary>
+    public int? X { get; set; }
+
+    /// <summary>For a drop on a panel grid, the row the panel landed on, from 0 at the top. Null for any other drop.</summary>
+    public int? Y { get; set; }
+
+    /// <summary>
+    /// For a drop on a panel grid, the whole arrangement that results, in reading order: store it
+    /// and render it back, and <see cref="Index"/> is the panel's place in it. Null for any other drop.
+    /// </summary>
+    public SednaPanel[]? Panels { get; set; }
 }
 
 /// <summary>

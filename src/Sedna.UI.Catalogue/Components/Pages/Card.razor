@@ -118,6 +118,18 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Card.ResizeCorner" Title="Wider, taller, or both from the corner" Demo="ex-demo--block">
+    <p>
+        <code>.card-resize--inline</code> is the handle on the side, writing <code>--card-width</code> with
+        <code>aria-orientation="vertical"</code>; <code>.card-resize--corner</code> names both properties,
+        the width first, and moves the two at once. The corner is for the pointer and is
+        <code>aria-hidden</code>: from the keyboard the reader has the two edges, and the corner keeps
+        to their <code>aria-valuemin</code> and <code>aria-valuemax</code> and keeps their
+        <code>aria-valuenow</code> current. A card is never wider than what holds it. The corner sends one
+        <code>sedna-resize</code> for each property it changed.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Card.ResizeHandleOutside" Title="A handle outside the card, in steps" Demo="ex-demo--block">
     <p>
         A handle resizes its parent unless <code>data-resize-on</code> names another element by id &mdash;

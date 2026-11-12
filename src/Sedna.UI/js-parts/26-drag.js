@@ -25,7 +25,9 @@
      data-drag-type="task"      an item's type, for data-drag-accept
      data-drag-axis="grid"      how items are laid out: y (default), x or grid. A table's
                                 header row is a zone along x, its header cells the items.
-                                `slot` is a place with no order of its own: see below
+                                `slot` is a place with no order of its own: see below.
+                                `cells` is a .panel-grid, whose panels are placed on
+                                cells: 26-panels.js says what changes there
      data-drag-label="…"        what an announcement calls an item or a zone; an item
                                 falls back to its text, a zone to its aria-label
      data-drag-effect="copy"    on a zone or an item: what is dropped is a copy, and the
@@ -154,7 +156,7 @@
     /* What lifting `item` carries: the item alone, or — when it is itself selected —
        every selected item of its zone that can be lifted, in document order. */
     function carriedWith(item, from) {
-        if (!selected(item)) return [item];
+        if (!selected(item) || isCells(from)) return [item];
         return itemsOf(from).filter(function (el) {
             return el === item || (selected(el) && !disabled(el));
         });
@@ -188,10 +190,31 @@
        data-drag-effect, else its zone's. Anything else is a move. */
     function effectOf(item, from) {
         var own = item.getAttribute('data-drag-effect');
+        if (isCells(from)) return 'move';
         return (own || from.getAttribute('data-drag-effect')) === 'copy' ? 'copy' : 'move';
     }
 
     function axisOf(zone) { return zone.getAttribute('data-drag-axis') || 'y'; }
+
+    /* A panel grid, `data-drag-axis="cells"`: its panels are placed on cells rather than in
+       an order, and 26-panels.js works out where they go. Each takes only its own panels,
+       one at a time, and lifts nothing outside its arrange mode. A cell travels through
+       the code below as one `index`, row by row: y × columns + x. */
+    function isCells(zone) { return !!zone && axisOf(zone) === 'cells' && !!ui._.panels; }
+
+    function resting(zone) { return isCells(zone) && ui._.panels.resting(zone); }
+
+    function cellOf(index) { var c = drag.cells.cols; return { x: index % c, y: Math.floor(index / c) }; }
+
+    function indexOfCell(cell) { return cell.y * drag.cells.cols + cell.x; }
+
+    /* Where the panel being dragged is in the arrangement shown — its reading-order
+       position and its cell — or where it started. */
+    function panelNow(back) {
+        var s = drag.cells, list = (!back && s.result) || s.start;
+        var p = ui._.panels.find(list, drag.detail.item);
+        return { position: list.indexOf(p), x: p.x, y: p.y };
+    }
 
     function isSlot(zone) { return !!zone && axisOf(zone) === 'slot'; }
 
@@ -220,7 +243,7 @@
     function liftable(target) {
         if (!(target instanceof Element)) return null;
         var item = target.closest('[data-drag-item]');
-        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
+        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item)) || resting(zoneOf(item))) return null;
 
         var handle = handleOf(item);
         if (handle) return handle.contains(target) ? item : null;
@@ -243,6 +266,7 @@
        from: the original is still there. */
     function accepts(zone, item, from, effect) {
         if (disabled(zone) || item.contains(zone)) return false;
+        if (isCells(zone) || isCells(from)) return zone === from;
         if (effect === 'copy' && zone === from) return false;
         if (zone !== from) {
             var group = zone.getAttribute('data-drag-group');
@@ -306,11 +330,16 @@
 
         var count = others(zone).length + 1;
         var index = back ? drag.start : drag.index;
-        var said = sentence.replace(/\{(item|items|zone|position|count)\}/g, function (all, name) {
+        // On a panel grid: the place in reading order, and the cell, counted from 1.
+        var cell = drag.cells ? panelNow(back) : null;
+        if (cell) index = cell.position;
+        var said = sentence.replace(/\{(item|items|zone|position|count|column|row)\}/g, function (all, name) {
             if (name === 'item') return drag.name;
             if (name === 'items') return String(drag.carried.length);
             if (name === 'zone') return zoneName(zone);
             if (name === 'position') return String(index + 1);
+            if (name === 'column') return cell ? String(cell.x + 1) : '';
+            if (name === 'row') return cell ? String(cell.y + 1) : '';
             return String(count);
         });
         // The same sentence twice is not a change, so a screen reader would stay silent
@@ -358,7 +387,15 @@
         drag.zone = zone;
         drag.index = index;
         setOver(zone);
-        if (zone && zone.getAttribute('data-drop-state') === 'valid') markEdge(zone, index, y);
+        var valid = !!zone && zone.getAttribute('data-drop-state') === 'valid';
+        // A panel grid draws no line: the panels move aside for the one carried, and the
+        // grid marks the cell it would land on. Off the grid, they go back.
+        if (drag.cells) {
+            if (valid) ui._.panels.moveTo(drag.cells, drag.detail.item, cellOf(index));
+            else ui._.panels.moveTo(drag.cells, drag.detail.item, cellOf(drag.start));
+            return;
+        }
+        if (valid) markEdge(zone, index, y);
         else clearEdge();
     }
 
@@ -393,9 +430,14 @@
             name: itemName(item),
             hadStyle: item.hasAttribute('style'),
             grabX: x - rect.left, grabY: y - rect.top, x: x, y: y, x0: x, y0: y, tx: 0, ty: 0,
-            left0: rect.left, top0: rect.top, ref: null,
-            zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0
+            left0: rect.left, top0: rect.top, width: rect.width, ref: null,
+            zone: null, index: fromIndex, over: null, edge: null, zones: [], frame: 0, cells: null
         };
+        if (isCells(from)) {
+            // The arrangement as it is, and the panel's own cell as where it starts.
+            drag.cells = ui._.panels.begin(from);
+            start = drag.start = drag.index = indexOfCell(ui._.panels.find(drag.cells.start, detail.item));
+        }
 
         // Every zone this item could reach, marked either way, so the reader sees where
         // it can go before moving at all. Zones in another group are left alone.
@@ -498,7 +540,8 @@
             return;
         }
 
-        if (axis === 'grid') { follow(next || prev); return; }
+        // A panel is placed on its cells, not in a flow: nothing closes up behind it.
+        if (axis === 'grid' || axis === 'cells') { follow(next || prev); return; }
         var inline = axis === 'x';
         if (next) {
             var after = next.getBoundingClientRect();
@@ -563,6 +606,9 @@
         var zone = d.zone;
         var landed = commit && zone && zone.getAttribute('data-drop-state') === 'valid' && d.item.isConnected;
         var moved = landed && (zone !== d.from || !d.together || d.index !== d.start) && zone !== d.home;
+        // On a panel grid, a drop that leaves every panel where it was is no move.
+        if (d.cells) moved = landed && ui._.panels.changed(d.cells);
+        var landing = d.cells ? panelNow(!moved) : null;
         var effect = d.detail.effect;
 
         if (d.mode === 'keyboard') announce(moved ? 'drop' : 'cancel');
@@ -584,21 +630,31 @@
         BOX.forEach(function (name) { d.item.style.removeProperty(name); });
         if (!d.hadStyle && !d.item.getAttribute('style')) d.item.removeAttribute('style');
         drag = null;
+        // The panels stay where the preview put them until the app renders the arrangement.
+        var arranged = d.cells ? ui._.panels.end(d.cells, moved) : null;
+        // A panel's place is its position in the arrangement's reading order.
+        var index = landing ? landing.position : d.index;
 
         var id = d.detail.item;
         if (moved) {
-            send(zone, 'sedna-drop', {
+            var dropped = {
                 item: id,
                 items: d.detail.items,
                 type: d.detail.type,
                 from: d.detail.zone,
                 to: zone.getAttribute('data-drag-zone'),
-                index: d.index,
+                index: index,
                 fromIndex: d.fromIndex,
                 keyboard: d.mode === 'keyboard',
                 fromSlot: d.home ? d.home.getAttribute('data-drag-zone') : null,
                 effect: effect
-            });
+            };
+            if (arranged) {
+                dropped.x = landing.x;
+                dropped.y = landing.y;
+                dropped.panels = arranged;
+            }
+            send(zone, 'sedna-drop', dropped);
         }
 
         // A copy's original never left: dragend names where it still is.
@@ -606,7 +662,7 @@
         var end = {
             item: id, items: d.detail.items, type: d.detail.type,
             zone: went ? zone.getAttribute('data-drag-zone') : d.detail.zone,
-            index: went ? d.index : d.fromIndex,
+            index: went ? index : d.fromIndex,
             keyboard: d.mode === 'keyboard',
             dropped: !!moved,
             effect: effect
@@ -781,8 +837,16 @@
         d.item.style.setProperty('--drag-y', d.ty + 'px');
 
         var zone = zoneAt(d.x, d.y);
-        var index = zone && zone.getAttribute('data-drop-state') === 'valid'
-            ? indexAt(zone, d.x, d.y) : 0;
+        var valid = zone && zone.getAttribute('data-drop-state') === 'valid';
+        if (d.cells) {
+            // The cell under the corner of the box the reader holds, not under the pointer.
+            var left = d.x - d.grabX, top = d.y - d.grabY;
+            var cell = valid ? indexOfCell(ui._.panels.cellAt(d.cells, d.detail.item,
+                { left: left, top: top, right: left + d.width })) : d.index;
+            if (zone !== d.zone || cell !== d.index) target(zone, cell);
+            return;
+        }
+        var index = valid ? indexAt(zone, d.x, d.y) : 0;
         if (zone !== d.zone || index !== d.index || !d.edge) target(zone, index, d.y);
     }
 
@@ -930,6 +994,15 @@
 
     function move(key) {
         var zone = drag.zone && drag.zone.getAttribute('data-drop-state') === 'valid' ? drag.zone : drag.from;
+        if (drag.cells) {
+            // A cell across, or the next row where the panel lands somewhere else.
+            var cell = ui._.panels.stepFrom(drag.cells, drag.detail.item, key);
+            if (!cell) return;
+            target(drag.from, indexOfCell(cell));
+            try { drag.item.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { /* old engine */ }
+            announce('move');
+            return;
+        }
         if (isSlot(zone)) {
             var next = /^Arrow/.test(key) ? slotToward(zone, key) : null;
             if (!next) return;
@@ -996,7 +1069,7 @@
     function keyTarget(el) {
         if (!(el instanceof Element)) return null;
         var item = el.closest('[data-drag-item]');
-        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item))) return null;
+        if (!item || !zoneOf(item) || disabled(item) || disabled(zoneOf(item)) || resting(zoneOf(item))) return null;
         return el === keyOwner(item) ? item : null;
     }
 

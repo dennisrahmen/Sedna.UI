@@ -4341,6 +4341,63 @@ a.topbar-version--pre:hover {
 .card-resize[data-resizing]::before { opacity: 1; background: var(--selected); }
 .card-resize:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); border-radius: var(--radius-inner); }
 
+/* `.card-resize--inline` is the handle on the inline-end edge, a
+   `[data-resize="--card-width"]` separator with `aria-orientation="vertical"`; the width
+   it writes is the card's `--card-width`, never wider than what holds the card.
+   `.card-resize--corner` is the corner between the two, `data-resize="--card-width
+   --card-height"`: for the pointer, `aria-hidden="true"`, with the keyboard on the edges.
+   Both lie over the card's own edge, so they take no room. In a `.panel-grid` the same
+   handles write `--panel-w` and `--panel-h`. */
+.card--resizable {
+    --card-width: auto;
+    inline-size: var(--card-width);
+    max-inline-size: 100%;
+}
+:where(.card:has(> .card-resize--inline, > .card-resize--corner)) { position: relative; }
+.card-resize--inline,
+.card-resize--corner {
+    position: absolute;
+    margin: 0;
+}
+.card-resize--inline {
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: var(--space-4);
+    block-size: auto;
+    cursor: ew-resize;
+}
+.card-resize--inline::before {
+    inset-inline: auto;
+    inset-inline-start: calc(50% - 1px);
+    inset-block: 40%;
+    inline-size: 2px;
+    block-size: auto;
+}
+.card-resize--corner {
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    inline-size: var(--space-6);
+    block-size: var(--space-6);
+    cursor: nwse-resize;
+}
+/* Two short strokes along the corner, drawn as the borders of a box set in from it, and
+   shown at rest: a corner is found by its mark, as a text area's is. */
+.card-resize--corner::before {
+    inset: auto;
+    inset-block-end: var(--space-2);
+    inset-inline-end: var(--space-2);
+    inline-size: var(--space-4);
+    block-size: var(--space-4);
+    background: none;
+    border-block-end: 2px solid var(--border-strong);
+    border-inline-end: 2px solid var(--border-strong);
+    border-radius: 0;
+    border-end-end-radius: var(--radius-inner);
+    opacity: 1;
+}
+.card-resize--corner:hover::before,
+.card-resize--corner[data-resizing]::before { background: none; border-color: var(--selected); }
+
 /* ── A card head that holds a tab strip ─────────────────────────────────────
    `.card-head` pads all four sides and centres its children, which leaves a `.tabs`
    floating in it: the strip's own bottom border sits 12px above the head's, so the
@@ -6468,6 +6525,96 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     .sedna-split--stack-lg > * { flex-basis: 100%; }
     .sedna-split--stack-lg > .split-resize { display: none; }
     .sedna-split--stack-lg.sedna-split--aside-first > .sedna-split-aside { order: -1; }
+}
+
+/* ── .panel-grid: panels on cells, placed by the app ───────────────────────
+   A dashboard whose panels each have a place of their own: a column, a row, a width
+   and a height in cells, set inline from the arrangement the app stores —
+   `style="--panel-x: 0; --panel-y: 0; --panel-w: 8; --panel-h: 4"`, counted from 0 at the
+   inline start and the top. `--panel-cols` (12) columns share the width; a row is
+   `--panel-row` (3rem) tall, and `--grid-gap` lies between them both ways. Nothing
+   flows: a panel stays where it is put, so the app keeps them from overlapping —
+   `sednaUi.panels.arrange` and `SednaPanels.Arrange` settle any arrangement into one
+   that does.
+
+   As a drag zone with `data-drag-axis="cells"`, the reader arranges it while it carries
+   `data-arrange`: a panel moves by its `[data-drag-handle]` and resizes by its
+   `.card-resize` handles, which show only then, over cells drawn faintly on the grid.
+   While a panel is carried the grid marks the cell it would land on, from the
+   `--panel-drop-*` the script writes; the other panels make room through
+   `--panel-preview-*`, which the script writes and clears and which are read before the
+   app's own values. 26-panels.js says how.
+
+   Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
+   their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
+.panel-grid {
+    --panel-cols: 12;
+    --panel-row: 3rem;
+    --grid-gap: var(--space-7);
+    --panel-drop-x: 0;
+    --panel-drop-y: 0;
+    --panel-drop-w: 1;
+    --panel-drop-h: 1;
+    container: panel-grid / inline-size;
+    display: grid;
+    grid-template-columns: repeat(var(--panel-cols), minmax(0, 1fr));
+    grid-auto-rows: var(--panel-row);
+    gap: var(--grid-gap);
+}
+:where(.panel-grid > *) {
+    --panel-x: 0;
+    --panel-y: 0;
+    --panel-w: 1;
+    --panel-h: 1;
+    --panel-preview-x: initial;
+    --panel-preview-y: initial;
+    --panel-preview-w: initial;
+    --panel-preview-h: initial;
+    --panel-stacked: 0;
+}
+.panel-grid > * {
+    grid-column: calc(var(--panel-preview-x, var(--panel-x)) + 1) / span var(--panel-preview-w, var(--panel-w));
+    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1) / span var(--panel-preview-h, var(--panel-h));
+    min-inline-size: 0;
+    min-block-size: 0;
+}
+/* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
+.panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
+
+/* Arranging: the cells, a tint each with the gap left clear — one tile per cell, tinted in
+   the quarter of a conic gradient that lies above and before the gap's corner. */
+.panel-grid[data-arrange] {
+    background-image: conic-gradient(
+        at calc(100% - var(--grid-gap)) calc(100% - var(--grid-gap)),
+        transparent 75%, var(--surface-soft) 0);
+    background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
+    border-radius: var(--radius-surface);
+}
+/* Not arranging, a panel is content: its own handles are not there. A handle of a zone
+   nested inside a panel — a list in it the reader reorders — is that zone's. */
+.panel-grid:not([data-arrange]) [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
+.panel-grid:not([data-arrange]) > * > [data-resize] { display: none; }
+
+/* The cell a carried panel would land on. */
+.panel-grid[data-drop-over]::before {
+    content: "";
+    grid-column: calc(var(--panel-drop-x) + 1) / span var(--panel-drop-w);
+    grid-row: calc(var(--panel-drop-y) + 1) / span var(--panel-drop-h);
+    border: 2px dashed var(--brand);
+    border-radius: var(--radius-surface);
+    background: var(--brand-tint);
+    pointer-events: none;
+}
+
+@container panel-grid (width < 560px) {
+    .panel-grid > * {
+        --panel-stacked: 1;
+        grid-column: 1 / -1;
+        grid-row: auto / span var(--panel-h);
+        order: calc(var(--panel-y) * 1000 + var(--panel-x));
+    }
+    .panel-grid [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
+    .panel-grid > * > [data-resize] { display: none; }
 }
 }
 
@@ -25421,6 +25568,10 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    Both are real gaps in CSS rather than shortcuts taken here, which is why each one
    is named individually instead of being covered by a sweeping rule.
    ─────────────────────────────────────────────────────────────────────────── */
+
+/* A resize cursor names a physical diagonal. A card's corner handle sits at the block-end,
+   inline-end corner, which is the bottom left right to left. */
+[dir="rtl"] .card-resize--corner { cursor: nesw-resize; }
 
 /* The switch knob travels from the inline start to the inline end. Its resting
    position is already logical; only the journey needs mirroring. */

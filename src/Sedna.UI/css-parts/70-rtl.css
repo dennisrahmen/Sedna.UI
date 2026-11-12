@@ -19,6 +19,10 @@
    is named individually instead of being covered by a sweeping rule.
    ─────────────────────────────────────────────────────────────────────────── */
 
+/* A resize cursor names a physical diagonal. A card's corner handle sits at the block-end,
+   inline-end corner, which is the bottom left right to left. */
+[dir="rtl"] .card-resize--corner { cursor: nesw-resize; }
+
 /* The switch knob travels from the inline start to the inline end. Its resting
    position is already logical; only the journey needs mirroring. */
 [dir="rtl"] .switch input[type="checkbox"]:checked::after { transform: translateX(-15px); }

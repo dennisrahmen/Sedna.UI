@@ -17,7 +17,7 @@
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" }
     ],
     "goals": [ "head-a-page", "copy-a-command", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "check-the-tools-an-agent-ran" ],
-    "stamp": "291bdd4d71e3fa31"
+    "stamp": "33474b0e2136068a"
   },
   {
     "page": "/page-navigation",
@@ -32,18 +32,19 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#a-strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "e78a3e9a1e5a69b0"
+    "stamp": "fc569c7bcf7d3f9a"
   },
   {
     "page": "/card",
-    "useFor": "One object on the page with its own title, its own actions or its own state: a record's fields, a table, a form, a widget the reader folds and resizes.",
+    "useFor": "One object on the page with its own title, its own actions or its own state: a record's fields, a table, a form, a widget the reader folds and resizes by its side, its bottom or its corner.",
     "combineWith": [
       { "page": "/table#with-a-toolbar-in-a-card", "how": "A table goes straight in the card with no .card-body, under a toolbar outside it." },
       { "page": "/badge#in-a-card-header-and-a-table-cell", "how": "The card's state in .card-head-right, in words as well as a tone." },
       { "page": "/grid#a-dashboard", "how": "Cards as the panels of a dashboard, .card--fill where a row should end on one line." },
       { "page": "/form#a-settings-card", "how": "A form section in the body and its Save in a .card-foot." },
       { "page": "/tabs#tabs-in-a-card", "how": "The tablist in a .card-head--tabs and the panels in the body." },
-      { "page": "/list", "how": "A list straight in the card meets its edges with no class." }
+      { "page": "/list", "how": "A list straight in the card meets its edges with no class." },
+      { "page": "/grid#a-panel-grid-the-reader-arranges", "how": "Resizable cards are the panels of a .panel-grid, their handles counting in cells." }
     ],
     "notFor": [
       { "text": "Records compared down columns", "instead": "/table" },
@@ -51,18 +52,19 @@
       { "text": "Laying cards out side by side", "instead": "/grid" },
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
-    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "d84d659151f36d93"
+    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
+    "stamp": "44f8576289fbf8b2"
   },
   {
     "page": "/grid",
-    "useFor": "Placing the app's own markup: peers in as many columns as fit, panels of different widths on a 24-column dashboard, and a main column beside an aside.",
+    "useFor": "Placing the app's own markup: peers in as many columns as fit, panels of different widths on a 24-column dashboard, a main column beside an aside, and panels on cells the reader moves and resizes.",
     "combineWith": [
       { "page": "/card", "how": "The panels and tiles a grid places are cards; .card--fill makes a row of them end on one line." },
       { "page": "/stat#a-row-of-tiles", "how": "A .stat-row across the top of a dashboard, the panels below it." },
       { "page": "/filtering#filter-side-panel", "how": "The filter panel as the aside of a .sedna-split beside the results." },
       { "page": "/page-navigation#on-this-page", "how": "The contents as a sticky aside beside a long page." },
-      { "page": "/drag-drop#reorder-a-grid-of-tiles", "how": "A .drag-grid of resizable cards for panels the reader arranges." },
+      { "page": "/drag-drop#reorder-a-grid-of-tiles", "how": "A .drag-grid of resizable cards for panels the reader puts in order." },
+      { "page": "/drag-drop#keyboard", "how": "A .panel-grid is a drag zone with data-drag-axis=\"cells\", picked up and moved with the same keys and announced in the same live region." },
       { "page": "/form#two-up-rows", "how": "Fields side by side are a .sedna-grid--sm --fit, dropping to one column on its own." }
     ],
     "notFor": [
@@ -70,8 +72,8 @@
       { "text": "Spacing a row of controls", "instead": "/utility-layout#rows-and-columns" },
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
-    "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "69c0cc9609a8fdbd"
+    "goals": [ "lay-out-a-dashboard", "arrange-dashboard-panels", "place-panels-freely", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "rearrange-tiles", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
+    "stamp": "2b6ae17bb871567c"
   },
   {
     "page": "/list",
@@ -125,7 +127,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "147f627534b31967"
+    "stamp": "5b08c8a5c22d8587"
   },
   {
     "page": "/timeline",
@@ -162,6 +164,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "a5e0f8b8adedb6a3"
+    "stamp": "bfb7d8f0af943e80"
   }
 ]
