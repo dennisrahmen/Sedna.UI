@@ -83,25 +83,25 @@ internal static partial class GuideMarkdown
                 html.Append("<ul>\n");
                 while (i < lines.Length && lines[i].StartsWith("- ", StringComparison.Ordinal))
                 {
-                    var item = new StringBuilder(lines[i++][2..].Trim());
+                    var item = new List<string> { lines[i++][2..].Trim() };
                     while (i < lines.Length && lines[i].StartsWith("  ", StringComparison.Ordinal) && lines[i].Trim().Length > 0)
-                        item.Append(' ').Append(lines[i++].Trim());
-                    html.Append("<li>").Append(InlineHtml(item.ToString())).Append("</li>\n");
+                        item.Add(lines[i++].Trim());
+                    html.Append("<li>").Append(InlineHtml(string.Join(' ', item))).Append("</li>\n");
                 }
                 html.Append("</ul>\n");
             }
             else
             {
                 Unsupported(line);
-                var paragraph = new StringBuilder();
+                var paragraph = new List<string>();
                 while (i < lines.Length && lines[i].Trim().Length > 0
                        && !lines[i].StartsWith('|') && !lines[i].StartsWith("- ", StringComparison.Ordinal)
                        && !lines[i].StartsWith('#'))
                 {
                     Unsupported(lines[i]);
-                    paragraph.Append(paragraph.Length > 0 ? " " : string.Empty).Append(lines[i++].Trim());
+                    paragraph.Add(lines[i++].Trim());
                 }
-                html.Append("<p>").Append(InlineHtml(paragraph.ToString())).Append("</p>\n");
+                html.Append("<p>").Append(InlineHtml(string.Join(' ', paragraph))).Append("</p>\n");
             }
         }
 
