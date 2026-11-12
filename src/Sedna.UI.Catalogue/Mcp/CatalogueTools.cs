@@ -100,6 +100,13 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
 
         if (kind is null or "goal")
         {
+            // A query that is a page's own name — "drawer", "tabs" — asks for that page, so no
+            // goal is lifted above it, even one that lists the name among its phrases.
+            var asked = string.Join(' ', terms);
+            var namesAPage = CataloguePages.All.Any(p =>
+                string.Equals(p.Route.TrimStart('/').Replace('-', ' '), asked, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(p.Label, asked, StringComparison.OrdinalIgnoreCase));
+
             foreach (var goal in guide.Goals)
             {
                 // Each phrase is scored as a name of the goal as well as its id, so a query that
@@ -117,7 +124,7 @@ internal sealed class CatalogueTools(CatalogueIndex index, VersionEnvelope versi
 
                 // Above a page when every word lands in a name or a sentence: a reader who typed
                 // what the user should be able to do wants the answer before the parts.
-                var boost = best.Value.Score >= GoalFloor ? 100 : 0;
+                var boost = best.Value.Score >= GoalFloor && !namesAPage ? 100 : 0;
                 hits.Add(new Hit("goal", goal.Id, goal.Goal, Trim(goal.How), goal.PrimaryPage, [],
                     best.Value.Score + boost, best.Value.MatchedOn));
             }

@@ -112,7 +112,7 @@
     "src/Sedna.UI/js-parts/28-code-block.js": "4bcd34687d4d7dca"
   },
   "/tabs": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Tabs.razor": "0f214ba05aa9c970",
+    "src/Sedna.UI.Catalogue/Components/Pages/Tabs.razor": "e8c820c63a858d2e",
     "src/Sedna.UI.Catalogue/Examples/Interop/TabsFromCsharp.razor": "8cd805ab368dd064",
     "src/Sedna.UI.Catalogue/Examples/Tabs/Fill.razor": "e77e9aeb9c54d74d",
     "src/Sedna.UI.Catalogue/Examples/Tabs/LinkStrip.razor": "49852deb0e4109e6",

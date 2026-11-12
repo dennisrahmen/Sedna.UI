@@ -144,6 +144,9 @@ public class McpToolTests(CatalogueAppFixture app)
     // A page whose route IS the query wins outright — "drawer" wants the Drawers page,
     // not the class it documents.
     [InlineData("drawer", "page", "/drawer")]
+    [InlineData("toast", "page", "/toast")]
+    [InlineData("tabs", "page", "/tabs")]
+    [InlineData("carousel", "page", "/carousel")]
     // A compound name is found by its compound name, not by its stem.
     [InlineData("badge go", "class", ".badge--go")]
     [InlineData("stat delta", "class", ".stat-delta")]
