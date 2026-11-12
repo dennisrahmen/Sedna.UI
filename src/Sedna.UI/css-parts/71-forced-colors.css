@@ -164,6 +164,7 @@
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
     button.chip:focus-visible,
+    a.chip:focus-visible,
     a.stat:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,

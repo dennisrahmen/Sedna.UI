@@ -41,14 +41,15 @@
     "src/Sedna.UI/js-parts/22-anchored.js": "eccfa21cf94ce110"
   },
   "/chip": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Chip.razor": "fcc4b47650e0f232",
+    "src/Sedna.UI.Catalogue/Components/Pages/Chip.razor": "8b0ddbcae979a399",
     "src/Sedna.UI.Catalogue/Examples/Chip/AppliedFilters.razor": "17c967904f42c90a",
     "src/Sedna.UI.Catalogue/Examples/Chip/Chips.razor": "04676ad772d11f81",
     "src/Sedna.UI.Catalogue/Examples/Chip/Recipients.razor": "52da06757de06675",
     "src/Sedna.UI.Catalogue/Examples/Chip/Sizes.razor": "94f4921838f8ba1d",
     "src/Sedna.UI.Catalogue/Examples/Chip/Tones.razor": "6c1dfe9fd5b35404",
+    "src/Sedna.UI.Catalogue/Examples/Chip/Views.razor": "2539d5aa052b6219",
     "src/Sedna.UI/css-parts/33-buttons.css": "c031f84426b8e0a8",
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
-    "src/Sedna.UI/css-parts/53-chip.css": "ca050838bd924910"
+    "src/Sedna.UI/css-parts/53-chip.css": "9d4b4145935ce0ae"
   }
 }

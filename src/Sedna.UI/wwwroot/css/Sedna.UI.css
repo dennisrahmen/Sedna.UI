@@ -6193,14 +6193,16 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .chip-dismiss:hover { background: var(--bg-hover); color: var(--fg); }
 .chip-dismiss:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .chip--active,
-button.chip[aria-pressed="true"] {
+button.chip[aria-pressed="true"],
+a.chip[aria-current="page"] {
     background: var(--brand-tint);
     border-color: var(--brand-soft);
     color: var(--brand-text);
 }
 .chip--active i,
 .chip--active .chip-dismiss,
-button.chip[aria-pressed="true"] i { color: var(--brand-text); }
+button.chip[aria-pressed="true"] i,
+a.chip[aria-current="page"] i { color: var(--brand-text); }
 .chip--invalid {
     background: var(--danger-bg);
     border-color: var(--danger-border);
@@ -6211,6 +6213,9 @@ button.chip[aria-pressed="true"] i { color: var(--brand-text); }
 button.chip { font-family: inherit; cursor: pointer; }
 button.chip:hover { border-color: var(--border-hover); }
 button.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+a.chip { text-decoration: none; }
+a.chip:hover { border-color: var(--border-hover); text-decoration: none; }
+a.chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .chip-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .chip:not(:has(> *)) { display: inline-block; align-content: center; text-box: trim-both cap alphabetic; }
 .chip-label { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
@@ -15439,6 +15444,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
     button.chip:focus-visible,
+    a.chip:focus-visible,
     a.stat:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,

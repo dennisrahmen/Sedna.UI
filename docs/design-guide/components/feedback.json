@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "b0a669b4b06a4de4"
+    "stamp": "6e83123e2c64e419"
   }
 ]

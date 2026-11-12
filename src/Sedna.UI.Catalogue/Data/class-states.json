@@ -1840,6 +1840,7 @@
         "chip--warn"
       ],
       "attributes": [
+        "[aria-current=\"page\"]",
         "[aria-pressed=\"true\"]",
         "[data-armed]"
       ],
