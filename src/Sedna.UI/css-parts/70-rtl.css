@@ -184,3 +184,10 @@
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
    `direction: ltr`); a fold row holds the app's own words, which follow the page. */
 [dir="rtl"] .diff-fold > td { direction: rtl; }
+
+/* 30 — a ribbon's band runs across the inline-end corner, which is the top left right to
+   left, so it slopes the other way. */
+[dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; }
+
+/* 31 — a corner count is centred on its point by a translate, whose inline half turns round. */
+[dir="rtl"] .count-badge { translate: -50% -50%; }

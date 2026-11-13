@@ -13,10 +13,12 @@
       { "text": "What an agent is doing right now", "instead": "/agent-status#status-pill" },
       { "text": "Whether a person is available", "instead": "/avatar#presence-mark" },
       { "text": "A condition of the whole page", "instead": "/alert#every-tone" },
-      { "text": "A count on a navigation link", "instead": "/nav#nav-items" }
+      { "text": "A count on a navigation link", "instead": "/nav#nav-items" },
+      { "text": "A count on the corner of an icon or a button", "instead": "/count#on-a-button" },
+      { "text": "Whether a connection or a feed is live", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "d6457a93b47a0ac6"
+    "stamp": "c32eb8e5f818471e"
   },
   {
     "page": "/chip",
@@ -52,5 +54,65 @@
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
     "stamp": "ef674864b82272ec"
+  },
+  {
+    "page": "/status-dot",
+    "useFor": "Whether something a view is connected to is live, streaming, connecting, idle, degraded or down, as a dot and a word, and how old the figure beside it is.",
+    "combineWith": [
+      { "page": "/topbar", "how": "In the topbar's right cluster, the state of the feed the whole app depends on." },
+      { "page": "/table#headers-and-muted-columns", "how": "One feed per row, its state in a column of its own." },
+      { "page": "/live-state#degraded-page", "how": "A page whose services are partly down shows which, with a .stale on each figure it could not refresh." }
+    ],
+    "notFor": [
+      { "text": "The connection to the server itself", "instead": "/status-bar" },
+      { "text": "The state of a record", "instead": "/badge#semantic-tones" },
+      { "text": "Whether a person is available", "instead": "/avatar#presence-mark" }
+    ],
+    "goals": [ "show-connection-state" ],
+    "stamp": "88af10fd6cdd8efe"
+  },
+  {
+    "page": "/count",
+    "useFor": "How many are waiting, or that something is new, as a number or a dot on the corner of an icon, an avatar or a button.",
+    "combineWith": [
+      { "page": "/notifications#bell-and-unread-count", "how": "The bell that opens the inbox carries the unread count on its corner." },
+      { "page": "/button#icon-only", "how": "On an icon button, the button's name says the count in words." },
+      { "page": "/avatar#sizes-and-fallbacks", "how": "On an avatar, with .count-host--round, unread messages from that person." }
+    ],
+    "notFor": [
+      { "text": "A count beside a tab's label", "instead": "/tabs" },
+      { "text": "A count on a navigation link", "instead": "/nav#nav-items" },
+      { "text": "Whether a person is available", "instead": "/avatar#presence-mark" }
+    ],
+    "goals": [],
+    "stamp": "7904d707f51912fc"
+  },
+  {
+    "page": "/kbd",
+    "useFor": "Which key to press, or which keys together or in turn, shown in a shortcut list, at the end of a button or in a line of help.",
+    "combineWith": [
+      { "page": "/palette", "how": "Each command in the palette shows its shortcut at the row's end." },
+      { "page": "/list", "how": "A list of shortcuts is a .list-row per command with its keys in .list-meta." },
+      { "page": "/menu", "how": "A menu item's shortcut at its end, with small keys." }
+    ],
+    "notFor": [
+      { "text": "Code or a value the reader copies", "instead": "/badge#identifiers" }
+    ],
+    "goals": [],
+    "stamp": "498adf5b2965a6a1"
+  },
+  {
+    "page": "/ribbon",
+    "useFor": "One or two words across the corner of a card or a tile that say something about the whole of it: new, beta, retiring.",
+    "combineWith": [
+      { "page": "/card", "how": "The card is the .ribbon-host and clips the ribbon at its corner." },
+      { "page": "/grid", "how": "In a grid of tiles, the flat tab marks the few that differ without shouting." }
+    ],
+    "notFor": [
+      { "text": "The state of one value on the card", "instead": "/badge#semantic-tones" },
+      { "text": "A condition that needs a sentence", "instead": "/alert#every-tone" }
+    ],
+    "goals": [],
+    "stamp": "2bf0ec226b4b2922"
   }
 ]

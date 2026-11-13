@@ -32,7 +32,10 @@
      23-frame-topbar-nav.css
      24-frame-bottombar.css
      30-cards.css
+     30-ribbon.css
      31-badges.css
+     31-count.css
+     31-kbd.css
      32-tables.css
      33-buttons.css
      34-forms.css
@@ -4599,6 +4602,68 @@ a.topbar-version--pre:hover {
 
 }
 
+/* ── 30-ribbon.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Ribbon ──────────────────────────────────────────────────────────────────
+   A word on the corner of a card or a tile — "New", "Beta", "Retiring" — that says
+   something about the whole thing it sits on, not about one of its values.
+
+     <section class="card ribbon-host"><span class="ribbon ribbon--tab">New</span> … </section>
+
+   Two shapes. `.ribbon` is the band across the corner; `.ribbon--tab` is a flat tab
+   tucked into it, quieter, for a grid where several tiles carry one. The host clips the
+   band at its own edge, so a card's radius still shapes the corner.
+
+   The word is the whole message and is read in place, so keep it to one or two words;
+   a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
+   brand by default, `--go`, `--info`, `--danger` and `--muted`. */
+.ribbon-host { position: relative; overflow: hidden; }
+/* The band is a rectangle turned 45° whose outer edge is the hypotenuse of the corner, cut
+   at both ends to a trapezoid so each end lies along one of the host's edges. Its centre
+   sits (w + h) / 2√2 in from each edge — 0.35355 is 1 / 2√2 — so the turned box ends on the
+   host's edges rather than past them, and nothing sticks out to be clipped. */
+.ribbon {
+    --ribbon-w: 124px;
+    --ribbon-h: 22px;
+    position: absolute;
+    inset-block-start: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-h) / 2);
+    inset-inline-end: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-w) / 2);
+    width: var(--ribbon-w);
+    height: var(--ribbon-h);
+    rotate: 45deg;
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--ribbon-h)) 100%, var(--ribbon-h) 100%);
+    box-sizing: border-box;
+    padding-inline: var(--ribbon-h);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    line-height: round(1.4em, 2px);
+    text-box: trim-both cap alphabetic;
+    align-content: center;
+    pointer-events: none;
+}
+.ribbon--tab {
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: auto;
+    height: auto;
+    rotate: none;
+    clip-path: none;
+    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
+    border-end-start-radius: var(--radius-small);
+    letter-spacing: 0.04em;
+}
+.ribbon--go     { background: var(--go-solid); }
+.ribbon--info   { background: var(--info-solid); }
+.ribbon--danger { background: var(--danger-solid); }
+.ribbon--muted  { background: var(--border-hover); }
+}
+
 /* ── 31-badges.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Badges ─────────────────────────────────────────────────────────────────
@@ -4657,6 +4722,231 @@ a.topbar-version--pre:hover {
 .badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 .badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
 .badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
+
+/* ── An identifier ─────────────────────────────────────────────────────────
+   A record number, a version, a commit, an address, a key: a value the reader copies or
+   compares character by character. Monospace on the code tint, and squarer than a pill,
+   so it never reads as a state. `.badge-copy` is a button inside it that copies the value
+   with `data-copy`; give it the value in its name, "Copy ORD-20418".
+
+     <span class="badge badge--mono"><span class="badge-text">ORD-20418</span>
+       <button class="badge-copy" type="button" data-copy="ORD-20418" aria-label="Copy ORD-20418"><i class="ri-file-copy-line"></i></button></span> */
+.badge--mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: var(--radius-small);
+    max-width: 100%;
+}
+.badge-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+.badge-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-end: calc(var(--space-2) * -1);
+    padding: 0 var(--space-1);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-small);
+    color: inherit;
+    opacity: 0.65;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+}
+.badge-copy:hover { opacity: 1; }
+.badge-copy:focus-visible { opacity: 1; outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+
+/* ── A label in a group ────────────────────────────────────────────────────
+   `env | prod`: the group on a neutral cap at the start, the value in the badge's tone.
+   One pill, read as "environment is production".
+
+     <span class="badge badge--scoped badge--danger"><span class="badge-key">env</span>prod</span> */
+.badge--scoped { padding-inline-start: 0; gap: 0; overflow: hidden; }
+.badge-key {
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: calc(var(--space-1) * -1);
+    margin-inline-end: var(--space-3);
+    padding-inline: var(--space-4) var(--space-3);
+    background: var(--badge-bg);
+    color: var(--fg-soft);
+    border-inline-end: 1px solid var(--border);
+}
+.badge--sm .badge-key { margin-block: 0; padding-inline: var(--space-3) var(--space-2); margin-inline-end: var(--space-2); }
+.badge--lg .badge-key { margin-block: calc(var(--space-2) * -1); padding-inline-start: var(--space-5); }
+
+/* ── A label in the app's own colour ───────────────────────────────────────
+   A label a reader made and coloured, as in an issue tracker. The colour is the app's
+   data, set as `--label-colour` on the badge; the library decides how much of it to use.
+   The text never takes it, so a yellow a reader picked is still legible in every theme.
+
+     <span class="badge badge--swatch" style="--label-colour: #8b5cf6">design</span>
+
+   `.badge--swatch-outline` draws the pill's edge in the colour as well as the dot. There is
+   no tinted fill: a tint of a colour the library does not know is a colour function on a
+   rule, which no theme could reach. */
+.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--label-colour);
+}
+.badge--swatch-outline { border-color: var(--label-colour); }
+
+/* ── The rest, folded ──────────────────────────────────────────────────────
+   The first few labels, then one button for the rest: "+4", "and 6 others". It opens what
+   it folds — a popover the app writes. Dashed, so it reads as "there is more" and never as
+   one more label.
+
+     <button class="badge badge-more" type="button" popovertarget="labels-rest" aria-label="Show 4 more labels">+4</button> */
+button.badge-more {
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--border-hover);
+    color: var(--fg-soft);
+}
+button.badge-more:hover { background: var(--badge-bg); color: var(--fg); }
+button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+}
+
+/* ── 31-count.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Corner count ────────────────────────────────────────────────────────────
+   A number, or a dot, on the corner of an icon, an avatar or a button: how many unread
+   messages, how many filters, that there is something new. An empty `.count-badge` is a
+   dot, for "something is new" without a number.
+
+     <button class="btn btn--icon count-host" type="button" aria-label="Messages, 5 unread">
+       <i class="ri-message-2-line"></i><span class="count-badge" aria-hidden="true">5</span>
+     </button>
+     <span class="count-host count-host--round"><span class="avatar">PN</span><span class="count-badge" aria-hidden="true"></span></span>
+
+   The number is the app's, and so is its cap: write "99+" when it is past what fits.
+   Say the count in the control's own name and hide the badge from assistive technology,
+   or the number is read twice. A count that sits in a line beside a label rather than on
+   a corner is `.tab-count` or `.nav-count`.
+
+   One rule places it on every host: the badge's centre sits --count-inset in from the
+   host's top inline-end corner, so a dot and a number share that point and a number grows
+   outward from it. An icon's corner is its own; a round host puts the point on its curve,
+   at the 45° mark, so the dot touches the avatar instead of floating off its box; a button
+   puts it inside its corner radius. A `translate` has no logical form, so 70-rtl.css turns
+   its inline half round. */
+.count-host {
+    --count-inset: 2px;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.count-host--round { --count-inset: 14.6%; }
+.btn.count-host    { --count-inset: 3px; }
+
+.count-badge {
+    position: absolute;
+    inset-block-start: var(--count-inset);
+    inset-inline-end: var(--count-inset);
+    translate: 50% -50%;
+    box-sizing: border-box;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    /* The number is the box's one line: trimmed to its capitals and centred in the box. */
+    text-box: trim-both cap alphabetic;
+    align-content: center;
+    /* Cut out of whatever the host sits on, so the badge stays a shape of its own over the
+       host's edge. */
+    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+    pointer-events: none;
+}
+.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
+.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
+
+.count-badge--danger { background: var(--danger-solid); }
+.count-badge--go     { background: var(--go-solid); }
+.count-badge--info   { background: var(--info-solid); }
+.count-badge--muted  { background: var(--border-hover); }
+}
+
+/* ── 31-kbd.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Keyboard keys ───────────────────────────────────────────────────────────
+   A key the reader presses, and keys pressed together or one after another. `.kbd` reuses
+   the code tint, because that is what it is: a literal the reader types.
+
+     <kbd class="kbd-combo"><kbd class="kbd">Ctrl</kbd><span class="kbd-combo-sep" aria-hidden="true">+</span><kbd class="kbd">K</kbd></kbd>
+     <kbd class="kbd-combo"><kbd class="kbd kbd--sm">G</kbd><span class="kbd-combo-sep">then</span><kbd class="kbd kbd--sm">I</kbd></kbd>
+
+   `.kbd-combo` keeps the keys on one line. The separator is the app's own word or sign:
+   "+" for keys held together, hidden from assistive technology because the keys are read
+   in order anyway; "then" for a sequence, which is read. `.kbd--sm` is the key for a menu
+   row, a shortcut list and a button, where a full key would set the row's height; `.kbd--lg`
+   is the key for a help panel or a first-run hint, where the key is the point. */
+.kbd {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px var(--space-2);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-small);
+    color: var(--code-fg);
+    font-family: var(--font-mono);
+    font-size: var(--text-2);
+    line-height: round(1.5em, 2px);
+}
+.kbd i { font-size: 1.05em; line-height: 1; }
+.kbd--sm { font-size: var(--text-1); padding-inline: var(--space-1); }
+.kbd--lg { font-size: var(--text-3); padding-inline: var(--space-3); }
+
+.kbd-combo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    white-space: nowrap;
+    vertical-align: middle;
+    font: inherit;
+}
+/* A key that holds one character is a square-ish cap with its glyph in the middle. */
+.kbd-combo > .kbd { min-width: 1.75em; box-sizing: border-box; justify-content: center; text-align: center; }
+.kbd-combo > .kbd--sm { min-width: 1.6em; }
+.kbd-combo-sep {
+    color: var(--muted);
+    font-size: var(--text-1);
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
+/* At the end of a button, after its label. */
+.btn > .kbd-combo { margin-inline-start: auto; padding-inline-start: var(--space-4); }
+
+/* ── A word on its own ─────────────────────────────────────────────────────
+   Holding nothing but its text, it is a block container instead of a flex one, so its
+   line can be trimmed to its capitals and stand in the middle of its height — the same
+   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
+.kbd:not(:has(> *))    { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
 }
 
 /* ── 32-tables.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -18475,21 +18765,6 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     font-size: var(--text-2);
 }
 
-/* A keyboard hint. Not a token-worthy surface of its own — it reuses the code tint,
-   because that is what it is: a literal the reader types. */
-.kbd {
-    display: inline-flex;
-    align-items: center;
-    padding: 1px var(--space-2);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-small);
-    color: var(--code-fg);
-    font-family: var(--font-mono);
-    font-size: var(--text-2);
-    line-height: round(1.5em, 2px);
-}
-
 /* ── Spotlight ──────────────────────────────────────────────────────────────
    Dims the page except one element, for a guided tour or a first-run hint.
 
@@ -18647,12 +18922,6 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block],
 body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, input, select, textarea, label) {
     pointer-events: none;
 }
-
-/* ── A word on its own ─────────────────────────────────────────────────────
-   Holding nothing but its text, it is a block container instead of a flex one, so its
-   line can be trimmed to its capitals and stand in the middle of its height — the same
-   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
-.kbd:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
 
 /* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
    row is centred on" in 06-base-elements.css. */
@@ -21684,7 +21953,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
    with the unread count on it, opening a panel of notifications with tabs over them.
 
      <button class="topbar-btn" type="button" popovertarget="inbox" aria-label="Notifications, 3 unread">
-       <span class="inbox-bell"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="inbox-count" aria-hidden="true">3</span></span>
+       <span class="count-host"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="count-badge" aria-hidden="true">3</span></span>
      </button>
 
      <div class="popover inbox" id="inbox" popover aria-labelledby="inbox-title">
@@ -21719,40 +21988,9 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
    to act on before anything else is an alert or a dialog, not a notification.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* The bell, and the unread count on its corner. The count is the app's number; an
-   empty `.inbox-count` is a dot, for "there is something new" without a number. Give
-   the trigger the count in words — its accessible name — and hide the badge from
-   assistive technology, or the number is read twice. */
-.inbox-bell { position: relative; display: inline-flex; }
-.inbox-count {
-    position: absolute;
-    inset-block-start: -5px;
-    inset-inline-start: calc(100% - 7px);
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-pill);
-    background: var(--brand);
-    color: var(--on-solid);
-    font-size: var(--text-1);
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    /* The number is the box's one line: trimmed to its capitals and centred in the box. */
-    text-box: trim-both cap alphabetic;
-    align-content: center;
-    /* Cut out of whatever the bell sits on, so the badge stays a shape of its own over
-       the icon's edge. */
-    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
-}
-.inbox-count:empty {
-    inset-block-start: -2px;
-    inset-inline-start: calc(100% - 6px);
-    min-width: 8px;
-    height: 8px;
-    padding: 0;
-}
+/* The bell is an icon with a corner count on it: `.count-host` and `.count-badge`, in
+   31-count.css. Give the trigger the count in words — its accessible name — and hide the
+   badge from assistive technology, or the number is read twice. */
 
 /* The panel. On a `.popover` it replaces the popover's reading width and padding with
    its own: rows meet the panel's edges. Out of a popover — a drawer, a page of its own —
@@ -26131,6 +26369,13 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
    `direction: ltr`); a fold row holds the app's own words, which follow the page. */
 [dir="rtl"] .diff-fold > td { direction: rtl; }
+
+/* 30 — a ribbon's band runs across the inline-end corner, which is the top left right to
+   left, so it slopes the other way. */
+[dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; }
+
+/* 31 — a corner count is centred on its point by a translate, whose inline half turns round. */
+[dir="rtl"] .count-badge { translate: -50% -50%; }
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -26244,6 +26489,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
        An `outline` on top of the existing `outline: none` is why these rules are
        permitted by the appearance-media-query guard. */
     .btn:focus-visible,
+    .badge-copy:focus-visible,
+    button.badge-more:focus-visible,
     /* The chromeless one especially: it has no border, no fill and no padding, so a
        ring that is not painted leaves nothing whatsoever to say where the keyboard is. */
     .btn-bare:focus-visible,
@@ -26439,7 +26686,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .chip-dot,
     .th-filter--active::after,
     .avatar-presence::after,
-    .inbox-count,
+    .count-badge,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 

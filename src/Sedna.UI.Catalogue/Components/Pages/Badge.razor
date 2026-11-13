@@ -47,6 +47,55 @@
     <CatExample TExample="Examples.Badge.WithAnIcon" Title="With an icon" />
 </CatGroup>
 
+<CatGroup Title="Kinds of label">
+    <CatExample TExample="Examples.Badge.Identifier" Title="Identifiers" Demo="ex-demo--block">
+        <p>
+            <code>.badge--mono</code> is a value the reader copies or compares character by character
+            &mdash; a record number, a version, a commit, an address. Monospace on the code tint and
+            squarer than a pill, so it never reads as a state. Put the value in a
+            <code>.badge-text</code> and it cuts short with an ellipsis; <code>.badge-copy</code> is a
+            button inside it that copies the value with <code>data-copy</code>, named with the value it
+            copies.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Badge.Scoped" Title="Labels in a group" Demo="ex-demo--block">
+        <p>
+            <code>.badge--scoped</code> with a <code>.badge-key</code> is one pill that reads
+            &ldquo;environment is production&rdquo;: the group on a neutral cap, the value in the
+            badge's tone. Use it where the same group recurs down a list, so the value is what changes.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Badge.Swatch" Title="Colours the reader chose" Demo="ex-demo--block">
+        <p>
+            <code>.badge--swatch</code> is a label a reader made and coloured, as in an issue tracker.
+            <strong>The colour is the app's data</strong>, set as <code>--label-colour</code> on the badge:
+            a dot, and with <code>.badge--swatch-outline</code> the pill's edge too. The text never takes
+            the colour, so a yellow the reader picked is still legible in every theme. A colour that
+            means something is a <a href="/badge#semantic-tones">semantic tone</a> instead.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Badge.More" Title="Folded labels" Demo="ex-demo--block">
+        <p>
+            <strong>Live &mdash; open it.</strong> <code>.badge-more</code> is a button after the first few
+            labels that opens the rest in a <a href="/popover"><code>.popover</code></a>. How many fit is
+            the app's to decide; name the button with the number it folds. Faces fold the same way with
+            <a href="/avatar"><code>.avatar-more</code></a>.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Badge.DueDate" Title="Due dates" Demo="ex-demo--block">
+        <p>
+            There is no date class. A due date is a badge with an icon and a <code>&lt;time&gt;</code>,
+            in the tone of where it stands &mdash; due soon, overdue, done &mdash; and
+            <strong>the words and the icon say the state</strong>, so the tone is never the only signal.
+            Keep the words and the time in one <code>&lt;span&gt;</code>, so the badge holds one label.
+        </p>
+    </CatExample>
+</CatGroup>
+
 <CatGroup Title="In context">
     <CatExample TExample="Examples.Badge.InContext" Title="Card headers and table cells"
                 Demo="ex-demo--block">

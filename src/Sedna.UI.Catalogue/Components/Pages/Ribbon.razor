@@ -1,0 +1,24 @@
+@page "/ribbon"
+
+<CatHead Title="Ribbons">
+    A word on the corner of a <a href="/card">card</a> or a tile &mdash; &ldquo;New&rdquo;,
+    &ldquo;Beta&rdquo;, &ldquo;Retiring&rdquo; &mdash; that says something about the whole thing it
+    sits on. A state of one value is a <a href="/badge">badge</a>; a state that needs a sentence is an
+    <a href="/alert">alert</a>.
+</CatHead>
+
+<CatExample TExample="Examples.Ribbon.Band" Title="Band across the corner" Demo="ex-demo--block">
+    <p>
+        <code>.ribbon</code> inside a <code>.ribbon-host</code>, which clips it at its own edge so the
+        card's radius still shapes the corner. Keep it to one or two words. Tones:
+        brand by default, <code>--go</code>, <code>--info</code>, <code>--danger</code> and
+        <code>--muted</code>.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Ribbon.Tab" Title="Tab in the corner" Demo="ex-demo--block">
+    <p>
+        <code>.ribbon--tab</code> is the quieter shape, a flat tab tucked into the corner, for a grid
+        where several tiles carry one.
+    </p>
+</CatExample>

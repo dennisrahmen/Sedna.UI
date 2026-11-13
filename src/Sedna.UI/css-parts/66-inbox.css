@@ -3,7 +3,7 @@
    with the unread count on it, opening a panel of notifications with tabs over them.
 
      <button class="topbar-btn" type="button" popovertarget="inbox" aria-label="Notifications, 3 unread">
-       <span class="inbox-bell"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="inbox-count" aria-hidden="true">3</span></span>
+       <span class="count-host"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="count-badge" aria-hidden="true">3</span></span>
      </button>
 
      <div class="popover inbox" id="inbox" popover aria-labelledby="inbox-title">
@@ -38,40 +38,9 @@
    to act on before anything else is an alert or a dialog, not a notification.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* The bell, and the unread count on its corner. The count is the app's number; an
-   empty `.inbox-count` is a dot, for "there is something new" without a number. Give
-   the trigger the count in words — its accessible name — and hide the badge from
-   assistive technology, or the number is read twice. */
-.inbox-bell { position: relative; display: inline-flex; }
-.inbox-count {
-    position: absolute;
-    inset-block-start: -5px;
-    inset-inline-start: calc(100% - 7px);
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
-    border-radius: var(--radius-pill);
-    background: var(--brand);
-    color: var(--on-solid);
-    font-size: var(--text-1);
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    /* The number is the box's one line: trimmed to its capitals and centred in the box. */
-    text-box: trim-both cap alphabetic;
-    align-content: center;
-    /* Cut out of whatever the bell sits on, so the badge stays a shape of its own over
-       the icon's edge. */
-    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
-}
-.inbox-count:empty {
-    inset-block-start: -2px;
-    inset-inline-start: calc(100% - 6px);
-    min-width: 8px;
-    height: 8px;
-    padding: 0;
-}
+/* The bell is an icon with a corner count on it: `.count-host` and `.count-badge`, in
+   31-count.css. Give the trigger the count in words — its accessible name — and hide the
+   badge from assistive technology, or the number is read twice. */
 
 /* The panel. On a `.popover` it replaces the popover's reading width and padding with
    its own: rows meet the panel's edges. Out of a popover — a drawer, a page of its own —

@@ -51,8 +51,8 @@
     "src/Sedna.UI.Catalogue/Examples/Palette/PalettePages.razor": "ffbf44861c5ac6c2",
     "src/Sedna.UI.Catalogue/Examples/Palette/PaletteStates.razor": "2300b66e06584aa9",
     "src/Sedna.UI.Catalogue/Examples/Palette/RegisterCommands.txt": "810168287d130e42",
-    "src/Sedna.UI/css-parts/49-form-combo.css": "6a94c20a26067b9f",
-    "src/Sedna.UI/css-parts/64-palette-spotlight.css": "45ffb6760edab563",
+    "src/Sedna.UI/css-parts/31-kbd.css": "e688e111ace655e7",
+    "src/Sedna.UI/css-parts/64-palette-spotlight.css": "004bbca0387d54c6",
     "src/Sedna.UI/js-parts/24-palette.js": "6d164c1456a6850b"
   },
   "/spotlight": {
@@ -64,7 +64,7 @@
     "src/Sedna.UI.Catalogue/Examples/Spotlight/SpotlightDialog.txt": "cbbde7d4caff0c29",
     "src/Sedna.UI.Catalogue/Examples/Spotlight/SpotlightLock.txt": "f2e417ee520aa9ae",
     "src/Sedna.UI.Catalogue/Examples/Spotlight/TourBubble.razor": "4cacbde6be8a04bc",
-    "src/Sedna.UI/css-parts/64-palette-spotlight.css": "45ffb6760edab563",
+    "src/Sedna.UI/css-parts/64-palette-spotlight.css": "004bbca0387d54c6",
     "src/Sedna.UI/js-parts/41-spotlight.js": "783f40949834a12d"
   }
 }

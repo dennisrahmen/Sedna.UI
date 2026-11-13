@@ -142,21 +142,6 @@ dialog.palette::backdrop { background: var(--dialog-backdrop); backdrop-filter: 
     font-size: var(--text-2);
 }
 
-/* A keyboard hint. Not a token-worthy surface of its own — it reuses the code tint,
-   because that is what it is: a literal the reader types. */
-.kbd {
-    display: inline-flex;
-    align-items: center;
-    padding: 1px var(--space-2);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-small);
-    color: var(--code-fg);
-    font-family: var(--font-mono);
-    font-size: var(--text-2);
-    line-height: round(1.5em, 2px);
-}
-
 /* ── Spotlight ──────────────────────────────────────────────────────────────
    Dims the page except one element, for a guided tour or a first-run hint.
 
@@ -314,12 +299,6 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block],
 body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, input, select, textarea, label) {
     pointer-events: none;
 }
-
-/* ── A word on its own ─────────────────────────────────────────────────────
-   Holding nothing but its text, it is a block container instead of a flex one, so its
-   line can be trimmed to its capitals and stand in the middle of its height — the same
-   height, given back in its padding. See "The line a row is centred on" in 06-base-elements.css. */
-.kbd:not(:has(> *)) { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(1px + var(--cap-gap)); }
 
 /* A label in a row, trimmed to its capitals with its line in its padding: see "The line a
    row is centred on" in 06-base-elements.css. */

@@ -16,7 +16,7 @@ public class InboxLayoutTests : ScriptTestBase
           <header class="topbar">
             <div class="topbar-spacer"></div>
             <button class="topbar-btn" id="bell" type="button" popovertarget="inbox" aria-label="Notifications, 2 unread">
-              <span class="inbox-bell" id="glyph"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="inbox-count" id="count" aria-hidden="true">2</span></span>
+              <span class="count-host" id="glyph"><i class="ri-notification-3-line" aria-hidden="true"></i><span class="count-badge" id="count" aria-hidden="true">2</span></span>
             </button>
           </header>
           <div class="popover inbox" id="inbox" popover role="dialog" aria-label="Notifications">

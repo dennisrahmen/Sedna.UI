@@ -1,0 +1,41 @@
+@page "/count"
+
+<CatHead Title="Counts">
+    How many there are, or that there is something new, on the corner of an icon, an avatar or a
+    button. A count in a line beside its label is <code>.tab-count</code> on a
+    <a href="/tabs">tab</a> and <code>.nav-count</code> on a <a href="/nav">navigation link</a>;
+    the bell that opens the <a href="/notifications">notification inbox</a> carries the corner count
+    shown here.
+</CatHead>
+
+<CatExample TExample="Examples.Count.OnIcons" Title="On an icon">
+    <p>
+        <code>.count-host</code> holds the icon and a <code>.count-badge</code> on its corner. The number
+        is the app's, and so is its cap: write &ldquo;99+&rdquo; past what fits. An empty
+        <code>.count-badge</code> is a dot, for &ldquo;something is new&rdquo; without a number.
+        <strong>Say the count in the host's own name and hide the badge</strong>, or the number is
+        read twice.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Count.OnAvatars" Title="On an avatar">
+    <p>
+        <code>.count-host--round</code> puts the badge on the avatar's curve rather than off its box.
+        Whether the person is available is the <a href="/avatar#presence-mark">presence mark</a>,
+        which sits on the opposite corner &mdash; never use a count's dot for it.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Count.OnButtons" Title="On a button">
+    <p>
+        <code>.count-host</code> on the <code>.btn</code> itself: the badge sits inside the button's
+        corner and overhangs its edge. The button's <code>aria-label</code> carries the count.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Count.Tones" Title="Tones">
+    <p>
+        Brand by default; <code>--danger</code> for counts that need acting on, <code>--go</code>,
+        <code>--info</code>, and <code>--muted</code> for a total that asks nothing of the reader.
+    </p>
+</CatExample>

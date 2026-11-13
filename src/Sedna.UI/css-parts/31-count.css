@@ -1,0 +1,63 @@
+/* ── Corner count ────────────────────────────────────────────────────────────
+   A number, or a dot, on the corner of an icon, an avatar or a button: how many unread
+   messages, how many filters, that there is something new. An empty `.count-badge` is a
+   dot, for "something is new" without a number.
+
+     <button class="btn btn--icon count-host" type="button" aria-label="Messages, 5 unread">
+       <i class="ri-message-2-line"></i><span class="count-badge" aria-hidden="true">5</span>
+     </button>
+     <span class="count-host count-host--round"><span class="avatar">PN</span><span class="count-badge" aria-hidden="true"></span></span>
+
+   The number is the app's, and so is its cap: write "99+" when it is past what fits.
+   Say the count in the control's own name and hide the badge from assistive technology,
+   or the number is read twice. A count that sits in a line beside a label rather than on
+   a corner is `.tab-count` or `.nav-count`.
+
+   One rule places it on every host: the badge's centre sits --count-inset in from the
+   host's top inline-end corner, so a dot and a number share that point and a number grows
+   outward from it. An icon's corner is its own; a round host puts the point on its curve,
+   at the 45° mark, so the dot touches the avatar instead of floating off its box; a button
+   puts it inside its corner radius. A `translate` has no logical form, so 70-rtl.css turns
+   its inline half round. */
+.count-host {
+    --count-inset: 2px;
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.count-host--round { --count-inset: 14.6%; }
+.btn.count-host    { --count-inset: 3px; }
+
+.count-badge {
+    position: absolute;
+    inset-block-start: var(--count-inset);
+    inset-inline-end: var(--count-inset);
+    translate: 50% -50%;
+    box-sizing: border-box;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--brand);
+    color: var(--on-solid);
+    font-size: var(--text-1);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    /* The number is the box's one line: trimmed to its capitals and centred in the box. */
+    text-box: trim-both cap alphabetic;
+    align-content: center;
+    /* Cut out of whatever the host sits on, so the badge stays a shape of its own over the
+       host's edge. */
+    box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
+    pointer-events: none;
+}
+.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
+.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
+
+.count-badge--danger { background: var(--danger-solid); }
+.count-badge--go     { background: var(--go-solid); }
+.count-badge--info   { background: var(--info-solid); }
+.count-badge--muted  { background: var(--border-hover); }

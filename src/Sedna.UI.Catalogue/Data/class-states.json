@@ -441,7 +441,9 @@
         "badge--go",
         "badge--info",
         "badge--lg",
+        "badge--mono",
         "badge--orange",
+        "badge--scoped",
         "badge--secret",
         "badge--sev-1",
         "badge--sev-2",
@@ -450,6 +452,8 @@
         "badge--sev-5",
         "badge--sm",
         "badge--solid",
+        "badge--swatch",
+        "badge--swatch-outline",
         "badge--teal",
         "badge--warn"
       ],
@@ -485,7 +489,13 @@
         "badge-ai--icon"
       ]
     },
+    "badge--mono": {
+      "family": "badge"
+    },
     "badge--orange": {
+      "family": "badge"
+    },
+    "badge--scoped": {
       "family": "badge"
     },
     "badge--secret": {
@@ -518,6 +528,12 @@
         "badge"
       ]
     },
+    "badge--swatch": {
+      "family": "badge"
+    },
+    "badge--swatch-outline": {
+      "family": "badge"
+    },
     "badge--teal": {
       "family": "badge"
     },
@@ -540,6 +556,26 @@
         "badge--lg",
         "badge--sm"
       ]
+    },
+    "badge-copy": {
+      "family": "badge-copy",
+      "pseudoClasses": [
+        ":focus-visible",
+        ":hover"
+      ]
+    },
+    "badge-key": {
+      "family": "badge-key"
+    },
+    "badge-more": {
+      "family": "badge-more",
+      "pseudoClasses": [
+        ":focus-visible",
+        ":hover"
+      ]
+    },
+    "badge-text": {
+      "family": "badge-text"
     },
     "bar-list": {
       "family": "bar-list"
@@ -729,6 +765,7 @@
         "btn--ghost",
         "btn--solid",
         "btn--wrap",
+        "count-host",
         "file-tile-menu"
       ]
     },
@@ -2108,6 +2145,42 @@
     },
     "context-usage-rows": {
       "family": "context-usage-rows"
+    },
+    "count-badge": {
+      "family": "count-badge",
+      "variants": [
+        "count-badge--danger",
+        "count-badge--go",
+        "count-badge--info",
+        "count-badge--muted"
+      ],
+      "pseudoClasses": [
+        ":empty"
+      ]
+    },
+    "count-badge--danger": {
+      "family": "count-badge"
+    },
+    "count-badge--go": {
+      "family": "count-badge"
+    },
+    "count-badge--info": {
+      "family": "count-badge"
+    },
+    "count-badge--muted": {
+      "family": "count-badge"
+    },
+    "count-host": {
+      "family": "count-host",
+      "variants": [
+        "count-host--round"
+      ],
+      "combinedWith": [
+        "btn"
+      ]
+    },
+    "count-host--round": {
+      "family": "count-host"
     },
     "datepicker": {
       "family": "datepicker"
@@ -3500,15 +3573,6 @@
         "popover"
       ]
     },
-    "inbox-bell": {
-      "family": "inbox-bell"
-    },
-    "inbox-count": {
-      "family": "inbox-count",
-      "pseudoClasses": [
-        ":empty"
-      ]
-    },
     "inbox-foot": {
       "family": "inbox-foot"
     },
@@ -3602,7 +3666,23 @@
       "family": "k"
     },
     "kbd": {
+      "family": "kbd",
+      "variants": [
+        "kbd--lg",
+        "kbd--sm"
+      ]
+    },
+    "kbd--lg": {
       "family": "kbd"
+    },
+    "kbd--sm": {
+      "family": "kbd"
+    },
+    "kbd-combo": {
+      "family": "kbd-combo"
+    },
+    "kbd-combo-sep": {
+      "family": "kbd-combo-sep"
     },
     "kiosk": {
       "family": "kiosk"
@@ -4927,6 +5007,34 @@
     },
     "redacted": {
       "family": "redacted"
+    },
+    "ribbon": {
+      "family": "ribbon",
+      "variants": [
+        "ribbon--danger",
+        "ribbon--go",
+        "ribbon--info",
+        "ribbon--muted",
+        "ribbon--tab"
+      ]
+    },
+    "ribbon--danger": {
+      "family": "ribbon"
+    },
+    "ribbon--go": {
+      "family": "ribbon"
+    },
+    "ribbon--info": {
+      "family": "ribbon"
+    },
+    "ribbon--muted": {
+      "family": "ribbon"
+    },
+    "ribbon--tab": {
+      "family": "ribbon"
+    },
+    "ribbon-host": {
+      "family": "ribbon-host"
     },
     "rule-group": {
       "family": "rule-group"
