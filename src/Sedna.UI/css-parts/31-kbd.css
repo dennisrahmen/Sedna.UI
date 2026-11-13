@@ -8,7 +8,8 @@
    `.kbd-combo` keeps the keys on one line. The separator is the app's own word or sign:
    "+" for keys held together, hidden from assistive technology because the keys are read
    in order anyway; "then" for a sequence, which is read. `.kbd--sm` is the key for a menu
-   row, a shortcut list and a button, where a full key would set the row's height. */
+   row, a shortcut list and a button, where a full key would set the row's height; `.kbd--lg`
+   is the key for a help panel or a first-run hint, where the key is the point. */
 .kbd {
     display: inline-flex;
     align-items: center;
@@ -23,6 +24,7 @@
 }
 .kbd i { font-size: 1.05em; line-height: 1; }
 .kbd--sm { font-size: var(--text-1); padding-inline: var(--space-1); }
+.kbd--lg { font-size: var(--text-3); padding-inline: var(--space-3); }
 
 .kbd-combo {
     display: inline-flex;

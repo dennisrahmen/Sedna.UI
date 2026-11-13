@@ -453,7 +453,7 @@
         "badge--sm",
         "badge--solid",
         "badge--swatch",
-        "badge--swatch-fill",
+        "badge--swatch-outline",
         "badge--teal",
         "badge--warn"
       ],
@@ -531,7 +531,7 @@
     "badge--swatch": {
       "family": "badge"
     },
-    "badge--swatch-fill": {
+    "badge--swatch-outline": {
       "family": "badge"
     },
     "badge--teal": {
@@ -3668,8 +3668,12 @@
     "kbd": {
       "family": "kbd",
       "variants": [
+        "kbd--lg",
         "kbd--sm"
       ]
+    },
+    "kbd--lg": {
+      "family": "kbd"
     },
     "kbd--sm": {
       "family": "kbd"

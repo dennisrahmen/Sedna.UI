@@ -4618,14 +4618,22 @@ a.topbar-version--pre:hover {
    a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
    brand by default, `--go`, `--info`, `--danger` and `--muted`. */
 .ribbon-host { position: relative; overflow: hidden; }
+/* The band is a rectangle turned 45° whose outer edge is the hypotenuse of the corner, cut
+   at both ends to a trapezoid so each end lies along one of the host's edges. Its centre
+   sits (w + h) / 2√2 in from each edge — 0.35355 is 1 / 2√2 — so the turned box ends on the
+   host's edges rather than past them, and nothing sticks out to be clipped. */
 .ribbon {
+    --ribbon-w: 124px;
+    --ribbon-h: 22px;
     position: absolute;
-    inset-block-start: 14px;
-    inset-inline-end: -34px;
-    width: 120px;
+    inset-block-start: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-h) / 2);
+    inset-inline-end: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-w) / 2);
+    width: var(--ribbon-w);
+    height: var(--ribbon-h);
     rotate: 45deg;
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--ribbon-h)) 100%, var(--ribbon-h) 100%);
     box-sizing: border-box;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
+    padding-inline: var(--ribbon-h);
     background: var(--brand);
     color: var(--on-solid);
     font-size: var(--text-1);
@@ -4636,13 +4644,17 @@ a.topbar-version--pre:hover {
     white-space: nowrap;
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
+    align-content: center;
     pointer-events: none;
 }
 .ribbon--tab {
     inset-block-start: 0;
     inset-inline-end: 0;
     width: auto;
+    height: auto;
     rotate: none;
+    clip-path: none;
+    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
@@ -4780,7 +4792,9 @@ a.topbar-version--pre:hover {
 
      <span class="badge badge--swatch" style="--label-colour: #8b5cf6">design</span>
 
-   `.badge--swatch-fill` tints the pill as well as the dot. */
+   `.badge--swatch-outline` draws the pill's edge in the colour as well as the dot. There is
+   no tinted fill: a tint of a colour the library does not know is a colour function on a
+   rule, which no theme could reach. */
 .badge--swatch { --label-colour: var(--muted); }
 .badge--swatch::before {
     content: '';
@@ -4790,11 +4804,7 @@ a.topbar-version--pre:hover {
     border-radius: 50%;
     background: var(--label-colour);
 }
-.badge--swatch-fill {
-    background: color-mix(in oklab, var(--label-colour) 18%, transparent);
-    border-color: color-mix(in oklab, var(--label-colour) 55%, transparent);
-    color: var(--fg);
-}
+.badge--swatch-outline { border-color: var(--label-colour); }
 
 /* ── The rest, folded ──────────────────────────────────────────────────────
    The first few labels, then one button for the rest: "+4", "and 6 others". It opens what
@@ -4894,7 +4904,8 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
    `.kbd-combo` keeps the keys on one line. The separator is the app's own word or sign:
    "+" for keys held together, hidden from assistive technology because the keys are read
    in order anyway; "then" for a sequence, which is read. `.kbd--sm` is the key for a menu
-   row, a shortcut list and a button, where a full key would set the row's height. */
+   row, a shortcut list and a button, where a full key would set the row's height; `.kbd--lg`
+   is the key for a help panel or a first-run hint, where the key is the point. */
 .kbd {
     display: inline-flex;
     align-items: center;
@@ -4909,6 +4920,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 }
 .kbd i { font-size: 1.05em; line-height: 1; }
 .kbd--sm { font-size: var(--text-1); padding-inline: var(--space-1); }
+.kbd--lg { font-size: var(--text-3); padding-inline: var(--space-3); }
 
 .kbd-combo {
     display: inline-flex;
@@ -26477,6 +26489,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
        An `outline` on top of the existing `outline: none` is why these rules are
        permitted by the appearance-media-query guard. */
     .btn:focus-visible,
+    .badge-copy:focus-visible,
+    button.badge-more:focus-visible,
     /* The chromeless one especially: it has no border, no fill and no padding, so a
        ring that is not painted leaves nothing whatsoever to say where the keyboard is. */
     .btn-bare:focus-visible,

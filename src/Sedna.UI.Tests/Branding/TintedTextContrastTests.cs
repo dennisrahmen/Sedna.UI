@@ -36,7 +36,7 @@ public class TintedTextContrastTests
         ".badge", ".badge--brand", ".badge--go", ".badge--warn", ".badge--danger", ".badge--info", ".badge--secret",
         ".badge--cyan", ".badge--orange", ".badge--teal",
         ".badge--sev-1", ".badge--sev-2", ".badge--sev-3", ".badge--sev-4", ".badge--sev-5",
-        ".badge-ai",
+        ".badge-ai", ".badge--mono", ".badge-key",
     ];
 
     /// <summary>

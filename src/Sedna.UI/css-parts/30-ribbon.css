@@ -12,14 +12,22 @@
    a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
    brand by default, `--go`, `--info`, `--danger` and `--muted`. */
 .ribbon-host { position: relative; overflow: hidden; }
+/* The band is a rectangle turned 45° whose outer edge is the hypotenuse of the corner, cut
+   at both ends to a trapezoid so each end lies along one of the host's edges. Its centre
+   sits (w + h) / 2√2 in from each edge — 0.35355 is 1 / 2√2 — so the turned box ends on the
+   host's edges rather than past them, and nothing sticks out to be clipped. */
 .ribbon {
+    --ribbon-w: 124px;
+    --ribbon-h: 22px;
     position: absolute;
-    inset-block-start: 14px;
-    inset-inline-end: -34px;
-    width: 120px;
+    inset-block-start: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-h) / 2);
+    inset-inline-end: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-w) / 2);
+    width: var(--ribbon-w);
+    height: var(--ribbon-h);
     rotate: 45deg;
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--ribbon-h)) 100%, var(--ribbon-h) 100%);
     box-sizing: border-box;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
+    padding-inline: var(--ribbon-h);
     background: var(--brand);
     color: var(--on-solid);
     font-size: var(--text-1);
@@ -30,13 +38,17 @@
     white-space: nowrap;
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
+    align-content: center;
     pointer-events: none;
 }
 .ribbon--tab {
     inset-block-start: 0;
     inset-inline-end: 0;
     width: auto;
+    height: auto;
     rotate: none;
+    clip-path: none;
+    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
