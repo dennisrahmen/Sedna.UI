@@ -2372,45 +2372,43 @@ a.topbar-version--pre:hover {
 @layer sedna.paint {
 .ribbon-host { position: relative; overflow: hidden; }
 .ribbon {
-    --ribbon-w: 124px;
-    --ribbon-h: 22px;
+    --ribbon-inset: 30px;
+    --ribbon-bg: var(--brand);
     position: absolute;
-    inset-block-start: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-h) / 2);
-    inset-inline-end: calc((var(--ribbon-w) + var(--ribbon-h)) * 0.35355 - var(--ribbon-w) / 2);
-    width: var(--ribbon-w);
-    height: var(--ribbon-h);
+    inset-block-start: var(--ribbon-inset);
+    inset-inline-end: var(--ribbon-inset);
+    translate: 50% -50%;
     rotate: 45deg;
-    clip-path: polygon(0 0, 100% 0, calc(100% - var(--ribbon-h)) 100%, var(--ribbon-h) 100%);
-    box-sizing: border-box;
-    padding-inline: var(--ribbon-h);
-    background: var(--brand);
+    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-3);
+    background: var(--ribbon-bg);
+    box-shadow:
+        -30px 0 0 var(--ribbon-bg), 30px 0 0 var(--ribbon-bg),
+        -60px 0 0 var(--ribbon-bg), 60px 0 0 var(--ribbon-bg),
+        -90px 0 0 var(--ribbon-bg), 90px 0 0 var(--ribbon-bg);
     color: var(--on-solid);
     font-size: var(--text-1);
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    text-align: center;
     white-space: nowrap;
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
-    align-content: center;
     pointer-events: none;
 }
 .ribbon--tab {
     inset-block-start: 0;
     inset-inline-end: 0;
-    width: auto;
-    height: auto;
+    translate: none;
     rotate: none;
-    clip-path: none;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-4);
+    box-shadow: none;
+    padding-inline: var(--space-4);
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
-.ribbon--go     { background: var(--go-solid); }
-.ribbon--info   { background: var(--info-solid); }
-.ribbon--danger { background: var(--danger-solid); }
-.ribbon--muted  { background: var(--border-hover); }
+.ribbon--go     { --ribbon-bg: var(--go-solid); }
+.ribbon--info   { --ribbon-bg: var(--info-solid); }
+.ribbon--danger { --ribbon-bg: var(--danger-solid); }
+.ribbon--muted  { --ribbon-bg: var(--border-hover); }
 }
 @layer sedna.paint {
 .badge {
@@ -15476,7 +15474,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 [dir="rtl"] .form-code { direction: ltr; }
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 [dir="rtl"] .diff-fold > td { direction: rtl; }
-[dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; }
+[dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 [dir="rtl"] .count-badge { translate: -50% -50%; }
 }
 @layer sedna.paint {
