@@ -84,7 +84,7 @@
     "src/Sedna.UI.Catalogue/Components/Pages/Ribbon.razor": "f1153787b0abe1d0",
     "src/Sedna.UI.Catalogue/Examples/Ribbon/Band.razor": "06dc01f0f006a0d1",
     "src/Sedna.UI.Catalogue/Examples/Ribbon/Tab.razor": "2f770ceb68490f92",
-    "src/Sedna.UI/css-parts/30-ribbon.css": "6b2d935b6e3a0a5b"
+    "src/Sedna.UI/css-parts/30-ribbon.css": "fa6e53056727c342"
   },
   "/status-dot": {
     "src/Sedna.UI.Catalogue/Components/Pages/StatusDot.razor": "5d65e512abfb43ba",
