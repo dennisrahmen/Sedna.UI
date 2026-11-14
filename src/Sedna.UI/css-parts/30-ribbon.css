@@ -54,4 +54,6 @@
 .ribbon--go     { --ribbon-bg: var(--go-solid); }
 .ribbon--info   { --ribbon-bg: var(--info-solid); }
 .ribbon--danger { --ribbon-bg: var(--danger-solid); }
-.ribbon--muted  { --ribbon-bg: var(--border-hover); }
+/* The muted fill is the muted text colour and its word is the page's own background: the
+   pair the theme already holds at AA, turned inside out, so it flips with the variant. */
+.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
