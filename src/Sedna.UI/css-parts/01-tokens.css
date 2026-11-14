@@ -1,6 +1,25 @@
 /* ═══ Tokens — the contract ═════════════════════════════════════════════════
    Everything below this block references these and nothing else. */
+/* Which tokens are variant-sensitive. A subtree carrying `data-variant` — an always-dark band
+   on a light page, a light card on a dark one — redeclares exactly the tokens that differ by
+   variant, so everything inside it reads the way the variant says (docs/BRANDING.md, "A
+   subtree in its own variant"). That is the tokens a variant, the colour-blind palette, high
+   contrast or forced colours remap, and every token derived from one of those: a derived token
+   resolves where it is declared, so it has to be declared in the subtree too.
+
+   Two blocks follow. The first is those tokens, and its selector list is the whole mechanism:
+   `:root` is the page, `:root :where([data-variant])` is any element below it that names a
+   variant. The second is everything else — spacing, type, motion, the families that look the
+   same in both variants — declared once at `:root` and inherited down, which is why a subtree
+   keeps the page's density and an app's own override of one of them. A new token goes in the
+   first block when it is remapped by a variant, the colour-blind palette or contrast, or reads
+   a token that is; `ScopedVariantTests` fails when it is in the wrong one.
+
+   The selector list ends with `:root` on purpose: every reader of this file finds a token
+   block by that selector. */
+:root :where([data-variant]),
 :root {
+
     /* ── Appearance ─────────────────────────────────────────────────────────
        Consumed once, as `html { color-scheme: var(--color-scheme) }`, which is
        why it is a token and not a literal: it has to move with the theme. It
@@ -12,16 +31,11 @@
        no longer one of them — base appearance puts it in reach of the stylesheet,
        and 49-form-select-base.css styles it. */
     --color-scheme: dark;
-
     /* The UA's date-picker glyph is drawn in a fixed dark colour we cannot reach.
        Inverting it is the only way to see it on a dark surface, so the amount of
        inversion moves with the theme: 1 on dark, 0 on light. A number, not a
        colour — there is nothing here to recolour. */
     --picker-invert: 1;
-
-    /* ── Typography ─────────────────────────────────────────────────────── */
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: "SF Mono", Menlo, Consolas, monospace;
 
     /* ── Surfaces, text, lines ──────────────────────────────────────────────
        Dark is the library's default and the identity is strongest here: Deep
@@ -47,6 +61,7 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
     --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
+
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
        An app asking "what colour is the navigation?" had to know that the
@@ -58,6 +73,7 @@
     --surface-app:     var(--bg);
     --surface-chrome:  var(--sidebar-bg);
     --surface-content: var(--bg);
+
     /* ── Elevation ──────────────────────────────────────────────────────
        Three steps, so a surface inside a surface inside a surface is still
        three distinguishable surfaces. Level 1 is the card's own colour, which
@@ -153,10 +169,6 @@
        moves it into the danger ramp — and the sprite reads it through the <use> shadow
        tree without knowing which state it is drawing. */
     --state-accent:     var(--brand);
-    /* Whether a drawing's moving part moves. `paused` here, `running` from
-       .state-art--live or .empty-state--pending; the sprite's motion classes read it as
-       their play state, and the reduced-motion block removes the animations outright. */
-    --state-motion:     paused;
 
     /* ── Data visualisation ────────────────────────────────────────────────
        Six series colours for parts of a chart that are merely different from each
@@ -230,8 +242,6 @@
        topbar and the current item in the bottom bar — where you are, rather than what
        you picked. It follows --selected unless an app separates the two. */
     --selected:         var(--brand);
-    /* The strip at the start of a clickable row under the pointer; none until an app sets it. */
-    --row-hover-accent: transparent;
     --tab-indicator:    var(--selected);
 
     /* ── Fields ─────────────────────────────────────────────────────────────
@@ -243,12 +253,6 @@
        every divider. The focused edge is its own role for the same reason: --brand-soft
        also tints spinners and icons, and an app with a neutral focus ring wants a
        neutral focused field without them. */
-    /* A field's and a choice control's edge is the only thing that says it is a control:
-       a step past --border-strong, for 3:1 against a card (StateContrastTests).
-       --control-on is what a checked checkbox, a checked radio, an on switch and a
-       slider's filled track and thumb are painted in. */
-    --field-border:       var(--slate-500);
-    --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
     /* The edge of a field in a state (46-form-layout.css, "Field states"): rejected and
        unusual. Their own roles rather than --danger-border-strong and --warn-border,
@@ -267,7 +271,6 @@
     /* ── Disabled ───────────────────────────────────────────────────────────
        How far a disabled control's graphic fades — the check, the radio dot, the
        switch, the slider, the colour swatch. A number, not a colour. Labels do not fade. */
-    --disabled-opacity: 0.4;
     /* A disabled control keeps a label that reads at 4.5:1 — dimming by opacity alone
        measured 1.3–3.5:1 — and says it is unavailable by its flat, quiet look instead. */
     --disabled-fg:     var(--muted);
@@ -307,15 +310,6 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
-    /* The header's height, and the sidebar's brand and area title, which line up with it. */
-    --topbar-height:   44px;
-
-    /* ── Panel bars ─────────────────────────────────────────────────────────
-       A modal's header and footer and a card's head sit on the panel's own surface; an
-       app that wants them as bars sets these. */
-    --modal-head-bg:   transparent;
-    --modal-foot-bg:   transparent;
-    --card-head-bg:    transparent;
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -336,18 +330,10 @@
     --go-border:  var(--green-800);
     --go-fg:      var(--green-400);
     --go-ring:    color-mix(in srgb, var(--green-500) 50%, transparent);
-
     --warn-solid:      var(--amber-700);
-    --warn-hover:      var(--amber-800);
-    --warn-active:     var(--amber-900);
     --warn-bg:         color-mix(in srgb, var(--amber-500) 12%, transparent);
-    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
-    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
     --warn-border:     var(--amber-800);
     --warn-fg:         var(--amber-300);
-    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
-    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
-
     /* crimson-700, not the old #dc2626: that red sits 7° from the Sedna Red brand
        in OKLCH — a Delete button and a Save button would read as the same colour
        at a glance. crimson-700 is 32° away and slightly darker, so the two separate
@@ -361,14 +347,12 @@
     --danger-border-strong: var(--crimson-800);
     --danger-fg:            var(--crimson-400);
     --danger-ring:          color-mix(in srgb, var(--crimson-500) 40%, transparent);   /* focus ring on a danger control */
-
     --info-bg:      color-mix(in srgb, var(--orbit-400) 12%, transparent);
     --info-border:  var(--orbit-800);
     --info-fg:      var(--orbit-300);
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
     --info-on-solid: var(--on-solid);                     /* a label on it — dark where the fill is light */
     --info-ring:    color-mix(in srgb, var(--orbit-400) 50%, transparent);     /* its glow */
-
     /* Data in motion: the light running into a .workflow's step at work, the line it
        runs on, and that step's ring and glow. The info colours, so every theme moves
        them with info; forced colours points the light at Highlight. */
@@ -376,17 +360,14 @@
     --flow-line:  var(--info-border);
     --flow-tint:  var(--info-bg);
     --flow-glow:  var(--info-ring);
-
     --secret-bg:     color-mix(in srgb, var(--violet-600) 12%, transparent);
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-300);
-
     /* The out-of-office presence mark. Not a semantic family: every other presence
        state borrows go, warn or danger, and this one means none of them. Violet-600
        clears 3:1 as a graphic against both the dark and the light page, so no theme
        remaps it; the arrow knocked out of it is what carries the state. */
     --presence-out-of-office: var(--violet-600);
-
     /* Extra badge hues — categorical only, no semantics attached. */
     --badge-cyan-bg:     color-mix(in srgb, var(--cyan-400) 15%, transparent);
     --badge-cyan-border: var(--cyan-800);
@@ -422,22 +403,18 @@
     --sev-1-bg:     var(--crimson-800);
     --sev-1-border: var(--crimson-700);
     --sev-1-fg:     var(--on-solid);
-
     --sev-2-solid:  var(--orange-700);
     --sev-2-bg:     color-mix(in srgb, var(--orange-400) 28%, transparent);
     --sev-2-border: var(--orange-700);
     --sev-2-fg:     var(--orange-200);
-
     --sev-3-solid:  var(--amber-600);
     --sev-3-bg:     color-mix(in srgb, var(--amber-500) 20%, transparent);
     --sev-3-border: var(--amber-800);
     --sev-3-fg:     var(--amber-300);
-
     --sev-4-solid:  var(--orbit-500);
     --sev-4-bg:     color-mix(in srgb, var(--orbit-400) 13%, transparent);
     --sev-4-border: var(--orbit-800);
     --sev-4-fg:     var(--orbit-300);
-
     --sev-5-solid:  var(--slate-400);
     --sev-5-bg:     color-mix(in srgb, var(--slate-400) 8%, transparent);
     --sev-5-border: var(--slate-700);
@@ -446,7 +423,6 @@
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      color-mix(in srgb, var(--white) 7%, transparent);
     --table-head-bg: color-mix(in srgb, var(--white) 4%, transparent);
-
     /* Feedback surfaces. Tinted from the theme rather than the brand: a loading
        placeholder is not a branded element, and a brand-tinted skeleton reads as
        content that is already there. */
@@ -463,14 +439,6 @@
        --backdrop is the exception that proves it — pure black belongs to no ramp,
        has no hue to drift, and is what a modal backdrop should be in every theme. */
     --backdrop:      color-mix(in srgb, var(--black) 65%, transparent);       /* modal backdrop */
-    /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
-       Black in every theme for the same reason as --backdrop: a film is framed in
-       black, and a label on a photograph cannot know what the photograph is. */
-    --media-bg:      var(--black);
-    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
-    /* One square of the checkerboard behind a picture in a `--transparency` frame
-       (62-media-and-prose.css). */
-    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
@@ -513,6 +481,135 @@
        reaches for, because box-shadow has no logical form. */
     --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
     --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
+
+    /* ── Agents ─────────────────────────────────────────────────────────────
+       The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
+       orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
+       so a theme that re-points them re-colours every agent part at once. */
+    --agent-from:  var(--coral-500);
+    --agent-to:    var(--orbit-400);
+    /* The orb's orbit paths: the page's own text colour, faint. */
+    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
+    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
+    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
+    /* A glow in the orbit's blue: full round a step at work, dim round a .beam. */
+    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
+    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
+    /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */
+    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
+    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
+    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
+    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
+}
+
+/* Everything that does not depend on the variant. Declared once, inherited by every subtree. */
+:root {
+
+    /* ── Typography ─────────────────────────────────────────────────────── */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", Menlo, Consolas, monospace;
+
+    /* ── Brand — THE app override point ─────────────────────────────────────
+       An app redefines this family (and --accent / --sidebar-active) in its own
+       override file, or supplies a whole theme; nothing else needs touching.
+       The four ring tokens are separate because the alphas differ per control.
+
+       --brand is NOT Sedna Red (coral-500) — Sedna Red is a display colour.
+       White text on coral-500 is 2.82:1, far under the 4.5:1 a .btn label
+       needs. coral-600 is the darkest-chroma point on the Sedna Red hue that
+       still carries white text at AA (4.55:1): solved for maximum chroma at
+       the contrast boundary, not "coral, darkened" — a naive darkening goes
+       brick and dull. Sedna Red itself survives everywhere it can be seen at
+       full strength: --brand-soft, tints, glows, the sidebar indicator. See
+       docs/BRANDING.md §4.1. */
+    /* Whether a drawing's moving part moves. `paused` here, `running` from
+       .state-art--live or .empty-state--pending; the sprite's motion classes read it as
+       their play state, and the reduced-motion block removes the animations outright. */
+    --state-motion:     paused;
+
+    /* ── Selection ──────────────────────────────────────────────────────────
+       The mark on the one that is chosen or on show: a selected row's leading bar, a
+       chosen card's ring, the step a workflow is showing, the spotlight's ring, the
+       graph's selected record. A line or a ring, never a fill carrying text — those stay
+       --brand, because --on-solid is measured against it.
+
+       Its own role because the brand is not always the right colour for it: on a
+       status display whose brand is red, a red ring round the one on show reads as
+       "failed". Redefine this alone to move every selection mark at once.
+
+       --tab-indicator is the line under the current tab, the current area in the
+       topbar and the current item in the bottom bar — where you are, rather than what
+       you picked. It follows --selected unless an app separates the two. */
+    /* The strip at the start of a clickable row under the pointer; none until an app sets it. */
+    --row-hover-accent: transparent;
+
+    /* ── Fields ─────────────────────────────────────────────────────────────
+       The edge of every box a reader types or picks into — .form-input, .form-select,
+       .input-group, .form-combo-box, .form-color, the Markdown editor, the search and
+       nav-filter boxes — at rest and focused. --border is also the line between cards,
+       rows and panels, and a calm line colour leaves a field's edge under the 3:1 a
+       control's boundary needs; this lets an app firm up fields without firming up
+       every divider. The focused edge is its own role for the same reason: --brand-soft
+       also tints spinners and icons, and an app with a neutral focus ring wants a
+       neutral focused field without them. */
+    /* A field's and a choice control's edge is the only thing that says it is a control:
+       a step past --border-strong, for 3:1 against a card (StateContrastTests).
+       --control-on is what a checked checkbox, a checked radio, an on switch and a
+       slider's filled track and thumb are painted in. */
+    --field-border:       var(--slate-500);
+    --control-border:     var(--field-border);
+
+    /* ── Disabled ───────────────────────────────────────────────────────────
+       How far a disabled control's graphic fades — the check, the radio dot, the
+       switch, the slider, the colour swatch. A number, not a colour. Labels do not fade. */
+    --disabled-opacity: 0.4;
+
+    /* ── Topbar ─────────────────────────────────────────────────────────────
+       The header's surface and what is drawn straight on it: the icon buttons, the
+       area links, the user widget's name and sign-out, the version tag. Aliases of the
+       roles the header has always used, so nothing moves until an app points them
+       elsewhere — a brand-coloured header with white text in the light variant is
+       --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
+       the pointer is on. Panels that open from the header (the user menu, the search
+       results) are surfaces of their own and keep the page's roles.
+
+       Each frame region with a surface of its own — the topbar, the sidebar, the bottom
+       bar — says what quiet text on it is painted in, as --muted-here, the way it says
+       what its surface is as --surface-here; .text-muted, .eyebrow and
+       .nav-section-label read it, and every surface resets it to --muted. */
+    /* The header's height, and the sidebar's brand and area title, which line up with it. */
+    --topbar-height:   44px;
+
+    /* ── Panel bars ─────────────────────────────────────────────────────────
+       A modal's header and footer and a card's head sit on the panel's own surface; an
+       app that wants them as bars sets these. */
+    --modal-head-bg:   transparent;
+    --modal-foot-bg:   transparent;
+    --card-head-bg:    transparent;
+
+    /* ── Semantic status families ───────────────────────────────────────────
+       "go"     — the action that sends something outward (approve, apply, send)
+       "warn"   — the action that changes who is in control (take over)
+       "danger" — destructive / failed
+       "info", "secret" — informational and sensitive-value surfaces
+       [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
+       blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
+    --warn-hover:      var(--amber-800);
+    --warn-active:     var(--amber-900);
+    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
+    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
+    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
+    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
+
+    /* ── Component surfaces ─────────────────────────────────────────────── */
+    /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
+       Black in every theme for the same reason as --backdrop: a film is framed in
+       black, and a label on a photograph cannot know what the photograph is. */
+    --media-bg:      var(--black);
+    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* One square of the checkerboard behind a picture in a `--transparency` frame
+       (62-media-and-prose.css). */
+    --checker-size:  8px;
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. The border and the
@@ -579,7 +676,6 @@
        rendered control. */
     --choice-inset-check:  calc(15px + var(--space-4));   /* checkbox and radio */
     --choice-inset-switch: calc(34px + var(--space-5));
-
     /* How tall a clamped code block is before it scrolls. Raise it for docs, lower it
        for a dense admin page. */
     --code-clamp: 360px;
@@ -667,27 +763,22 @@
     --list-pad-block:  var(--space-5);
     --list-pad-inline: var(--space-6);
     --list-gap:        var(--space-4);
-
     /* The space between a page's sections and the page's own padding — .page reads
        them, and the density remaps move them with the rows and cells above. */
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
-
     /* The block padding of a `.page-banner` under the topbar; its inline padding is the
        page's own, so its words start on the page's column. */
     --page-banner-pad-block: var(--space-5);
-
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one
        `.list-title` or `.list-sub` it shapes that line alone. */
     --list-lines: 1;
-
     /* The key column's share of a `.kv` row once the rows beside it carry a `.kv-action`
        — a check-answers list — so every value starts on one edge. Set on the list to
        give the keys more room, or on one row. */
     --kv-key-width: 30%;
-
     /* Where an anchored panel opens against its trigger: `block-end` (below, the
        default), `block-start` (above), `inline-end` or `inline-start` (beside it,
        mirrored in RTL). Every panel anchored to a trigger reads it — a `.menu` in
@@ -701,23 +792,11 @@
        The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
        orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
        so a theme that re-points them re-colours every agent part at once. */
-    --agent-from:  var(--coral-500);
-    --agent-to:    var(--orbit-400);
     /* The voice level, 0 to 1, that the app's audio code writes on any element: the
        orb, the avatar, the bars, the mic button and Mochi below it all follow it.
        Unset here, on purpose — with no level an orb moves on its own and every other
        part reads silence. */
     --level: initial;
-    /* The orb's orbit paths: the page's own text colour, faint. */
-    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
-    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
-    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
-    /* A glow in the orbit's blue: full round a step at work, dim round a .beam. */
-    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
-    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
-    /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */
-    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
-    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
     /* An agent avatar's sphere: three stops per identity tone, lit from inside, and the
        glow a speaking sphere gives off in its own colour. */
     --agent-sedna-1:   var(--coral-400);  --agent-sedna-2:   var(--violet-500); --agent-sedna-3:   var(--orbit-400);
@@ -735,8 +814,6 @@
     --agent-sphere-gloss: color-mix(in srgb, var(--white) 42%, transparent);
     --agent-sphere-shade: color-mix(in srgb, var(--black) 26%, transparent);
     --agent-sphere-rim:   color-mix(in srgb, var(--white) 14%, transparent);
-    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
-    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
 
     /* ── Mochi ──────────────────────────────────────────────────────────────
        The agent's character keeps its own colours under every theme and both

@@ -120,11 +120,10 @@
 }
 }
 @layer sedna.tokens {
+:root :where([data-variant]),
 :root {
     --color-scheme: dark;
     --picker-invert: 1;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: "SF Mono", Menlo, Consolas, monospace;
     --bg:              var(--slate-900);
     --bg-elevated:     var(--slate-800);
     --bg-hover:        var(--slate-750);
@@ -178,7 +177,6 @@
     --brand-soft:       var(--coral-500);
     --brand-text:       var(--coral-400);
     --state-accent:     var(--brand);
-    --state-motion:     paused;
     --viz-1: var(--brand);
     --viz-2: var(--cyan-600);
     --viz-3: var(--orange-400);
@@ -201,17 +199,13 @@
     --brand-edge:       var(--brand-soft);
     --accent:           var(--orbit-400);
     --selected:         var(--brand);
-    --row-hover-accent: transparent;
     --tab-indicator:    var(--selected);
-    --field-border:       var(--slate-500);
-    --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
     --field-border-danger: var(--crimson-500);
     --field-border-warn:   var(--amber-500);
     --control-on:         var(--brand);
     --rating-on:          var(--field-border-warn);
     --rating-off:         var(--control-border);
-    --disabled-opacity: 0.4;
     --disabled-fg:     var(--muted);
     --disabled-bg:     var(--surface-soft);
     --disabled-border: var(--border);
@@ -225,10 +219,6 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
-    --topbar-height:   44px;
-    --modal-head-bg:   transparent;
-    --modal-foot-bg:   transparent;
-    --card-head-bg:    transparent;
     --go-solid:   var(--green-700);
     --go-hover:   var(--green-800);
     --go-active:  var(--green-900);
@@ -237,15 +227,9 @@
     --go-fg:      var(--green-400);
     --go-ring:    color-mix(in srgb, var(--green-500) 50%, transparent);
     --warn-solid:      var(--amber-700);
-    --warn-hover:      var(--amber-800);
-    --warn-active:     var(--amber-900);
     --warn-bg:         color-mix(in srgb, var(--amber-500) 12%, transparent);
-    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
-    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
     --warn-border:     var(--amber-800);
     --warn-fg:         var(--amber-300);
-    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
-    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
     --danger-solid:         var(--crimson-700);
     --danger-bg:            color-mix(in srgb, var(--crimson-900) 15%, transparent);
     --danger-bg-hover:      color-mix(in srgb, var(--crimson-800) 25%, transparent);
@@ -306,9 +290,6 @@
     --code-fg:       var(--indigo-300);
     --code-bg:       color-mix(in srgb, var(--indigo-500) 10%, transparent);
     --backdrop:      color-mix(in srgb, var(--black) 65%, transparent);
-    --media-bg:      var(--black);
-    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
-    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);
     --tip-bg:        var(--slate-925);
@@ -329,6 +310,39 @@
     --shadow-tile:      0 0 0 1px var(--border), 0 12px 32px color-mix(in srgb, var(--black) 38%, transparent);
     --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
     --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
+    --agent-from:  var(--coral-500);
+    --agent-to:    var(--orbit-400);
+    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
+    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
+    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
+    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
+    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
+    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
+    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
+    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
+    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
+}
+:root {
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", Menlo, Consolas, monospace;
+    --state-motion:     paused;
+    --row-hover-accent: transparent;
+    --field-border:       var(--slate-500);
+    --control-border:     var(--field-border);
+    --disabled-opacity: 0.4;
+    --topbar-height:   44px;
+    --modal-head-bg:   transparent;
+    --modal-foot-bg:   transparent;
+    --card-head-bg:    transparent;
+    --warn-hover:      var(--amber-800);
+    --warn-active:     var(--amber-900);
+    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
+    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
+    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
+    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
+    --media-bg:      var(--black);
+    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    --checker-size:  8px;
     --reconnect-warn-bg:     color-mix(in srgb, var(--amber-900) 72%, var(--slate-950));
     --reconnect-warn-border: var(--amber-600);
     --reconnect-warn-fg:     var(--amber-200);
@@ -398,16 +412,7 @@
     --list-lines: 1;
     --kv-key-width: 30%;
     --panel-placement: block-end;
-    --agent-from:  var(--coral-500);
-    --agent-to:    var(--orbit-400);
     --level: initial;
-    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
-    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
-    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
-    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
-    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
-    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
-    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
     --agent-sedna-1:   var(--coral-400);  --agent-sedna-2:   var(--violet-500); --agent-sedna-3:   var(--orbit-400);
     --agent-aurora-1:  var(--teal-300);   --agent-aurora-2:  var(--cyan-600);   --agent-aurora-3:  var(--violet-400);
     --agent-ember-1:   var(--amber-300);  --agent-ember-2:   var(--coral-500);  --agent-ember-3:   var(--crimson-600);
@@ -423,8 +428,6 @@
     --agent-sphere-gloss: color-mix(in srgb, var(--white) 42%, transparent);
     --agent-sphere-shade: color-mix(in srgb, var(--black) 26%, transparent);
     --agent-sphere-rim:   color-mix(in srgb, var(--white) 14%, transparent);
-    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
-    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
     --mochi-pink:  rgb(244, 166, 188); --mochi-pink-limb:  rgb(227, 141, 166);
     --mochi-mint:  rgb(142, 209, 176); --mochi-mint-limb:  rgb(116, 188, 153);
     --mochi-sky:   rgb(157, 184, 242); --mochi-sky-limb:   rgb(129, 157, 219);
@@ -459,6 +462,7 @@
 }
 }
 @layer sedna.tokens {
+:root [data-variant="light"],
 :root[data-variant="light"] {
     --color-scheme:   light;
     --picker-invert:  0;
@@ -585,6 +589,7 @@
 }
 }
 @layer sedna.tokens {
+:root[data-cvd="1"] :where([data-variant]),
 :root[data-cvd="1"] {
     --go-solid:  var(--orbit-700);
     --go-hover:  var(--orbit-800);
@@ -603,6 +608,7 @@
     --sev-2-border: var(--violet-700);
     --sev-2-fg:     var(--violet-300);
 }
+:root[data-cvd="1"] [data-variant="light"],
 :root[data-variant="light"][data-cvd="1"] {
     --go-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --go-border: var(--orbit-300);
@@ -614,6 +620,7 @@
 }
 }
 @layer sedna.tokens {
+:root[data-contrast="more"] :where([data-variant]),
 :root[data-contrast="more"] {
     --bg:              var(--black);
     --bg-elevated:     var(--slate-950);
@@ -697,6 +704,7 @@
     --scrollbar:       var(--slate-400);
     --scrollbar-hover: var(--slate-300);
 }
+:root[data-contrast="more"] [data-variant="light"],
 :root[data-variant="light"][data-contrast="more"] {
     --bg:              var(--white);
     --bg-elevated:     var(--white);
@@ -786,6 +794,7 @@
     --redacted:        var(--crimson-900);
 }
 @media (prefers-contrast: more) {
+    :root :where([data-variant]),
     :root {
         --border:         var(--slate-400);
         --border-strong:  var(--slate-300);
@@ -795,6 +804,7 @@
         --surface-soft:   var(--slate-900);
         --surface-strong: var(--slate-800);
     }
+    :root [data-variant="light"],
     :root[data-variant="light"] {
         --border:         var(--slate-600);
         --border-strong:  var(--slate-800);
@@ -812,6 +822,11 @@ html, body { margin: 0; height: 100%; }
 html {
     color-scheme: var(--color-scheme);
     scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+}
+:root [data-variant] {
+    color-scheme: var(--color-scheme);
+    color: var(--fg);
     scrollbar-color: var(--scrollbar) transparent;
 }
 body {
@@ -2204,6 +2219,15 @@ a.topbar-version--pre:hover {
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
+a.card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+a.card:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+a.card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+a.card.card--fill { display: flex; }
 .card-head {
     display: flex;
     flex-wrap: wrap;
@@ -7866,6 +7890,81 @@ td.diff-gap { background: var(--surface-soft); }
 .diff--split .diff-code + .diff-num { border-inline-start: 1px solid var(--border); }
 }
 @layer sedna.paint {
+.page-head--hero {
+    --hero-height: 22rem;
+    --hero-measure: 40rem;
+    --hero-pad-inline: var(--space-8);
+    --hero-scrim-angle: 90deg;
+    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
+    --hero-scrim-soft: color-mix(in srgb, var(--black) 18%, transparent);
+    position: relative;
+    isolation: isolate;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: var(--space-6);
+    box-sizing: border-box;
+    min-block-size: var(--hero-height);
+    max-inline-size: var(--page-max);
+    margin-inline: auto;
+    padding: var(--space-10) var(--hero-pad-inline);
+    overflow: hidden;
+    border-radius: var(--radius-surface);
+    background: var(--media-bg);
+}
+.page-head-image {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+.page-head--hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+        var(--hero-scrim-angle),
+        var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
+        var(--hero-scrim-soft));
+}
+.page-head--hero .page-head-text {
+    flex: 0 1 auto;
+    inline-size: 100%;
+    max-inline-size: var(--hero-measure);
+    background: var(--surface-soft);
+}
+.page-head--hero .page-head-text > p {
+    margin: var(--space-4) 0 0;
+    color: var(--fg-soft);
+    font-size: var(--text-7);
+}
+.page-head--hero .page-head-text > .page-head-eyebrow {
+    margin: 0 0 var(--space-4);
+    color: var(--brand-text);
+    font-size: var(--text-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.page-head--hero :is(h1, h2, h3) {
+    color: var(--fg);
+    font-size: var(--text-10);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+@media (min-width: 48rem) {
+    .page-head--hero :is(h1, h2, h3) { font-size: var(--text-11); }
+}
+@media (max-width: 560px) {
+    .page-head--hero { --hero-pad-inline: var(--space-6); padding-block: var(--space-8); }
+}
+}
+@layer sedna.paint {
 .pagination {
     display: flex;
     flex-wrap: wrap;
@@ -12945,6 +13044,7 @@ button.inbox-item-title {
     transition: border-color var(--motion-fast), background var(--motion-fast);
 }
 .source-card:hover { border-color: var(--border-hover); background: var(--surface-strong); text-decoration: none; }
+.source-card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .source-card-host { display: flex; align-items: center; gap: var(--space-3); color: var(--muted); min-inline-size: 0; }
 .source-card-n {
     display: grid;
@@ -15406,6 +15506,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 }
 @layer sedna.paint {
+[dir="rtl"] .page-head--hero,
+.page-head--hero[dir="rtl"] { --hero-scrim-angle: 270deg; }
 [dir="rtl"] .card-resize--corner { cursor: nesw-resize; }
 [dir="rtl"] .switch input[type="checkbox"]:checked::after { transform: translateX(-15px); }
 @supports not (appearance: base-select) {
@@ -15479,6 +15581,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 @layer sedna.paint {
 @media (forced-colors: active) {
+    :root :where([data-variant]),
     :root {
         --bg:              Canvas;
         --bg-elevated:     Canvas;
@@ -15595,6 +15698,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
+    a.card:focus-visible,
+    .source-card:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,
     .carousel-track:focus-visible,
@@ -16084,6 +16189,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-toc-fold > .page-toc-title::after { transition: none; }
     .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }
+    a.card            { transition: none; }
     .chart-svg[data-chart-enter] .chart-marks { animation: none; }
     .graph-line--flow::before,
     .graph-line--flow:dir(rtl)::before { animation: none; }
