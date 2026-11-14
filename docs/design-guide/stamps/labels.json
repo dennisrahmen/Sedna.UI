@@ -67,24 +67,25 @@
     "src/Sedna.UI.Catalogue/Examples/Count/Tones.razor": "208ae2d14bf9fa8e",
     "src/Sedna.UI/css-parts/11-frame-sidebar.css": "e6341cd39ef4d76a",
     "src/Sedna.UI/css-parts/17-frame-hover-hints.css": "c76ee0ee677b0843",
-    "src/Sedna.UI/css-parts/31-count.css": "6b209d2b6e111165",
+    "src/Sedna.UI/css-parts/31-count.css": "97b31136df9f676a",
     "src/Sedna.UI/css-parts/50-tabs.css": "cbabc5a7dc315677",
     "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6"
   },
   "/kbd": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Kbd.razor": "f6329563e83651b7",
-    "src/Sedna.UI.Catalogue/Examples/Kbd/Combinations.razor": "8f3e6e005a59d34d",
+    "src/Sedna.UI.Catalogue/Components/Pages/Kbd.razor": "199a1c4f6f4affbb",
+    "src/Sedna.UI.Catalogue/Examples/Kbd/Combinations.razor": "aacf5187bcd3f008",
     "src/Sedna.UI.Catalogue/Examples/Kbd/InAButton.razor": "ccbe92847e6284e1",
     "src/Sedna.UI.Catalogue/Examples/Kbd/InText.razor": "68bf0801251a43e9",
-    "src/Sedna.UI.Catalogue/Examples/Kbd/Keys.razor": "8139e89ebdcf31c4",
+    "src/Sedna.UI.Catalogue/Examples/Kbd/Keys.razor": "9863cffb673b809c",
     "src/Sedna.UI.Catalogue/Examples/Kbd/ShortcutList.razor": "149444ae966ea488",
-    "src/Sedna.UI/css-parts/31-kbd.css": "e688e111ace655e7"
+    "src/Sedna.UI/css-parts/31-kbd.css": "e688e111ace655e7",
+    "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01"
   },
   "/ribbon": {
     "src/Sedna.UI.Catalogue/Components/Pages/Ribbon.razor": "f1153787b0abe1d0",
     "src/Sedna.UI.Catalogue/Examples/Ribbon/Band.razor": "06dc01f0f006a0d1",
     "src/Sedna.UI.Catalogue/Examples/Ribbon/Tab.razor": "2f770ceb68490f92",
-    "src/Sedna.UI/css-parts/30-ribbon.css": "fa6e53056727c342"
+    "src/Sedna.UI/css-parts/30-ribbon.css": "78a576a0c20cc43a"
   },
   "/status-dot": {
     "src/Sedna.UI.Catalogue/Components/Pages/StatusDot.razor": "5d65e512abfb43ba",

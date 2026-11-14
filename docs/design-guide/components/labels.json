@@ -85,7 +85,7 @@
       { "text": "Whether a person is available", "instead": "/avatar#presence-mark" }
     ],
     "goals": [],
-    "stamp": "7904d707f51912fc"
+    "stamp": "17458945e86e9a23"
   },
   {
     "page": "/kbd",
@@ -99,7 +99,7 @@
       { "text": "Code or a value the reader copies", "instead": "/badge#identifiers" }
     ],
     "goals": [],
-    "stamp": "498adf5b2965a6a1"
+    "stamp": "ea2722f7aaf2a61a"
   },
   {
     "page": "/ribbon",
@@ -113,6 +113,6 @@
       { "text": "A condition that needs a sentence", "instead": "/alert#every-tone" }
     ],
     "goals": [],
-    "stamp": "d1d37ef143d684ca"
+    "stamp": "0911dd9ee20c0c2a"
   }
 ]

@@ -60,4 +60,5 @@
 .count-badge--danger { background: var(--danger-solid); }
 .count-badge--go     { background: var(--go-solid); }
 .count-badge--info   { background: var(--info-solid); }
-.count-badge--muted  { background: var(--border-hover); }
+/* As .ribbon--muted: the muted text colour as the fill, the page's background as the number. */
+.count-badge--muted  { background: var(--muted); color: var(--bg); }
