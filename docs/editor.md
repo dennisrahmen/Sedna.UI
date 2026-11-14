@@ -135,6 +135,8 @@ The app's own form, written once inside the editor, which an image or video cont
   <input class="form-input" type="url" data-editor-media-url aria-label="Address" placeholder="https://" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="image" aria-label="What the image shows" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="video" aria-label="What the video is about" />
+  <input class="form-input" type="number" min="1" inputmode="numeric" data-editor-media-width aria-label="Width in pixels" placeholder="Width" />
+  <input class="form-input" type="number" min="1" inputmode="numeric" data-editor-media-height aria-label="Height in pixels" placeholder="Height" />
   <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
   <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
 </div>
@@ -145,7 +147,14 @@ The app's own form, written once inside the editor, which an image or video cont
 - `data-editor-media-kind` on the form says which it is open for, `image` or `video`. An element inside
   it with `data-editor-media-for="image"` or `"video"` shows only for that kind, and a field marked so is
   the field for that kind.
-- Opened on an image or a video, it is filled with it, and Insert replaces it.
+- `[data-editor-media-width]` and `[data-editor-media-height]` take the size in pixels, as the `width`
+  and `height` attributes of an image or a video. Both are optional and work like the other fields: one
+  marked `data-editor-media-for` is the field for that kind. **Empty removes the attribute**, so the browser
+  keeps the aspect ratio from the one that is left, or from the file. A value that is not a whole number
+  above zero — `0`, `-5`, `12.5`, `50%` — marks its field `aria-invalid`, leaves the form open and takes the
+  focus; typing in the field clears the mark.
+- Opened on an image or a video, it is filled with it, size included, and Insert replaces it. A form
+  with no size fields leaves the size of the media it replaces as it was.
 - Enter inserts, Escape closes, and a press outside it closes it. An address the editor would not keep
   marks the address field `aria-invalid` and leaves the form open; an empty one closes it.
 
@@ -176,13 +185,18 @@ the words once inside the editor:
 
 ### Your own dialog
 
-Before the form opens, the editor sends `sedna-editor-media`, cancelable, with `{ kind, src, alt }` —
-the image or video under the caret, or empty strings. An app that would rather open its own dialog
+Before the form opens, the editor sends `sedna-editor-media`, cancelable, with
+`{ kind, src, alt, width, height }` — the image or video under the caret, its size in pixels or `null` for none,
+or empty strings and nulls. An app that would rather open its own dialog
 cancels it — the form stays shut, and an editor with no form needs nothing else — and answers with the
-handle's `insertImage(url, alt)` or `insertVideo(url, label)`, or `ISednaEditors.InsertImageAsync` and
-`InsertVideoAsync`. Each puts the media where the caret was, or in place of the media it is on, and
-answers null, inserting nothing, when the address is not one the editor keeps or the editor does not
-take that kind.
+handle's `insertImage(url, alt, width, height)` or `insertVideo(url, label, width, height)`, or
+`ISednaEditors.InsertImageAsync` and `InsertVideoAsync`. Each puts the media where the caret was, or in place
+of the media it is on, and answers null, inserting nothing, when the address is not one the editor keeps, a size
+is not a whole number of pixels above zero, or the editor does not take that kind.
+
+The size is optional. **Left out — `undefined` in script, the overload without a size in C# — it is the
+size of the media being replaced**, so an app that picks a new file for an image keeps the size it had.
+Given as `null` or empty it is none: the attribute is removed.
 
 ```razor
 <div class="editor" data-editor id="report" @onsedna-editor-media="PickImage" @onsedna-editor-media:preventDefault>
@@ -236,7 +250,7 @@ Bubbling from the `[data-editor]` element, with plain data in `detail`:
 |---|---|
 | `sedna-editor-ready` | `{ html, text, length, isEmpty }`, once the document has loaded. |
 | `sedna-editor-change` | The same, after each change. |
-| `sedna-editor-media` | `{ kind, src, alt }`, cancelable, before the media form opens. |
+| `sedna-editor-media` | `{ kind, src, alt, width, height }`, cancelable, before the media form opens. `width` and `height` are numbers, or `null` for none and for a value that is not a number of pixels. |
 | `sedna-editor-file` | `{ files: [{ id, name, type, size }], index }`, cancelable, when an image or a video is pasted or dropped. Nothing is inserted: read each file by its `id`, upload it, and answer with `insertImage` or `insertVideo`. Cancel it to say the app took them; otherwise `[data-editor-file-notice]` shows. |
 
 From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor-change`, each a
@@ -254,8 +268,8 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `html()` | The document as HTML. |
 | `set(html)` | Replaces the document, as a paste would; the textarea follows with its events. |
 | `insert(text)` | Types text at the caret, or at the end. |
-| `insertImage(url, alt)` | An image at the caret, or in place of the one it is on; null when it is not kept. |
-| `insertVideo(url, label)` | A video, the same way. |
+| `insertImage(url, alt, width, height)` | An image at the caret, or in place of the one it is on; `width` and `height` in pixels, `null` for none, left out to keep the replaced image's. Null when it is not kept. |
+| `insertVideo(url, label, width, height)` | A video, the same way. |
 | `file(id)` | A pasted or dropped file, as a `File`, by the id its `sedna-editor-file` named; null once the editor has let it go — it keeps the last few. |
 | `focus()` | Puts the focus in the document. |
 | `enable(on)` | Lets the reader edit, or stops them — by the textarea's `disabled`. |
@@ -273,8 +287,10 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `GetStateAsync(id)` | A `SednaEditorState` — `Html`, `Text`, `Length`, `IsEmpty` — or null when there is no such editor. |
 | `SetHtmlAsync(id, html)` | Replaces the document. |
 | `InsertTextAsync(id, text)` | Types text at the caret. |
-| `InsertImageAsync(id, url, alt)` | An image at the caret; null when it is not kept. |
+| `InsertImageAsync(id, url, alt)` | An image at the caret, keeping the size of the one it replaces; null when it is not kept. |
+| `InsertImageAsync(id, url, alt, width, height)` | The same with a size in pixels, an `int?` each — `null` for none. |
 | `InsertVideoAsync(id, url, label)` | A video at the caret; null when it is not kept. |
+| `InsertVideoAsync(id, url, label, width, height)` | The same with a size. |
 | `OpenFileAsync(id, fileId)` | A pasted or dropped file as an `IJSStreamReference` — `OpenReadStream(maxAllowedSize)` reads it — or null. |
 | `FocusAsync(id)` | Puts the focus in the document. |
 | `SetEnabledAsync(id, enabled)` | Lets the reader edit, or stops them. |

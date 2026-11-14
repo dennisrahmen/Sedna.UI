@@ -46,7 +46,12 @@ public class EditorInteropTests : BunitContext
         new("InsertImageAsync", e => e.InsertImageAsync(Id, "/uploads/a.png", "A chart"), "image", """["/uploads/a.png","A chart"]"""),
         // No description is the empty string, as the script reads it.
         new("InsertImageAsync, no description", e => e.InsertImageAsync(Id, "/uploads/a.png"), "image", """["/uploads/a.png",""]"""),
+        // A size is two more arguments, a missing one null: the script reads null as none.
+        new("InsertImageAsync, with a size", e => e.InsertImageAsync(Id, "/uploads/a.png", "A chart", 480, 270), "image", """["/uploads/a.png","A chart",480,270]"""),
+        new("InsertImageAsync, width only", e => e.InsertImageAsync(Id, "/uploads/a.png", null, 480), "image", """["/uploads/a.png","",480,null]"""),
         new("InsertVideoAsync", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", "A tour"), "video", """["https://example.com/a.mp4","A tour"]"""),
+        new("InsertVideoAsync, with a size", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", "A tour", 640, 360), "video", """["https://example.com/a.mp4","A tour",640,360]"""),
+        new("InsertVideoAsync, height only", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", null, null, 360), "video", """["https://example.com/a.mp4","",null,360]"""),
         new("FocusAsync", e => e.FocusAsync(Id), "focus", "[]"),
         new("SetEnabledAsync", e => e.SetEnabledAsync(Id, false), "enable", "[false]"),
         new("OpenFileAsync", e => e.OpenFileAsync(Id, "file-3"), "file", """["file-3"]"""),
@@ -159,6 +164,30 @@ public class EditorInteropTests : BunitContext
         var e = JsonSerializer.Deserialize<SednaEditorMediaEventArgs>(
             """{"kind":"image","src":"/a.png","alt":"A chart"}""", Wire)!;
         Assert.Equal(("image", "/a.png", "A chart"), (e.Kind, e.Src, e.Alt));
+        Assert.Null(e.Width);
+        Assert.Null(e.Height);
+    }
+
+    [Fact]
+    public void The_media_events_detail_carries_the_size_in_pixels_or_null()
+    {
+        // openMedia in 50-media.js: numbers, and null for none.
+        var sized = JsonSerializer.Deserialize<SednaEditorMediaEventArgs>(
+            """{"kind":"image","src":"/a.png","alt":"","width":320,"height":null}""", Wire)!;
+        Assert.Equal((320, null), (sized.Width, sized.Height));
+    }
+
+    [Fact]
+    public async Task A_media_size_is_optional_and_a_call_without_one_sends_none()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+
+        await Editors().InsertImageAsync(Id, "/a.png", "A chart");
+
+        // Two arguments: the script reads a size it is not given as the size of the media it replaces,
+        // where null is none.
+        var sent = JsonSerializer.SerializeToNode(Assert.Single(JSInterop.Invocations[Bridge]).Arguments[2], Wire);
+        Assert.Equal(2, sent!.AsArray().Count);
     }
 
     [Theory]

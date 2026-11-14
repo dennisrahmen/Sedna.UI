@@ -54,10 +54,24 @@ public sealed class SednaEditors : ISednaEditors
     }
 
     /// <inheritdoc />
+    public async Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt, int? width, int? height = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
+        return await Call<SednaEditorState?>(editorId, "image", cancellationToken, url, alt ?? string.Empty, width, height);
+    }
+
+    /// <inheritdoc />
     public async Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
         return await Call<SednaEditorState?>(editorId, "video", cancellationToken, url, label ?? string.Empty);
+    }
+
+    /// <inheritdoc />
+    public async Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label, int? width, int? height = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
+        return await Call<SednaEditorState?>(editorId, "video", cancellationToken, url, label ?? string.Empty, width, height);
     }
 
     /// <inheritdoc />

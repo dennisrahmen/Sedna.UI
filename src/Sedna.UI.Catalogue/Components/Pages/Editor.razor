@@ -101,6 +101,14 @@
             or a video, it is filled with it, and Insert replaces it.
         </p>
         <p>
+            <code>[data-editor-media-width]</code> and <code>[data-editor-media-height]</code> are the size, in
+            pixels, as the <code>width</code> and <code>height</code> attributes &mdash; for an image and a video
+            alike. Both are optional, and <strong>empty removes the attribute</strong>, so the browser keeps the
+            aspect ratio from the one that is left. A value that is not a whole number above zero marks its field
+            <code>aria-invalid</code> and leaves the form open. A form without the two fields leaves the size of the
+            media it replaces as it was.
+        </p>
+        <p>
             An image sits in its line as <code>&lt;img src alt&gt;</code>; a video is a block of its own,
             <code>&lt;video controls src&gt;</code>, which never plays by itself. Both are formats like any other: an
             editor whose toolbar offers neither cuts them out of what is pasted. Only <code>http</code>,
@@ -130,13 +138,15 @@
     <CatExample TExample="Examples.Interop.EditorImagePicker" Title="Your own image picker" Demo="ex-demo--block ex-demo--pad">
         <p>
             <strong>Live &mdash; put the caret in the report, then add a photo.</strong> Before the media form opens,
-            the editor sends <code>sedna-editor-media</code> with <code>{ kind, src, alt }</code>. Cancel it with
+            the editor sends <code>sedna-editor-media</code> with <code>{ kind, src, alt, width, height }</code>. Cancel it with
             <code>@@onsedna-editor-media:preventDefault</code> and the form stays shut: open your own dialog &mdash;
             an upload, a media library &mdash; and answer with
             <code>ISednaEditors.InsertImageAsync(id, url, alt)</code> or <code>InsertVideoAsync(id, url, label)</code>,
             which put the media where the caret was and answer null when the address is not one the editor keeps.
             From script, it is <code>insertImage(url, alt)</code> and <code>insertVideo(url, label)</code> on the
-            editor's handle.
+            editor's handle. Each takes a width and a height in pixels after the description &mdash; in C#, an
+            overload with an <code>int?</code> each &mdash; and without them keeps the size of the media it
+            replaces; <code>null</code> removes it.
         </p>
     </CatExample>
 </CatGroup>
@@ -218,7 +228,7 @@
             <tbody>
                 <tr><td><code>sedna-editor-ready</code></td><td><code>{ html, text, length, isEmpty }</code>, once the document has loaded.</td></tr>
                 <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
-                <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt }</code>, cancelable, before the media form opens: the image or video under the caret, or empty strings.</td></tr>
+                <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt, width, height }</code>, cancelable, before the media form opens: the image or video under the caret, with its size in pixels or <code>null</code>, or empty strings and nulls.</td></tr>
                 <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, cancelable, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>, and cancel the event to say the app took them &mdash; otherwise the editor's <code>[data-editor-file-notice]</code> shows.</td></tr>
                 <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
             </tbody>

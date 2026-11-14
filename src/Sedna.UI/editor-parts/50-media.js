@@ -28,11 +28,17 @@
    Insert replaces it. An address the editor would not keep marks the address field
    `aria-invalid` and leaves the form open.
 
+   The size is two optional fields, `[data-editor-media-width]` and `[data-editor-media-height]`,
+   in pixels: the width and height attributes of the image or video, filled when the form
+   opens on one. Empty is no attribute, so the browser keeps the aspect ratio; anything but
+   a whole number above zero marks the field `aria-invalid` and leaves the form open. A form
+   without the fields leaves the size of the media it replaces as it was.
+
    Before the form opens, the editor sends `sedna-editor-media`, cancelable, with
-   `{ kind, src, alt }` — the media under the caret, or empty strings. An app that would
-   rather open its own dialog — with an upload in it — cancels it and answers with
-   `insertImage(url, alt)` or `insertVideo(url, label)`, which put the media where the
-   caret was.
+   `{ kind, src, alt, width, height }` — the media under the caret, or empty strings and
+   nulls. An app that would rather open its own dialog — with an upload in it — cancels it
+   and answers with `insertImage(url, alt, width, height)` or `insertVideo(url, label, width,
+   height)`, which put the media where the caret was.
 
    A file pasted or dropped in sends `sedna-editor-file`, cancelable: an app that takes
    the files cancels it. One that is not taken — not cancelled, or not an image or a video
@@ -60,6 +66,23 @@ function mediaUrl(url) {
     } catch (x) {
         return null;
     }
+}
+
+/* A width or a height as the attribute holds it: a whole number of pixels above zero.
+   `undefined` for no say in it, '' for none — null, '' and a number field's empty — the
+   number as written for a good one, and null for what is not one. */
+function sizeOf(value) {
+    if (value === undefined) return undefined;
+    const s = String(value ?? '').trim();
+    if (!s) return '';
+    return /^\d+$/.test(s) && Number(s) > 0 ? String(Number(s)) : null;
+}
+
+/* A size for what an event says: the number, or null for none and for one that is not a
+   number of pixels. */
+function sizeEvent(value) {
+    const n = sizeOf(value);
+    return n ? Number(n) : null;
 }
 
 /* Quill's image, keeping only the addresses above: anything else is written as Quill
@@ -206,13 +229,16 @@ function mediaAt(q, range) {
     const kind = MEDIA.find(k => k in op.insert);
     if (!kind) return null;
     const alt = op.attributes?.[kind === 'image' ? 'alt' : 'aria-label'] ?? '';
-    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt };
+    const width = String(op.attributes?.width ?? '');
+    const height = String(op.attributes?.height ?? '');
+    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt, width, height };
 }
 
 /* Puts an image or a video in place of the range — the caret, the media it is on — and
    the caret after it. Null when the editor does not take that kind or the address is not
-   one it keeps. */
-function insertMedia(e, kind, url, alt, range) {
+   one it keeps, or a size is not a number of pixels. A size not given — undefined — is the
+   size of the media it replaces; given empty, there is none. */
+function insertMedia(e, kind, url, alt, range, size = {}) {
     const q = e.quill;
     if (!q.scroll.query(kind)) {
         warnOnce('media:' + kind, `this editor does not take a ${kind}: offer data-editor-format="${kind}" or name it in data-editor-formats.`);
@@ -220,8 +246,14 @@ function insertMedia(e, kind, url, alt, range) {
     }
     const src = mediaUrl(url);
     if (!src) return null;
+    const sizes = { width: sizeOf(size.width), height: sizeOf(size.height) };
+    if (sizes.width === null || sizes.height === null) return null;
     const at = range || q.getSelection() || e.lastRange || { index: q.getLength() - 1, length: 0 };
     const text = String(alt ?? '').trim();
+    const was = mediaAt(q, at);
+    for (const name of ['width', 'height']) {
+        if (sizes[name] === undefined) sizes[name] = was && was.kind === kind ? was[name] : '';
+    }
     q.updateContents(new Delta().retain(at.index).delete(at.length).insert({ [kind]: src }), 'user');
     // A video put in the middle of a line starts a line of its own, one place on — and Quill
     // formats the place it was asked for, so the description is written once it is there.
@@ -230,6 +262,9 @@ function insertMedia(e, kind, url, alt, range) {
         return op && typeof op.insert === 'object' && op.insert[kind] === src;
     }) ?? at.index;
     if (text) q.formatText(index, 1, kind === 'image' ? 'alt' : 'aria-label', text, 'user');
+    for (const name of ['width', 'height']) {
+        if (sizes[name]) q.formatText(index, 1, name, sizes[name], 'user');
+    }
     q.setSelection(index + 1, 0, 'silent');
     e.lastRange = { index: index + 1, length: 0 };
     return stateOf(e);
@@ -249,7 +284,10 @@ function openMedia(e, kind) {
     if (!range) return;
     const on = mediaAt(q, range);
     const existing = on && on.kind === kind ? on : null;
-    const asked = e.emit('sedna-editor-media', { kind, src: existing?.src ?? '', alt: existing?.alt ?? '' }, true);
+    const asked = e.emit('sedna-editor-media', {
+        kind, src: existing?.src ?? '', alt: existing?.alt ?? '',
+        width: sizeEvent(existing?.width), height: sizeEvent(existing?.height),
+    }, true);
     const panel = e.media;
     if (!asked || !panel) {
         if (asked) warnOnce('media', 'an image or video control needs the app\'s [data-editor-media] form inside the editor, or a sedna-editor-media listener that cancels the event and inserts.');
@@ -267,6 +305,14 @@ function openMedia(e, kind) {
         url.removeAttribute('aria-invalid');
     }
     if (alt) alt.value = existing ? existing.alt : '';
+    // The size as the attribute holds it, so a value the form would refuse — a percentage —
+    // is shown, and is the reader's to correct or clear.
+    for (const name of ['width', 'height']) {
+        const field = fieldOf(panel, `data-editor-media-${name}`, kind);
+        if (!field) continue;
+        field.value = existing ? existing[name] : '';
+        field.removeAttribute('aria-invalid');
+    }
     panel.hidden = false;
     place(e, panel, range);
     (url || panel).focus({ preventScroll: true });
@@ -290,17 +336,27 @@ function saveMedia(e) {
     const alt = fieldOf(e.media, 'data-editor-media-alt', was.kind);
     const given = (url?.value || '').trim();
     if (!given) return closeMedia(e, true);
-    if (!mediaUrl(given)) {
-        if (url) {
-            url.setAttribute('aria-invalid', 'true');
-            url.focus();
-        }
+    // A size is a whole number of pixels, or its field says it is not. A number field holding
+    // text it cannot read answers an empty value, and its validity says what it was.
+    const size = {};
+    const bad = [];
+    for (const name of ['width', 'height']) {
+        const field = fieldOf(e.media, `data-editor-media-${name}`, was.kind);
+        if (!field) continue;
+        size[name] = sizeOf(field.validity?.badInput ? 'x' : field.value);
+        if (size[name] === null) bad.push(field);
+    }
+    const urlBad = !mediaUrl(given);
+    if (urlBad && url) url.setAttribute('aria-invalid', 'true');
+    for (const field of bad) field.setAttribute('aria-invalid', 'true');
+    if (urlBad || bad.length) {
+        (urlBad && url ? url : bad[0]).focus();
         return;
     }
     e.mediaing = null;
     e.media.hidden = true;
     e.quill.focus();
-    insertMedia(e, was.kind, given, alt?.value, was.range);
+    insertMedia(e, was.kind, given, alt?.value, was.range, size);
     reflect(e);
 }
 
@@ -327,7 +383,7 @@ function wireMedia(e) {
         }
     });
     on(panel, 'input', ev => {
-        if (ev.target.matches('[data-editor-media-url]')) ev.target.removeAttribute('aria-invalid');
+        if (ev.target.matches('[data-editor-media-url],[data-editor-media-width],[data-editor-media-height]')) ev.target.removeAttribute('aria-invalid');
     });
     // A press anywhere else closes it, leaving the focus where the press put it.
     on(document, 'pointerdown', ev => {

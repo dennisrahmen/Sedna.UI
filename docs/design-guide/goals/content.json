@@ -245,7 +245,7 @@
       { "page": "/editor#refused-pictures", "role": "part" },
       { "page": "/markdown#images-and-videos", "role": "part" }
     ],
-    "how": "The image and video buttons open the app's own media form, or the app cancels sedna-editor-media and opens its own picker, uploads the file and hands the editor its address. A pasted file the app does not take shows the editor's notice instead of vanishing.",
+    "how": "The image and video buttons open the app's own media form — address, description and an optional width and height in pixels, so a large picture can be shown smaller — or the app cancels sedna-editor-media and opens its own picker, uploads the file and hands the editor its address. A pasted file the app does not take shows the editor's notice instead of vanishing.",
     "avoid": "Expecting a pasted picture to be inlined: the editor never inlines a file, so uploading it is the app's job."
   },
   {

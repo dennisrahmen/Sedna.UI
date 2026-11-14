@@ -302,7 +302,7 @@
       { "text": "A chart of figures", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
-    "stamp": "fea7331514b6462c"
+    "stamp": "6ce5a19c8b9095b2"
   },
   {
     "page": "/graph-blazor",

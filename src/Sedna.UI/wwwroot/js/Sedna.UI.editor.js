@@ -581,6 +581,16 @@ function mediaUrl(url) {
         return null;
     }
 }
+function sizeOf(value) {
+    if (value === undefined) return undefined;
+    const s = String(value ?? '').trim();
+    if (!s) return '';
+    return /^\d+$/.test(s) && Number(s) > 0 ? String(Number(s)) : null;
+}
+function sizeEvent(value) {
+    const n = sizeOf(value);
+    return n ? Number(n) : null;
+}
 const QuillImage = Quill.import('formats/image');
 class SednaImage extends QuillImage {
     static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
@@ -690,9 +700,11 @@ function mediaAt(q, range) {
     const kind = MEDIA.find(k => k in op.insert);
     if (!kind) return null;
     const alt = op.attributes?.[kind === 'image' ? 'alt' : 'aria-label'] ?? '';
-    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt };
+    const width = String(op.attributes?.width ?? '');
+    const height = String(op.attributes?.height ?? '');
+    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt, width, height };
 }
-function insertMedia(e, kind, url, alt, range) {
+function insertMedia(e, kind, url, alt, range, size = {}) {
     const q = e.quill;
     if (!q.scroll.query(kind)) {
         warnOnce('media:' + kind, `this editor does not take a ${kind}: offer data-editor-format="${kind}" or name it in data-editor-formats.`);
@@ -700,14 +712,23 @@ function insertMedia(e, kind, url, alt, range) {
     }
     const src = mediaUrl(url);
     if (!src) return null;
+    const sizes = { width: sizeOf(size.width), height: sizeOf(size.height) };
+    if (sizes.width === null || sizes.height === null) return null;
     const at = range || q.getSelection() || e.lastRange || { index: q.getLength() - 1, length: 0 };
     const text = String(alt ?? '').trim();
+    const was = mediaAt(q, at);
+    for (const name of ['width', 'height']) {
+        if (sizes[name] === undefined) sizes[name] = was && was.kind === kind ? was[name] : '';
+    }
     q.updateContents(new Delta().retain(at.index).delete(at.length).insert({ [kind]: src }), 'user');
     const index = [at.index, at.index + 1].find(i => {
         const op = q.getContents(i, 1).ops[0];
         return op && typeof op.insert === 'object' && op.insert[kind] === src;
     }) ?? at.index;
     if (text) q.formatText(index, 1, kind === 'image' ? 'alt' : 'aria-label', text, 'user');
+    for (const name of ['width', 'height']) {
+        if (sizes[name]) q.formatText(index, 1, name, sizes[name], 'user');
+    }
     q.setSelection(index + 1, 0, 'silent');
     e.lastRange = { index: index + 1, length: 0 };
     return stateOf(e);
@@ -724,7 +745,10 @@ function openMedia(e, kind) {
     if (!range) return;
     const on = mediaAt(q, range);
     const existing = on && on.kind === kind ? on : null;
-    const asked = e.emit('sedna-editor-media', { kind, src: existing?.src ?? '', alt: existing?.alt ?? '' }, true);
+    const asked = e.emit('sedna-editor-media', {
+        kind, src: existing?.src ?? '', alt: existing?.alt ?? '',
+        width: sizeEvent(existing?.width), height: sizeEvent(existing?.height),
+    }, true);
     const panel = e.media;
     if (!asked || !panel) {
         if (asked) warnOnce('media', 'an image or video control needs the app\'s [data-editor-media] form inside the editor, or a sedna-editor-media listener that cancels the event and inserts.');
@@ -742,6 +766,12 @@ function openMedia(e, kind) {
         url.removeAttribute('aria-invalid');
     }
     if (alt) alt.value = existing ? existing.alt : '';
+    for (const name of ['width', 'height']) {
+        const field = fieldOf(panel, `data-editor-media-${name}`, kind);
+        if (!field) continue;
+        field.value = existing ? existing[name] : '';
+        field.removeAttribute('aria-invalid');
+    }
     panel.hidden = false;
     place(e, panel, range);
     (url || panel).focus({ preventScroll: true });
@@ -763,17 +793,25 @@ function saveMedia(e) {
     const alt = fieldOf(e.media, 'data-editor-media-alt', was.kind);
     const given = (url?.value || '').trim();
     if (!given) return closeMedia(e, true);
-    if (!mediaUrl(given)) {
-        if (url) {
-            url.setAttribute('aria-invalid', 'true');
-            url.focus();
-        }
+    const size = {};
+    const bad = [];
+    for (const name of ['width', 'height']) {
+        const field = fieldOf(e.media, `data-editor-media-${name}`, was.kind);
+        if (!field) continue;
+        size[name] = sizeOf(field.validity?.badInput ? 'x' : field.value);
+        if (size[name] === null) bad.push(field);
+    }
+    const urlBad = !mediaUrl(given);
+    if (urlBad && url) url.setAttribute('aria-invalid', 'true');
+    for (const field of bad) field.setAttribute('aria-invalid', 'true');
+    if (urlBad || bad.length) {
+        (urlBad && url ? url : bad[0]).focus();
         return;
     }
     e.mediaing = null;
     e.media.hidden = true;
     e.quill.focus();
-    insertMedia(e, was.kind, given, alt?.value, was.range);
+    insertMedia(e, was.kind, given, alt?.value, was.range, size);
     reflect(e);
 }
 function wireMedia(e) {
@@ -799,7 +837,7 @@ function wireMedia(e) {
         }
     });
     on(panel, 'input', ev => {
-        if (ev.target.matches('[data-editor-media-url]')) ev.target.removeAttribute('aria-invalid');
+        if (ev.target.matches('[data-editor-media-url],[data-editor-media-width],[data-editor-media-height]')) ev.target.removeAttribute('aria-invalid');
     });
     on(document, 'pointerdown', ev => {
         if (!panel.hidden && !panel.contains(ev.target) && !ev.target.closest?.('[data-editor-format="image"],[data-editor-format="video"]')) closeMedia(e, false);
@@ -919,8 +957,8 @@ function makeApi(e) {
             e.quill.setSelection(range.index + String(text ?? '').length, 0, 'silent');
             return stateOf(e);
         },
-        insertImage: (url, alt) => insertMedia(e, 'image', url, alt, takeMediaRange(e)),
-        insertVideo: (url, label) => insertMedia(e, 'video', url, label, takeMediaRange(e)),
+        insertImage: (url, alt, width, height) => insertMedia(e, 'image', url, alt, takeMediaRange(e), { width, height }),
+        insertVideo: (url, label, width, height) => insertMedia(e, 'video', url, label, takeMediaRange(e), { width, height }),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -938,8 +976,8 @@ function invoke(e, method, args) {
         case 'state': return api.state();
         case 'set': return api.set(a[0]);
         case 'insert': return api.insert(a[0]);
-        case 'image': return api.insertImage(a[0], a[1]);
-        case 'video': return api.insertVideo(a[0], a[1]);
+        case 'image': return api.insertImage(a[0], a[1], a[2], a[3]);
+        case 'video': return api.insertVideo(a[0], a[1], a[2], a[3]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         case 'file': return api.file(a[0]);

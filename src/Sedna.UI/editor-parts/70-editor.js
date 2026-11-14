@@ -12,7 +12,7 @@
 
      sedna-editor-ready    { html, text, length, isEmpty }
      sedna-editor-change   the same, after each change
-     sedna-editor-media    { kind, src, alt }, cancelable, before the media form opens
+     sedna-editor-media    { kind, src, alt, width, height }, cancelable, before the media form opens
      sedna-editor-file     { files, index }, cancelable — cancelled when the app takes them
 
    and the textarea's own `input` and `change`, which is what `@bind` listens to.
@@ -158,10 +158,12 @@ function makeApi(e) {
             return stateOf(e);
         },
         /* An image or a video where the caret was — or in place of the one it is on — with
-           its description. Null, and nothing inserted, when the editor does not take that
-           kind or the address is not http, https or relative. */
-        insertImage: (url, alt) => insertMedia(e, 'image', url, alt, takeMediaRange(e)),
-        insertVideo: (url, label) => insertMedia(e, 'video', url, label, takeMediaRange(e)),
+           its description and its size in pixels, as the width and height attributes. Left
+           out, the size is the one of the media it replaces; null or empty, there is none.
+           Null, and nothing inserted, when the editor does not take that kind, the address is
+           not http, https or relative, or a size is not a whole number above zero. */
+        insertImage: (url, alt, width, height) => insertMedia(e, 'image', url, alt, takeMediaRange(e), { width, height }),
+        insertVideo: (url, label, width, height) => insertMedia(e, 'video', url, label, takeMediaRange(e), { width, height }),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -182,8 +184,8 @@ function invoke(e, method, args) {
         case 'state': return api.state();
         case 'set': return api.set(a[0]);
         case 'insert': return api.insert(a[0]);
-        case 'image': return api.insertImage(a[0], a[1]);
-        case 'video': return api.insertVideo(a[0], a[1]);
+        case 'image': return api.insertImage(a[0], a[1], a[2], a[3]);
+        case 'video': return api.insertVideo(a[0], a[1], a[2], a[3]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         // A File: Blazor reads it as an IJSStreamReference.

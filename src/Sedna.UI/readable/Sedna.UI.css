@@ -7413,6 +7413,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* The media form is the one with a second field; it wraps rather than leaving the frame. */
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
+/* The size fields are a number of pixels: narrow, side by side after the description. */
+.editor-media :is([data-editor-media-width], [data-editor-media-height]) { flex: 0 1 7rem; }
 
 /* ── The notice about a file ────────────────────────────────────────────────
    The app's own words, `[data-editor-file-notice]`, which the script shows when a file

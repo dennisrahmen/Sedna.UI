@@ -37,8 +37,9 @@ public sealed class SednaEditorEventArgs : EventArgs
 /// <remarks>
 /// An app that opens its own dialog instead — one with an upload in it — cancels the event with
 /// <c>@onsedna-editor-media:preventDefault</c>, and answers with
-/// <see cref="ISednaEditors.InsertImageAsync"/> or <see cref="ISednaEditors.InsertVideoAsync"/>, which
-/// put the media where the caret was.
+/// <see cref="ISednaEditors.InsertImageAsync(string, string, string?, CancellationToken)"/> or <see cref="ISednaEditors.InsertVideoAsync(string, string, string?, CancellationToken)"/>, which
+/// put the media where the caret was — with <c>width</c> and <c>height</c>, where the app's dialog
+/// has them.
 /// </remarks>
 public sealed class SednaEditorMediaEventArgs : EventArgs
 {
@@ -50,6 +51,15 @@ public sealed class SednaEditorMediaEventArgs : EventArgs
 
     /// <summary>Its description — an image's <c>alt</c>, a video's <c>aria-label</c> — or the empty string.</summary>
     public string Alt { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Its <c>width</c> in pixels, or null for none — and for a value that is not a number of pixels, a
+    /// percentage written into the HTML by hand, say.
+    /// </summary>
+    public int? Width { get; set; }
+
+    /// <summary>Its <c>height</c> in pixels, or null for none.</summary>
+    public int? Height { get; set; }
 }
 
 /// <summary>
@@ -59,7 +69,7 @@ public sealed class SednaEditorMediaEventArgs : EventArgs
 /// <remarks>
 /// The editor never inlines a file — uploading is the app's. Read each one with
 /// <see cref="ISednaEditors.OpenFileAsync"/>, upload it, and answer with
-/// <see cref="ISednaEditors.InsertImageAsync"/> or <see cref="ISednaEditors.InsertVideoAsync"/>,
+/// <see cref="ISednaEditors.InsertImageAsync(string, string, string?, CancellationToken)"/> or <see cref="ISednaEditors.InsertVideoAsync(string, string, string?, CancellationToken)"/>,
 /// which put it where the caret was. The event is cancelable, and cancelling it —
 /// <c>@onsedna-editor-file:preventDefault</c> — says the app took the files; files that are not
 /// taken show the editor's <c>[data-editor-file-notice]</c>, when it has one.

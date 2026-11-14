@@ -4007,6 +4007,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .editor-media .form-input { inline-size: 16rem; }
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
+.editor-media :is([data-editor-media-width], [data-editor-media-height]) { flex: 0 1 7rem; }
 .editor-notice {
     margin: 0;
     padding: var(--space-3) var(--space-6);

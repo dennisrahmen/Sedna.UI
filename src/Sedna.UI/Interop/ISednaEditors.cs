@@ -58,6 +58,24 @@ public interface ISednaEditors
     Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Puts an image with a size where the caret was — or in place of the image it is on — as
+    /// <c>&lt;img src alt width height&gt;</c>. The overload without a size keeps the size of the
+    /// image it replaces; this one sets it, and a null size is none.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="url">The image's address: <c>http</c>, <c>https</c> or relative.</param>
+    /// <param name="alt">Its description, written as <c>alt</c>; null or empty for none.</param>
+    /// <param name="width">Its width in pixels, written as <c>width</c>; null for none, so the browser keeps the aspect ratio.</param>
+    /// <param name="height">Its height in pixels, written as <c>height</c>; null for none.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// What the document holds afterwards, or null — and nothing inserted — when there is no such
+    /// editor, the editor does not take images, the address is not one it keeps, or a size is not
+    /// above zero.
+    /// </returns>
+    Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt, int? width, int? height = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Puts a video where the caret was — or in place of the video it is on — as a block of its
     /// own, <c>&lt;video controls src&gt;</c>, which never plays by itself.
     /// </summary>
@@ -70,6 +88,24 @@ public interface ISednaEditors
     /// editor, the editor does not take videos, or the address is not one it keeps.
     /// </returns>
     Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Puts a video with a size where the caret was — or in place of the video it is on — as a block of
+    /// its own, <c>&lt;video controls src width height&gt;</c>. The overload without a size keeps the size
+    /// of the video it replaces; this one sets it, and a null size is none.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="url">The video file's address: <c>http</c>, <c>https</c> or relative.</param>
+    /// <param name="label">Its name, written as <c>aria-label</c>; null or empty for none.</param>
+    /// <param name="width">Its width in pixels, written as <c>width</c>; null for none.</param>
+    /// <param name="height">Its height in pixels, written as <c>height</c>; null for none.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// What the document holds afterwards, or null — and nothing inserted — when there is no such
+    /// editor, the editor does not take videos, the address is not one it keeps, or a size is not
+    /// above zero.
+    /// </returns>
+    Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label, int? width, int? height = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Opens a file pasted or dropped into the editor, by the id its <c>sedna-editor-file</c>
