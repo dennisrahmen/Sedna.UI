@@ -121,10 +121,10 @@ public class AgentPagesTests(CatalogueAppFixture app)
         if (app.NoBrowser) return;
         var errors = new List<string>();
         var page = await Open("/agent-chat", errors);
-        var card = page.Locator("#context-usage");
+        var card = page.Locator("#context-window");
 
         await Assertions.Expect(card).ToBeHiddenAsync();
-        var ring = page.Locator("[data-popover='context-usage']");
+        var ring = page.Locator("[data-popover='context-window']");
         await ring.ScrollIntoViewIfNeededAsync();
         await ring.HoverAsync();
         await Assertions.Expect(card).ToBeVisibleAsync();

@@ -2408,7 +2408,7 @@ a.topbar-version--pre:hover {
 .ribbon--go     { --ribbon-bg: var(--go-solid); }
 .ribbon--info   { --ribbon-bg: var(--info-solid); }
 .ribbon--danger { --ribbon-bg: var(--danger-solid); }
-.ribbon--muted  { --ribbon-bg: var(--border-hover); }
+.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
 }
 @layer sedna.paint {
 .badge {
@@ -2544,7 +2544,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 .count-badge--danger { background: var(--danger-solid); }
 .count-badge--go     { background: var(--go-solid); }
 .count-badge--info   { background: var(--info-solid); }
-.count-badge--muted  { background: var(--border-hover); }
+.count-badge--muted  { background: var(--muted); color: var(--bg); }
 }
 @layer sedna.paint {
 .kbd {
