@@ -279,6 +279,21 @@ library classes to work around it. See [architecture](architecture.md#the-token-
 The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page.
 
+### Your own CSS
+
+**A rule of your own outside the cascade layers beats every library rule, button colours included.** The
+library's stylesheet is entirely inside layers and yours is not, so a bare `a { color: inherit }` beats
+the white text of `a.btn.btn--solid` in the light variant, and `a { text-decoration: underline }`
+underlines every `.btn` link, whatever the specificity. Write a rule for the elements it is for —
+`.prose a`, `.site-footer a` — never for a bare element, and when a library control looks wrong, look for
+an unlayered rule of your own before looking in the library.
+
+**A band that stays dark on a light page** — text and buttons over a photograph, a footer — is
+`data-variant="dark"` on its element; `"light"` is the other way round. Where `brand.css` sets a token
+that differs by variant (`--brand-text`, `--accent`), name the attribute too, or the band gets the
+library's value: `:root, :root :where([data-variant="dark"]) { … }` and
+`:root[data-variant="light"], :root [data-variant="light"] { … }`.
+
 ### The branding service
 
 The recipe above overrides a handful of semantic tokens by hand. For a rebrand that also wants

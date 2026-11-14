@@ -23,14 +23,15 @@
     "useFor": "A row of slides the reader may move through one at a time and is fine to miss: what a release brings, records worth a look.",
     "combineWith": [
       { "page": "/modal#dots-that-only-show-position", "how": "The dots are the deck's .deck-dot buttons, each with data-carousel-to naming its slide." },
-      { "page": "/card", "how": "Each slide is a card of its own, side by side with --carousel-per-view and a peek at the next." }
+      { "page": "/card", "how": "Each slide is a card of its own, side by side with --carousel-per-view and a peek at the next." },
+      { "page": "/structure#over-a-slideshow", "how": "Each slide can be a page head with a picture, for a slideshow that opens a start page." }
     ],
     "notFor": [
       { "text": "Content every reader needs", "instead": "/collections" },
       { "text": "A sequence that has to be finished", "instead": "/modal#slides-with-progress-dots" },
       { "text": "Pictures the reader looks through and opens", "instead": "/media#gallery-of-attachments" }
     ],
-    "goals": [ "step-through-slides" ],
+    "goals": [ "step-through-slides", "open-a-page-on-a-big-picture" ],
     "stamp": "922f133f43b44252"
   },
   {
@@ -205,6 +206,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "b44e3d39692e69d2"
+    "stamp": "00dac097b68a9d17"
   }
 ]

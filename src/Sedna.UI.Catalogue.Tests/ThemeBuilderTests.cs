@@ -327,8 +327,8 @@ public class ThemeBuilderTests(CatalogueAppFixture app)
         Assert.Contains("type=\"color\"", html, StringComparison.Ordinal);
 
         // The brand group is open, with a dark and a light field for --brand.
-        Assert.Contains("data-token=\"--brand\" data-variant=\"dark\"", html, StringComparison.Ordinal);
-        Assert.Contains("data-token=\"--brand\" data-variant=\"light\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-token=\"--brand\" data-token-variant=\"dark\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-token=\"--brand\" data-token-variant=\"light\"", html, StringComparison.Ordinal);
         // Every group is in the picker.
         foreach (var group in Library.Groups)
             Assert.Contains($"value=\"{group.Slug}\"", html, StringComparison.Ordinal);

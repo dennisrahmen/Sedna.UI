@@ -1013,7 +1013,6 @@
         "/\\.page-head--hero(?![\\w-])/",
         "/\\.page-head-actions(?![\\w-])/",
         "/\\.page-head-actions--fold(?![\\w-])/",
-        "/\\.page-head-eyebrow(?![\\w-])/",
         "/\\.page-head-image(?![\\w-])/",
         "/\\.page-head-text(?![\\w-])/",
         "/\\.page-link(?![\\w-])/",

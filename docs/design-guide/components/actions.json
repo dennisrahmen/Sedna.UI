@@ -17,7 +17,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic-tones" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "3489a58d27240125"
+    "stamp": "0671399c368068c8"
   },
   {
     "page": "/button-group",
@@ -94,7 +94,7 @@
       { "text": "A record's whole detail beside the list", "instead": "/drawer#record-detail" }
     ],
     "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message", "open-a-panel-upward" ],
-    "stamp": "dfac0791824a312f"
+    "stamp": "41081205425086a5"
   },
   {
     "page": "/drag-drop",
@@ -113,6 +113,6 @@
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
     "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "cf517b39dbab1232"
+    "stamp": "b3260730ce28883d"
   }
 ]

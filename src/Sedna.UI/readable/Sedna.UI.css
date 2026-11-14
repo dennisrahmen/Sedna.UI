@@ -386,8 +386,8 @@
    Everything below this block references these and nothing else. */
 /* Which tokens are variant-sensitive. A subtree carrying `data-variant` — an always-dark band
    on a light page, a light card on a dark one — redeclares exactly the tokens that differ by
-   variant, so everything inside it reads the way the variant says (docs/BRANDING.md, "A
-   subtree in its own variant"). That is the tokens a variant, the colour-blind palette, high
+   variant, so everything inside it reads the way the variant says (docs/architecture.md,
+   "Theming"). That is the tokens a variant, the colour-blind palette, high
    contrast or forced colours remap, and every token derived from one of those: a derived token
    resolves where it is declared, so it has to be declared in the subtree too.
 
@@ -14095,7 +14095,7 @@ td.diff-gap { background: var(--surface-soft); }
      <header class="page-head page-head--hero" data-variant="dark">
        <img class="page-head-image" src="…" alt="" width="1600" height="900">
        <div class="page-head-text">
-         <p class="page-head-eyebrow">Services</p>
+         <p class="eyebrow">Services</p>
          <h1>What we build</h1>
          <p>One sentence that says what the page is for.</p>
        </div>
@@ -14107,7 +14107,9 @@ td.diff-gap { background: var(--surface-soft); }
 
    An <img>, not a CSS `url()`: the app owns the picture, its `srcset`, its `loading`, its
    `fetchpriority` and its alternative text, and a stylesheet cannot carry any of them.
-   `alt=""` when the picture only decorates the words beside it.
+   `alt=""` when the picture only decorates the words beside it. The eyebrow is the
+   utility `.eyebrow`, which keeps its own size and colour inside the head: it is a label for
+   the title and sits on it.
 
    `data-variant="dark"` is part of the markup. A photograph is as dark as its scrim makes it
    in either page variant, so the words and buttons on it are always the dark variant's: the
@@ -14187,15 +14189,6 @@ td.diff-gap { background: var(--surface-soft); }
     margin: var(--space-4) 0 0;
     color: var(--fg-soft);
     font-size: var(--text-7);
-}
-/* Outweighs the lead's rule above, which is a `p` too. */
-.page-head--hero .page-head-text > .page-head-eyebrow {
-    margin: 0 0 var(--space-4);
-    color: var(--brand-text);
-    font-size: var(--text-3);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 .page-head--hero :is(h1, h2, h3) {
     color: var(--fg);

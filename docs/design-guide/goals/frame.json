@@ -481,5 +481,18 @@
     ],
     "how": "One region at the end of the page: the question with Yes and No, and Report a problem. No opens two open questions and Send replaces the form with the thanks, in the same region, so focus and the reader's place stay.",
     "avoid": "Asking for personal details, or not saying above the fields that none are wanted."
+  },
+  {
+    "id": "see-what-a-site-offers",
+    "goal": "Let the user learn what a public site offers from its start page",
+    "phrases": [ "landing page", "start page", "marketing page", "front page of a website", "public start page" ],
+    "answer": [
+      { "page": "/page-recipes#start-page", "role": "primary" },
+      { "page": "/structure#with-a-picture", "role": "part" },
+      { "page": "/card#card-as-a-link", "role": "part" },
+      { "page": "/structure#dark-band-on-any-page", "role": "part" }
+    ],
+    "how": "A page head with a picture, the offers as cards that are links in a grid, and a closing band that is dark in either variant with the one thing to do. A public page has no frame around it.",
+    "avoid": "Wrapping the page in the app's sidebar and topbar: a visitor has nowhere in them to go."
   }
 ]

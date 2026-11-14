@@ -2,8 +2,8 @@
    Everything below this block references these and nothing else. */
 /* Which tokens are variant-sensitive. A subtree carrying `data-variant` — an always-dark band
    on a light page, a light card on a dark one — redeclares exactly the tokens that differ by
-   variant, so everything inside it reads the way the variant says (docs/BRANDING.md, "A
-   subtree in its own variant"). That is the tokens a variant, the colour-blind palette, high
+   variant, so everything inside it reads the way the variant says (docs/architecture.md,
+   "Theming"). That is the tokens a variant, the colour-blind palette, high
    contrast or forced colours remap, and every token derived from one of those: a derived token
    resolves where it is declared, so it has to be declared in the subtree too.
 

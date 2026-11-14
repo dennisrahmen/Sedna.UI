@@ -7943,14 +7943,6 @@ td.diff-gap { background: var(--surface-soft); }
     color: var(--fg-soft);
     font-size: var(--text-7);
 }
-.page-head--hero .page-head-text > .page-head-eyebrow {
-    margin: 0 0 var(--space-4);
-    color: var(--brand-text);
-    font-size: var(--text-3);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
 .page-head--hero :is(h1, h2, h3) {
     color: var(--fg);
     font-size: var(--text-10);
