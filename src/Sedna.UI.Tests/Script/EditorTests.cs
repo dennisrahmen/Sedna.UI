@@ -607,20 +607,20 @@ public class EditorTests : ScriptTestBase
         await page.Keyboard.PressAsync(Keys.DocumentEnd);
         await page.Keyboard.PressAsync("ArrowLeft");
 
-        await page.EvaluateAsync("() => sednaUi.editor.invoke('note', 'image', ['/a.png', 'A', 480, null])");
+        await Js.Run(page, "() => sednaUi.editor.invoke('note', 'image', ['/a.png', 'A', 480, null])");
         Assert.Equal("""<p>A<img src="/a.png" alt="A" width="480">b</p>""", await Value(page));
         // The size is numbers on the wire and strings from a script: both are written the same.
-        await page.EvaluateAsync("() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/b.png', 'B', '300', 150); })");
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/b.png', 'B', '300', 150); })");
         Assert.Equal("""<p>A<img src="/b.png" alt="B" width="300" height="150">b</p>""", await Value(page));
 
         // Not given: the size of the image it replaces. Null: none.
-        await page.EvaluateAsync("() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/c.png', 'C'); })");
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/c.png', 'C'); })");
         Assert.Equal("""<p>A<img src="/c.png" alt="C" width="300" height="150">b</p>""", await Value(page));
-        await page.EvaluateAsync("() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/c.png', 'C', null, null); })");
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/c.png', 'C', null, null); })");
         Assert.Equal("""<p>A<img src="/c.png" alt="C">b</p>""", await Value(page));
 
         // A video takes the same.
-        await page.EvaluateAsync("() => sednaUi.editor.invoke('note', 'video', ['https://example.com/a.mp4', 'A tour', 640, 360])");
+        await Js.Run(page, "() => sednaUi.editor.invoke('note', 'video', ['https://example.com/a.mp4', 'A tour', 640, 360])");
         Assert.Contains("""<video controls="" src="https://example.com/a.mp4" aria-label="A tour" width="640" height="360"></video>""", await Value(page), StringComparison.Ordinal);
     }
 
