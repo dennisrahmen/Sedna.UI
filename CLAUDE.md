@@ -713,10 +713,10 @@ The suite is one reusable workflow, `tests.yml`: every test project in every eng
 catalogue's page scans (`Kind=Scan`) in shards. A pull request runs `ci.yml` — `build`, and `tests`
 unless the change is prose alone — and the one required check is `ready`. Every push to `main` runs
 `main.yml`, the full suite with the website's tests (`Scope=Site`) included. `release.yml` publishes
-only a commit on `main`. It skips the suite when `main.yml` succeeded for exactly the tagged commit,
-and otherwise runs `tests.yml` itself, without `Scope=Site`, and publishes only when it is green. So a
+only a commit on `main`. It skips the suite when the newest `main.yml` run on branch `main` for exactly
+the tagged commit succeeded, waits for that run when it is still going, and otherwise runs `tests.yml` itself, without `Scope=Site`, and publishes only when it is green. So a
 browser regression is caught before the merge, and a tag on a commit whose `main.yml` run is green
-publishes without a second run. **A red tag has published nothing**, so the version is still free:
+publishes without a second run, and a tag may be pushed as soon as the merge lands. **A red tag has published nothing**, so the version is still free:
 delete the tag (`git push --delete origin v0.2.0` and `git tag -d v0.2.0`), merge the fix, and tag the
 same version again.
 

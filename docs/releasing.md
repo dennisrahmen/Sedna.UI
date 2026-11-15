@@ -52,11 +52,17 @@ message on the run's summary page, and the TRX results are attached to the run.
 | Push to `main` | `main.yml`: the full suite, website tests included, per commit. |
 | Tag `v*` | `release.yml`: preflight, then the suite unless `main.yml` already passed it on this commit, then publish. |
 
-A tag publishes only a commit that is on `main`. The preflight asks GitHub whether `main.yml` succeeded
-for exactly the tagged commit. If it did, the release skips the suite and publishes. If the run is
-absent, still running, failed or cancelled, the release runs the suite itself, without the website
-tests (`Scope=Site`), and publishes only when every slice is green. To release in minutes, tag a commit
-after its `main.yml` run has finished green.
+A tag publishes only a commit that is on `main`. The preflight looks at the newest `main.yml` run on
+branch `main` for exactly the tagged commit:
+
+| That run | The release |
+|---|---|
+| succeeded | skips the suite and publishes |
+| queued or in progress | waits for it, then follows its conclusion |
+| absent, failed or cancelled | runs the suite itself, without the website tests (`Scope=Site`), and publishes only when every slice is green |
+
+A tag may be pushed as soon as the merge lands: the release waits for `main`'s run instead of repeating
+it. A run on another branch, or of another workflow, never verifies a release.
 
 **If the tag's run is red**, nothing has been published and the version is still free. Delete
 the tag, merge the fix, and tag the same version again:
