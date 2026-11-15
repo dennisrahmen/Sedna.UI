@@ -171,14 +171,23 @@ public class DrawerExitTests : ScriptTestBase
     public async Task The_panel_and_its_backdrop_leave_together_by_every_route(string markup, string route)
     {
         if (NoBrowser) return;
-        var (page, errors, restMove, restDim, extent) = await Opened(markup);
 
-        await Js.Run(page, Sampler);
-        await Close(page, route);
-        var samples = await Read(page);
+        // A key press can take longer than the whole 180ms slide to reach a loaded machine's
+        // page, leaving the sampler too few frames to judge; that run is tried again.
+        for (var attempt = 1; ; attempt++)
+        {
+            var (page, errors, restMove, restDim, extent) = await Opened(markup);
 
-        AssertLeavesTogether(samples, restMove, restDim, extent);
-        Assert.Empty(errors);
+            await Js.Run(page, Sampler);
+            await Close(page, route);
+            var samples = await Read(page);
+
+            if (Leaving(samples).Count < 2 && attempt < 3) continue;
+
+            AssertLeavesTogether(samples, restMove, restDim, extent);
+            Assert.Empty(errors);
+            return;
+        }
     }
 
     [Theory]
