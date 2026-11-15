@@ -28,7 +28,7 @@
     "src/Sedna.UI/css-parts/41-progress.css": "ffbc80efb4f3d690",
     "src/Sedna.UI/css-parts/42-empty-state.css": "1db61f292dc13633",
     "src/Sedna.UI/css-parts/42-state-art.css": "100ed38817af0329",
-    "src/Sedna.UI/css-parts/47-form-file.css": "cc2c15b8180eae70"
+    "src/Sedna.UI/css-parts/47-form-file.css": "46c042c814eaa0ec"
   },
   "/live-state": {
     "src/Sedna.UI.Catalogue/Components/Pages/LiveState.razor": "ae366fc1d7895346",
@@ -42,7 +42,7 @@
     "src/Sedna.UI/css-parts/18-frame-banner.css": "f33ef4b0a28b7edb",
     "src/Sedna.UI/css-parts/41-progress.css": "ffbc80efb4f3d690",
     "src/Sedna.UI/css-parts/42-empty-state.css": "1db61f292dc13633",
-    "src/Sedna.UI/css-parts/47-form-file.css": "cc2c15b8180eae70",
+    "src/Sedna.UI/css-parts/47-form-file.css": "46c042c814eaa0ec",
     "src/Sedna.UI/css-parts/54-stat.css": "539155b9e59ecc0f",
     "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/66-status-indicator.css": "a80c43790f471c0b",
@@ -141,7 +141,7 @@
     "src/Sedna.UI/css-parts/40-skeleton.css": "63af0635a215f060",
     "src/Sedna.UI/css-parts/41-progress.css": "ffbc80efb4f3d690",
     "src/Sedna.UI/css-parts/42-empty-state.css": "1db61f292dc13633",
-    "src/Sedna.UI/css-parts/47-form-file.css": "cc2c15b8180eae70",
+    "src/Sedna.UI/css-parts/47-form-file.css": "46c042c814eaa0ec",
     "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c"
   },
   "/skeleton": {
@@ -160,7 +160,7 @@
     "src/Sedna.UI/css-parts/38-toasts.css": "6d96b0edb057dc5e",
     "src/Sedna.UI/css-parts/40-skeleton.css": "63af0635a215f060",
     "src/Sedna.UI/css-parts/41-progress.css": "ffbc80efb4f3d690",
-    "src/Sedna.UI/css-parts/47-form-file.css": "cc2c15b8180eae70",
+    "src/Sedna.UI/css-parts/47-form-file.css": "46c042c814eaa0ec",
     "src/Sedna.UI/css-parts/54-stat.css": "539155b9e59ecc0f",
     "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/62-media-and-prose.css": "ba0cb9fba9ce7997",

@@ -84,7 +84,7 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "98669bbaa5f53c27"
+    "stamp": "145c563e67651b45"
   },
   {
     "page": "/agent-chat",
