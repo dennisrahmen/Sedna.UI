@@ -39,8 +39,20 @@ public class ExampleSourceTests
         new("""(?:href|src)\s*=\s*["'](?:https?:)?//""",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    public static TheoryData<string> LiveExamples() => Files("*.razor");
-    public static TheoryData<string> AllExamples() => Files("*");
+    // One test per rule over every example file, not one result per file and rule: a rule
+    // that fails names every offending file in one message, and a thousand files do not
+    // become thousands of results to discover and report.
+    private static IReadOnlyList<string> LiveExamples() => Files("*.razor");
+    private static IReadOnlyList<string> AllExamples() => Files("*");
+
+    private static string Read(string path) =>
+        File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
+
+    private static void AssertNone(IEnumerable<string> problems, string rule)
+    {
+        var list = problems.ToList();
+        Assert.True(list.Count == 0, $"{rule}\n\n{string.Join("\n\n", list)}");
+    }
 
     /// <summary>
     /// The one folder where an example is allowed to be Razor.
@@ -58,35 +70,36 @@ public class ExampleSourceTests
     private static bool IsInterop(string path) =>
         RazorFolders.Any(f => path.StartsWith(f + Path.DirectorySeparatorChar, StringComparison.Ordinal));
 
-    [Theory]
-    [MemberData(nameof(LiveExamples))]
-    public void A_live_example_contains_no_Razor_syntax(string path)
+    [Fact]
+    public void A_live_example_contains_no_Razor_syntax()
     {
-        if (IsInterop(path)) return;
-
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
-
-        var allowed = Email.Matches(source).Select(m => m.Index).ToHashSet();
-        var offenders = new List<string>();
-
-        for (var i = 0; i < source.Length; i++)
+        var problems = new List<string>();
+        foreach (var path in LiveExamples().Where(p => !IsInterop(p)))
         {
-            if (source[i] != '@' || allowed.Contains(i)) continue;
-            offenders.Add($"line {Line(source, i)}: …{Around(source, i)}…");
+            var source = Read(path);
+            var allowed = Email.Matches(source).Select(m => m.Index).ToHashSet();
+
+            var offenders = new List<string>();
+            for (var i = 0; i < source.Length; i++)
+            {
+                if (source[i] != '@' || allowed.Contains(i)) continue;
+                offenders.Add($"  line {Line(source, i)}: …{Around(source, i)}…");
+            }
+            if (offenders.Count > 0)
+                problems.Add($"{path}\n{string.Join("\n", offenders)}");
+
+            // Razor's whitespace-control element. Legal, compiles, and prints as
+            // something no reader should paste.
+            if (source.Contains("<text>", StringComparison.OrdinalIgnoreCase))
+                problems.Add($"{path} contains <text>, Razor's whitespace-control element.");
         }
 
-        Assert.True(offenders.Count == 0,
-            $"""
-             {path} contains Razor syntax. An example is copied verbatim, so it has to be
-             plain HTML — an "@" that is not part of an e-mail address is a directive, an
-             escape or an expression, and it would be copied literally.
-
-             {string.Join("\n", offenders)}
-             """);
-
-        // Razor's whitespace-control element. Legal, compiles, and prints as
-        // something no reader should paste.
-        Assert.DoesNotContain("<text>", source, StringComparison.OrdinalIgnoreCase);
+        AssertNone(problems,
+            """
+            An example is copied verbatim, so it has to be plain HTML — an "@" that is not part
+            of an e-mail address is a directive, an escape or an expression, and it would be
+            copied literally. Remove it from:
+            """);
     }
 
     /// <summary>
@@ -100,16 +113,15 @@ public class ExampleSourceTests
     /// an <c>&lt;img&gt;</c> is handled without one, and no amount of CSS-drawn placeholder
     /// teaches <c>object-fit</c>. It is the catalogue's dependency, never the library's.
     /// </remarks>
-    [Theory]
-    [MemberData(nameof(AllExamples))]
-    public void No_example_loads_from_a_remote_host_other_than_the_photo_host(string path)
+    [Fact]
+    public void No_example_loads_from_a_remote_host_other_than_the_photo_host()
     {
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path))
-            .Replace("https://" + CatalogueAssets.PhotoHost, "«photo»", StringComparison.OrdinalIgnoreCase);
+        var offenders = AllExamples().Where(path => RemoteSubresource.IsMatch(
+            Read(path).Replace("https://" + CatalogueAssets.PhotoHost, "«photo»", StringComparison.OrdinalIgnoreCase)));
 
-        Assert.False(RemoteSubresource.IsMatch(source),
-            $"{path} loads a subresource from a remote host. Everything the package needs "
-            + $"ships inside it, and the one host an example may reach is {CatalogueAssets.PhotoHost}.");
+        AssertNone(offenders.Select(p => "  " + p),
+            "An example loads a subresource from a remote host. Everything the package needs "
+            + $"ships inside it, and the one host an example may reach is {CatalogueAssets.PhotoHost}. Offending files:");
     }
 
     [Fact]
@@ -129,23 +141,27 @@ public class ExampleSourceTests
         }
     }
 
-    [Theory]
-    [MemberData(nameof(LiveExamples))]
-    public void Only_an_interop_example_contains_Razor_syntax(string path)
+    [Fact]
+    public void Only_an_interop_example_contains_Razor_syntax()
     {
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
-        var isRazor = source.Contains("@code", StringComparison.Ordinal)
-                      || source.Contains("@inject", StringComparison.Ordinal)
-                      || source.Contains("@bind", StringComparison.Ordinal);
-
         // Both directions. Without the second, Examples/Interop/ becomes a place to
         // put an ordinary example that failed the scan.
-        Assert.Equal(IsInterop(path), isRazor);
+        var wrong = LiveExamples().Where(path =>
+        {
+            var source = Read(path);
+            var isRazor = source.Contains("@code", StringComparison.Ordinal)
+                          || source.Contains("@inject", StringComparison.Ordinal)
+                          || source.Contains("@bind", StringComparison.Ordinal);
+            return IsInterop(path) != isRazor;
+        });
+
+        AssertNone(wrong.Select(p => "  " + p),
+            "Razor syntax (@code, @inject, @bind) belongs in Examples/Interop/ and nowhere else, "
+            + "and every file there uses it. Wrong place or wrong form:");
     }
 
-    [Theory]
-    [MemberData(nameof(AllExamples))]
-    public void No_example_names_a_real_organisation_person_or_host(string path)
+    [Fact]
+    public void No_example_names_a_real_organisation_person_or_host()
     {
         // An example is read by anyone browsing the site and pasted into their own
         // application, so the names in it are part of what the library teaches. The
@@ -187,88 +203,104 @@ public class ExampleSourceTests
             @"\b172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}\b",
         ];
 
-        // The library's own published host and repository are not somebody else's
-        // naming — an MCP config example has to name the server it connects to.
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path))
-            .Replace("www.sedna-ui.com", "«site»", StringComparison.OrdinalIgnoreCase)
-            .Replace("github.com/dennisrahmen", "«repo»", StringComparison.OrdinalIgnoreCase);
+        var problems = new List<string>();
+        foreach (var path in AllExamples())
+        {
+            // The library's own published host and repository are not somebody else's
+            // naming — an MCP config example has to name the server it connects to.
+            var source = Read(path)
+                .Replace("www.sedna-ui.com", "«site»", StringComparison.OrdinalIgnoreCase)
+                .Replace("github.com/dennisrahmen", "«repo»", StringComparison.OrdinalIgnoreCase);
 
-        var found = forbiddenPatterns
-            .SelectMany(p => Regex.Matches(source, p, RegexOptions.IgnoreCase).Select(m => m.Value))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+            var found = forbiddenPatterns
+                .SelectMany(p => Regex.Matches(source, p, RegexOptions.IgnoreCase).Select(m => m.Value))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-        Assert.True(found.Count == 0,
-            $"{path} names something real: {string.Join(", ", found)}. Use the demo identity "
-            + "(Alex Fischer, alex.fischer@example.com) and a documentation address (192.0.2.x).");
+            if (found.Count > 0) problems.Add($"  {path}: {string.Join(", ", found)}");
+        }
+
+        AssertNone(problems,
+            "An example names something real. Use the demo identity (Alex Fischer, "
+            + "alex.fischer@example.com) and a documentation address (192.0.2.x). Found in:");
     }
 
-    [Theory]
-    [MemberData(nameof(AllExamples))]
-    public void No_example_references_an_asset_the_reader_does_not_have(string path)
+    [Fact]
+    public void No_example_references_an_asset_the_reader_does_not_have()
     {
         // A relative src resolves against the app that pasted the markup, so
         // `logo.png` is a 404 everywhere except this site. Anything an example needs
         // to look right is drawn in CSS, comes from the bundled icon font, or — for a
         // photograph, which is neither — from CatalogueAssets.PhotoHost, an absolute
         // URL that resolves the same wherever the markup is pasted.
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
-
         // The src attribute itself, not one whose name ends in it: `data-graph-src` names the
         // app's own endpoint, which the reader writes, and is no asset of this site's. In a C#
         // example a value that is a Razor expression — `src="@_picture"` — is whatever the
         // component computes, a data: URL from ExportAsync, and names no file either. A PDF a
         // frame shows (/pdf) is the app's own document, which the reader names, like the endpoint.
-        var offenders = Regex.Matches(source, """(?<![\w-])(?:src|srcset)\s*=\s*["']([^"']+)["']""",
-                RegexOptions.IgnoreCase)
-            .Select(m => m.Groups[1].Value)
-            .Where(v => !v.StartsWith("_content/Sedna.UI/", StringComparison.OrdinalIgnoreCase)
-                        && !v.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
-                        && !v.StartsWith("https://" + CatalogueAssets.PhotoHost, StringComparison.OrdinalIgnoreCase)
-                        && !(IsInterop(path) && v.StartsWith('@'))
-                        && !Regex.IsMatch(v, @"\.pdf(?:#.*)?$", RegexOptions.IgnoreCase))
-            .ToList();
+        var problems = new List<string>();
+        foreach (var path in AllExamples())
+        {
+            var offenders = Regex.Matches(Read(path), """(?<![\w-])(?:src|srcset)\s*=\s*["']([^"']+)["']""",
+                    RegexOptions.IgnoreCase)
+                .Select(m => m.Groups[1].Value)
+                .Where(v => !v.StartsWith("_content/Sedna.UI/", StringComparison.OrdinalIgnoreCase)
+                            && !v.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+                            && !v.StartsWith("https://" + CatalogueAssets.PhotoHost, StringComparison.OrdinalIgnoreCase)
+                            && !(IsInterop(path) && v.StartsWith('@'))
+                            && !Regex.IsMatch(v, @"\.pdf(?:#.*)?$", RegexOptions.IgnoreCase))
+                .ToList();
 
-        Assert.True(offenders.Count == 0,
-            $"{path} loads {string.Join(", ", offenders)}, which a reader who pasted this markup "
-            + "does not have. Draw the placeholder in CSS, use a Remix Icon, or — for a real "
-            + $"photograph — an absolute URL on {CatalogueAssets.PhotoHost}.");
+            if (offenders.Count > 0) problems.Add($"  {path}: {string.Join(", ", offenders)}");
+        }
+
+        AssertNone(problems,
+            "An example loads a file a reader who pasted the markup does not have. Draw the "
+            + "placeholder in CSS, use a Remix Icon, or — for a real photograph — an absolute URL "
+            + $"on {CatalogueAssets.PhotoHost}. Found in:");
     }
 
-    [Theory]
-    [MemberData(nameof(AllExamples))]
-    public void A_fragment_link_in_an_example_names_an_id_in_that_example(string path)
+    [Fact]
+    public void A_fragment_link_in_an_example_names_an_id_in_that_example()
     {
         // A bare fragment works wherever the markup is pasted only when its target is
         // pasted with it: `#vs-email` beside `id="vs-email"`. One naming a heading of
         // the catalogue page — `#sizes` — points at nothing in the reader's app, and
         // pointed at nothing here either, so a click opened the landing page. `#`
         // alone is the placeholder.
-        var source = File.ReadAllText(Path.Combine(CatalogueAssets.ExamplesDir, path));
-
-        var ids = Regex.Matches(source, """\bid\s*=\s*"([^"]+)""")
-            .Select(m => m.Groups[1].Value)
-            .ToHashSet(StringComparer.Ordinal);
-
         // A <use> naming one of the shipped drawings is the one fragment that resolves
         // in every app, because SednaStateArt and SednaMochi put those ids on the page.
-        foreach (var sprite in new[] { SednaStateArt.Sprite, SednaMochi.Sprite })
-            foreach (Match m in Regex.Matches(sprite, "<symbol id=\"([a-z-]+)\""))
-                ids.Add(m.Groups[1].Value);
-
         // `#top` with no element of that id is the top of the page, to a browser and to
         // 29-fragment.js alike, so it resolves wherever the markup is pasted.
-        ids.Add("top");
+        var shipped = new HashSet<string>(StringComparer.Ordinal) { "top" };
+        foreach (var sprite in new[] { SednaStateArt.Sprite, SednaMochi.Sprite })
+            foreach (Match m in Regex.Matches(sprite, "<symbol id=\"([a-z-]+)\""))
+                shipped.Add(m.Groups[1].Value);
 
-        var dangling = Regex.Matches(source, """href\s*=\s*"#([^"]+)""")
-            .Select(m => m.Groups[1].Value)
-            .Where(id => !ids.Contains(id))
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+        var problems = new List<string>();
+        foreach (var path in AllExamples())
+        {
+            var source = Read(path);
+            var ids = Regex.Matches(source, """\bid\s*=\s*"([^"]+)""")
+                .Select(m => m.Groups[1].Value)
+                .ToHashSet(StringComparer.Ordinal);
 
-        Assert.True(dangling.Count == 0,
-            $"{path} links to #{string.Join(", #", dangling)}, which no element in the example "
-            + "carries. Link to an id the example declares, or use href=\"#\" as a placeholder.");
+            // A <use> naming one of the shipped drawings is the one fragment that resolves
+            // in every app, because SednaStateArt and SednaMochi put those ids on the page.
+            ids.UnionWith(shipped);
+
+            var dangling = Regex.Matches(source, """href\s*=\s*"#([^"]+)""")
+                .Select(m => m.Groups[1].Value)
+                .Where(id => !ids.Contains(id))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (dangling.Count > 0) problems.Add($"  {path}: #{string.Join(", #", dangling)}");
+        }
+
+        AssertNone(problems,
+            "A fragment link names an id no element in its example carries. Link to an id the "
+            + "example declares, or use href=\"#\" as a placeholder. Found in:");
     }
 
     [Fact]
@@ -286,15 +318,12 @@ public class ExampleSourceTests
         }
     }
 
-    private static TheoryData<string> Files(string pattern)
+    private static IReadOnlyList<string> Files(string pattern)
     {
-        var data = new TheoryData<string>();
-        foreach (var file in Directory.EnumerateFiles(
-                     CatalogueAssets.ExamplesDir, pattern, SearchOption.AllDirectories)
-                     .OrderBy(p => p, StringComparer.Ordinal))
-        {
-            data.Add(Path.GetRelativePath(CatalogueAssets.ExamplesDir, file));
-        }
+        var data = Directory.EnumerateFiles(CatalogueAssets.ExamplesDir, pattern, SearchOption.AllDirectories)
+            .Select(file => Path.GetRelativePath(CatalogueAssets.ExamplesDir, file))
+            .OrderBy(p => p, StringComparer.Ordinal)
+            .ToList();
 
         // A glob that matches nothing makes every assertion above pass vacuously.
         Assert.NotEmpty(data);

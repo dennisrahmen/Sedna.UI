@@ -24,28 +24,31 @@ public class McpGuideTests(CatalogueAppFixture app)
     [Fact]
     public async Task Every_phrase_finds_its_goal_first()
     {
-        var problems = new List<string>();
+        var problems = new System.Collections.Concurrent.ConcurrentBag<string>();
+        var goals = GuideFiles.Guide.Goals;
+        Assert.NotEmpty(goals);
 
-        foreach (var goal in GuideFiles.Guide.Goals)
+        // The searches are independent reads of one running app; issuing them side by side
+        // keeps this test from being the longest in the project.
+        var queries = goals.SelectMany(goal => goal.Phrases.Append(goal.Goal).Select(query => (goal, query)));
+        await Parallel.ForEachAsync(queries, new ParallelOptions { MaxDegreeOfParallelism = 8 }, async (item, _) =>
         {
-            foreach (var query in goal.Phrases.Append(goal.Goal))
-            {
-                var hits = (await Mcp.Tool("search", new { query, limit = 25 }))
-                    .GetProperty("hits").EnumerateArray().ToList();
-                var firstGoal = hits.FindIndex(h => h.GetProperty("kind").GetString() == "goal");
+            var (goal, query) = item;
+            var hits = (await Mcp.Tool("search", new { query, limit = 25 }))
+                .GetProperty("hits").EnumerateArray().ToList();
+            var firstGoal = hits.FindIndex(h => h.GetProperty("kind").GetString() == "goal");
 
-                if (firstGoal < 0)
-                    problems.Add($"\"{query}\" finds no goal; it should find \"{goal.Id}\".");
-                else if (hits[firstGoal].GetProperty("ref").GetString() != goal.Id)
-                    problems.Add($"\"{query}\" finds the goal \"{hits[firstGoal].GetProperty("ref").GetString()}\" "
-                                 + $"before \"{goal.Id}\". Make the phrase say what only \"{goal.Id}\" is about.");
-                else if (firstGoal >= TopHits)
-                    problems.Add($"\"{query}\" ranks \"{goal.Id}\" {firstGoal + 1}th, after "
-                                 + string.Join(", ", hits.Take(firstGoal).Select(h => h.GetProperty("ref").GetString())) + ".");
-            }
-        }
+            if (firstGoal < 0)
+                problems.Add($"\"{query}\" finds no goal; it should find \"{goal.Id}\".");
+            else if (hits[firstGoal].GetProperty("ref").GetString() != goal.Id)
+                problems.Add($"\"{query}\" finds the goal \"{hits[firstGoal].GetProperty("ref").GetString()}\" "
+                             + $"before \"{goal.Id}\". Make the phrase say what only \"{goal.Id}\" is about.");
+            else if (firstGoal >= TopHits)
+                problems.Add($"\"{query}\" ranks \"{goal.Id}\" {firstGoal + 1}th, after "
+                             + string.Join(", ", hits.Take(firstGoal).Select(h => h.GetProperty("ref").GetString())) + ".");
+        });
 
-        Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
+        Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems.Order(StringComparer.Ordinal)));
     }
 
     [Theory]

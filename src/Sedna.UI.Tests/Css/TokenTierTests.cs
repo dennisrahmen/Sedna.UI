@@ -38,6 +38,8 @@ public class TokenTierTests
     [Fact]
     public void A_palette_token_holds_a_literal_and_never_a_reference()
     {
+        // Without a palette read there is nothing to hold to a rule, and both palette tests pass.
+        Assert.NotEmpty(PaletteNames);
         var offenders = new List<string>();
 
         foreach (var (name, value) in Declarations(Assets.StripComments(Assets.Css)))
