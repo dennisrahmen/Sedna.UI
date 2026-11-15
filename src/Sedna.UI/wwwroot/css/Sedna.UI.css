@@ -4030,16 +4030,15 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 .editor:has(.ql-container.ql-disabled) { background: var(--surface-soft); }
 .editor:has(.ql-container.ql-disabled) .editor-toolbar { opacity: var(--disabled-opacity); pointer-events: none; }
 .editor .ql-editor table {
-    border-collapse: collapse;
+    display: table;
     inline-size: 100%;
     margin-block: var(--space-4);
     table-layout: fixed;
 }
 .editor .ql-editor td {
-    border: 1px solid var(--border);
-    padding: var(--space-2) var(--space-4);
     vertical-align: top;
     min-inline-size: 2em;
+    overflow-wrap: anywhere;
 }
 .editor .ql-editor ol { padding-inline-start: 1.5em; }
 .editor .ql-editor li {
@@ -5139,7 +5138,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     font-size: var(--text-3);
 }
 .file-item > i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
-.file-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-name { flex: 1; }
 .file-item-size { color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
 .file-item--error { border-color: var(--danger-border); color: var(--danger-fg); }
 .file-item--error > i { color: var(--danger-fg); }
@@ -10370,21 +10369,23 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
 .file-icon--sheet  { --file-icon-ink: var(--viz-4); }
 .file-icon--media  { --file-icon-ink: var(--viz-5); }
 .file-icon--doc    { --file-icon-ink: var(--viz-6); }
-.file-name {
-    display: flex;
+:is(.file-name, .file-item-name, .form-file-name) {
+    display: block;
     min-width: 0;
     max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+}
+:is(.file-name, .file-item-name, .form-file-name):has(> .file-name-start) {
+    display: flex;
+    overflow: visible;
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
-.file-name:not(.file-name--wrap, :has(> .file-name-start)) {
+:is(.file-name, .file-item-name, .form-file-name).file-name--wrap {
     display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.file-name--wrap {
-    display: block;
+    overflow: visible;
     white-space: normal;
     overflow-wrap: anywhere;
 }

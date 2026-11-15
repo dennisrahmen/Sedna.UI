@@ -29,6 +29,47 @@ public class FileLayoutTests : ScriptTestBase
             "The start of a name wider than its box should overflow into the ellipsis.");
     }
 
+    [Theory]
+    [InlineData("file-name")]
+    [InlineData("file-item-name")]
+    [InlineData("form-file-name")]
+    public async Task A_name_written_as_plain_text_ends_in_an_ellipsis_inside_its_box(string cls)
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($$"""
+            <div id="box" style="width:140px;display:flex;flex-direction:column">
+                <a class="file-tile-open" href="#"><span class="{{cls}}" id="name">loading-bay-banner-with-a-much-longer-name.jpg</span></a>
+            </div>
+            """);
+
+        var box = await page.Locator("#box").BoundingBoxAsync();
+        var name = await page.Locator("#name").BoundingBoxAsync();
+        Assert.True(name!.X + name.Width <= box!.X + box.Width + 0.5, $".{cls} is {name.Width}px wide in a {box.Width}px box.");
+        Assert.True(await page.EvaluateAsync<bool>("() => { const n = document.getElementById('name'); return n.scrollWidth > n.clientWidth && getComputedStyle(n).textOverflow === 'ellipsis'; }"),
+            $".{cls} should hold a name wider than its box and cut it with an ellipsis.");
+    }
+
+    [Theory]
+    [InlineData("file-name")]
+    [InlineData("file-item-name")]
+    [InlineData("form-file-name")]
+    public async Task Every_file_name_class_takes_the_split_and_the_wrap_alike(string cls)
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($$"""
+            <div style="width:160px;display:flex;flex-direction:column;gap:8px">
+                <span class="{{cls}}" id="split"><span class="file-name-start">delivery-note-week-38-carrier-return-</span><span class="file-name-end" id="end">signed.pdf</span></span>
+                <span class="{{cls}} file-name--wrap" id="wrap">delivery-note-week-38-carrier-return-signed.pdf</span>
+            </div>
+            """);
+
+        var split = await page.Locator("#split").BoundingBoxAsync();
+        var end = await page.Locator("#end").BoundingBoxAsync();
+        Assert.True(end!.X + end.Width <= split!.X + split.Width + 0.5, $".{cls} lost the end of a split name.");
+        Assert.True(await page.EvaluateAsync<bool>("() => { const n = document.getElementById('wrap'); return n.scrollWidth <= n.clientWidth && n.getBoundingClientRect().height > 30; }"),
+            $".{cls}.file-name--wrap should show the whole name over several lines.");
+    }
+
     [Fact]
     public async Task An_unsplit_name_with_no_break_in_it_stays_inside_its_tile()
     {
