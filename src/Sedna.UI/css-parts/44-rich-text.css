@@ -220,6 +220,12 @@
     border-radius: var(--radius-inner);
     background: var(--bg-elevated);
 }
+/* The image or video a click chose, which the media form then opens on. An outline rather than a
+   shadow, so forced colours keep it. */
+.editor .ql-editor :is(img, video)[data-editor-selected] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
 .editor .ql-editor code {
     font-family: var(--font-mono);
     font-size: 0.9em;

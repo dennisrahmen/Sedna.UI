@@ -704,6 +704,85 @@ function mediaAt(q, range) {
     const height = String(op.attributes?.height ?? '');
     return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt, width, height };
 }
+const SELECTED = 'data-editor-selected';
+function mediaKindAt(q, index) {
+    if (index < 0 || index >= q.getLength()) return null;
+    const op = q.getContents(index, 1).ops[0];
+    if (!op || typeof op.insert !== 'object') return null;
+    return MEDIA.find(k => k in op.insert) ?? null;
+}
+function markPicked(e) {
+    const q = e.quill;
+    for (const node of q.root.querySelectorAll(`[${SELECTED}]`)) node.removeAttribute(SELECTED);
+    const picked = e.picked;
+    if (!picked) return;
+    let node = q.getLeaf(picked.index + 1)[0]?.domNode;
+    if (!node?.matches?.('img, video')) node = q.getLine(picked.index)[0]?.domNode;
+    if (node?.matches?.('img, video')) node.setAttribute(SELECTED, '');
+}
+function unpick(e) {
+    if (!e.picked) return;
+    e.picked = null;
+    markPicked(e);
+}
+function pick(e, kind, index) {
+    const q = e.quill;
+    if (mediaKindAt(q, index) !== kind) return;
+    e.picked = { kind, index, sel: null };
+    if (kind === 'image') {
+        q.setSelection(index, 1, 'user');
+    } else {
+        const at = q.getSelection();
+        if (at) e.picked.sel = { index: at.index, length: at.length };
+    }
+    markPicked(e);
+}
+function pickedRange(e) {
+    const picked = e.picked;
+    if (!picked || mediaKindAt(e.quill, picked.index) !== picked.kind) return null;
+    return { index: picked.index, length: 1 };
+}
+function wirePick(e) {
+    const q = e.quill;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    on(q.root, 'click', ev => {
+        if (!q.isEnabled() || ev.button) return;
+        const node = ev.target.closest?.('img, video');
+        const blot = node && Quill.find(node);
+        if (!blot) return;
+        pick(e, node.tagName === 'IMG' ? 'image' : 'video', q.getIndex(blot));
+    });
+    on(q.root, 'keydown', ev => {
+        if (!ev.shiftKey || ev.altKey || ev.ctrlKey || ev.metaKey || !q.isEnabled()) return;
+        if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+        const r = q.getSelection();
+        if (!r || r.length) return;
+        const next = ev.key === 'ArrowRight';
+        let at = -1;
+        if (!next) at = mediaKindAt(q, r.index - 1) === 'video' ? r.index - 1 : -1;
+        else if (mediaKindAt(q, r.index) === 'video') at = r.index;
+        else if (q.getText(r.index, 1) === '\n' && mediaKindAt(q, r.index + 1) === 'video') at = r.index + 1;
+        if (at < 0) return;
+        ev.preventDefault();
+        pick(e, 'video', at);
+    }, true);
+    q.on('text-change', () => { if (!e.mediaing) unpick(e); });
+    q.on('selection-change', range => {
+        const p = e.picked;
+        if (!p || e.mediaing) return;
+        let still;
+        if (p.kind === 'image') {
+            still = range && range.index === p.index && range.length === 1;
+        } else {
+            if (!p.sel && range) p.sel = { index: range.index, length: range.length };
+            still = range && p.sel && range.index === p.sel.index && range.length === p.sel.length;
+        }
+        if (!still) unpick(e);
+    });
+}
 function insertMedia(e, kind, url, alt, range, size = {}) {
     const q = e.quill;
     if (!q.scroll.query(kind)) {
@@ -741,10 +820,12 @@ function fieldOf(panel, name, kind) {
 }
 function openMedia(e, kind) {
     const q = e.quill;
-    const range = q.getSelection(true) || e.lastRange;
+    const picked = pickedRange(e);
+    let range = picked || q.getSelection(true) || e.lastRange;
     if (!range) return;
     const on = mediaAt(q, range);
     const existing = on && on.kind === kind ? on : null;
+    if (picked && !existing) range = { index: picked.index + 1, length: 0 };
     const asked = e.emit('sedna-editor-media', {
         kind, src: existing?.src ?? '', alt: existing?.alt ?? '',
         width: sizeEvent(existing?.width), height: sizeEvent(existing?.height),
@@ -781,6 +862,7 @@ function closeMedia(e, refocus) {
     e.media.hidden = true;
     const was = e.mediaing;
     e.mediaing = null;
+    unpick(e);
     if (refocus) {
         e.quill.focus();
         if (was) e.quill.setSelection(was.range.index + was.range.length, 0, 'silent');
@@ -810,12 +892,14 @@ function saveMedia(e) {
     }
     e.mediaing = null;
     e.media.hidden = true;
+    unpick(e);
     e.quill.focus();
     insertMedia(e, was.kind, given, alt?.value, was.range, size);
     reflect(e);
 }
 function wireMedia(e) {
     wirePaste(e);
+    wirePick(e);
     const panel = e.media;
     if (!panel) return;
     const on = (target, type, fn, opts) => {

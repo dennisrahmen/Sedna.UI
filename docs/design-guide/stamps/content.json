@@ -79,7 +79,7 @@
     "src/Sedna.UI/css-parts/56-diff.css": "b711bf27514b1262"
   },
   "/editor": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Editor.razor": "d6d1182366d56c62",
+    "src/Sedna.UI.Catalogue/Components/Pages/Editor.razor": "c84295cc9849e2ac",
     "src/Sedna.UI.Catalogue/Examples/Editor/Comment.razor": "f860067594adfeeb",
     "src/Sedna.UI.Catalogue/Examples/Editor/Everything.razor": "601a7a81bbf228d0",
     "src/Sedna.UI.Catalogue/Examples/Editor/FileNotice.razor": "e62c6535eb9f078f",
@@ -93,7 +93,7 @@
     "src/Sedna.UI.Catalogue/Examples/Interop/EditorStateFromCsharp.razor": "e05d20818fff9636",
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "5a8918a36a9a8dee",
     "src/Sedna.UI/css-parts/44-markdown.css": "6676c49d41167bde",
-    "src/Sedna.UI/css-parts/44-rich-text.css": "62182429eea2f2ea",
+    "src/Sedna.UI/css-parts/44-rich-text.css": "7c2ac8907af6d8db",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
     "src/Sedna.UI/css-parts/58-menu.css": "78bd082703fd47e9",
     "src/Sedna.UI/css-parts/62-media-and-prose.css": "5aca51f91361cc8a",
@@ -101,7 +101,7 @@
     "src/Sedna.UI/editor-parts/30-toolbar.js": "c85ffd1b562b9f42",
     "src/Sedna.UI/editor-parts/40-link.js": "07233cd909f93f25",
     "src/Sedna.UI/editor-parts/45-slash.js": "e615ae05e98b8991",
-    "src/Sedna.UI/editor-parts/50-media.js": "1a9827d39f1d0774",
+    "src/Sedna.UI/editor-parts/50-media.js": "2a9b6d3555db294a",
     "src/Sedna.UI/editor-parts/70-editor.js": "c27b14761bbfb935",
     "src/Sedna.UI/graph-parts/53-menu.js": "1997507e811c1e36",
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5",

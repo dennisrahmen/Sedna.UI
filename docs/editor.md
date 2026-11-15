@@ -153,8 +153,15 @@ The app's own form, written once inside the editor, which an image or video cont
   keeps the aspect ratio from the one that is left, or from the file. A value that is not a whole number
   above zero — `0`, `-5`, `12.5`, `50%` — marks its field `aria-invalid`, leaves the form open and takes the
   focus; typing in the field clears the mark.
-- Opened on an image or a video, it is filled with it, size included, and Insert replaces it. A form
-  with no size fields leaves the size of the media it replaces as it was.
+- **A click on an image or a video in the document chooses it.** The editor selects it as one unit
+  and sets `data-editor-selected` on it — drawn as an outline in `--focus-ring` — so the image or
+  video control opens the form filled with it, size included, and Insert replaces that media rather
+  than adding a second. A video's own controls keep their clicks, so click its frame; Shift+Arrow from
+  the end of the line before a video, or the start of the line after it, chooses it from the keyboard,
+  as the same keys select an image. Typing, a click elsewhere or moving the caret lets it go, and with
+  nothing chosen the control opens an empty form for a new one. The attribute is on the document's
+  element only: it is never part of the HTML the editor writes.
+- A form with no size fields leaves the size of the media it replaces as it was.
 - Enter inserts, Escape closes, and a press outside it closes it. An address the editor would not keep
   marks the address field `aria-invalid` and leaves the form open; an empty one closes it.
 

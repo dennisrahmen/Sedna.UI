@@ -98,7 +98,11 @@
             <code>aria-label</code> &mdash; and <code>[data-editor-media-save]</code> inserts. The form says which it
             is for in <code>data-editor-media-kind</code>, and shows an element marked
             <code>data-editor-media-for="image"</code> or <code>"video"</code> only for that kind. Opened on an image
-            or a video, it is filled with it, and Insert replaces it.
+            or a video, it is filled with it, and Insert replaces it. <strong>A click on an image or a video in the
+            document chooses it</strong> &mdash; an outline in the focus ring marks it, set as
+            <code>data-editor-selected</code> &mdash; so the control then changes that media instead of adding a
+            second. A video's own controls keep their clicks: click its frame, or press Shift+Arrow from the line
+            before it or after it. Typing or a click elsewhere lets it go.
         </p>
         <p>
             <code>[data-editor-media-width]</code> and <code>[data-editor-media-height]</code> are the size, in

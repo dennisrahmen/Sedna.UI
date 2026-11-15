@@ -186,7 +186,7 @@
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "4a79b4bf2ad846c4"
+    "stamp": "fcc28ddf4d065901"
   },
   {
     "page": "/chat",

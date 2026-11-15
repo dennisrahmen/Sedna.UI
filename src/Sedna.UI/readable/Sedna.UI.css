@@ -7369,6 +7369,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-inner);
     background: var(--bg-elevated);
 }
+/* The image or video a click chose, which the media form then opens on. An outline rather than a
+   shadow, so forced colours keep it. */
+.editor .ql-editor :is(img, video)[data-editor-selected] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
 .editor .ql-editor code {
     font-family: var(--font-mono);
     font-size: 0.9em;
@@ -26607,6 +26613,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-banner-dismiss:focus-visible,
     .app-switcher-item:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .editor .ql-editor :is(img, video)[data-editor-selected] { outline: 2px solid CanvasText; outline-offset: 2px; }
     /* Inside its header cell, which clips what is drawn past its edge. */
     .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* Inside the run's frame, which meets its edge. */
