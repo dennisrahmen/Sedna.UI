@@ -621,6 +621,12 @@
        for white text over the brightest photograph there is — HeroTests measures it. */
     --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
     --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
+    /* What the words of a page head with a picture stand on: nothing, over the scrim. In
+       forced colours the scrim, a gradient, is dropped and this is the user's canvas. */
+    --hero-text-bg:      transparent;
+    /* A shadow under those words, for a head whose scrim an app has thinned — none by
+       default, since the scrim alone clears AA. */
+    --hero-text-shadow:  none;
     /* One square of the checkerboard behind a picture in a `--transparency` frame
        (62-media-and-prose.css). */
     --checker-size:  8px;
@@ -788,6 +794,22 @@
     /* The block padding of a `.page-banner` under the topbar; its inline padding is the
        page's own, so its words start on the page's column. */
     --page-banner-pad-block: var(--space-5);
+    /* A page head with a picture (56-page-head-hero.css): its least height, the width of
+       its text column, how wide the head may grow, its corners, its padding, the gap
+       between its words and its actions, and the point its picture is cropped around.
+       Where the scrim holds at full strength and where it reaches its soft end are
+       `--hero-scrim-hold` and `--hero-scrim-end`; unset, they follow the text column, so
+       they are worked out on the head and only declared here, as unset. */
+    --hero-height:      22rem;
+    --hero-measure:     40rem;
+    --hero-max:         var(--page-max);
+    --hero-radius:      var(--radius-surface);
+    --hero-pad-block:   var(--space-10);
+    --hero-pad-inline:  var(--space-8);
+    --hero-gap:         var(--space-6);
+    --hero-focus:       50% 50%;
+    --hero-scrim-hold:  initial;
+    --hero-scrim-end:   initial;
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one

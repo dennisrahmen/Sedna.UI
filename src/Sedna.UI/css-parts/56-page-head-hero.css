@@ -30,40 +30,55 @@
    screen the picture stops at the content column and the page around it carries on.
 
    The scrim is a gradient from the inline start, where the words are, to the inline end, where
-   the picture shows. It stays at full strength for as wide as the text column is, so the
-   text sits on the strong part wherever the head is as wide as the column and wider, and on
-   a phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
+   the picture shows. It holds at full strength for as wide as the text column and its
+   padding are, then fades over 16rem to its soft end, so the words sit on the strong part
+   wherever the head is as wide as the column and wider, most of the picture shows, and on a
+   phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
    Full strength is solved for the brightest photograph there is, white text clearing 4.5:1
    over white behind it — `HeroTests` measures it in both page variants.
 
-   Knobs, set on the head or on one instance:
-     --hero-height   the least height (22rem);
-     --hero-measure  how wide the text column is, and how far the scrim holds (40rem);
-     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim, declared in 01-tokens.css.
+   Tokens, declared in 01-tokens.css so an app sets them in its brand.css, or on one head:
+     --hero-height      the least height (22rem);
+     --hero-measure     how wide the text column is (40rem);
+     --hero-max         how wide the head may grow (--page-max; `none` runs it edge to edge);
+     --hero-radius      its corners (--radius-surface; 0 squares it);
+     --hero-pad-block, --hero-pad-inline, --hero-gap   its padding, and the room between
+                        the words and the actions;
+     --hero-focus       the point the picture is cropped around (50% 50%), an object-position;
+     --hero-scrim-strong, --hero-scrim-soft   the two ends of the scrim;
+     --hero-scrim-hold  where full strength ends (the text column and its padding);
+     --hero-scrim-end   where the soft end is reached (16rem past the hold) — a length or a
+                        percentage of the head; set both to thin the scrim;
+     --hero-text-shadow a shadow under the words, for a scrim an app has thinned (none);
+     --hero-text-bg     what the words stand on (transparent; the user's canvas in forced
+                        colours, where the scrim is dropped).
+   `--hero-scrim-angle` is the head's own: the direction of the scrim, turned by `dir`.
    ─────────────────────────────────────────────────────────────────────────── */
 .page-head--hero {
-    --hero-height: 22rem;
-    --hero-measure: 40rem;
-    --hero-pad-inline: var(--space-8);
+    /* Where the scrim holds and where it ends, worked out here so that a text column set on
+       one head moves its scrim with it. The hold covers the text column and the padding
+       either side of it; the fade runs 16rem past it. */
     --hero-scrim-angle: 90deg;
+    --hero-hold-at: var(--hero-scrim-hold, calc(var(--hero-measure) + 2 * var(--hero-pad-inline)));
+    --hero-end-at: var(--hero-scrim-end, calc(var(--hero-hold-at) + 16rem));
     position: relative;
     isolation: isolate;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: flex-start;
     justify-content: flex-end;
-    gap: var(--space-6);
+    gap: var(--hero-gap);
     box-sizing: border-box;
     min-block-size: var(--hero-height);
-    max-inline-size: var(--page-max);
+    max-inline-size: var(--hero-max);
     margin-inline: auto;
-    padding: var(--space-10) var(--hero-pad-inline);
+    padding: var(--hero-pad-block) var(--hero-pad-inline);
     overflow: hidden;
-    border-radius: var(--radius-surface);
+    border-radius: var(--hero-radius);
     /* What shows before the picture does, and where there is none. */
     background: var(--media-bg);
 }
-/* The picture fills the head and is cropped to it, from its middle. */
+/* The picture fills the head and is cropped to it, around `--hero-focus`. */
 .page-head-image {
     position: absolute;
     inset: 0;
@@ -71,6 +86,7 @@
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
+    object-position: var(--hero-focus);
 }
 /* The scrim, over the picture; the words and actions are over the scrim. Local stacking only. */
 .page-head--hero::after {
@@ -81,18 +97,16 @@
     pointer-events: none;
     background: linear-gradient(
         var(--hero-scrim-angle),
-        var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
-        var(--hero-scrim-soft));
+        var(--hero-scrim-strong) var(--hero-hold-at),
+        var(--hero-scrim-soft) var(--hero-end-at));
 }
 .page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
 .page-head--hero .page-head-text {
     flex: 0 1 auto;
     inline-size: 100%;
     max-inline-size: var(--hero-measure);
-    /* The surface tint is nothing visible on the scrim, and in forced colours it is the
-       user's canvas, which is what the words then stand on: the scrim is a gradient and is
-       dropped there, and the picture is not. */
-    background: var(--surface-soft);
+    background: var(--hero-text-bg);
+    text-shadow: var(--hero-text-shadow);
 }
 .page-head--hero .page-head-text > p {
     margin: var(--space-4) 0 0;
@@ -109,5 +123,29 @@
     .page-head--hero :is(h1, h2, h3) { font-size: var(--text-11); }
 }
 @media (max-width: 560px) {
-    .page-head--hero { --hero-pad-inline: var(--space-6); padding-block: var(--space-8); }
+    .page-head--hero { padding: var(--space-8) var(--space-6); }
+}
+
+/* ── Where the words sit ─────────────────────────────────────────────────────
+   At the bottom of the head, at the inline start, by default. `--hero-top` and
+   `--hero-middle` move them up; `--hero-center` centres them and their actions across
+   the head, and its scrim is a band the width of the text column down the middle of the
+   head, fading out to both sides — the same hold and fade, so the words are always on
+   its strong part.
+
+     <header class="page-head page-head--hero page-head--hero-center page-head--hero-middle" data-variant="dark">…</header> */
+.page-head--hero.page-head--hero-top    { justify-content: flex-start; }
+.page-head--hero.page-head--hero-middle { justify-content: center; }
+.page-head--hero.page-head--hero-center {
+    align-items: center;
+    text-align: center;
+}
+.page-head--hero.page-head--hero-center > .page-head-actions { justify-content: center; }
+.page-head--hero.page-head--hero-center::after {
+    background: linear-gradient(
+        90deg,
+        var(--hero-scrim-soft) calc(50% - var(--hero-end-at) / 2),
+        var(--hero-scrim-strong) calc(50% - var(--hero-hold-at) / 2),
+        var(--hero-scrim-strong) calc(50% + var(--hero-hold-at) / 2),
+        var(--hero-scrim-soft) calc(50% + var(--hero-end-at) / 2));
 }

@@ -4,7 +4,9 @@
      A tone modifier says what a button does, an emphasis modifier how loudly
      (69-tone.css): .btn--brand.btn--solid is the primary action; .btn--go.btn--solid
      sends something outward; .btn--warn.btn--solid changes who is in control, .btn--warn
-     is its secondary; .btn--danger is destructive; .btn--ghost has no fill until hovered.
+     is its secondary; .btn--danger is destructive; .btn--outline has no fill and a 3:1
+     edge, for a secondary action on a picture or a tinted band; .btn--ghost has no fill
+     and no edge until hovered.
 
    --control-height is shared with the text input, the select and the search box, so
    a button beside a field is the same height as the field. It also pins an icon-only
@@ -21,7 +23,9 @@
     gap: var(--btn-gap);
     min-height: var(--control-height);
     padding: var(--space-3) var(--btn-pad-x);
-    border: 1px solid var(--border);
+    /* The control edge, as a field's: 3:1 against every surface it sits on, which is what
+       says where a control ends (ControlEdgeContrastTests). */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
     background: var(--bg-elevated);
     color: var(--fg);
@@ -35,7 +39,7 @@
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .btn i { font-size: var(--text-6); line-height: 1; }
-.btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.btn:hover         { background: var(--bg-hover); border-color: var(--border-hover); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* A disabled button still takes the pointer, so a hint on it says why it cannot be

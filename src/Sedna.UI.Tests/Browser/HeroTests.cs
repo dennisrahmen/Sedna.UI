@@ -28,6 +28,7 @@ public class HeroTests : ScriptTestBase
             <div class="page-head-actions">
               <a class="btn btn--solid btn--lg" id="solid" href="#">Get in touch</a>
               <a class="btn btn--ghost btn--lg" id="ghost" href="#">See the work</a>
+              <a class="btn btn--outline btn--lg" id="outline" href="#">Our story</a>
               <a class="btn btn--lg" id="plainbtn" href="#">Jobs</a>
             </div>
           </header>
@@ -49,7 +50,7 @@ public class HeroTests : ScriptTestBase
           const ground = [0, 1, 2].map(i => 255 * (1 - a) + strong[i] * a);
           const L2 = lum(ground);
           const out = {};
-          for (const id of ['title', 'lead', 'eyebrow', 'ghost', 'plainbtn']) {
+          for (const id of ['title', 'lead', 'eyebrow', 'ghost', 'outline', 'plainbtn']) {
             const c = rgba(getComputedStyle(document.getElementById(id)).color).slice(0, 3);
             const L1 = lum(c);
             out[id] = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
@@ -59,9 +60,11 @@ public class HeroTests : ScriptTestBase
         }
         """;
 
-    private async Task<IPage> Hero(string variant, string dir = "ltr", int width = 1280)
+    private async Task<IPage> Hero(string variant, string dir = "ltr", int width = 1280, string style = "", string classes = "")
     {
-        var (page, _) = await OpenStyled(Fixture(dir));
+        var markup = Fixture(dir).Replace("id=\"hero\"", $"id=\"hero\" style=\"{style}\"", StringComparison.Ordinal)
+            .Replace("page-head--hero\"", "page-head--hero " + classes + "\"", StringComparison.Ordinal);
+        var (page, _) = await OpenStyled(markup);
         await page.SetViewportSizeAsync(width, 900);
         await Js.Run(page, $"() => document.documentElement.dataset.variant = '{variant}'");
         return page;
@@ -160,5 +163,104 @@ public class HeroTests : ScriptTestBase
             return [t.backgroundColor, canvas];
         }");
         Assert.Equal(report[1], report[0]);
+    }
+
+    [Fact]
+    public async Task The_text_column_paints_nothing_over_the_scrim()
+    {
+        if (NoBrowser) return;
+        foreach (var variant in new[] { "dark", "light" })
+        {
+            var page = await Hero(variant);
+            var bg = await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('text')).backgroundColor");
+            Assert.True(bg is "rgba(0, 0, 0, 0)" or "transparent",
+                $"The text column paints {bg} in {variant}: a box lighter than the scrim shows behind the words.");
+        }
+    }
+
+    [Fact]
+    public async Task Every_hero_token_reaches_the_head()
+    {
+        if (NoBrowser) return;
+        var page = await Hero("light", width: 2000,
+            style: "--hero-radius: 0px; --hero-max: none; --hero-focus: 20% 80%; --hero-pad-block: 10px; --hero-pad-inline: 12px; --hero-gap: 7px; --hero-text-shadow: 0 1px 2px var(--hero-scrim-strong)");
+        var r = await page.EvaluateAsync<string[]>(@"() => {
+            const h = document.getElementById('hero'), cs = getComputedStyle(h);
+            return [cs.borderTopLeftRadius, String(Math.round(h.getBoundingClientRect().width)), String(window.innerWidth - (document.documentElement.scrollWidth - document.documentElement.clientWidth)),
+                    getComputedStyle(document.getElementById('img')).objectPosition, cs.paddingTop, cs.paddingLeft, cs.rowGap,
+                    getComputedStyle(document.getElementById('title')).textShadow];
+        }");
+        Assert.Equal("0px", r[0]);
+        Assert.True(double.Parse(r[1], System.Globalization.CultureInfo.InvariantCulture) > 1900, $"--hero-max: none left the head {r[1]}px wide.");
+        Assert.Equal("20% 80%", r[3]);
+        Assert.Equal("10px", r[4]);
+        Assert.Equal("12px", r[5]);
+        Assert.Equal("7px", r[6]);
+        Assert.NotEqual("none", r[7]);
+    }
+
+    [Fact]
+    public async Task The_scrim_holds_and_ends_where_its_tokens_say()
+    {
+        if (NoBrowser) return;
+        var page = await Hero("light", width: 1600, style: "--hero-scrim-hold: 20%; --hero-scrim-end: 40%");
+        await page.AddStyleTagAsync(new() { Content = "#text, .page-head-actions { visibility: hidden; }" });
+        var box = (await page.Locator("#hero").BoundingBoxAsync())!;
+        var png = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = new() { X = box.X, Y = box.Y, Width = box.Width, Height = box.Height } }));
+        var y = png.Height / 2;
+        int At(double share) => png.Pixel((int)(png.Width * share), y).R;
+        Assert.InRange(Math.Abs(At(0.05) - At(0.18)), 0, 2);
+        Assert.True(At(0.30) > At(0.18) + 10, "Between the hold and the end the scrim does not fade.");
+        Assert.InRange(Math.Abs(At(0.60) - At(0.95)), 0, 2);
+        Assert.True(At(0.60) > At(0.30), "Past its end the scrim is not at its soft end.");
+    }
+
+    [Fact]
+    public async Task Centred_words_sit_on_a_strong_band_down_the_middle()
+    {
+        if (NoBrowser) return;
+        var page = await Hero("light", width: 1800, classes: "page-head--hero-center page-head--hero-middle");
+        var placement = await page.EvaluateAsync<double[]>(@"() => {
+            const h = document.getElementById('hero').getBoundingClientRect(), t = document.getElementById('text').getBoundingClientRect();
+            return [(t.left + t.right) / 2 - (h.left + h.right) / 2, (t.top + t.bottom) / 2 - (h.top + h.bottom) / 2, getComputedStyle(document.getElementById('title')).textAlign === 'center' ? 0 : 1];
+        }");
+        Assert.Equal(0, placement[0], 2);
+        Assert.Equal(0, placement[2]);
+
+        var ratios = await page.EvaluateAsync<Dictionary<string, double>>(Contrast);
+        foreach (var (id, ratio) in ratios)
+            Assert.True(ratio >= 4.5, $"#{id} measures {ratio:0.00}:1 on the centred band.");
+
+        await page.AddStyleTagAsync(new() { Content = "#text, .page-head-actions { visibility: hidden; }" });
+        var box = (await page.Locator("#hero").BoundingBoxAsync())!;
+        var png = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = new() { X = box.X, Y = box.Y, Width = box.Width, Height = box.Height } }));
+        var y = png.Height / 2;
+        var middle = png.Pixel(png.Width / 2, y).R;
+        var left = png.Pixel(8, y).R;
+        var right = png.Pixel(png.Width - 9, y).R;
+        Assert.True(middle < left && middle < right, $"The middle ({middle}) is not darker than the edges ({left}, {right}).");
+        Assert.InRange(Math.Abs(left - right), 0, 2);
+    }
+
+    [Theory]
+    [InlineData("page-head--hero-top", -1)]
+    [InlineData("page-head--hero-middle", 0)]
+    [InlineData("", 1)]
+    public async Task The_words_sit_at_the_top_the_middle_or_the_bottom(string classes, int where)
+    {
+        if (NoBrowser) return;
+        var page = await Hero("light", classes: classes, style: "--hero-height: 40rem");
+        var r = await page.EvaluateAsync<double[]>(@"() => {
+            const h = document.getElementById('hero').getBoundingClientRect(), t = document.getElementById('text').getBoundingClientRect();
+            const a = document.querySelector('.page-head-actions').getBoundingClientRect();
+            return [t.top - h.top, h.bottom - a.bottom];
+        }");
+        var (top, bottom) = (r[0], r[1]);
+        switch (where)
+        {
+            case -1: Assert.True(top < bottom, $"--hero-top: {top:0}px above the words, {bottom:0}px below."); break;
+            case 0: Assert.Equal(top, bottom, 2); break;
+            default: Assert.True(bottom < top, $"Default: {top:0}px above the words, {bottom:0}px below."); break;
+        }
     }
 }

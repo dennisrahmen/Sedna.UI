@@ -751,6 +751,7 @@
         "btn--icon",
         "btn--info",
         "btn--lg",
+        "btn--outline",
         "btn--secret",
         "btn--sm",
         "btn--solid",
@@ -773,6 +774,7 @@
         "beam",
         "btn--fill",
         "btn--ghost",
+        "btn--outline",
         "btn--solid",
         "btn--wrap",
         "count-host",
@@ -819,6 +821,16 @@
       "combinedWith": [
         "btn--icon",
         "count-host"
+      ]
+    },
+    "btn--outline": {
+      "family": "btn",
+      "pseudoClasses": [
+        ":active",
+        ":hover"
+      ],
+      "combinedWith": [
+        "btn"
       ]
     },
     "btn--secret": {
@@ -4695,7 +4707,10 @@
       "family": "page-head",
       "variants": [
         "page-head--collapse",
-        "page-head--hero"
+        "page-head--hero",
+        "page-head--hero-center",
+        "page-head--hero-middle",
+        "page-head--hero-top"
       ]
     },
     "page-head--collapse": {
@@ -4705,6 +4720,29 @@
       "family": "page-head",
       "attributes": [
         "[dir=\"rtl\"]"
+      ],
+      "combinedWith": [
+        "page-head--hero-center",
+        "page-head--hero-middle",
+        "page-head--hero-top"
+      ]
+    },
+    "page-head--hero-center": {
+      "family": "page-head",
+      "combinedWith": [
+        "page-head--hero"
+      ]
+    },
+    "page-head--hero-middle": {
+      "family": "page-head",
+      "combinedWith": [
+        "page-head--hero"
+      ]
+    },
+    "page-head--hero-top": {
+      "family": "page-head",
+      "combinedWith": [
+        "page-head--hero"
       ]
     },
     "page-head-actions": {

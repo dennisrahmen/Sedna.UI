@@ -1007,6 +1007,12 @@
        for white text over the brightest photograph there is — HeroTests measures it. */
     --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
     --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
+    /* What the words of a page head with a picture stand on: nothing, over the scrim. In
+       forced colours the scrim, a gradient, is dropped and this is the user's canvas. */
+    --hero-text-bg:      transparent;
+    /* A shadow under those words, for a head whose scrim an app has thinned — none by
+       default, since the scrim alone clears AA. */
+    --hero-text-shadow:  none;
     /* One square of the checkerboard behind a picture in a `--transparency` frame
        (62-media-and-prose.css). */
     --checker-size:  8px;
@@ -1174,6 +1180,22 @@
     /* The block padding of a `.page-banner` under the topbar; its inline padding is the
        page's own, so its words start on the page's column. */
     --page-banner-pad-block: var(--space-5);
+    /* A page head with a picture (56-page-head-hero.css): its least height, the width of
+       its text column, how wide the head may grow, its corners, its padding, the gap
+       between its words and its actions, and the point its picture is cropped around.
+       Where the scrim holds at full strength and where it reaches its soft end are
+       `--hero-scrim-hold` and `--hero-scrim-end`; unset, they follow the text column, so
+       they are worked out on the head and only declared here, as unset. */
+    --hero-height:      22rem;
+    --hero-measure:     40rem;
+    --hero-max:         var(--page-max);
+    --hero-radius:      var(--radius-surface);
+    --hero-pad-block:   var(--space-10);
+    --hero-pad-inline:  var(--space-8);
+    --hero-gap:         var(--space-6);
+    --hero-focus:       50% 50%;
+    --hero-scrim-hold:  initial;
+    --hero-scrim-end:   initial;
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one
@@ -5261,7 +5283,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
      A tone modifier says what a button does, an emphasis modifier how loudly
      (69-tone.css): .btn--brand.btn--solid is the primary action; .btn--go.btn--solid
      sends something outward; .btn--warn.btn--solid changes who is in control, .btn--warn
-     is its secondary; .btn--danger is destructive; .btn--ghost has no fill until hovered.
+     is its secondary; .btn--danger is destructive; .btn--outline has no fill and a 3:1
+     edge, for a secondary action on a picture or a tinted band; .btn--ghost has no fill
+     and no edge until hovered.
 
    --control-height is shared with the text input, the select and the search box, so
    a button beside a field is the same height as the field. It also pins an icon-only
@@ -5278,7 +5302,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     gap: var(--btn-gap);
     min-height: var(--control-height);
     padding: var(--space-3) var(--btn-pad-x);
-    border: 1px solid var(--border);
+    /* The control edge, as a field's: 3:1 against every surface it sits on, which is what
+       says where a control ends (ControlEdgeContrastTests). */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
     background: var(--bg-elevated);
     color: var(--fg);
@@ -5292,7 +5318,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .btn i { font-size: var(--text-6); line-height: 1; }
-.btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.btn:hover         { background: var(--bg-hover); border-color: var(--border-hover); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* A disabled button still takes the pointer, so a hint on it says why it cannot be
@@ -8361,11 +8387,11 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
     block-size: var(--control-height-sm);
     padding: 0;
     background: var(--swatch);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
     cursor: pointer;
 }
-.swatch:hover { border-color: var(--border-strong); }
+.swatch:hover { border-color: var(--border-hover); }
 .swatch:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-glow); }
 .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg); }
 .swatch[aria-pressed="true"]:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-soft); }
@@ -9454,7 +9480,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     margin-inline-end: var(--space-5);
     padding: var(--space-2) var(--space-5);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-family: inherit;
@@ -12097,7 +12123,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-height: var(--control-height-sm);
     padding: var(--space-1) var(--space-2) var(--space-1) var(--space-5);
     background: var(--surface-strong);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     color: var(--fg-soft);
     font-size: var(--text-3);
@@ -14306,7 +14332,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     gap: var(--space-2);
     padding: var(--space-2) var(--space-4);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-inner);
     color: var(--muted);
     font-family: inherit;
@@ -14369,7 +14395,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     min-height: var(--control-height-sm);
     padding: var(--space-2) var(--space-6);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     color: var(--fg-soft);
     font-family: inherit;
@@ -14590,40 +14616,55 @@ td.diff-gap { background: var(--surface-soft); }
    screen the picture stops at the content column and the page around it carries on.
 
    The scrim is a gradient from the inline start, where the words are, to the inline end, where
-   the picture shows. It stays at full strength for as wide as the text column is, so the
-   text sits on the strong part wherever the head is as wide as the column and wider, and on
-   a phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
+   the picture shows. It holds at full strength for as wide as the text column and its
+   padding are, then fades over 16rem to its soft end, so the words sit on the strong part
+   wherever the head is as wide as the column and wider, most of the picture shows, and on a
+   phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
    Full strength is solved for the brightest photograph there is, white text clearing 4.5:1
    over white behind it — `HeroTests` measures it in both page variants.
 
-   Knobs, set on the head or on one instance:
-     --hero-height   the least height (22rem);
-     --hero-measure  how wide the text column is, and how far the scrim holds (40rem);
-     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim, declared in 01-tokens.css.
+   Tokens, declared in 01-tokens.css so an app sets them in its brand.css, or on one head:
+     --hero-height      the least height (22rem);
+     --hero-measure     how wide the text column is (40rem);
+     --hero-max         how wide the head may grow (--page-max; `none` runs it edge to edge);
+     --hero-radius      its corners (--radius-surface; 0 squares it);
+     --hero-pad-block, --hero-pad-inline, --hero-gap   its padding, and the room between
+                        the words and the actions;
+     --hero-focus       the point the picture is cropped around (50% 50%), an object-position;
+     --hero-scrim-strong, --hero-scrim-soft   the two ends of the scrim;
+     --hero-scrim-hold  where full strength ends (the text column and its padding);
+     --hero-scrim-end   where the soft end is reached (16rem past the hold) — a length or a
+                        percentage of the head; set both to thin the scrim;
+     --hero-text-shadow a shadow under the words, for a scrim an app has thinned (none);
+     --hero-text-bg     what the words stand on (transparent; the user's canvas in forced
+                        colours, where the scrim is dropped).
+   `--hero-scrim-angle` is the head's own: the direction of the scrim, turned by `dir`.
    ─────────────────────────────────────────────────────────────────────────── */
 .page-head--hero {
-    --hero-height: 22rem;
-    --hero-measure: 40rem;
-    --hero-pad-inline: var(--space-8);
+    /* Where the scrim holds and where it ends, worked out here so that a text column set on
+       one head moves its scrim with it. The hold covers the text column and the padding
+       either side of it; the fade runs 16rem past it. */
     --hero-scrim-angle: 90deg;
+    --hero-hold-at: var(--hero-scrim-hold, calc(var(--hero-measure) + 2 * var(--hero-pad-inline)));
+    --hero-end-at: var(--hero-scrim-end, calc(var(--hero-hold-at) + 16rem));
     position: relative;
     isolation: isolate;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: flex-start;
     justify-content: flex-end;
-    gap: var(--space-6);
+    gap: var(--hero-gap);
     box-sizing: border-box;
     min-block-size: var(--hero-height);
-    max-inline-size: var(--page-max);
+    max-inline-size: var(--hero-max);
     margin-inline: auto;
-    padding: var(--space-10) var(--hero-pad-inline);
+    padding: var(--hero-pad-block) var(--hero-pad-inline);
     overflow: hidden;
-    border-radius: var(--radius-surface);
+    border-radius: var(--hero-radius);
     /* What shows before the picture does, and where there is none. */
     background: var(--media-bg);
 }
-/* The picture fills the head and is cropped to it, from its middle. */
+/* The picture fills the head and is cropped to it, around `--hero-focus`. */
 .page-head-image {
     position: absolute;
     inset: 0;
@@ -14631,6 +14672,7 @@ td.diff-gap { background: var(--surface-soft); }
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
+    object-position: var(--hero-focus);
 }
 /* The scrim, over the picture; the words and actions are over the scrim. Local stacking only. */
 .page-head--hero::after {
@@ -14641,18 +14683,16 @@ td.diff-gap { background: var(--surface-soft); }
     pointer-events: none;
     background: linear-gradient(
         var(--hero-scrim-angle),
-        var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
-        var(--hero-scrim-soft));
+        var(--hero-scrim-strong) var(--hero-hold-at),
+        var(--hero-scrim-soft) var(--hero-end-at));
 }
 .page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
 .page-head--hero .page-head-text {
     flex: 0 1 auto;
     inline-size: 100%;
     max-inline-size: var(--hero-measure);
-    /* The surface tint is nothing visible on the scrim, and in forced colours it is the
-       user's canvas, which is what the words then stand on: the scrim is a gradient and is
-       dropped there, and the picture is not. */
-    background: var(--surface-soft);
+    background: var(--hero-text-bg);
+    text-shadow: var(--hero-text-shadow);
 }
 .page-head--hero .page-head-text > p {
     margin: var(--space-4) 0 0;
@@ -14669,7 +14709,31 @@ td.diff-gap { background: var(--surface-soft); }
     .page-head--hero :is(h1, h2, h3) { font-size: var(--text-11); }
 }
 @media (max-width: 560px) {
-    .page-head--hero { --hero-pad-inline: var(--space-6); padding-block: var(--space-8); }
+    .page-head--hero { padding: var(--space-8) var(--space-6); }
+}
+
+/* ── Where the words sit ─────────────────────────────────────────────────────
+   At the bottom of the head, at the inline start, by default. `--hero-top` and
+   `--hero-middle` move them up; `--hero-center` centres them and their actions across
+   the head, and its scrim is a band the width of the text column down the middle of the
+   head, fading out to both sides — the same hold and fade, so the words are always on
+   its strong part.
+
+     <header class="page-head page-head--hero page-head--hero-center page-head--hero-middle" data-variant="dark">…</header> */
+.page-head--hero.page-head--hero-top    { justify-content: flex-start; }
+.page-head--hero.page-head--hero-middle { justify-content: center; }
+.page-head--hero.page-head--hero-center {
+    align-items: center;
+    text-align: center;
+}
+.page-head--hero.page-head--hero-center > .page-head-actions { justify-content: center; }
+.page-head--hero.page-head--hero-center::after {
+    background: linear-gradient(
+        90deg,
+        var(--hero-scrim-soft) calc(50% - var(--hero-end-at) / 2),
+        var(--hero-scrim-strong) calc(50% - var(--hero-hold-at) / 2),
+        var(--hero-scrim-strong) calc(50% + var(--hero-hold-at) / 2),
+        var(--hero-scrim-soft) calc(50% + var(--hero-end-at) / 2));
 }
 }
 
@@ -14904,7 +14968,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     block-size: 40px;
     margin-inline-start: auto;
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: 50%;
     color: var(--fg-soft);
     box-shadow: var(--shadow-float);
@@ -17567,7 +17631,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     width: auto;
     padding: var(--space-4) var(--space-6);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-dropdown);
 }
@@ -22653,7 +22717,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     gap: var(--space-2);
     min-height: 24px;
     padding: 0 var(--space-4);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     background: var(--surface-strong);
     color: var(--fg-soft);
@@ -22662,7 +22726,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     font-variant-numeric: tabular-nums;
     cursor: pointer;
 }
-.chat-reaction:hover { border-color: var(--border-strong); }
+.chat-reaction:hover { border-color: var(--border-hover); }
 .chat-reaction[aria-pressed="true"] {
     background: var(--brand-tint);
     border-color: var(--selected);
@@ -22688,7 +22752,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
    themselves. The app removes the row once one is taken. */
 .chat-quick-replies { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .chat-quick-replies > .chip { cursor: pointer; font-family: inherit; }
-.chat-quick-replies > .chip:hover { border-color: var(--border-strong); color: var(--fg); }
+.chat-quick-replies > .chip:hover { border-color: var(--border-hover); color: var(--fg); }
 
 /* The picker: a grid of emoji buttons, inside a `.popover`. */
 .chat-emoji-grid {
@@ -22881,7 +22945,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-5);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     background: var(--bg-elevated);
     color: var(--fg-soft);
@@ -22891,7 +22955,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     box-shadow: var(--shadow-float);
     cursor: pointer;
 }
-.chat-jump:hover { color: var(--fg); border-color: var(--border-strong); }
+.chat-jump:hover { color: var(--fg); border-color: var(--border-hover); }
 .chat-jump:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* What is pinned, at the top of the pane. */
 .chat-pinned {
@@ -27036,9 +27100,11 @@ button.inbox-item-title {
    One tone system for every family that carries a tone: a TONE modifier says what the
    thing means, an EMPHASIS modifier how loudly, and the two combine freely.
 
-     .btn--danger                     soft: the tone's tint, its ink, its edge
+     .btn--danger                     soft: the tone's tint, and its ink for the label and the edge
      .btn--danger.btn--solid          filled
+     .btn--danger.btn--outline        no fill, an edge in its ink — 3:1 on any surface
      .btn--danger.btn--ghost          no fill and no edge — its ink only
+     .btn--outline                    no tone: the control edge, the text colour
      .btn--ghost                      no tone: the neutral ghost
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
@@ -27242,8 +27308,11 @@ button.inbox-item-title {
 }
 
 /* Buttons. Soft is a toned button's own emphasis. */
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); border-color: var(--tone-border-strong); }
+/* Its edge is the tone's ink, as an outline's is: the tint alone is no boundary, and the
+   tone's own border step is a divider's strength, under the 3:1 a control's edge needs
+   (ControlEdgeContrastTests). */
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-fg); color: var(--tone-fg); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):active { background: var(--tone-bg-active); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
 .btn.btn--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid-edge, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
@@ -27261,6 +27330,13 @@ button.inbox-item-title {
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
+/* Outline: no fill and an edge that holds 3:1 on whatever is behind it — a picture under
+   a scrim, a tinted band, a card. Toned, the edge is the tone's ink, which clears 4.5:1 as
+   text does; untoned, it is the control edge and the label is the text colour. The fill on
+   hover is a faint tint, so a photograph still shows through it. */
+.btn.btn--outline { background: transparent; border-color: var(--tone-fg, var(--control-border)); color: var(--tone-fg, var(--fg)); }
+.btn.btn--outline:hover { background: var(--tone-bg-hover, var(--surface-strong)); border-color: var(--tone-fg, var(--border-hover)); color: var(--tone-fg, var(--fg)); }
+.btn.btn--outline:active { background: var(--tone-bg-active, var(--surface-strong)); }
 
 /* Badges. Ghost is an outline: a label keeps its edge. */
 .badge:is(.badge--brand, .badge--go, .badge--warn, .badge--danger, .badge--info, .badge--secret, .badge--cyan, .badge--orange, .badge--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
@@ -27287,7 +27363,8 @@ button.inbox-item-title {
 .page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
 
 /* Chips. */
-.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+/* A chip is a control, so its edge is its ink, as a toned button's is. */
+.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-fg); color: var(--tone-fg); }
 
 /* A corner ribbon and a corner count are filled by nature, as a toast's edge is its tone's solid:
    the tone modifier alone gives the fill, and they take no --solid or --ghost. */
@@ -27630,6 +27707,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --card-bg:         Canvas;
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
+        --hero-text-bg:    Canvas;
         --on-solid:        HighlightText;
         --on-viz:          CanvasText;
 

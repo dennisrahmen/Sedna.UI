@@ -2,9 +2,11 @@
    One tone system for every family that carries a tone: a TONE modifier says what the
    thing means, an EMPHASIS modifier how loudly, and the two combine freely.
 
-     .btn--danger                     soft: the tone's tint, its ink, its edge
+     .btn--danger                     soft: the tone's tint, and its ink for the label and the edge
      .btn--danger.btn--solid          filled
+     .btn--danger.btn--outline        no fill, an edge in its ink — 3:1 on any surface
      .btn--danger.btn--ghost          no fill and no edge — its ink only
+     .btn--outline                    no tone: the control edge, the text colour
      .btn--ghost                      no tone: the neutral ghost
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
@@ -208,8 +210,11 @@
 }
 
 /* Buttons. Soft is a toned button's own emphasis. */
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); border-color: var(--tone-border-strong); }
+/* Its edge is the tone's ink, as an outline's is: the tint alone is no boundary, and the
+   tone's own border step is a divider's strength, under the 3:1 a control's edge needs
+   (ControlEdgeContrastTests). */
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-fg); color: var(--tone-fg); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):active { background: var(--tone-bg-active); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
 .btn.btn--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid-edge, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
@@ -227,6 +232,13 @@
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
+/* Outline: no fill and an edge that holds 3:1 on whatever is behind it — a picture under
+   a scrim, a tinted band, a card. Toned, the edge is the tone's ink, which clears 4.5:1 as
+   text does; untoned, it is the control edge and the label is the text colour. The fill on
+   hover is a faint tint, so a photograph still shows through it. */
+.btn.btn--outline { background: transparent; border-color: var(--tone-fg, var(--control-border)); color: var(--tone-fg, var(--fg)); }
+.btn.btn--outline:hover { background: var(--tone-bg-hover, var(--surface-strong)); border-color: var(--tone-fg, var(--border-hover)); color: var(--tone-fg, var(--fg)); }
+.btn.btn--outline:active { background: var(--tone-bg-active, var(--surface-strong)); }
 
 /* Badges. Ghost is an outline: a label keeps its edge. */
 .badge:is(.badge--brand, .badge--go, .badge--warn, .badge--danger, .badge--info, .badge--secret, .badge--cyan, .badge--orange, .badge--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
@@ -253,7 +265,8 @@
 .page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
 
 /* Chips. */
-.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+/* A chip is a control, so its edge is its ink, as a toned button's is. */
+.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-fg); color: var(--tone-fg); }
 
 /* A corner ribbon and a corner count are filled by nature, as a toast's edge is its tone's solid:
    the tone modifier alone gives the fill, and they take no --solid or --ghost. */

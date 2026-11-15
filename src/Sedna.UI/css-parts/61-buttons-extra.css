@@ -185,7 +185,7 @@
     width: auto;
     padding: var(--space-4) var(--space-6);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-dropdown);
 }
