@@ -131,7 +131,7 @@ public class DrawerExitTests : ScriptTestBase
         var last = leaving[^1];
         Assert.True(last.Dim <= restDim * 0.2, $"The panel left with the page still dimmed to {last.Dim}.");
         Assert.True(last.Move >= extent * 0.8, $"The dim was gone with the panel only {last.Move} of {extent}px out.");
-        Assert.True(samples.Last().Shown == false && samples.Last().Dim <= 0.02, "Nothing is left on screen.");
+        Assert.True(!samples.Last().Shown && samples.Last().Dim <= 0.02, "Nothing is left on screen.");
     }
 
     private static async Task Close(IPage page, string route)
