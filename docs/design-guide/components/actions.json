@@ -1,7 +1,7 @@
 [
   {
     "page": "/button",
-    "useFor": "Every action the reader takes, chosen by what it does and how loudly it should speak: a tone, an emphasis, three sizes, icon-only, in flight, in a line of text, and the floating button on a phone.",
+    "useFor": "Every action the reader takes, chosen by what it does and how loudly it should speak: a tone, an emphasis, three sizes, icon-only, in flight, in a line of text, and the floating button on a phone, in the button's tones and three sizes.",
     "combineWith": [
       { "page": "/structure#title-and-actions", "how": "In .page-head-actions for what applies to the whole page, end-aligned with the primary last." },
       { "page": "/card#head-body-and-foot", "how": "In .card-foot for what decides the card's content, the primary last." },
@@ -17,7 +17,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic-tones" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "630247113d8df73d"
+    "stamp": "9e865fad10629af7"
   },
   {
     "page": "/button-group",
@@ -33,7 +33,7 @@
       { "text": "Paging through a list of results", "instead": "/pager#numbered-pages" }
     ],
     "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
-    "stamp": "87f886cab5a6755d"
+    "stamp": "ada9b8c160262b5b"
   },
   {
     "page": "/toolbar",
@@ -53,7 +53,7 @@
       { "text": "Switching between views of one record", "instead": "/tabs#selected-by-the-script" }
     ],
     "goals": [ "compare-records", "narrow-a-long-list", "search-a-list", "act-on-a-selection", "fold-actions-into-a-menu", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "switch-a-view-setting", "fill-the-screen-below-the-header", "find-a-record-on-a-list-page", "search-everything" ],
-    "stamp": "7560b21e89fa99ba"
+    "stamp": "52db039496119c32"
   },
   {
     "page": "/menu",
@@ -75,7 +75,7 @@
       { "text": "Searching every command in the app", "instead": "/palette" }
     ],
     "goals": [ "save-a-view", "choose-table-columns", "offer-variants-of-an-action", "act-on-a-selection", "fold-actions-into-a-menu", "open-a-menu-of-actions", "open-a-context-menu", "find-an-action-in-a-long-menu", "change-a-value-in-place", "catch-up-on-notifications", "mention-someone", "see-who-is-signed-in", "write-a-prompt", "insert-blocks-with-a-slash", "open-a-panel-upward" ],
-    "stamp": "50a41e841f1af94c"
+    "stamp": "8ddb5f95aeffcf33"
   },
   {
     "page": "/popover",
@@ -94,7 +94,7 @@
       { "text": "A record's whole detail beside the list", "instead": "/drawer#record-detail" }
     ],
     "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message", "open-a-panel-upward" ],
-    "stamp": "41081205425086a5"
+    "stamp": "9d99eb6e8c9d4242"
   },
   {
     "page": "/drag-drop",
@@ -113,6 +113,6 @@
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
     "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "b3260730ce28883d"
+    "stamp": "b76c062857f072bb"
   }
 ]

@@ -61,6 +61,15 @@
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
+/* A name the app did not split is one run of text, and a flex container leaves a bare
+   text run as an anonymous item that never shrinks — so a long name, joined by dashes
+   and with no place to break, ran out of its tile. Without the split spans the name is
+   a block cut at its end, which is all `text-overflow` can do to it. */
+.file-name:not(.file-name--wrap, :has(> .file-name-start)) {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 /* The whole name over as many lines as it takes, for a reader who has to see every
    character of a name they did not choose — an upload straight off a phone. A token
    with no break in it breaks anywhere rather than running out of the tile, and does

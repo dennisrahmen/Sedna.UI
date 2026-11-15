@@ -366,6 +366,7 @@
     --control-height:    36px;
     --control-height-lg: 44px;
     --touch-target:      32px;
+    --btn-gap: var(--space-4);
     --choice-inset-check:  calc(15px + var(--space-4));
     --choice-inset-switch: calc(34px + var(--space-5));
     --code-clamp: 360px;
@@ -1249,6 +1250,7 @@ a.topbar-version--pre:hover {
 }
 .user-widget > .menu {
     color: var(--fg);
+    min-width: 220px;
     position: absolute;
     top: calc(100% + var(--space-2));
     inset-inline-end: 0;
@@ -2672,12 +2674,13 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 }
 @layer sedna.paint {
 .btn {
+    --btn-pad-x: var(--space-7);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2);
+    gap: var(--btn-gap);
     min-height: var(--control-height);
-    padding: var(--space-3) var(--space-7);
+    padding: var(--space-3) var(--btn-pad-x);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--bg-elevated);
@@ -2696,10 +2699,12 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .btn:disabled      { cursor: not-allowed; }
-.btn--sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+.btn--sm   { --btn-pad-x: var(--space-5); min-height: var(--control-height-sm); padding-block: var(--space-2); font-size: var(--text-3); }
 .btn--sm i { font-size: var(--text-4); }
-.btn--lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn--lg   { --btn-pad-x: var(--space-9); min-height: var(--control-height-lg); padding-block: var(--space-4); font-size: var(--text-5); }
 .btn--lg i { font-size: var(--text-8); }
+.btn:not(.btn--icon):has(> i:first-child:not(:only-child)) { padding-inline-start: calc(var(--btn-pad-x) - var(--space-2)); }
+.btn:not(.btn--icon):has(> i:last-child:not(:only-child))  { padding-inline-end:   calc(var(--btn-pad-x) - var(--space-2)); }
 .btn.btn--fill { display: flex; width: 100%; white-space: normal; }
 .btn.btn--wrap { white-space: normal; text-align: start; justify-content: flex-start; overflow-wrap: anywhere; }
 .btn[aria-busy="true"] {
@@ -8285,7 +8290,6 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 @layer sedna.paint {
 .menu {
     width: max-content;
-    min-width: 220px;
     max-width: min(20rem, calc(100vw - 32px));
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
@@ -8311,6 +8315,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     position-visibility: anchors-visible;
     margin-block-start: var(--space-2);
+    min-width: anchor-size(inline, 0px);
     z-index: 550;
 }
 .menu-anchor > .menu--start {
@@ -8388,13 +8393,15 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     z-index: 550;
 }
 .value-trigger {
-    --value-trigger-measure: 10ch;
-    min-width: calc(var(--value-trigger-measure) + var(--space-2) + 8px
+    --value-trigger-measure: 0ch;
+    min-width: calc(var(--value-trigger-measure) + var(--space-4) + 8px
                     + var(--space-3) * 2 + 2px);
+    width: max-content;
+    max-width: calc(100% + var(--space-3) * 2);
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    max-width: 100%;
+    gap: var(--space-4);
     padding: var(--space-1) var(--space-3);
     margin-inline: calc(var(--space-3) * -1);
     background: none;
@@ -8474,12 +8481,14 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 .menu-label {
     display: block;
-    padding: var(--space-4) var(--space-5) var(--space-2);
+    padding: calc(var(--space-4) + var(--cap-gap)) var(--space-5) calc(var(--space-2) + var(--cap-gap));
     font-size: var(--text-1);
     font-weight: 600;
+    line-height: round(1.5em, 2px);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--muted);
+    text-box: trim-both cap alphabetic;
 }
 .menu-sep { border: none; border-top: 1px solid var(--divider); margin: var(--space-2) var(--space-1); }
 .menu > .form-check {
@@ -8530,6 +8539,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     position-try-fallbacks: flip-block;
     position-visibility: anchors-visible;
     margin-block-start: var(--space-2);
+    min-inline-size: 220px;
     max-block-size: 16rem;
     overflow-y: auto;
     z-index: 550;
@@ -9514,11 +9524,12 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-4);
-    min-height: 48px;
+    gap: var(--btn-gap);
+    --fab-size: 48px;
+    min-height: var(--fab-size);
     padding: 0 var(--space-8);
     background: var(--brand);
-    border: none;
+    border: 1px solid var(--brand-edge);
     border-radius: var(--radius-pill);
     color: var(--on-solid);
     font-family: inherit;
@@ -9530,7 +9541,12 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab i { font-size: var(--text-8); }
 .fab:hover { background: var(--brand-hover); }
 .fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
-.fab--icon { width: 48px; padding: 0; }
+.fab--icon { width: var(--fab-size); padding: 0; }
+.fab--sm { --fab-size: 40px; padding-inline: var(--space-7); font-size: var(--text-4); }
+.fab--sm i { font-size: var(--text-7); }
+.fab--lg { --fab-size: 56px; padding-inline: var(--space-9); }
+.fab--lg i { font-size: var(--text-9); }
+.fab--icon:is(.fab--sm, .fab--lg) { padding: 0; }
 .menu-anchor.fab-dial {
     --panel-placement: block-start;
     position: fixed;
@@ -10318,6 +10334,11 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
+.file-name:not(.file-name--wrap, :has(> .file-name-start)) {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .file-name--wrap {
     display: block;
     white-space: normal;
@@ -15472,7 +15493,7 @@ button.inbox-item-title {
 .timeline--aside > li > .timeline-what { display: block; line-height: var(--timeline-lead); }
 }
 @layer sedna.paint {
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
+.btn, .fab, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -15487,7 +15508,7 @@ button.inbox-item-title {
     --tone-ring-solid: initial;
     --tone-on-solid: initial;
 }
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
+.btn--brand, .fab--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -15502,7 +15523,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
+.btn--go, .fab--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -15517,7 +15538,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--go-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
+.btn--warn, .fab--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -15532,7 +15553,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--warn-ring-solid);
     --tone-on-solid: var(--on-solid);
 }
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
+.btn--danger, .fab--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -15547,7 +15568,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--danger-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
+.btn--info, .fab--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -15562,7 +15583,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--info-ring);
     --tone-on-solid: var(--info-on-solid);
 }
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
+.btn--secret, .fab--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -15645,6 +15666,10 @@ button.inbox-item-title {
 .btn.btn--solid:hover { background: var(--tone-solid-hover, var(--fg-soft)); }
 .btn.btn--solid:active { background: var(--tone-solid-active, var(--fg-soft)); }
 .btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret) { background: var(--tone-solid); border-color: var(--tone-solid-edge); color: var(--tone-on-solid); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):hover { background: var(--tone-solid-hover); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):active { background: var(--tone-solid-active); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):focus-visible { box-shadow: var(--shadow-float), 0 0 0 3px var(--tone-ring-solid); }
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
@@ -15673,8 +15698,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 .table tr:is(.tr--brand, .tr--go, .tr--warn, .tr--danger, .tr--info, .tr--secret):hover::after { background: var(--tone-bg-hover); }
 :is(.topbar, .topbar-section) > .btn.btn--ghost:not(:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret)) { color: var(--topbar-muted); }
 :is(.topbar, .topbar-section) > .btn.btn--ghost:not(:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret)):hover { background: var(--topbar-hover); color: var(--topbar-fg); }
-.btn:is(:disabled, [aria-disabled="true"]),
-.btn:is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+:is(.btn, .fab):is(:disabled, [aria-disabled="true"]),
+:is(.btn, .fab):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
     background: var(--disabled-bg);
     border-color: var(--disabled-border);
     color: var(--disabled-fg);

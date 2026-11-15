@@ -362,6 +362,7 @@
         "--control-height": "36px",
         "--control-height-lg": "44px",
         "--touch-target": "32px",
+        "--btn-gap": "var(--space-4)",
         "--choice-inset-check": "calc(15px + var(--space-4))",
         "--choice-inset-switch": "calc(34px + var(--space-5))",
         "--code-clamp": "360px",
