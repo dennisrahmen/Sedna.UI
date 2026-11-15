@@ -260,10 +260,15 @@ public class DataVizLayoutTests : ScriptTestBase
         var fill = At(-45);
         var track = At(45);
         var card = image.Pixel((int)Math.Round(box[0] - 8), (int)Math.Round(box[1] + 4));
-        Assert.True(fill != track, $"The filled half ({fill}) and the rest of the sweep ({track}) are one colour.");
-        Assert.True(track != card, $"The rest of the sweep ({track}) is not drawn against the card ({card}).");
-        Assert.Equal(fill, At(arc ? -120 : -80));
-        if (arc) Assert.Equal(card, At(180));   // the opening at the foot of an arc is the card
+        Assert.False(Ink.Same(fill, track), $"The filled half ({fill}) and the rest of the sweep ({track}) are one colour.");
+        Assert.False(Ink.Same(track, card), $"The rest of the sweep ({track}) is not drawn against the card ({card}).");
+        var start = At(arc ? -120 : -80);
+        Assert.True(Ink.Same(fill, start), $"The sweep's start ({start}) is not the filled colour ({fill}).");
+        if (arc)   // the opening at the foot of an arc is the card
+        {
+            var foot = At(180);
+            Assert.True(Ink.Same(card, foot), $"The opening at the foot ({foot}) is not the card ({card}).");
+        }
         Assert.Empty(errors);
     }
 
