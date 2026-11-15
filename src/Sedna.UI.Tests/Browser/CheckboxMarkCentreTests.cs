@@ -203,7 +203,7 @@ public class CheckboxMarkCentreTests : ScriptTestBase
         // found from a point just inside its top edge. A neighbour in the clip (the next row of a list)
         // is therefore never taken for part of it, and the box is the one that was snapped, not a guess.
         var sx = Math.Min(image.Width - 1, (int)Math.Round((pad + r.Width / 2) * scale));
-        var sy = Math.Min(image.Height - 1, (int)Math.Round(pad * scale + 1.5 * scale));
+        var sy = Math.Min(image.Height - 1, (int)Math.Round((double)pad * scale + 1.5 * scale));
         var fill = image.Pixel(sx, sy);
         var seen = new bool[image.Width, image.Height];
         var queue = new Queue<(int X, int Y)>();
