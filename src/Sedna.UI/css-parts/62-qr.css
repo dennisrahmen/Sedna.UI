@@ -8,13 +8,25 @@
    ── Colour ──
    A code is read by a camera, and cameras read dark modules on light paper: the
    paper stays light and the ink dark in every variant, the code is an image to forced
-   colours, and it prints as it shows. `--qr-ink` and `--qr-paper` re-point them, and the
-   app owns the contrast of what it picks.
+   colours, and it prints as it shows. `--qr-ink` and `--qr-paper` are the two colours;
+   a tone class re-points the ink at the deep step of its ramp, which is a palette
+   colour no variant remaps. The script measures what the browser resolves them to,
+   and draws a pair that would not scan — too little contrast, or ink lighter than paper
+   without `data-qr-invert` — as the safe pair beside them, `--qr-ink-safe` and
+   `--qr-paper-safe`, through `data-qr-contrast="fallback"`.
 
-   ── Size ──
-   `--qr-size` is the whole square, quiet zone included — the four light modules the
-   standard needs around a symbol are part of the drawing, not a margin. A denser code
-   needs a bigger square to stay readable; `data-qr-version` says how dense it is.
+   ── Size and quiet zone ──
+   `--qr-size` is the whole square, quiet zone included. The quiet zone is `--qr-quiet`
+   modules of paper round the symbol — four, which is what the standard asks of a reader;
+   fewer is the app's risk. The script says how many modules there are across the
+   symbol (`--qr-modules`, on the drawing), and the drawing is set inside the paper by
+   the share of the square that the quiet zone takes.
+
+   ── A logo ──
+   A child with the class `qr-logo` — an `<img>`, an `<svg>`, or a box holding one —
+   sits in the middle over modules the script leaves undrawn. It is sized by the script
+   in modules (`--qr-logo-modules`) from `--qr-logo-size`, the share of the symbol's
+   side the app would like, which the level then limits.
 
    ── Without the script ──
    An empty light square; the human-readable text the app writes beside it is the
@@ -24,6 +36,11 @@
     --qr-size: 10rem;
     --qr-ink: var(--slate-900);
     --qr-paper: var(--white);
+    --qr-ink-safe: var(--slate-900);
+    --qr-paper-safe: var(--white);
+    --qr-quiet: 4;
+    --qr-logo-size: 0.22;
+    position: relative;
     display: inline-block;
     flex: none;
     inline-size: var(--qr-size);
@@ -33,14 +50,54 @@
     border-radius: var(--radius-inner);
 }
 .qr > svg {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
+    /* The quiet zone's share of the square: its modules over the symbol's and both quiet zones'. */
+    --qr-gap: calc(100% * var(--qr-quiet) / (var(--qr-modules, 25) + 2 * var(--qr-quiet)));
+    position: absolute;
+    inset-block-start: var(--qr-gap);
+    inset-inline-start: var(--qr-gap);
+    inline-size: calc(100% - 2 * var(--qr-gap));
+    block-size: calc(100% - 2 * var(--qr-gap));
     fill: var(--qr-ink);
 }
+.qr[data-qr-contrast="fallback"] { background: var(--qr-paper-safe); }
+.qr[data-qr-contrast="fallback"] > svg { fill: var(--qr-ink-safe); }
 
 .qr--sm { --qr-size: 6rem; }
 .qr--lg { --qr-size: 15rem; }
+
+/* The ink in a tone. The deep step of the ramp, so it holds against white in every variant
+   — the semantic tones' own tokens lighten in a dark one, and a code does not. */
+.qr--brand  { --qr-ink: color-mix(in srgb, var(--brand) 45%, var(--black)); }
+.qr--go     { --qr-ink: var(--green-900); }
+.qr--warn   { --qr-ink: var(--amber-900); }
+.qr--danger { --qr-ink: var(--crimson-900); }
+.qr--info   { --qr-ink: var(--orbit-900); }
+.qr--secret { --qr-ink: var(--violet-900); }
+.qr--cyan   { --qr-ink: var(--cyan-900); }
+.qr--orange { --qr-ink: var(--orange-900); }
+.qr--teal   { --qr-ink: var(--teal-900); }
+/* The Sedna palette's own: Sedna Navy, Orbit Blue's deep step, Sedna Red's deep step. */
+.qr--navy   { --qr-ink: var(--navy-900); }
+.qr--orbit  { --qr-ink: var(--orbit-900); }
+.qr--coral  { --qr-ink: var(--coral-900); }
+
+/* The logo, in the middle, over the square the script leaves undrawn. `inset: 0` with
+   auto margins centres it whichever way the text runs. */
+.qr-logo {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    display: block;
+    inline-size: calc(var(--qr-logo-modules, 0) / (var(--qr-modules, 25) + 2 * var(--qr-quiet)) * 100%);
+    block-size: calc(var(--qr-logo-modules, 0) / (var(--qr-modules, 25) + 2 * var(--qr-quiet)) * 100%);
+    object-fit: contain;
+}
+.qr-logo > :is(img, svg) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+}
 
 /* A code with its caption: the app's human-readable text under it, centred on it. */
 .qr-figure {

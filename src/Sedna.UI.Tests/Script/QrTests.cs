@@ -18,7 +18,9 @@ namespace Sedna.UI.Tests;
 /// encoder. The reference matrices were made by segno 1.6.1 in byte mode, UTF-8, the level fixed
 /// and the mask set to the one this encoder chose — segno scores the masks before drawing the
 /// format information, this encoder after, and <see cref="QrDecoder"/> checks the choice — with
-/// segno's extra zero codeword after a byte-aligned terminator taken out.
+/// segno's extra zero codeword after a byte-aligned terminator taken out. Numeric and alphanumeric
+/// vectors are segno's own modes; a text that mixes modes has no reference encoder to match, and
+/// is read back by <see cref="QrDecoder"/> and, in <see cref="QrScanTests"/>, by ZXing.
 /// </remarks>
 public class QrTests : ScriptTestBase
 {
@@ -110,57 +112,116 @@ public class QrTests : ScriptTestBase
             #.....#...#.###...##.
             #######.....###.#.###
             """),
-        new("https://example.com/orders/ORD-4209/proof-of-delivery?parcel=2&signed-by=Alex%20Fischer&at=2026-11-09T08%3A30%3A00Z", "M", 7, 2,
+        new("01234567890123456789012345678901234567890", "M", 2, 1,
             """
-            #######..#....#....#.#.#.#.####..#..#.#######
-            #.....#..#.##..#.###.#.##.#....##..#..#.....#
-            #.###.#.##..#.###.##...##..###...#.#..#.###.#
-            #.###.#.#..#.#.##.##.#####...###...##.#.###.#
-            #.###.#.##.####.##.######..##########.#.###.#
-            #.....#.#.##.##.#.#.#...###...........#.....#
-            #######.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#######
-            ........#.#..########...#######.#............
-            #.#####..###.##...##########.###......#####..
-            ...##..#...#...######...##...##....##...#####
-            ..###.##.###..###.#....#..#.##.##.######..##.
-            ...###.#..#...#....##....#.#..#.#.##.##.#.#..
-            ###..###.#.#.#..###.#.##.#...##...#..###.#..#
-            #..##..###.###..#.####...#..#.#.#..###...####
-            .######.#.#...##.#.##..#####.#.#.###.###.....
-            ####.#.####..####.##.#..#.##.##.##.#.######..
-            .#....#..###...#..##.....#...###.##...#..#...
-            .###.#.####..###.#...#.#.#.#..#....###..#.#.#
-            #.#..####.####..##..########......##..#......
-            ...###....###.#..###...#....#####..#...##.#.#
-            ###########.##..#.#######.....#..#.#######...
-            ...##...#..##.#..#.##...#....###.#.##...#####
-            #...#.#.###.#.####..#.#.#####..#..#.#.#.#.#..
-            .#.##...#..#...#....#...#####...###.#...####.
-            .#.######...##...#..#######...##.#..######.##
-            ....##.###...##...#.#.##.#..#.##....##.#..#.#
-            ..#..###.#..#.#...#.##...##.#....##.#......#.
-            #..###..##.#..##..###..##...#.#.#..##.###.###
-            #####.##.####.#.#.###...#.##.#.#.##.#.#.##...
-            .#..#...#.####........####....####....#...###
-            #.###.#####.#..#....##..###..#.####.#..#.#...
-            .#####..###.##.#.....##.#...##.#####..##.##.#
-            ###...#.####...##....#...###...#....#...#....
-            .#.#.#.....#..#....####..#.#####.#.##..#.####
-            ....#.###..#.#.#.#....#...##...##.#.##.......
-            .####...#.....#.#..######..####.##.####.#.##.
-            #..##.#..##.##...##.#####....##..#..#####..##
-            ........#.#.##....#.#...##.#.##..#.##...###.#
-            #######...##.#.##.###.#.##..#...#.###.#.#.#..
-            #.....#.###..##..####...#..####..#.##...###..
-            #.###.#.#.#..##.###.#####.#..###...#######.#.
-            #.###.#.##....##.##.#.##.#..#.##...#.#.##.###
-            #.###.#.####...##.#..#..#.##.#.####.##....##.
-            #.....#....##....#..##.#..###.#.#.####....#..
-            #######.####.###..#...#.##.#..##...#..####.#.
+            #######.#..#####..#######
+            #.....#..##.#...#.#.....#
+            #.###.#.#..#.##.#.#.###.#
+            #.###.#...###..#..#.###.#
+            #.###.#...#...#...#.###.#
+            #.....#.##...##...#.....#
+            #######.#.#.#.#.#.#######
+            ..........####.#.........
+            #.#...##..#..#..#..#..#.#
+            ..#.#....#.....###...#..#
+            ..##.#####...####..#.#..#
+            .#####..#..#..###.#.#.##.
+            ...#..##.#.#.###.....#..#
+            .#..#..##.#..##.##.#.#...
+            ##..###.####...##....#...
+            ..#..#.......#..#..####..
+            ###...#.#..###..######.##
+            ........##..#...#...#....
+            #######.##..#####.#.#.#.#
+            #.....#..#.##.#.#...##..#
+            #.###.#..##..###########.
+            #.###.#..##..##...##.##..
+            #.###.#.##.#....###..#.##
+            #.....#..##..#.#.##...##.
+            #######.#..###..####.#.##
+            """),
+        new("HELLO WORLD 1234 $%*+-./:ABC", "Q", 2, 2,
+            """
+            #######.#......##.#######
+            #.....#....####.#.#.....#
+            #.###.#.........#.#.###.#
+            #.###.#.....##....#.###.#
+            #.###.#.###..##.#.#.###.#
+            #.....#.#..#####..#.....#
+            #######.#.#.#.#.#.#######
+            ............#.###........
+            .#######.#...##.#..##...#
+            ....#..##..##...##..#.#.#
+            ##...###..##...#.#.......
+            .##..#..#..#...##.#..#.#.
+            ...####.####.....##.#..##
+            ####...#.#.#.#.##.#.#..#.
+            #...#.#....#.##.####..#..
+            #...##.##.#.##...#####..#
+            #.##.######.#...#######.#
+            ........#...#..##...#.##.
+            #######.##...#..#.#.#...#
+            #.....#.#....#.##...#.#..
+            #.###.#.###.#.#.######.#.
+            #.###.#.###......#......#
+            #.###.#.##...##.#..#.#..#
+            #.....#.###..#...##...#..
+            #######...#...####.#....#
+            """),
+        new("https://example.com/orders/proof-of-delivery?parcel=ab&signed-by=alex&at=morning&note=left-with-neighbour-at-number-fourteen-see-photo-key-under-the-m", "M", 8, 3,
+            """
+            #######.##...##...#.##...#.#.####...#...#.#######
+            #.....#.#...#####.#.#.#....#.##...##..###.#.....#
+            #.###.#..#......#.#.###.##.#...###.###.##.#.###.#
+            #.###.#.####.#######.####......#.#####.#..#.###.#
+            #.###.#..#.#....###.#.#######....#...#....#.###.#
+            #.....#..#..#.#.##...##...##..#.#..####...#.....#
+            #######.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#######
+            ........#...#.......###...#.#......##.#.#........
+            #.##.###..##.###..###.########.....#.##...#..#.##
+            ###.#....##.####...#....##...##.##.###.#.##.#.#..
+            ####..#.#...##...........#.#####..##....#.#.#.#..
+            ###....#..#.#.####.#..####.#.#..###.#.##..#####..
+            ....#.#.#....##.#.#..#####...###..#.##..#..#.###.
+            ##.#....#.#.#...#.##..#..####..#.#...##..#...##.#
+            ##..#.###..#.#..##.##.#..###..#.#..#.####.#..###.
+            #...##..##......#####....#.####.####.##....##...#
+            .##...#.###..#...#....##.###...##....####..##.###
+            .##....##.#...###.#..#.......#...###...##..####.#
+            ..######....##...###.....##.##.#####.##..#...#..#
+            ###....#..#..#....##.#.####.#......##.#...##.#.##
+            #.###.#########..####..#...##....#.....#..##.#...
+            .##..#.#..##.....###.#.#.#.#####....##...######..
+            ..#.#########...##.##.#####..###..#....#######...
+            ##.##...#.#..#..#...###...##.#.####.##..#...###.#
+            #..##.#.##########..###.#.##..##.######.#.#.#.#.#
+            #####...###..#.#..#####...##.#.#.#...##.#...#.###
+            ###.######.#.#.#.##..######...#..#.####.########.
+            #.###.....###..#.#.##.##.####...###..##.#......##
+            ..##..###..#...#.##.#.#.#.#....###....#.#..#..#..
+            .#.........#..#.#.##...#.###.#..###..........##.#
+            #.#####..#..##.##..#..####.#...##.##..##.###.####
+            #.......###..#.#..##....#...###..####.########.##
+            #####.#....#...#..###...#.####.#.#....#.#####..#.
+            ....##...#####.....#.####.....###..###.###.....#.
+            ###...#..###.#.###.###...###.###.##......#.#.....
+            ###.#....##....##.#..######..#.###.##.##..#..###.
+            ...##.####.#.#..##..#.##.....##...####.#.#.##.###
+            #.##.#..#.#..#.###.##.#.........##.####...####..#
+            .#...##..#####..###..#.#.#...####..#..#.##.....#.
+            .###.....#.#.#.....###.##.#.##..##.#.#..##.#...#.
+            ###...###..##.#..##..#######...#####.##.#####.#.#
+            ........#....#######..#...#..#...##....##...##..#
+            #######.#..##.#.....###.#.##....####..#.#.#.#####
+            #.....#.#.#..#.#...##.#...###....#.######...##.#.
+            #.###.#..#.#....#.###.##########..##...######..#.
+            #.###.#.#......#...#..#....#####....##.###.##.###
+            #.###.#.#....#..##.####......###..##...#..#######
+            #.....#...#...##..#.#..###.#.######.#..###.#.##..
+            #######.##.###....###..#..#..###.#.###...#....###
             """),
     ];
 
-    private const int Quiet = 4;
 
     private static int MaxBytes(string level) => level switch { "L" => 2953, "M" => 2331, "Q" => 1663, _ => 1273 };
 
@@ -175,7 +236,11 @@ public class QrTests : ScriptTestBase
     private static Task Ready(IPage page, string id) =>
         page.WaitForFunctionAsync($"() => {{ const el = document.getElementById('{id}'); return el && el.dataset.qrState; }}");
 
-    /// <summary>The module matrix the element's SVG draws, its quiet zone checked and taken off.</summary>
+    /// <summary>
+    /// The module matrix the element's SVG draws: its viewBox is the symbol alone — the quiet zone is
+    /// the stylesheet's — and its path is the finders as nested squares, filled even-odd, and every
+    /// other dark module as a run of one row.
+    /// </summary>
     private static async Task<bool[,]> Matrix(IPage page, string id)
     {
         var drawn = await page.EvaluateAsync<string[]>($$"""
@@ -188,18 +253,25 @@ public class QrTests : ScriptTestBase
         Assert.Equal(0, box[0]);
         Assert.Equal(0, box[1]);
         Assert.Equal(box[2], box[3]);
-        var n = box[2] - (Quiet * 2);
+        var n = box[2];
         var m = new bool[n, n];
-        var runs = Regex.Matches(drawn[1], @"M(\d+) (\d+)h(\d+)v1h-(\d+)z");
-        Assert.Equal(drawn[1].Length, runs.Sum(r => r.Length));
-        foreach (Match r in runs)
+        var shapes = Regex.Matches(drawn[1], @"M(\d+) (\d+)h(\d+)v(\d+)h-(\d+)v-(\d+)z|M(\d+) (\d+)h(\d+)v1h-(\d+)z");
+        Assert.Equal(drawn[1].Length, shapes.Sum(r => r.Length));
+        foreach (Match r in shapes)
         {
-            var x = int.Parse(r.Groups[1].Value, CultureInfo.InvariantCulture) - Quiet;
-            var y = int.Parse(r.Groups[2].Value, CultureInfo.InvariantCulture) - Quiet;
-            var w = int.Parse(r.Groups[3].Value, CultureInfo.InvariantCulture);
-            Assert.Equal(w, int.Parse(r.Groups[4].Value, CultureInfo.InvariantCulture));
-            Assert.True(x >= 0 && y >= 0 && x + w <= n && y < n, $"A dark module is drawn in the quiet zone: {r.Value}");
-            for (var i = 0; i < w; i++) m[y, x + i] = true;
+            int Of(int g) => int.Parse(r.Groups[g].Value, CultureInfo.InvariantCulture);
+            if (r.Groups[1].Success)
+            {
+                // A square of the finder, even-odd: each cell toggles.
+                for (var y = Of(2); y < Of(2) + Of(4); y++)
+                    for (var x = Of(1); x < Of(1) + Of(3); x++) m[y, x] = !m[y, x];
+                continue;
+            }
+
+            var w = Of(9);
+            Assert.Equal(w, Of(10));
+            Assert.True(Of(7) >= 0 && Of(8) >= 0 && Of(7) + w <= n && Of(8) < n, $"A dark module is drawn outside the symbol: {r.Value}");
+            for (var i = 0; i < w; i++) m[Of(8), Of(7) + i] = true;
         }
         return m;
     }
@@ -347,7 +419,7 @@ public class QrTests : ScriptTestBase
         var sizes = await page.EvaluateAsync<double[][]>("""
             () => ['sm', 'md', 'lg', 'custom'].map(id => {
                 const r = document.getElementById(id).getBoundingClientRect(), s = document.querySelector('#' + id + ' > svg').getBoundingClientRect();
-                return [r.width, r.height, s.width, s.height];
+                return [r.width, r.height, s.width, s.height, +document.getElementById(id).dataset.qrModules];
             })
             """);
         var rem = await page.EvaluateAsync<double>("() => parseFloat(getComputedStyle(document.documentElement).fontSize)");
@@ -356,8 +428,10 @@ public class QrTests : ScriptTestBase
         {
             Assert.Equal(expected[i], sizes[i][0], 1);
             Assert.Equal(expected[i], sizes[i][1], 1);
-            Assert.Equal(sizes[i][0], sizes[i][2], 1);
-            Assert.Equal(sizes[i][1], sizes[i][3], 1);
+            // The drawing is the symbol, set inside the paper by a quiet zone of four modules.
+            var symbol = sizes[i][0] * sizes[i][4] / (sizes[i][4] + 8);
+            Assert.Equal(symbol, sizes[i][2], 1);
+            Assert.Equal(symbol, sizes[i][3], 1);
         }
 
         foreach (var variant in new[] { "dark", "light" })
@@ -376,5 +450,43 @@ public class QrTests : ScriptTestBase
             Assert.True(colours[0] > 200, $"{Engine}, {variant}: the paper is not light ({colours[0]})");
             Assert.True(colours[1] < 60, $"{Engine}, {variant}: the ink is not dark ({colours[1]})");
         }
+    }
+
+    [Theory]
+    [InlineData("0123456789", "numeric")]
+    [InlineData("01234567890123456789012345678901234567890123456789", "numeric")]
+    [InlineData("HELLO WORLD $%*+-./:", "alphanumeric")]
+    [InlineData("hello", "byte")]
+    [InlineData("ORDER 12345678901234567890123456789012345678901234567890", "alphanumeric+numeric")]
+    [InlineData("https://example.com/12345678901234567890123456789012345678901234567890", "byte+numeric")]
+    [InlineData("Straße 4209", "byte+numeric")]
+    [InlineData("Straße 42, Dock 4", "byte")]
+    public async Task Each_part_of_a_text_is_held_in_the_mode_that_takes_the_fewest_bits(string text, string modes)
+    {
+        if (NoBrowser) return;
+        var page = await OpenQr(Code("q", text, "M"));
+        await Ready(page, "q");
+
+        var decoded = QrDecoder.Decode(await Matrix(page, "q"));
+        Assert.Equal(text, decoded.Text);
+        Assert.Equal(modes, decoded.Modes);
+        var named = modes.Contains('+', StringComparison.Ordinal) ? "mixed" : modes;
+        Assert.Equal(named, await page.GetAttributeAsync("#q", "data-qr-mode"));
+    }
+
+    [Fact]
+    public async Task A_number_is_a_smaller_symbol_than_the_same_characters_as_bytes()
+    {
+        if (NoBrowser) return;
+        const string digits = "01234567890123456789012345678901234567890123456789012345678901234567890123456789";
+        var page = await OpenQr(Code("n", digits, "M") + Code("b", "x" + digits, "M"));
+        await Ready(page, "n");
+        await Ready(page, "b");
+
+        var numeric = int.Parse(await page.GetAttributeAsync("#n", "data-qr-version") ?? "0", CultureInfo.InvariantCulture);
+        var mixed = int.Parse(await page.GetAttributeAsync("#b", "data-qr-version") ?? "0", CultureInfo.InvariantCulture);
+        Assert.True(numeric <= mixed, "A number should not need more room than a number with a letter before it.");
+        Assert.Equal(digits, QrDecoder.Decode(await Matrix(page, "n")).Text);
+        Assert.Equal("x" + digits, QrDecoder.Decode(await Matrix(page, "b")).Text);
     }
 }

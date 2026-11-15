@@ -9392,14 +9392,51 @@ window.sednaUi = window.sednaUi || {};
     });
 })(window.sednaUi);
 (function (ui) {
-    ui._.surface({
+    var SELECTOR = '[data-qr]';
+    var codes = ui._.surface({
         name: 'qr',
-        selector: '[data-qr]',
+        selector: SELECTOR,
         module: 'Sedna.UI.qr.js',
         eager: 'data-qr-eager',
         found: function (el) {
             if (!el.hasAttribute('role')) el.setAttribute('role', 'img');
         }
+    });
+    function codeOf(control) {
+        var named = control.closest('[data-qr-for]');
+        if (named && named.getAttribute('data-qr-for')) {
+            var target = document.getElementById(named.getAttribute('data-qr-for'));
+            if (target && target.matches(SELECTOR)) return target;
+        }
+        var frame = control.closest('.qr-figure, [data-qr-frame]');
+        if (frame) {
+            var inside = frame.querySelector(SELECTOR);
+            if (inside) return inside;
+        }
+        return control.closest(SELECTOR);
+    }
+    function download(target, options) {
+        return codes.get(target).then(function (handle) { return handle.download(options || {}); });
+    }
+    ui.qr = {
+        get: codes.get,
+        download: download,
+        init: codes.init
+    };
+    document.addEventListener('click', function (e) {
+        var control = e.target && e.target.closest ? e.target.closest('[data-qr-download]') : null;
+        if (!control || control.hasAttribute('disabled') || control.getAttribute('aria-disabled') === 'true') return;
+        var target = codeOf(control);
+        if (!target) return;
+        e.preventDefault();
+        var size = parseInt(control.getAttribute('data-qr-size'), 10);
+        download(target, {
+            format: control.getAttribute('data-qr-download'),
+            size: size > 0 ? size : undefined,
+            name: control.getAttribute('data-qr-name') || undefined
+        }).catch(function (err) {
+            try { console.error('Sedna.UI qr:', err); } catch (x) { /* ignore */ }
+        });
     });
 })(window.sednaUi);
 (function (ui) {
