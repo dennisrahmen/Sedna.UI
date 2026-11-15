@@ -699,10 +699,6 @@
        button or the user widget. A brand-coloured header sets it beside --topbar-bg, so
        its dividers are a step off its own colour instead of the page's. */
     --topbar-border:   var(--border);
-    /* The gap between the header and a panel that opens from it — the user menu, the app
-       switcher — and, for a panel at the trailing end, between the panel and the window's
-       edge. One value for both, so the panel floats level whatever the header's height. */
-    --topbar-panel-gap: var(--space-2);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -972,6 +968,10 @@
        .nav-section-label read it, and every surface resets it to --muted. */
     /* The header's height, and the sidebar's brand and area title, which line up with it. */
     --topbar-height:   44px;
+    /* The gap between the header and a panel that opens from it — the user menu, the app
+       switcher — and, for a panel at the trailing end, between the panel and the window's
+       edge. One value for both, so the panel floats level whatever the header's height. */
+    --topbar-panel-gap: var(--space-2);
 
     /* ── Panel bars ─────────────────────────────────────────────────────────
        A modal's header and footer and a card's head sit on the panel's own surface; an

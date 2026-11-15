@@ -99,8 +99,8 @@ internal static class TokenGroups
 
         // The header's surface and what is drawn straight on it. Aliases of the roles it
         // always used, so a brand-coloured header is four tokens and no rule.
-        new("Controls and chrome", "Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover"]),
-        new("Type, space and shape", "Sizes", ["--topbar-height", "--touch-target", "--checker-size"], Swatch: false),
+        new("Controls and chrome", "Topbar", ["--topbar-bg", "--topbar-fg", "--topbar-muted", "--topbar-hover", "--topbar-border"]),
+        new("Type, space and shape", "Sizes", ["--topbar-height", "--topbar-panel-gap", "--touch-target", "--checker-size"], Swatch: false),
 
         // A modal's header and footer and a card's head as bars of their own.
         new("Controls and chrome", "Panel bars", ["--modal-head-bg", "--modal-foot-bg", "--card-head-bg"]),
