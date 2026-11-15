@@ -63,7 +63,7 @@ public class HeroTests : ScriptTestBase
     {
         var (page, _) = await OpenStyled(Fixture(dir));
         await page.SetViewportSizeAsync(width, 900);
-        await page.EvaluateAsync($"() => document.documentElement.dataset.variant = '{variant}'");
+        await Js.Run(page, $"() => document.documentElement.dataset.variant = '{variant}'");
         return page;
     }
 
@@ -78,7 +78,7 @@ public class HeroTests : ScriptTestBase
         if (NoBrowser) return;
         var page = await Hero(variant);
         if (setting.Length > 0)
-            await page.EvaluateAsync($"() => document.documentElement.setAttribute('{setting}', '{(setting == "data-cvd" ? "1" : "more")}')");
+            await Js.Run(page, $"() => document.documentElement.setAttribute('{setting}', '{(setting == "data-cvd" ? "1" : "more")}')");
 
         var ratios = await page.EvaluateAsync<Dictionary<string, double>>(Contrast);
         foreach (var (id, ratio) in ratios)

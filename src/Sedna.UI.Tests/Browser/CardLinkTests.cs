@@ -28,7 +28,7 @@ public class CardLinkTests : ScriptTestBase
     private const string NoEasing = "<style>*, *::before, *::after { transition: none !important; }</style>";
 
     private static Task Variant(IPage page, string variant) =>
-        page.EvaluateAsync($"() => document.documentElement.dataset.variant = '{variant}'");
+        Js.Run(page, $"() => document.documentElement.dataset.variant = '{variant}'");
 
     [Theory]
     [InlineData("dark")]

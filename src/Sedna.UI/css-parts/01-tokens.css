@@ -607,6 +607,11 @@
        black, and a label on a photograph cannot know what the photograph is. */
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* The two ends of the scrim over a page head's picture (56-page-head-hero.css): strong
+       where the words are, soft where the picture shows. Black in every theme, and solved
+       for white text over the brightest photograph there is — HeroTests measures it. */
+    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
+    --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
     /* One square of the checkerboard behind a picture in a `--transparency` frame
        (62-media-and-prose.css). */
     --checker-size:  8px;

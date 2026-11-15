@@ -342,6 +342,8 @@
     --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
+    --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
     --checker-size:  8px;
     --reconnect-warn-bg:     color-mix(in srgb, var(--amber-900) 72%, var(--slate-950));
     --reconnect-warn-border: var(--amber-600);
@@ -7895,8 +7897,6 @@ td.diff-gap { background: var(--surface-soft); }
     --hero-measure: 40rem;
     --hero-pad-inline: var(--space-8);
     --hero-scrim-angle: 90deg;
-    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
-    --hero-scrim-soft: color-mix(in srgb, var(--black) 18%, transparent);
     position: relative;
     isolation: isolate;
     flex-direction: column;
@@ -7916,7 +7916,7 @@ td.diff-gap { background: var(--surface-soft); }
 .page-head-image {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
@@ -7925,13 +7925,14 @@ td.diff-gap { background: var(--surface-soft); }
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 1;
     pointer-events: none;
     background: linear-gradient(
         var(--hero-scrim-angle),
         var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
         var(--hero-scrim-soft));
 }
+.page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
 .page-head--hero .page-head-text {
     flex: 0 1 auto;
     inline-size: 100%;

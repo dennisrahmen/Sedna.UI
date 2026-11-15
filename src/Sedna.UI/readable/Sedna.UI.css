@@ -991,6 +991,11 @@
        black, and a label on a photograph cannot know what the photograph is. */
     --media-bg:      var(--black);
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* The two ends of the scrim over a page head's picture (56-page-head-hero.css): strong
+       where the words are, soft where the picture shows. Black in every theme, and solved
+       for white text over the brightest photograph there is — HeroTests measures it. */
+    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
+    --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
     /* One square of the checkerboard behind a picture in a `--transparency` frame
        (62-media-and-prose.css). */
     --checker-size:  8px;
@@ -14129,15 +14134,13 @@ td.diff-gap { background: var(--surface-soft); }
    Knobs, set on the head or on one instance:
      --hero-height   the least height (22rem);
      --hero-measure  how wide the text column is, and how far the scrim holds (40rem);
-     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim.
+     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim, declared in 01-tokens.css.
    ─────────────────────────────────────────────────────────────────────────── */
 .page-head--hero {
     --hero-height: 22rem;
     --hero-measure: 40rem;
     --hero-pad-inline: var(--space-8);
     --hero-scrim-angle: 90deg;
-    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
-    --hero-scrim-soft: color-mix(in srgb, var(--black) 18%, transparent);
     position: relative;
     isolation: isolate;
     flex-direction: column;
@@ -14159,23 +14162,24 @@ td.diff-gap { background: var(--surface-soft); }
 .page-head-image {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
 }
-/* The scrim, after the picture so that it paints over it, and behind everything else. */
+/* The scrim, over the picture; the words and actions are over the scrim. Local stacking only. */
 .page-head--hero::after {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 1;
     pointer-events: none;
     background: linear-gradient(
         var(--hero-scrim-angle),
         var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
         var(--hero-scrim-soft));
 }
+.page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
 .page-head--hero .page-head-text {
     flex: 0 1 auto;
     inline-size: 100%;

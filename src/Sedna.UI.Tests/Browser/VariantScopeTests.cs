@@ -55,14 +55,14 @@ public class VariantScopeTests : ScriptTestBase
     private async Task<string[]> PlainPage(string variant, string attrs)
     {
         var (page, _) = await OpenStyled($"<div id=\"here\">{Sample}</div>", NoEasing);
-        await page.EvaluateAsync($"() => {{ const h = document.documentElement; h.dataset.variant = '{variant}'; for (const a of '{attrs}'.split(' ').filter(Boolean)) {{ const [k, v] = a.split('='); h.setAttribute(k, v); }} }}");
+        await Js.Run(page, $"() => {{ const h = document.documentElement; h.dataset.variant = '{variant}'; for (const a of '{attrs}'.split(' ').filter(Boolean)) {{ const [k, v] = a.split('='); h.setAttribute(k, v); }} }}");
         return await page.EvaluateAsync<string[]>($"() => ({Read})(document.getElementById('here'))");
     }
 
     private async Task<string[]> Subtree(string pageVariant, string scopeVariant, string attrs)
     {
         var (page, _) = await OpenStyled($"<div id=\"here\" data-variant=\"{scopeVariant}\">{Sample}</div>", NoEasing);
-        await page.EvaluateAsync($"() => {{ const h = document.documentElement; h.dataset.variant = '{pageVariant}'; for (const a of '{attrs}'.split(' ').filter(Boolean)) {{ const [k, v] = a.split('='); h.setAttribute(k, v); }} }}");
+        await Js.Run(page, $"() => {{ const h = document.documentElement; h.dataset.variant = '{pageVariant}'; for (const a of '{attrs}'.split(' ').filter(Boolean)) {{ const [k, v] = a.split('='); h.setAttribute(k, v); }} }}");
         return await page.EvaluateAsync<string[]>($"() => ({Read})(document.getElementById('here'))");
     }
 
@@ -108,7 +108,7 @@ public class VariantScopeTests : ScriptTestBase
             $"<div id=\"here\" data-variant=\"dark\"><a class=\"btn\" id=\"b\" href=\"#\">Open</a><p id=\"p\">Text</p></div><a class=\"btn\" id=\"plain\" href=\"#\">Open</a>",
             // An app's override of a token that is the same in both variants.
             extraHead: "<style>:root { --radius-control: 3px; --font-sans: Georgia, serif; }</style>");
-        await page.EvaluateAsync("() => { document.documentElement.dataset.variant = 'light'; document.documentElement.dataset.density = 'compact'; }");
+        await Js.Run(page, "() => { document.documentElement.dataset.variant = 'light'; document.documentElement.dataset.density = 'compact'; }");
 
         var report = await page.EvaluateAsync<string[]>(@"() => {
             const inside = getComputedStyle(document.getElementById('b'));
@@ -132,7 +132,7 @@ public class VariantScopeTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var (page, _) = await OpenStyled("<div id=\"here\" data-variant=\"dark\"><p id=\"p\">Text</p></div><p id=\"plain\">Text</p>");
-        await page.EvaluateAsync("() => { document.documentElement.dataset.variant = 'light'; }");
+        await Js.Run(page, "() => { document.documentElement.dataset.variant = 'light'; }");
         var report = await page.EvaluateAsync<string[]>(@"() => {
             const a = getComputedStyle(document.getElementById('here'));
             const b = getComputedStyle(document.getElementById('plain'));
