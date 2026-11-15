@@ -444,7 +444,7 @@
             <input class="form-input form-input--sm sedna-fill" type="text" value="@own" placeholder="@shown"
                    aria-label="@($"{token.Name}, {variant} value")" spellcheck="false"
                    aria-invalid="@(problems.ContainsKey(key) ? "true" : null)"
-                   data-token="@token.Name" data-variant="@variant"
+                   data-token="@token.Name" data-token-variant="@variant"
                    @onchange="e => Set(token.Name, isLight, e.Value?.ToString())" />
         </div>
         @if (problems.TryGetValue(key, out var problem))

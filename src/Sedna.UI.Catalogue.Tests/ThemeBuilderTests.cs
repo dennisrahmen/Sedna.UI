@@ -167,14 +167,58 @@ public class ThemeBuilderTests(CatalogueAppFixture app)
         var bg = Build(dark: Set(("--bg", "#101010")));
         Assert.Equal([new("--bg", "#101010")], bg.Root);
         Assert.Equal([new("--bg", "var(--slate-50)")], bg.Light);
-        Assert.Contains(":root[data-variant=\"light\"] {\n    --bg: var(--slate-50);", bg.Css, StringComparison.Ordinal);
+        Assert.Contains(":root[data-variant=\"light\"],\n:root [data-variant=\"light\"] {\n    --bg: var(--slate-50);", bg.Css, StringComparison.Ordinal);
         Assert.Equal("#f8fafc", bg.LightColours["--bg"].Hex);
 
         // --brand has none, so light follows the dark value and no light block is written.
         var brand = Build(dark: Set(("--brand", "#123456")));
         Assert.Empty(brand.Light);
         Assert.Equal("#123456", brand.LightColours["--brand"].Hex);
-        Assert.DoesNotContain("data-variant", brand.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain("[data-variant=\"light\"]", brand.Css, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void A_variant_sensitive_value_is_written_for_a_subtree_that_names_its_variant()
+    {
+        // --brand-text differs by variant, so a subtree that names the dark variant redeclares it
+        // and would drop the app's value unless the scope is in the selector.
+        var result = Build(dark: Set(("--brand-text", "#ff9b93"), ("--radius-control", "10px")));
+
+        Assert.True(Library.Sensitive.Contains("--brand-text"));
+        Assert.Contains(":root,\n:root :where([data-variant=\"dark\"]) {\n    --brand-text: #ff9b93;\n}", result.Css, StringComparison.Ordinal);
+
+        // A token that is the same in both variants is inherited, and needs only :root.
+        Assert.False(Library.Sensitive.Contains("--radius-control"));
+        Assert.Contains(":root {\n    --radius-control: 10px;\n}", result.Css, StringComparison.Ordinal);
+        Assert.DoesNotContain("--radius-control", result.Css[result.Css.IndexOf(":root :where", StringComparison.Ordinal)..], StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void A_palette_step_is_written_once_at_root_for_every_variant_and_subtree()
+    {
+        var result = Build(BrandCssBuilder.Ramps("#16a34a"));
+        var scoped = result.Css.IndexOf(":root :where", StringComparison.Ordinal);
+        var palette = result.Css.IndexOf("--coral-600", StringComparison.Ordinal);
+        Assert.True(palette >= 0);
+        Assert.True(scoped < 0 || palette < scoped, "The palette is not variant-sensitive and belongs in the plain :root block.");
+    }
+
+    [Fact]
+    public void The_sensitive_set_is_what_the_stylesheets_scoped_block_declares()
+    {
+        // The library's own scoped block (01-tokens.css) and the builder's idea of which tokens
+        // differ by variant are computed twice, from the shipped stylesheet and from the export.
+        var css = Assets.StripComments(Assets.Css);
+        var start = css.IndexOf(":root :where([data-variant]),\n:root {", StringComparison.Ordinal);
+        if (start < 0) start = css.IndexOf(":root :where([data-variant]), :root {", StringComparison.Ordinal);
+        Assert.True(start >= 0, "The library's scoped token block was not found.");
+        var body = css[css.IndexOf('{', start)..css.IndexOf('}', start)];
+        var declared = Declared.Matches(body).Select(m => m.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
+
+        var extra = declared.Where(n => !Library.Sensitive.Contains(n)).ToList();
+        var missing = Library.Sensitive.Where(n => Library.DarkDefaults.ContainsKey(n) && !declared.Contains(n)).ToList();
+        Assert.True(extra.Count == 0, "In the scoped block, not sensitive: " + string.Join(", ", extra));
+        Assert.True(missing.Count == 0, "Sensitive, not in the scoped block: " + string.Join(", ", missing));
     }
 
     [Fact]
@@ -327,8 +371,8 @@ public class ThemeBuilderTests(CatalogueAppFixture app)
         Assert.Contains("type=\"color\"", html, StringComparison.Ordinal);
 
         // The brand group is open, with a dark and a light field for --brand.
-        Assert.Contains("data-token=\"--brand\" data-variant=\"dark\"", html, StringComparison.Ordinal);
-        Assert.Contains("data-token=\"--brand\" data-variant=\"light\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-token=\"--brand\" data-token-variant=\"dark\"", html, StringComparison.Ordinal);
+        Assert.Contains("data-token=\"--brand\" data-token-variant=\"light\"", html, StringComparison.Ordinal);
         // Every group is in the picker.
         foreach (var group in Library.Groups)
             Assert.Contains($"value=\"{group.Slug}\"", html, StringComparison.Ordinal);

@@ -247,7 +247,8 @@ If you override it, set the same value in both places or the theme is not found 
 Create `wwwroot/css/brand.css` and redefine the brand tokens:
 
 ```css
-:root {
+:root,
+:root :where([data-variant="dark"]) {
     --brand:          #d62828;
     --brand-hover:    #b81f1f;
     --brand-active:   #8f1818;
@@ -257,12 +258,18 @@ Create `wwwroot/css/brand.css` and redefine the brand tokens:
     --sidebar-active: #d62828;
 }
 
-:root[data-variant="light"] {
+:root[data-variant="light"],
+:root [data-variant="light"] {
     --brand-soft: #d62828;
     --brand-text: #b81f1f;
     --accent:     #b81f1f;
 }
 ```
+
+Each block names a subtree that carries its own `data-variant` as well as the page: such a subtree
+redeclares every token that differs by variant, so a value written for `:root` alone is replaced by the
+library's inside it. A token that is the same in both variants (`--radius-control`, a font, a
+duration) needs only `:root`.
 
 `--brand-tint`, `--brand-ring`, `--brand-ring-soft`, `--brand-ring-check` and `--brand-glow` are mixed
 from `--brand` and follow it automatically, in both themes — set them only to override the alpha the
@@ -278,6 +285,20 @@ library classes to work around it. See [architecture](architecture.md#the-token-
 
 The full token list is on the [Tokens](https://www.sedna-ui.com/tokens) catalogue
 page.
+
+### Your own CSS
+
+**A rule of your own outside the cascade layers beats every library rule, button colours included.** The
+library's stylesheet is entirely inside layers and yours is not, so a bare `a { color: inherit }` beats
+the white text of `a.btn.btn--solid` in the light variant, and `a { text-decoration: underline }`
+underlines every `.btn` link, whatever the specificity. Write a rule for the elements it is for —
+`.prose a`, `.site-footer a` — never for a bare element, and when a library control looks wrong, look for
+an unlayered rule of your own before looking in the library.
+
+**A band that stays dark on a light page** — text and buttons over a photograph, a footer — is
+`data-variant="dark"` on its element; `"light"` is the other way round. `brand.css` names the attribute
+in the selector of every token that differs by variant, as the block above does, or the band gets the
+library's value.
 
 ### The branding service
 

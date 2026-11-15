@@ -24,6 +24,17 @@ public class ThemeRolesTests
     }
 
     [Fact]
+    public void A_subtree_that_names_its_own_variant_gets_the_roles_too()
+    {
+        // The subtree redeclares the variant-sensitive tokens, so a role the theme sets on the
+        // page has to be set on the subtree as well, in the same state and at the same weight.
+        var css = SednaUiBrand.ToCss(new SednaUiOptions { Themes = [SednaTheme.Sedna, Pink], Default = "sedna" });
+
+        Assert.Contains(":root[data-theme=\"pink\"]:not([data-contrast=\"more\"]) [data-variant=\"light\"],:root[data-theme=\"pink\"][data-variant=\"light\"]:not([data-contrast=\"more\"]){--card-bg:#fff0f6;", css, StringComparison.Ordinal);
+        Assert.Contains(":root[data-theme=\"pink\"]:not([data-contrast=\"more\"]) :where([data-variant]:not([data-variant=\"light\"])),:root[data-theme=\"pink\"]:not([data-variant=\"light\"],[data-contrast=\"more\"]){--card-bg:var(--navy-950);}", css, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void The_default_theme_s_roles_apply_before_a_theme_is_set()
     {
         var css = SednaUiBrand.ToCss(new SednaUiOptions { Themes = [Pink], Default = "pink" });

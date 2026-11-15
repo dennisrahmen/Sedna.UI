@@ -41,7 +41,7 @@ public class BusyStateTests
         "agent-tool",                           // opens on a call; the call's state is its badge
         "output-details", "media-transcript", "media-transcript-time", "media-open", "lightbox-prev",
         "lightbox-next", "code-block-copy", "code-block-expand", "file-item", "file-tile", "file-tile-open",
-        "link-preview", "gallery", "media-frame", "chat-reaction", "chat-emoji", "chat-jump", "chat-launcher",
+        "link-preview", "source-card", "gallery", "media-frame", "chat-reaction", "chat-emoji", "chat-jump", "chat-launcher",
         "chat-pane", "chat", "cal-event", "cal-block", "cal-pick", "cal-day", "cal-weeknum", "datepicker-title",
         "workflow", "workflow-node", "graph", "stat", "list--cards", "list", "input-group", "segmented",
         "form-combo-group-action", "form-combo-input", "form-combo-option", "form-combo",
