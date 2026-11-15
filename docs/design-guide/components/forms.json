@@ -17,7 +17,7 @@
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
     "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
-    "stamp": "f46761ecd0c90a1a"
+    "stamp": "ddd1ae2f53ef9e5b"
   },
   {
     "page": "/form-validation",
@@ -34,7 +34,7 @@
       { "text": "A file turned away from an upload", "instead": "/form-file#limits-and-a-refused-file" }
     ],
     "goals": [ "fill-in-a-form", "show-field-errors", "summarise-form-errors", "create-or-edit-a-record" ],
-    "stamp": "e0eed313832d9c9a"
+    "stamp": "29e4d6f9465ca9e3"
   },
   {
     "page": "/form-flow",
@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "fafdd9553f1bf590"
+    "stamp": "99fabe01d2c81c5a"
   },
   {
     "page": "/form-code",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "0b2f4ac3f920522c"
+    "stamp": "b367f49e099f68c3"
   },
   {
     "page": "/form-select",

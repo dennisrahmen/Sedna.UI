@@ -348,12 +348,14 @@
    (`--panel-gap-x`) apart, across, and a stripe a row high, `--grid-gap` apart, down —
    rather than as a tiled background: WebKit rounds a tile to whole pixels, and over 24
    columns the dots drift out of their cells. Where the gap is capped the cell is as wide
-   as nothing and the dot sits at the start of its column. `--panel-guide-dot` is its
+   as nothing and the dot sits at the start of its column. The layer is at 0 and the panels
+   at 1, at no specificity, so a panel being carried (3) still wins. `--panel-guide-dot` is its
    colour. */
 .panel-grid[data-arrange] {
     --panel-guide-dot: var(--border-strong);
     position: relative;
 }
+:where(.panel-grid[data-arrange] > *) { z-index: 1; }
 .panel-grid[data-arrange]::after {
     --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
     --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
@@ -361,7 +363,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
     background: var(--panel-guide-dot);
     mask:

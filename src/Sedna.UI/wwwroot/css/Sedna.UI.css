@@ -3710,6 +3710,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     --panel-guide-dot: var(--border-strong);
     position: relative;
 }
+:where(.panel-grid[data-arrange] > *) { z-index: 1; }
 .panel-grid[data-arrange]::after {
     --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
     --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
@@ -3717,7 +3718,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
     background: var(--panel-guide-dot);
     mask:

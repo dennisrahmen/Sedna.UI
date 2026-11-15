@@ -34,7 +34,7 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "52fde5d8a4a007e8"
+    "stamp": "6d225ba6acc3d29f"
   },
   {
     "page": "/breadcrumbs",
@@ -71,7 +71,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
-    "stamp": "853c023db98bc3a6"
+    "stamp": "30ddac42696b8c42"
   },
   {
     "page": "/grid",
@@ -90,7 +90,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "2e096c0427780d6e"
+    "stamp": "f9970f5f7c657a77"
   },
   {
     "page": "/panel-grid",
@@ -106,7 +106,7 @@
       { "text": "Reordering a list", "instead": "/drag-drop" }
     ],
     "goals": [ "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "e428823dafbf092c"
+    "stamp": "932f2b7c1448d2d2"
   },
   {
     "page": "/list",

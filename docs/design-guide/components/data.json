@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "5fbaf98c5a2121ed"
+    "stamp": "06c7408c9b46ab8b"
   },
   {
     "page": "/stat",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "e4f44b00a282f7d8"
+    "stamp": "a508920ca908161d"
   },
   {
     "page": "/graph-plugins",
@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "821fc673582af4b9"
+    "stamp": "ecd05e853d6a9b63"
   },
   {
     "page": "/workflow-run",

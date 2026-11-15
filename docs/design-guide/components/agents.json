@@ -119,7 +119,7 @@
       { "text": "The conversation itself", "instead": "/agent-chat" }
     ],
     "goals": [ "dock-an-assistant", "keep-generated-work-open" ],
-    "stamp": "2ceae4119720a94f"
+    "stamp": "7a9a1eed868d9536"
   },
   {
     "page": "/voice",
