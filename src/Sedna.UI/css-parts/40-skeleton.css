@@ -16,16 +16,12 @@
        placeholder wide and drawn once, not tiled: it starts wholly outside the inline start,
        clipped by the box, and leaves wholly outside the inline end, so it never appears or
        vanishes on the way. `--skeleton-band` is the band itself, for a variant to recolour. */
-    --skeleton-band: linear-gradient(
-        90deg,
-        transparent 0%,
-        color-mix(in srgb, var(--skeleton-sheen) 45%, transparent) 50%,
-        transparent 100%);
+    --skeleton-band: linear-gradient(90deg, transparent 0%, var(--skeleton-sheen) 50%, transparent 100%);
     background-color: var(--skeleton-bg);
-    background-image: var(--skeleton-band), linear-gradient(var(--skeleton-bg), var(--skeleton-bg));
-    background-size: 50% 100%, 100% 100%;
+    background-image: var(--skeleton-band);
+    background-size: 50% 100%;
     background-repeat: no-repeat;
-    background-position: -100% 0, 0 0;
+    background-position: -100% 0;
     border-radius: var(--radius-inner);
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
@@ -124,10 +120,9 @@
 
 /* A percentage `background-position` is measured against the box less the band: for a band half
    the box wide, -100% puts its far edge on the box's near edge and 200% puts its near edge on
-   the box's far edge, so both ends are wholly outside and the box clips the band. Only the
-   band moves; the second layer stays. `background-position` is physical, so 70-rtl.css runs
-   the sweep the other way. */
+   the box's far edge, so both ends are wholly outside and the box clips the band.
+   `background-position` is physical, so 70-rtl.css runs the sweep the other way. */
 @keyframes sedna-skeleton {
-    from { background-position: -100% 0, 0 0; }
-    to   { background-position: 200% 0, 0 0; }
+    from { background-position: -100% 0; }
+    to   { background-position: 200% 0; }
 }

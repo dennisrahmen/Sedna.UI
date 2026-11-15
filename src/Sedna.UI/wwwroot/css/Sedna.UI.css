@@ -3201,16 +3201,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 @layer sedna.paint {
 .skeleton {
     display: block;
-    --skeleton-band: linear-gradient(
-        90deg,
-        transparent 0%,
-        color-mix(in srgb, var(--skeleton-sheen) 45%, transparent) 50%,
-        transparent 100%);
+    --skeleton-band: linear-gradient(90deg, transparent 0%, var(--skeleton-sheen) 50%, transparent 100%);
     background-color: var(--skeleton-bg);
-    background-image: var(--skeleton-band), linear-gradient(var(--skeleton-bg), var(--skeleton-bg));
-    background-size: 50% 100%, 100% 100%;
+    background-image: var(--skeleton-band);
+    background-size: 50% 100%;
     background-repeat: no-repeat;
-    background-position: -100% 0, 0 0;
+    background-position: -100% 0;
     border-radius: var(--radius-inner);
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
@@ -3290,8 +3286,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-inner) var(--radius-inner) 0 0;
 }
 @keyframes sedna-skeleton {
-    from { background-position: -100% 0, 0 0; }
-    to   { background-position: 200% 0, 0 0; }
+    from { background-position: -100% 0; }
+    to   { background-position: 200% 0; }
 }
 }
 @layer sedna.paint {
@@ -15822,7 +15818,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 [dir="rtl"] .skeleton {
     animation-direction: reverse;
-    background-position: 200% 0, 0 0;
+    background-position: 200% 0;
 }
 [dir="rtl"] .diff-fold > td { direction: rtl; }
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
@@ -16430,6 +16426,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .spinner          { animation: none; }
     .btn[aria-busy="true"]::after { animation: none; }
     .skeleton         { animation: none; background-image: none; }
+    [dir="rtl"] .skeleton { animation: none; background-image: none; }
     .progress-bar     { transition: none; }
     .progress-ring    { transition: none; }
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
@@ -16597,6 +16594,11 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
     :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
         animation: none;
         background-size: 100% 2px;
         background-position: 0 0;

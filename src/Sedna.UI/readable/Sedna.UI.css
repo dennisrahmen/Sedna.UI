@@ -6216,16 +6216,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
        placeholder wide and drawn once, not tiled: it starts wholly outside the inline start,
        clipped by the box, and leaves wholly outside the inline end, so it never appears or
        vanishes on the way. `--skeleton-band` is the band itself, for a variant to recolour. */
-    --skeleton-band: linear-gradient(
-        90deg,
-        transparent 0%,
-        color-mix(in srgb, var(--skeleton-sheen) 45%, transparent) 50%,
-        transparent 100%);
+    --skeleton-band: linear-gradient(90deg, transparent 0%, var(--skeleton-sheen) 50%, transparent 100%);
     background-color: var(--skeleton-bg);
-    background-image: var(--skeleton-band), linear-gradient(var(--skeleton-bg), var(--skeleton-bg));
-    background-size: 50% 100%, 100% 100%;
+    background-image: var(--skeleton-band);
+    background-size: 50% 100%;
     background-repeat: no-repeat;
-    background-position: -100% 0, 0 0;
+    background-position: -100% 0;
     border-radius: var(--radius-inner);
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
@@ -6324,12 +6320,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
 /* A percentage `background-position` is measured against the box less the band: for a band half
    the box wide, -100% puts its far edge on the box's near edge and 200% puts its near edge on
-   the box's far edge, so both ends are wholly outside and the box clips the band. Only the
-   band moves; the second layer stays. `background-position` is physical, so 70-rtl.css runs
-   the sweep the other way. */
+   the box's far edge, so both ends are wholly outside and the box clips the band.
+   `background-position` is physical, so 70-rtl.css runs the sweep the other way. */
 @keyframes sedna-skeleton {
-    from { background-position: -100% 0, 0 0; }
-    to   { background-position: 200% 0, 0 0; }
+    from { background-position: -100% 0; }
+    to   { background-position: 200% 0; }
 }
 }
 
@@ -27039,7 +27034,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 }
 [dir="rtl"] .skeleton {
     animation-direction: reverse;
-    background-position: 200% 0, 0 0;
+    background-position: 200% 0;
 }
 
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
@@ -28098,6 +28093,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .spinner          { animation: none; }    /* 39 */
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
+    [dir="rtl"] .skeleton { animation: none; background-image: none; }   /* 70 — the mirrored sweep */
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
@@ -28313,6 +28309,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
     :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
+    /* 70-rtl — the mirrored sweep stands still as well. */
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
         animation: none;
         background-size: 100% 2px;
         background-position: 0 0;

@@ -197,7 +197,7 @@
 }
 [dir="rtl"] .skeleton {
     animation-direction: reverse;
-    background-position: 200% 0, 0 0;
+    background-position: 200% 0;
 }
 
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
