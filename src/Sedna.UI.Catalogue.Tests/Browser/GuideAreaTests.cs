@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using Sedna.UI.Catalogue.Tests.TestSupport;
+using Sedna.UI.Tests.TestSupport;
 
 namespace Sedna.UI.Catalogue.Tests;
 
@@ -57,7 +58,7 @@ public class GuideAreaTests(CatalogueAppFixture app)
         Assert.True(names.Length > 3, "Too few areas to compare.");
 
         // Samples the page's scroll on every frame, from the first click on.
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             () => {
                 const p = document.getElementById('goals').closest('.page');
                 window.__tops = [];
@@ -66,16 +67,17 @@ public class GuideAreaTests(CatalogueAppFixture app)
             """);
 
         // Starts scrolled, as a reader who has been reading the principles is.
-        await page.EvaluateAsync("() => document.getElementById('goals').scrollIntoView()");
+        await Js.Run(page, "() => document.getElementById('goals').scrollIntoView()");
 
         var offsets = new List<(string Area, double Offset)>();
         foreach (var name in names)
         {
-            await page.EvaluateAsync("() => { window.__tops.length = 0; }");
+            await Js.Run(page, "() => { window.__tops.length = 0; }");
             var chip = areas.Filter(new() { HasTextString = name + " \u00b7" });
             await chip.ClickAsync();
             await Assertions.Expect(chip).ToHaveAttributeAsync("aria-current", "page");
-            await page.WaitForTimeoutAsync(400);
+            // Frames of the page's own clock, not milliseconds: the router has scrolled long before thirty.
+            await Js.Frames(page, 30);
 
             var tops = await page.EvaluateAsync<double[]>("() => window.__tops");
             Assert.True(tops.All(t => t > 0), $"{name}: the page was at its top for a frame on the way to the goals.");
