@@ -70,7 +70,7 @@
       { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
     ],
     "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "b25f4e109f58fae3"
+    "stamp": "97c4e84deda9953e"
   },
   {
     "page": "/topbar",
@@ -90,7 +90,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "196096c219f858d7"
+    "stamp": "6b5e1c763eb5202a"
   },
   {
     "page": "/search",
@@ -121,7 +121,7 @@
       { "text": "The state of one live feed on a page", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
-    "stamp": "eed3d1457b479db8"
+    "stamp": "101ceb1cf89145df"
   },
   {
     "page": "/banner",
@@ -138,7 +138,7 @@
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
     "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
-    "stamp": "7fc9a2e434f545ec"
+    "stamp": "3be8016c3d48976a"
   },
   {
     "page": "/hover-hints",
@@ -197,6 +197,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/panel-grid#panels-the-reader-reorders" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on", "see-what-a-site-offers" ],
-    "stamp": "d212b3856fbc34ba"
+    "stamp": "a7101b810eb7e941"
   }
 ]

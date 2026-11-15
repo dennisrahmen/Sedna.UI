@@ -680,6 +680,10 @@
     /* The hit area a small control grows to on a coarse pointer (69-touch.css). */
     --touch-target:      32px;
 
+    /* The room between an icon and the label beside it in a button and in a floating
+       button, one value at every size (33-buttons.css, 61-buttons-extra.css). */
+    --btn-gap: var(--space-4);
+
     /* ── Choice inset ───────────────────────────────────────────────────────
        Where a choice control's label starts, measured from the control's inline
        edge: the box or track plus the gap after it. `.choice-dependent` indents by
