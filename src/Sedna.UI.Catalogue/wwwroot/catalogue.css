@@ -88,7 +88,7 @@
 
 .cat-lede { color: var(--muted); margin: 0 0 12px; line-height: 1.65; }
 
-/* One vertical rhythm for a prose page. Getting started, Concepts and the MCP server are
+/* One vertical rhythm for a prose page. Getting started, How the CSS works and the MCP server are
    built from h2 + lede + a card or a note rather than from .cat-ex, so their spacing
    cannot come from the example wrapper. Only bare elements inside .cat-main are named
    here — this file may not set a margin on .card or .table, which are the reader's
@@ -506,7 +506,8 @@
 .cat-guide-goals > li > a:hover { border-color: var(--brand); color: var(--brand-text); text-decoration: none; }
 /* The design guide's goals: one area at a time, a card per goal, two or three across. The card
    a component page links to is outlined, so the reader lands on it rather than near it. */
-.cat-goals { margin-top: 16px; align-items: start; }
+/* At least a screen tall, so an area with few goals can still scroll its heading to the top. */
+.cat-goals { margin-top: 16px; align-items: start; min-height: 100dvh; }
 .cat-goal { scroll-margin-top: 16px; }
 .cat-goal:target { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
 .cat-goal > .card-body > h3 { margin: 0 0 8px; font-size: 15px; line-height: 1.4; }

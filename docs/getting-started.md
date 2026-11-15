@@ -343,7 +343,7 @@ See [architecture](architecture.md#branding) for what `FromAnchor` follows and w
 `SednaUiBrand.ToCss` emits.
 
 The catalogue's own `App.razor` registers `SednaTheme.Sedna`, `.Forest`, `.Cobalt` and `.Graphite`
-exactly this way, so the [Branding](https://www.sedna-ui.com/branding) page's live switch has
+exactly this way, so the [Theme builder](https://www.sedna-ui.com/theme-builder) page's live switch has
 several palettes to move between.
 
 To change the **background** rather than the brand, generate the base ramp from the colour the
@@ -454,7 +454,7 @@ A function does not cross into C#, so where the script hands one over the C# mem
 `SednaUiOptions.ToastDismissLabel`, the one word the library writes into the page itself.
 
 To show something decided during prerendering — a toast from `OnInitializedAsync` — keep it as state
-and show it from `OnAfterRenderAsync(firstRender: true)`; the catalogue's From C# page has the recipe.
+and show it from `OnAfterRenderAsync(firstRender: true)`; the catalogue's [Script and C#](https://www.sedna-ui.com/script) page has the recipe.
 
 ## Content Security Policy
 
@@ -518,11 +518,11 @@ Pass `installedVersion` and the response names anything your version does not ha
 
 Then copy the block in [`CLAUDE.consuming-app.md`](CLAUDE.consuming-app.md) into your app's `CLAUDE.md`.
 
-## App tooling
+## Upgrading and tooling
 
 The package carries the tooling an app runs against its own files, matched to the installed version. In a
 restored package they sit under `~/.nuget/packages/sedna.ui/<version>/`; the catalogue's
-[App tooling](https://www.sedna-ui.com/tooling) page has every snippet.
+[Upgrading and tooling](https://www.sedna-ui.com/tooling) page has every snippet.
 
 - **The class check** runs in the app's build with no setup. After each build it reads the app's
   `.razor`, `.cshtml`, `.html` and `.css` files and warns once per use of a class a release renamed

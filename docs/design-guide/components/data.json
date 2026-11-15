@@ -309,7 +309,7 @@
     "useFor": "A graph fed from a component: records and changes sent through ISednaGraphs, and the reader's clicks, drawn links and filters coming back as events.",
     "combineWith": [
       { "page": "/graph", "how": "The same markup, rendered by the component." },
-      { "page": "/interop", "how": "The rest of the C# surface, registered with AddSednaUi." },
+      { "page": "/script#other-members-from-c", "how": "The rest of the C# surface, registered with AddSednaUi." },
       { "page": "/drawer", "how": "The selected record's detail, opened from the select event." }
     ],
     "notFor": [

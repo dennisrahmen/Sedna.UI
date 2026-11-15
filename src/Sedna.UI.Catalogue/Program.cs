@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
-// Forest, Cobalt and Graphite exist so the Branding page's live switcher has more
+// Forest, Cobalt and Graphite exist so the Theme builder's live switcher has more
 // than one palette to move between — proof the architecture generates a theme from
 // one anchor colour rather than hand-tuning a second stylesheet. Cobalt moves the
 // brand, Graphite moves the BASE, and Forest moves both — the base being the half

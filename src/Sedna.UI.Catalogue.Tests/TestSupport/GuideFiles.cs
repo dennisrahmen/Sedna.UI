@@ -41,8 +41,7 @@ internal static class GuideFiles
         ["/branding"] = "The mark, the palette and the theming decisions.",
         ["/theme-builder"] = "A tool for writing a brand.css, not a part of a page.",
         ["/mcp-server"] = "This site's MCP server.",
-        ["/script"] = "The script's API reference.",
-        ["/interop"] = "The C# API reference.",
+        ["/script"] = "The script's and the C# API reference.",
         ["/tooling"] = "The app's build tooling.",
     };
 
