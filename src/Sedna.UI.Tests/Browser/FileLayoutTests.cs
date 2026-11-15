@@ -30,6 +30,27 @@ public class FileLayoutTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task An_unsplit_name_with_no_break_in_it_stays_inside_its_tile()
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled("""
+            <ul class="file-grid" style="width:300px">
+                <li class="file-tile" id="tile"><span class="file-tile-thumb"></span>
+                    <span class="file-name" id="name">IMG_20260918_102915-warehouse-open-day-group-photo-with-the-whole-team.jpeg</span>
+                    <span class="file-meta"><span>4.1 MB</span></span></li>
+            </ul>
+            """);
+
+        var m = await page.EvaluateAsync<double[]>("""
+            () => { const t = document.getElementById('tile').getBoundingClientRect(), n = document.getElementById('name');
+                    return [n.getBoundingClientRect().right - t.right, n.scrollWidth - n.clientWidth, t.width]; }
+            """);
+
+        Assert.True(m[0] <= 0.5, $"The name runs {m[0]}px out of a {m[2]}px tile.");
+        Assert.True(m[1] > 0, "The name should be cut with an ellipsis, not fit.");
+    }
+
+    [Fact]
     public async Task A_name_column_does_not_push_its_table_wider_than_its_card()
     {
         if (NoBrowser) return;

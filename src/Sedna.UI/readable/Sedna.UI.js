@@ -2968,6 +2968,19 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
 
+    /* A secondary press selects the word under it before the contextmenu event, on macOS,
+       so the text flashed selected and then the menu opened over it. The press is cancelled
+       on an element that has a menu at the pointer, which is the only place the selection
+       is the browser's own default for a gesture the app has taken over; a primary press
+       there still selects, and so does a secondary press anywhere else. Ctrl+click is the
+       secondary press on a Mac. */
+    document.addEventListener('mousedown', function (e) {
+        if (e.button !== 2 && !(e.button === 0 && e.ctrlKey)) return;
+        var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
+        if (!on || !document.getElementById(on.getAttribute('data-menu-context'))) return;
+        e.preventDefault();
+    });
+
     document.addEventListener('contextmenu', function (e) {
         var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
         if (!on) return;

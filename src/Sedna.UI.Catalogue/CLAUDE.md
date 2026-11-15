@@ -143,7 +143,7 @@ survives re-renders by construction.
 
 Global `InteractiveServer`, with one invariant: **every example demo and every code block renders
 identically before the circuit connects.** Interactivity adds behaviour; it is never required to see an
-example. Three things genuinely need it — the `ISednaUi` demos on `/interop`, the theme toggles, and
+example. Three things genuinely need it — the `ISednaUi` demos on `/script`, the theme toggles, and
 the sidebar's active link.
 
 The trap to know: with prerendering, the server's HTML is replaced when the circuit connects, so

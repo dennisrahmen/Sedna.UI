@@ -102,6 +102,9 @@
         <p>
             <code>.btn--wrap</code> lets the label wrap and starts it at the inline start, for a
             picker whose choices are full-width buttons with a long name. A button is otherwise one line.
+            The gap between an icon and its label is <code>--btn-gap</code> at every size, and the
+            icon's own side of the button gives back 4px of its padding, so the room beside the icon
+            is balanced whether the label wraps or not.
         </p>
     </CatExample>
 
@@ -153,8 +156,13 @@
         <p>
             <code>.fab</code> is one page-level action, pinned to a corner on a screen too small to show
             a toolbar; <code>.fab--icon</code> is the circular,
-            label-in-an-<code>aria-label</code> form. Shown here <code>position:static</code>; in an app
-            it is fixed to the corner and must stay below every overlay.
+            label-in-an-<code>aria-label</code> form. It takes the button's tones &mdash;
+            <code>.fab--go</code>, <code>--warn</code>, <code>--danger</code>, <code>--info</code>,
+            <code>--secret</code> &mdash; always filled, its sizes <code>.fab--sm</code> and
+            <code>.fab--lg</code>, <code>aria-busy="true"</code> while its action runs, and
+            <code>disabled</code>. Shown here <code>position:static</code>; in an app
+            it is fixed to the end corner, clear of the safe area and the bottom bar, and must stay
+            below every overlay.
         </p>
     </CatExample>
 

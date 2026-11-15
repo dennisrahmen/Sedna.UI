@@ -70,7 +70,7 @@
       { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
     ],
     "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "92ca2eb6695fe86a"
+    "stamp": "8c15edeeb76af6f6"
   },
   {
     "page": "/topbar",
@@ -90,7 +90,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "80ddf137e50ff0fd"
+    "stamp": "0e12cc43fb8c9667"
   },
   {
     "page": "/search",
@@ -105,7 +105,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-the-whole-app" ],
-    "stamp": "bd4059f92b4c9ae2"
+    "stamp": "9bf317abfc49d03e"
   },
   {
     "page": "/status-bar",
@@ -121,7 +121,7 @@
       { "text": "The state of one live feed on a page", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
-    "stamp": "eed3d1457b479db8"
+    "stamp": "101ceb1cf89145df"
   },
   {
     "page": "/banner",
@@ -138,7 +138,7 @@
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
     "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
-    "stamp": "20e6fd0e954a4e3f"
+    "stamp": "08c48ea41de0e08d"
   },
   {
     "page": "/hover-hints",
@@ -197,6 +197,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/panel-grid#panels-the-reader-reorders" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on", "see-what-a-site-offers" ],
-    "stamp": "b9f6205231649835"
+    "stamp": "4d93925c3b3efdb6"
   }
 ]

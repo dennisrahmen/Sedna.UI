@@ -2,23 +2,74 @@
 @using Sedna.UI.Catalogue.Navigation
 
 <CatHead Title="Getting started" Tier="@CatHead.Site">
-    Install the package, add five lines to the host page, and redefine seven tokens. Nothing else is
-    required.
+    Install the package, put the stylesheet and two scripts in the host page, and set your brand's
+    tokens. Nothing else is required.
 </CatHead>
 
-<CatGroup Title="Install">
+<div class="callout callout--info">
+    <i class="ri-information-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">What <code>AddSednaUi()</code> does, and what it leaves to you</span>
+        It registers the C# services (<code>ISednaUi</code> and its companions) and nothing else: it adds
+        no stylesheet link and no <code>&lt;script&gt;</code> tag to a page. The host page below is the
+        CSS and JavaScript an app needs, and the app writes it. An app that never calls
+        <code>ISednaUi</code> from a component needs no registration at all.
+    </div>
+</div>
+
+<div class="cat-tiles">
+    <a class="card cat-tile" href="#add-the-package">
+        <span class="cat-tile-ic"><i class="ri-download-2-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>1. Install</strong>
+            <span>One package, pinned to a version.</span>
+        </span>
+        <i class="ri-arrow-right-line cat-tile-go"></i>
+    </a>
+    <a class="card cat-tile" href="#host-page">
+        <span class="cat-tile-ic"><i class="ri-file-code-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>2. Host page</strong>
+            <span>The stylesheet, both scripts and the reconnect bar.</span>
+        </span>
+        <i class="ri-arrow-right-line cat-tile-go"></i>
+    </a>
+    <a class="card cat-tile" href="#register-the-services">
+        <span class="cat-tile-ic"><i class="ri-braces-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>3. Register</strong>
+            <span>For components that call the browser through <code>ISednaUi</code>.</span>
+        </span>
+        <i class="ri-arrow-right-line cat-tile-go"></i>
+    </a>
+    <a class="card cat-tile" href="#brand-tokens">
+        <span class="cat-tile-ic"><i class="ri-palette-line"></i></span>
+        <span class="cat-tile-text">
+            <strong>4. Brand it</strong>
+            <span>A <code>brand.css</code> of tokens, loaded last.</span>
+        </span>
+        <i class="ri-arrow-right-line cat-tile-go"></i>
+    </a>
+</div>
+
+<CatGroup Title="Set up">
     <CatSnippet Name="Index/Install.txt" Title="Add the package">
         <p>Pin the version. Do not use a floating version range.</p>
     </CatSnippet>
 
     <CatSnippet Name="Index/HostPage.html" Title="Host page">
         <p>
-            The order matters: <code>boot.js</code> in <code>&lt;head&gt;</code> so the stored theme is
-            applied before first paint, your own override file after the library stylesheet, and
-            <code>Sedna.UI.js</code> before <code>blazor.web.js</code> so <code>window.sednaUi</code>
-            exists before an interactive component can call into it. The viewport meta also needs
-            <code>viewport-fit=cover</code>, or every
+            Everything the library loads is written here, and the order matters.
+            <code>boot.js</code> goes in <code>&lt;head&gt;</code> so the stored theme is applied before
+            first paint. Your own <code>brand.css</code> comes after the library stylesheet.
+            <code>Sedna.UI.js</code> comes before <code>blazor.web.js</code>, so
+            <code>window.sednaUi</code> exists before an interactive component can call into it. The
+            viewport meta needs <code>viewport-fit=cover</code>, or every
             <a href="/utility-safe-area">safe-area inset</a> reports <code>0px</code> on every device.
+        </p>
+        <p>
+            <code>boot.js</code> also takes options &mdash; the default theme, a time zone cookie, an
+            app's own preferences. They are on <a href="/script">Script and C#</a>.
         </p>
     </CatSnippet>
 
@@ -26,32 +77,27 @@
         <p>
             Blazor Server injects its own reconnect UI unless the host page supplies one. Add this inside
             <code>&lt;body&gt;</code>, before the component that carries the render mode, and supply all
-            four rows — a state with no row renders as an empty bar. The
+            four rows &mdash; a state with no row renders as an empty bar. The
             <a href="/status-bar">Status bar</a> page has the state table.
         </p>
     </CatSnippet>
 
-    <CatSnippet Name="Index/Registration.txt" Title="Registration">
+    <CatSnippet Name="Index/Registration.txt" Title="Register the services">
         <p>
-            Only needed for the C# side — <code>ISednaUi</code> wraps toasts, dialogs, the
-            clipboard, the palette, the search index and the settings the theme toggles write. The CSS
-            needs no registration at all.
-        </p>
-        <p>
-            Every member is a JavaScript call, so <strong>none of them can run during
-            prerendering</strong>: call them from an event handler or from
-            <code>OnAfterRenderAsync(firstRender: true)</code>.
+            Needed only for the C# side: <code>ISednaUi</code> wraps toasts, dialogs, the clipboard, the
+            palette, the search index and the settings the theme toggles write. The stylesheet and the
+            script work without it. How and when a component may call it is on
+            <a href="/script#when-to-call-from-c">Script and C#</a>.
         </p>
     </CatSnippet>
-</CatGroup>
 
-<CatGroup Title="Next steps">
-    <h3 id="branding">Brand stylesheet <CatAnchor Id="branding" /></h3>
+    <h3 id="brand-tokens">Brand tokens <CatAnchor Id="brand-tokens" /></h3>
     <p class="cat-lede">
-        Your whole <code>css/brand.css</code>, loaded after the library. Nothing else changes.
+        Your whole <code>css/brand.css</code>, loaded after the library. Nothing else changes. To edit
+        every token and see the result, use the <a href="/theme-builder">Theme builder</a>.
     </p>
 
-    <CatSnippet Name="Index/Rebrand.css" Title="Brand tokens">
+    <CatSnippet Name="Index/Rebrand.css" Title="Brand stylesheet">
         <p>
             <code>--brand-tint</code>, <code>--brand-ring</code>, <code>--brand-ring-soft</code>,
             <code>--brand-ring-check</code> and <code>--brand-glow</code> are mixed from
@@ -72,7 +118,9 @@
             <a href="/tokens">Tokens</a> page.
         </div>
     </div>
+</CatGroup>
 
+<CatGroup Title="Then build pages">
     <h3 id="the-frame">Frame markup <CatAnchor Id="the-frame" /></h3>
     <p class="cat-lede">
         The shell, sidebar, header and user widget are CSS classes like everything else. There is no
