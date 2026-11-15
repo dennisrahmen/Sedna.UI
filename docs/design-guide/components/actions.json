@@ -17,7 +17,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic-tones" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "0753a6e968a79f5e"
+    "stamp": "95031a348b2f3f93"
   },
   {
     "page": "/button-group",
@@ -33,7 +33,7 @@
       { "text": "Paging through a list of results", "instead": "/pager#numbered-pages" }
     ],
     "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
-    "stamp": "ada9b8c160262b5b"
+    "stamp": "fd3bc0024c9da0b9"
   },
   {
     "page": "/toolbar",
@@ -94,7 +94,7 @@
       { "text": "A record's whole detail beside the list", "instead": "/drawer#record-detail" }
     ],
     "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message", "open-a-panel-upward" ],
-    "stamp": "20f31c1f949cd0a2"
+    "stamp": "5da651c3b8b255fa"
   },
   {
     "page": "/drag-drop",
@@ -113,6 +113,6 @@
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
     "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "d57cdd20f38fe097"
+    "stamp": "86e404b6079b6cf1"
   }
 ]

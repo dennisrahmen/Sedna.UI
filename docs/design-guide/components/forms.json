@@ -17,7 +17,7 @@
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
     "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
-    "stamp": "04c6c5776012a986"
+    "stamp": "ddd1ae2f53ef9e5b"
   },
   {
     "page": "/form-validation",
@@ -34,7 +34,7 @@
       { "text": "A file turned away from an upload", "instead": "/form-file#limits-and-a-refused-file" }
     ],
     "goals": [ "fill-in-a-form", "show-field-errors", "summarise-form-errors", "create-or-edit-a-record" ],
-    "stamp": "e5f63f9dffdea3f4"
+    "stamp": "29e4d6f9465ca9e3"
   },
   {
     "page": "/form-flow",
@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "4c499b57553fc59f"
+    "stamp": "5f3626c20601b488"
   },
   {
     "page": "/form-saving",
@@ -69,7 +69,7 @@
       { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
     ],
     "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
-    "stamp": "6362d375bcf80682"
+    "stamp": "9a088c48bb65a4d5"
   },
   {
     "page": "/form-text",
@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "f45b1220d64f9824"
+    "stamp": "ca26f1474deaf781"
   },
   {
     "page": "/form-code",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "605e29261eccd647"
+    "stamp": "71fe34186b58cdc0"
   },
   {
     "page": "/form-select",
