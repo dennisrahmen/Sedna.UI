@@ -247,7 +247,8 @@ If you override it, set the same value in both places or the theme is not found 
 Create `wwwroot/css/brand.css` and redefine the brand tokens:
 
 ```css
-:root {
+:root,
+:root :where([data-variant="dark"]) {
     --brand:          #d62828;
     --brand-hover:    #b81f1f;
     --brand-active:   #8f1818;
@@ -257,12 +258,18 @@ Create `wwwroot/css/brand.css` and redefine the brand tokens:
     --sidebar-active: #d62828;
 }
 
-:root[data-variant="light"] {
+:root[data-variant="light"],
+:root [data-variant="light"] {
     --brand-soft: #d62828;
     --brand-text: #b81f1f;
     --accent:     #b81f1f;
 }
 ```
+
+Each block names a subtree that carries its own `data-variant` as well as the page: such a subtree
+redeclares every token that differs by variant, so a value written for `:root` alone is replaced by the
+library's inside it. A token that is the same in both variants (`--radius-control`, a font, a
+duration) needs only `:root`.
 
 `--brand-tint`, `--brand-ring`, `--brand-ring-soft`, `--brand-ring-check` and `--brand-glow` are mixed
 from `--brand` and follow it automatically, in both themes — set them only to override the alpha the
@@ -289,10 +296,9 @@ underlines every `.btn` link, whatever the specificity. Write a rule for the ele
 an unlayered rule of your own before looking in the library.
 
 **A band that stays dark on a light page** — text and buttons over a photograph, a footer — is
-`data-variant="dark"` on its element; `"light"` is the other way round. Where `brand.css` sets a token
-that differs by variant (`--brand-text`, `--accent`), name the attribute too, or the band gets the
-library's value: `:root, :root :where([data-variant="dark"]) { … }` and
-`:root[data-variant="light"], :root [data-variant="light"] { … }`.
+`data-variant="dark"` on its element; `"light"` is the other way round. `brand.css` names the attribute
+in the selector of every token that differs by variant, as the block above does, or the band gets the
+library's value.
 
 ### The branding service
 

@@ -19,7 +19,7 @@
       { "text": "A block of code or output to copy", "instead": "/code-blocks" }
     ],
     "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "open-a-page-on-a-big-picture", "read-light-text-on-a-dark-band", "see-what-a-site-offers" ],
-    "stamp": "1c4685605e700b7e"
+    "stamp": "e52a451564623caa"
   },
   {
     "page": "/page-navigation",
@@ -71,7 +71,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
-    "stamp": "57233333726ea48f"
+    "stamp": "720a217fa9ca3162"
   },
   {
     "page": "/grid",
@@ -126,7 +126,7 @@
       { "text": "A list of files", "instead": "/files#file-list" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "772fb64b18845c58"
+    "stamp": "3a98a1e76d03f43a"
   },
   {
     "page": "/collections",

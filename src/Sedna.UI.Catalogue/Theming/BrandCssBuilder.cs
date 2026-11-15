@@ -241,21 +241,34 @@ internal static class BrandCssBuilder
         if (root.Count > 0)
         {
             // The palette first and the roles after it, a blank line apart: the ramps are what a
-            // reader regenerates, the roles what they chose one at a time.
+            // reader regenerates, the roles what they chose one at a time. A role that differs by
+            // variant — or reads one that does — is also written for a subtree that names the dark
+            // variant, which redeclares it; the rest is inherited and needs only :root.
             var palette = root.Where(t => library.ByName.GetValueOrDefault(t.Key)?.Tier == TokenTier.Palette).ToList();
             var roles = root.Except(palette).ToList();
+            var scoped = roles.Where(t => library.Sensitive.Contains(t.Key)).ToList();
+            var plain = roles.Except(scoped).ToList();
             css.Append("\n:root {\n");
             Declare(palette);
-            if (palette.Count > 0 && roles.Count > 0) css.Append('\n');
-            Declare(roles);
+            if (palette.Count > 0 && plain.Count > 0) css.Append('\n');
+            Declare(plain);
             css.Append("}\n");
+
+            if (scoped.Count > 0)
+            {
+                css.Append("\n/* These differ by variant, so they are written for a subtree that names the dark\n");
+                css.Append("   variant (data-variant=\"dark\") as well as for the page. */\n");
+                css.Append(ThemeTokens.DarkScopedSelector).Append(" {\n");
+                Declare(scoped);
+                css.Append("}\n");
+            }
         }
 
         if (light.Count > 0)
         {
-            css.Append("\n/* The light variant. A token set on :root above also wins in light");
+            css.Append("\n/* The light variant, for the page and for a subtree that names it. A token set on :root above also wins in light");
             css.Append(restated.Count > 0 ? ",\n   so the library's own light value is restated where it has one. */\n" : ". */\n");
-            css.Append(ThemeTokens.LightSelector).Append(" {\n");
+            css.Append(ThemeTokens.LightScopedSelector).Append(" {\n");
             Declare(light);
             css.Append("}\n");
         }

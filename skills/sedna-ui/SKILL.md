@@ -404,7 +404,7 @@ That makes discipline the only thing left protecting the shared design:
   every future version. A rule override is a private fork of the design that nothing will tell you has
   gone stale.
 - **Two things the layering means for this app's own CSS:** a token set at bare `:root` here also beats
-  the library's `[data-variant="light"]` value for it, so set both blocks; and any unconditional rule
+  the library's `[data-variant="light"]` value for it, so set both blocks, each with its subtree form (below); and any unconditional rule
   here beats a library rule at any specificity. The case to check is a copied
   `.table th, .table td { padding: … }` or `.card-body { padding: … }`, which stops compact density
   from tightening this app's tables and cards. **Delete copied library rules** — including a
@@ -417,10 +417,11 @@ That makes discipline the only thing left protecting the shared design:
 - **A band that keeps its own variant is `data-variant="dark"` (or `"light"`) on its element.** Everything
   inside reads as that variant — text, `.btn`, `.btn--ghost`, badges, links, fields — in the colour-blind
   palette and high contrast too, and keeps the page's density and this app's tokens that do not differ by
-  variant. Where this app overrides a token that differs by variant (`--brand-text`, `--accent`), list the
-  attribute with `:root`: `:root, :root :where([data-variant="dark"]) { … }` for the dark value and
-  `:root[data-variant="light"], :root [data-variant="light"] { … }` for the light one. A palette set
-  through a registered theme needs nothing.
+  variant. This app's override of a token that differs by variant (`--brand`, `--brand-text`, `--accent`
+  and most colour roles) names the subtree in its selector: `:root, :root :where([data-variant="dark"]) { … }`
+  for the dark value and `:root[data-variant="light"], :root [data-variant="light"] { … }` for the light
+  one. A token that is the same in both variants (a radius, a font, a duration) needs only `:root`. A palette
+  set through a registered theme needs nothing.
 - **Never use `!important` against the library.** Layer order inverts for important declarations, so it
   is not needed and makes the result harder to reason about, not easier.
 - **To change this app's background, register a theme — do not override `--bg`.**

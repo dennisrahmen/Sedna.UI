@@ -141,7 +141,8 @@
        !important inside a layer becomes HARDER for you to override, not easier.
      * Because your unlayered :root wins outright, a token you set at bare :root
        now also beats this library's [data-variant="light"] value for it. Set
-       both blocks, as the rebrand recipe in the catalogue shows. */
+       both blocks, each with its subtree form, as the rebrand recipe in the catalogue
+       shows. */
 @layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;
 
 /* ── 00-header.css → @layer sedna.tokens ──────────────────────────────────────────────── */

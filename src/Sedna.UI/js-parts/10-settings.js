@@ -4,8 +4,9 @@
    script applies them before first paint; save() keeps them applied.
 
    data-theme and data-variant are ALWAYS written, never absent — consuming apps
-   brand the light palette with `:root[data-variant="light"]`, so that selector has
-   to match whenever the light palette is in use. data-theme accepts any theme
+   brand the light palette with `:root[data-variant="light"], :root [data-variant="light"]`
+   (the page, and a subtree that names the variant), so that selector has to match
+   whenever the light palette is in use. data-theme accepts any theme
    name; with nothing stored it falls back to config.themeDefault, which is
    'sedna' until configure() says otherwise and must match the boot script's own
    data-theme-default.

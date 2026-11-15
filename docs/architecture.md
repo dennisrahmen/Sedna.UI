@@ -181,7 +181,7 @@ without being in the ordering statement, since an undeclared layer sorts after e
 ### Four things it means for your own stylesheet
 
 **A token you set at bare `:root` beats the library's `[data-variant="light"]` value for it.** Set both
-blocks, as the rebrand recipe shows.
+blocks, each with the subtree form, as the rebrand recipe shows.
 
 **An unconditional rule of yours beats a library rule at any specificity.** The case to check is
 compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` or
@@ -448,8 +448,10 @@ emits at bare `:root`. It reaches the browser twice, because the boot script run
 can: `data-theme-default` on the boot script tag, and `themeDefault` from `ISednaUi.ConfigureAsync()`.
 Both fall back to `sedna`, so an app that changes neither behaves as before.
 
-Consuming apps select on `:root[data-variant="light"]` to brand the light palette, so that selector has
-to match whenever the light palette is in use. The two used to be one attribute (`data-theme` took
+Consuming apps select on `:root[data-variant="light"], :root [data-variant="light"]` to brand the light
+palette — the page, and a subtree that names the light variant — so that selector has to match whenever
+the light palette is in use. The dark values of tokens that differ by variant go in
+`:root, :root :where([data-variant="dark"])`. The two used to be one attribute (`data-theme` took
 `dark`/`light` directly), which is why there was nowhere to put a second theme; splitting them is a
 breaking change, permitted pre-1.0 (see [releasing](releasing.md)).
 

@@ -278,7 +278,7 @@
             Text and native controls inside take the variant's colours; the element paints nothing of its
             own, because what is behind the content &mdash; a photograph, a gradient, a surface &mdash; is yours.
             Where you override a token that differs by variant in your own stylesheet, list the attribute with
-            <code>:root</code> &mdash; <code>:root, :where([data-variant="dark"])</code> for the dark value
+            <code>:root</code> &mdash; <code>:root, :root :where([data-variant="dark"])</code> for the dark value
             &mdash; or the subtree gets the library's value.
         </div>
     </div>

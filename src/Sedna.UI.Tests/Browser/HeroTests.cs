@@ -123,7 +123,7 @@ public class HeroTests : ScriptTestBase
         // Hide the words so only the picture and its scrim are in the screenshot.
         await page.AddStyleTagAsync(new() { Content = "#text, .page-head-actions { visibility: hidden; }" });
         var box = (await page.Locator("#hero").BoundingBoxAsync())!;
-        var png = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = new() { X = (float)box.X, Y = (float)box.Y, Width = (float)box.Width, Height = (float)box.Height } }));
+        var png = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = new() { X = box.X, Y = box.Y, Width = box.Width, Height = box.Height } }));
         var y = png.Height / 2;
         var inlineStartIsLeft = dir == "ltr";
         var nearStart = png.Pixel(inlineStartIsLeft ? 8 : png.Width - 9, y);
