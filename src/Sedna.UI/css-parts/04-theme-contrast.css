@@ -37,6 +37,7 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* Dark, high contrast. */
+:root[data-contrast="more"] :where([data-variant]),
 :root[data-contrast="more"] {
     /* Pure black/white: no palette step reaches either extreme, and that is the
        point of this mode — see --on-solid's comment in 01-tokens.css. */
@@ -141,6 +142,7 @@
 }
 
 /* Light, high contrast. Composes with the light variant by being more specific. */
+:root[data-contrast="more"] [data-variant="light"],
 :root[data-variant="light"][data-contrast="more"] {
     --bg:              var(--white);
     --bg-elevated:     var(--white);
@@ -246,6 +248,7 @@
 /* The OS setting, for anybody who never opens the app's own settings. Only :root
    remaps, so `Appearance_media_queries_only_remap_tokens` holds. */
 @media (prefers-contrast: more) {
+    :root :where([data-variant]),
     :root {
         --border:         var(--slate-400);
         --border-strong:  var(--slate-300);
@@ -255,6 +258,7 @@
         --surface-soft:   var(--slate-900);
         --surface-strong: var(--slate-800);
     }
+    :root [data-variant="light"],
     :root[data-variant="light"] {
         --border:         var(--slate-600);
         --border-strong:  var(--slate-800);

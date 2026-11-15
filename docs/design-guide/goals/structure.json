@@ -225,5 +225,43 @@
     ],
     "how": "A .tabs with role=\"tablist\" and data-tabs, each tab a button with aria-selected and aria-controls naming its tab-panel; the script does the clicks, the arrow keys and the roving tabindex. Where each tab has its own address, the strip is a nav of links instead.",
     "avoid": "Using tabs to change a setting, which is a segmented control, or for sections the reader reads one after another."
+  },
+  {
+    "id": "open-a-page-from-a-card",
+    "goal": "Let the user open a page by pressing a whole card",
+    "phrases": [ "clickable card", "card as a link", "link card", "card link", "whole tile is a link", "linked tile" ],
+    "answer": [
+      { "page": "/card#card-as-a-link", "role": "primary" },
+      { "page": "/grid", "role": "part" },
+      { "page": "/stat#target-link-and-unavailable", "role": "part" }
+    ],
+    "how": "An <a class=\"card\" href> instead of a div: the frame takes the hover and the focus ring, the text keeps a card's colours and nothing underlines. The card holds no second link or button.",
+    "avoid": "Putting a button or another link inside a card that is the link: a link inside a link is not HTML, and its action has no keyboard path."
+  },
+  {
+    "id": "open-a-page-on-a-big-picture",
+    "goal": "Let the user land on a page that opens with a large picture, a title and what to do",
+    "phrases": [ "hero", "hero section", "hero banner", "page header with an image", "cover image header", "banner with a background image" ],
+    "answer": [
+      { "page": "/structure#with-a-picture", "role": "primary" },
+      { "page": "/structure#over-a-slideshow", "role": "part" },
+      { "page": "/structure#dark-band-on-any-page", "role": "part" },
+      { "page": "/card#card-as-a-link", "role": "part" },
+      { "page": "/carousel", "role": "part" }
+    ],
+    "how": "A .page-head--hero with an <img class=\"page-head-image\"> you write and data-variant=\"dark\" on the head, so the text and buttons stay light on the photograph in both variants. The scrim holds across the text column and runs from the inline start.",
+    "avoid": "Setting the picture as a CSS background: the app then cannot give it a srcset, a loading hint or an alternative text."
+  },
+  {
+    "id": "read-light-text-on-a-dark-band",
+    "goal": "Let the user read text and buttons on a band that stays dark in both variants",
+    "phrases": [ "always dark section", "dark section on a light page", "inverse surface", "buttons on a dark photo", "text on an image overlay" ],
+    "answer": [
+      { "page": "/structure#dark-band-on-any-page", "role": "primary" },
+      { "page": "/structure#light-panel-on-a-dark-page", "role": "part" },
+      { "page": "/structure#with-a-picture", "role": "part" }
+    ],
+    "how": "data-variant=\"dark\" on the element: every token that differs by variant is redeclared inside it, so a .btn, a .btn--ghost, a badge, a link and a field read as they do on a dark page, and the colour-blind palette and high contrast still apply.",
+    "avoid": "Writing a button of your own for the dark band: the next control you put there is wrong again."
   }
 ]

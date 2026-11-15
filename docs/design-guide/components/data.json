@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "826e8a92d25a78ad"
+    "stamp": "7a80587bc66e1732"
   },
   {
     "page": "/stat",
@@ -103,8 +103,8 @@
       { "text": "A value against its limit", "instead": "/bars#value-against-thresholds" },
       { "text": "A figure over time", "instead": "/chart" }
     ],
-    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
-    "stamp": "4a6e307fc3ab39d5"
+    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard", "open-a-page-from-a-card" ],
+    "stamp": "928afb0d89b91d24"
   },
   {
     "page": "/bars",
@@ -241,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "a744b23a2c67aa1a"
+    "stamp": "8e2b027daa0381a2"
   },
   {
     "page": "/graph-layouts",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "fef440d554185a24"
+    "stamp": "f125eae58cef6722"
   },
   {
     "page": "/graph-plugins",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "4275208948d1356c"
+    "stamp": "fb975c9cc29f297a"
   }
 ]

@@ -38,6 +38,28 @@
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
+/* ── A card that is one link ────────────────────────────────────────────────
+   `<a class="card" href="…">` makes the whole card the target: a service, a reference, a
+   product — a tile that leads somewhere and has nothing else to do. The card's own
+   rules stay as they are; this adds the box an <a> lacks, the two states a link needs and
+   nothing that restyles the text inside — it keeps the colours a card's text has, so a
+   title is the title's colour and not the link colour, and no part underlines.
+
+   The reader sees the frame answer: the edge steps up and the surface warms on hover, and a
+   keyboard reader gets the ring on the frame, the same two states `a.stat` and a `.list-row`
+   give. A card holds no second link or button when it is itself the link — a link inside a
+   link is not HTML — so its actions are text the reader sees, not controls. */
+a.card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+a.card:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+a.card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+/* `a.card` outweighs `.card--fill`, so a fill card that is a link says its column again. */
+a.card.card--fill { display: flex; }
+
 .card-head {
     display: flex;
     /* A trailing action too wide to share the line goes under the title, rather than

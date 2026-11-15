@@ -23,7 +23,9 @@
 @media (forced-colors: active) {
     /* The system keywords are the palette the user chose; they are legal here and
        nowhere else. Mapping the tokens means every class picks the palette up without
-       being touched. */
+       being touched. A subtree that names its own variant redeclares the variant-sensitive
+       tokens, so it takes the same mapping. */
+    :root :where([data-variant]),
     :root {
         --bg:              Canvas;
         --bg-elevated:     Canvas;
@@ -168,6 +170,8 @@
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
+    a.card:focus-visible,
+    .source-card:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,
     .carousel-track:focus-visible,

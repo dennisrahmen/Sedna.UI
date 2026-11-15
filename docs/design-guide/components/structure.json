@@ -1,12 +1,14 @@
 [
   {
     "page": "/structure",
-    "useFor": "The parts that hold a page together: its title row with the actions for the whole page, a break between sections, and an aside in the content.",
+    "useFor": "The parts that hold a page together: its title row with the actions for the whole page, a head with a picture for a start page, a band that keeps its own variant, a break between sections, and an aside in the content.",
     "combineWith": [
       { "page": "/breadcrumbs#above-the-page-head", "how": "A .breadcrumb straight above the page head, for a record a few levels deep." },
       { "page": "/frame#spacing-between-sections", "how": "The page head is the first child of .page, and the page's own rhythm spaces every section after it." },
       { "page": "/page-recipes#list-page", "how": "The head over a toolbar and a table: the page's create and export in the head, the list's own actions in the toolbar." },
-      { "page": "/menu#anchored-under-a-trigger", "how": "The .actions-more menu a folding head shows in place of the buttons it has no room for." }
+      { "page": "/menu#anchored-under-a-trigger", "how": "The .actions-more menu a folding head shows in place of the buttons it has no room for." },
+      { "page": "/carousel", "how": "A slide of the carousel is a page head with a picture, so a hero can be a slideshow." },
+      { "page": "/card#card-as-a-link", "how": "The offers under the head are cards that are links, in a grid." }
     ],
     "notFor": [
       { "text": "A condition of the page that stays true while it is open", "instead": "/alert" },
@@ -16,8 +18,8 @@
       { "text": "Separating sub-sections inside one card", "instead": "/card#sections-inside-one-body" },
       { "text": "A block of code or output to copy", "instead": "/code-blocks" }
     ],
-    "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page" ],
-    "stamp": "28e027e3350d3303"
+    "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "open-a-page-on-a-big-picture", "read-light-text-on-a-dark-band", "see-what-a-site-offers" ],
+    "stamp": "cedb139f6ac3d1c1"
   },
   {
     "page": "/page-navigation",
@@ -50,7 +52,7 @@
   },
   {
     "page": "/card",
-    "useFor": "One object on the page with its own title, its own actions or its own state: a record's fields, a table, a form, a widget the reader folds and resizes by its side, its bottom or its corner.",
+    "useFor": "One object on the page with its own title, its own actions or its own state: a record's fields, a table, a form, a widget the reader folds and resizes, or a tile that is one link to the page it names.",
     "combineWith": [
       { "page": "/table#toolbar-in-a-card", "how": "A table goes straight in the card with no .card-body, under a toolbar outside it." },
       { "page": "/badge#card-headers-and-table-cells", "how": "The card's state in .card-head-right, in words as well as a tone." },
@@ -59,7 +61,8 @@
       { "page": "/tabs#in-a-card-head", "how": "The tablist in a .card-head--tabs and the panels in the body." },
       { "page": "/list", "how": "A list straight in the card meets its edges with no class." },
       { "page": "/diff#diff-in-a-card", "how": "A panel with a frame of its own, a diff, a calendar or a code block, goes straight in the card with its --flush modifier, so the card draws the only frame." },
-      { "page": "/panel-grid#panels-the-reader-arranges", "how": "Resizable cards are the panels of a .panel-grid, their handles counting in cells." }
+      { "page": "/panel-grid#panels-the-reader-arranges", "how": "Resizable cards are the panels of a .panel-grid, their handles counting in cells." },
+      { "page": "/grid", "how": "Cards that are links, placed side by side as the offers of a start page." }
     ],
     "notFor": [
       { "text": "Records compared down columns", "instead": "/table" },
@@ -67,8 +70,8 @@
       { "text": "Laying cards out side by side", "instead": "/grid" },
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
-    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "0d900acd0c34dcb5"
+    "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
+    "stamp": "3b7c2ff2fe267237"
   },
   {
     "page": "/grid",
@@ -86,8 +89,8 @@
       { "text": "Spacing a row of controls", "instead": "/utility-layout#rows-and-columns" },
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
-    "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open" ],
-    "stamp": "8e0021722da96405"
+    "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
+    "stamp": "8fc3468a3bddec98"
   },
   {
     "page": "/panel-grid",
@@ -103,7 +106,7 @@
       { "text": "Reordering a list", "instead": "/drag-drop" }
     ],
     "goals": [ "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "0c64afd36836a052"
+    "stamp": "e7484a3e56a8a157"
   },
   {
     "page": "/list",
@@ -123,7 +126,7 @@
       { "text": "A list of files", "instead": "/files#file-list" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "772fb64b18845c58"
+    "stamp": "3a98a1e76d03f43a"
   },
   {
     "page": "/collections",
@@ -195,6 +198,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "cede5354da570a0c"
+    "stamp": "829add221ba1a5e3"
   }
 ]

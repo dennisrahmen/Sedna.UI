@@ -267,9 +267,11 @@ public class GridKeyboardTests : ScriptTestBase
 
         await page.Keyboard.PressAsync("Enter");
         await page.Keyboard.TypeAsync("20");
+        // The grid takes this Tab itself, so it is the plain key on every platform: Option+Tab,
+        // which WebKit on macOS needs to reach other controls, is the reader's own way past it.
         // The next cell in reading order is the first of the next row, which has no editor:
         // it takes the focus, and the edit before it is committed.
-        await page.Keyboard.PressAsync(Keys.Tab);
+        await page.Keyboard.PressAsync(Keys.PageTab);
         Assert.Equal("c10", await Active(page));
         Assert.Null(await page.GetAttributeAsync("#c02", "data-editing"));
         Assert.Equal("20", await page.InputValueAsync("#e02"));
@@ -277,7 +279,7 @@ public class GridKeyboardTests : ScriptTestBase
         // Back with Shift+Tab, while editing, into the cell before — which edits.
         await page.Locator("#c12").FocusAsync();
         await page.Keyboard.PressAsync("Enter");
-        await page.Keyboard.PressAsync(Keys.ShiftTab);
+        await page.Keyboard.PressAsync(Keys.PageShiftTab);
         Assert.Equal("c11", await Active(page));
         await page.Locator("#c02").FocusAsync();
         await page.Keyboard.PressAsync("ArrowDown");

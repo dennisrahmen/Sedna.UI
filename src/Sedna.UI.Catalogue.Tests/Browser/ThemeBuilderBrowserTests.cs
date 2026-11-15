@@ -61,7 +61,7 @@ public class ThemeBuilderBrowserTests(CatalogueAppFixture app)
 
         // Found by name across every group, then set for dark: one declaration at :root.
         await page.Locator("#theme-filter").FillAsync("radius-control");
-        var field = page.Locator("input[data-token='--radius-control'][data-variant='dark']");
+        var field = page.Locator("input[data-token='--radius-control'][data-token-variant='dark']");
         await field.FillAsync("12px");
         await field.PressAsync(Keys.Tab);
 

@@ -19,7 +19,8 @@ namespace Sedna.UI.Tests.TestSupport;
 /// </list>
 /// <para>
 /// A key the page itself handles — Home and End in a tablist, an arrow in a graph — is the
-/// same everywhere and is not routed through here. <c>KeySpellingTests</c> fails on a test
+/// same everywhere and is not routed through here; a Tab the page handles is
+/// <see cref="PageTab"/>. <c>KeySpellingTests</c> fails on a test
 /// that spells one of the chords above directly.
 /// </para>
 /// </remarks>
@@ -32,6 +33,14 @@ internal static class Keys
 
     /// <summary>Moves focus to the previous focusable element.</summary>
     public static string ShiftTab => Mac && BrowserEngine.IsWebKit ? "Alt+Shift+Tab" : "Shift+Tab";
+
+    /// <summary>
+    /// A Tab the page under test takes itself — a grid editing a cell, a script that calls
+    /// <c>preventDefault</c> — so it is the plain key everywhere. The browser's own focus
+    /// order is <see cref="Tab"/>.
+    /// </summary>
+    public static string PageTab => "Tab";
+    public static string PageShiftTab => "Shift+Tab";
 
     /// <summary>The platform's primary modifier with <paramref name="key"/>: Command on macOS, Control elsewhere.</summary>
     public static string Primary(string key) => "ControlOrMeta+" + key;

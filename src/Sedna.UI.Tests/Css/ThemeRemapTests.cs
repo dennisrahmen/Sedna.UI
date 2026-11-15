@@ -66,7 +66,13 @@ public class ThemeRemapTests
                 // StartsWith(":root") would wave through `:root .btn` and
                 // `:root[data-variant="light"] .table`, which are the very overrides
                 // this guard exists to catch.
-                if (Regex.IsMatch(selector, @"^:root(?:\[[^\]]*\])*$")) continue;
+                //
+                // A selector list is one when every member is: the page's own form, or the
+                // same state on a subtree that names its own variant
+                // (`:root :where([data-variant])`, `:root [data-variant="light"]`).
+                if (selector.Split(',').Select(m => m.Trim()).All(m =>
+                        Regex.IsMatch(m, @"^:root(?:\[[^\]]*\])*(?: (?::where\(\[data-variant\]\)|\[data-variant=""light""\]))?$")))
+                    continue;
 
                 // forced-colors is the one appearance query with legitimate non-token
                 // rules, and there are exactly two kinds.

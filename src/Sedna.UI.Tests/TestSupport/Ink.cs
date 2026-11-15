@@ -100,6 +100,14 @@ internal static class Ink
         return [top + (y0 + topEdge) / Scale, top + (y0 + bottomEdge) / Scale];
     }
 
+    /// <summary>
+    /// Whether two rasterised colours are the same paint: each channel within
+    /// <paramref name="tolerance"/>, because engines and platforms round a blended or
+    /// antialiased pixel differently by a step.
+    /// </summary>
+    public static bool Same((int R, int G, int B) a, (int R, int G, int B) b, int tolerance = 2) =>
+        Math.Abs(a.R - b.R) <= tolerance && Math.Abs(a.G - b.G) <= tolerance && Math.Abs(a.B - b.B) <= tolerance;
+
     public static double Centre(double[] ink) => (ink[0] + ink[1]) / 2;
     /// <summary>A PNG decoder for Playwright's own screenshots: 8-bit RGB or RGBA, not interlaced.</summary>
     public sealed class Png
