@@ -171,7 +171,7 @@
       { "text": "An address the reader clicks", "instead": "/media#link-preview" }
     ],
     "goals": [ "show-a-qr-code" ],
-    "stamp": "10b5a0ccc128deda"
+    "stamp": "11361c4d22a0d7c5"
   },
   {
     "page": "/editor",

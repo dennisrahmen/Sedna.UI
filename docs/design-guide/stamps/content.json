@@ -217,13 +217,24 @@
     "src/Sedna.UI/editor-parts/55-media-bar.js": "dfbfe117b1f5ea3a"
   },
   "/qr": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Qr.razor": "0fb5a04282ff05e7",
+    "src/Sedna.UI.Catalogue/Components/Pages/Qr.razor": "58c9a01439e2c314",
+    "src/Sedna.UI.Catalogue/Examples/Interop/QrPayloads.razor": "16e7b5634f29774a",
+    "src/Sedna.UI.Catalogue/Examples/Qr/Contrast.razor": "abcfbd7f175d3ec1",
+    "src/Sedna.UI.Catalogue/Examples/Qr/CustomColour.razor": "9a2129299eb472f0",
+    "src/Sedna.UI.Catalogue/Examples/Qr/Download.razor": "d3dad6fcec112390",
+    "src/Sedna.UI.Catalogue/Examples/Qr/Formats.txt": "0f35acd642f8f2a5",
     "src/Sedna.UI.Catalogue/Examples/Qr/Levels.razor": "b601ff40d4c441c8",
+    "src/Sedna.UI.Catalogue/Examples/Qr/Logo.razor": "d6049cf897128af1",
+    "src/Sedna.UI.Catalogue/Examples/Qr/Modes.razor": "0d42715e06f6b0ee",
     "src/Sedna.UI.Catalogue/Examples/Qr/Pairing.razor": "e0e2478f55b1717b",
+    "src/Sedna.UI.Catalogue/Examples/Qr/QuietZone.razor": "2b494bbafda9897b",
+    "src/Sedna.UI.Catalogue/Examples/Qr/Shapes.razor": "f2d610058c8603b4",
     "src/Sedna.UI.Catalogue/Examples/Qr/Sizes.razor": "d767a6043afe9bbd",
-    "src/Sedna.UI/css-parts/62-qr.css": "c104c5a8a670ef03",
-    "src/Sedna.UI/js-parts/48-qr.js": "0b02448cadf45d09",
-    "src/Sedna.UI/qr-parts/60-qr.js": "02a05b8869b03d58"
+    "src/Sedna.UI.Catalogue/Examples/Qr/Tones.razor": "7a334e497033baac",
+    "src/Sedna.UI/css-parts/62-qr.css": "c55b8992ad922081",
+    "src/Sedna.UI/js-parts/48-qr.js": "c893153430d01c05",
+    "src/Sedna.UI/qr-parts/60-qr.js": "01007abbf77b439d",
+    "src/Sedna.UI/qr-parts/62-contrast.js": "834e48fb3ac9e14e"
   },
   "/video": {
     "src/Sedna.UI.Catalogue/Components/Pages/Video.razor": "788c16117657fe25",
