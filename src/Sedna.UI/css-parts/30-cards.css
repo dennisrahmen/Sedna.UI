@@ -38,7 +38,18 @@
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
+/* A head is as tall as one holding a small control — an icon button, a menu button, a
+   drag grip — whatever it holds. Entering a panel grid's arrange mode adds grips, and
+   a head that grew with them would move every panel under it; a head holding only a
+   title is the same height as one holding an icon button. `--card-head-control` is the
+   height of the control a head is sized for: the small tier. A button in a head takes
+   that height and no more — `.btn--lg` aside, which is the app choosing a taller head —
+   with its block padding given up to the height, because a small button's padding and
+   label add up to more than the tier at compact density. The grip is that tall already.
+   The 1px is the border under the head. */
 .card-head {
+    --card-head-control: var(--control-height-sm);
+    min-block-size: calc(2 * var(--card-pad-block) + var(--card-head-control) + 1px);
     display: flex;
     /* A trailing action too wide to share the line goes under the title, rather than
        squeezing the title to a word a line. */
@@ -49,6 +60,10 @@
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
     background: var(--card-head-bg);
+}
+.card-head .btn:not(.btn--lg) {
+    min-block-size: var(--card-head-control);
+    padding-block: 0;
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
@@ -192,6 +207,7 @@
 .card-head--tabs {
     align-items: stretch;
     padding: 0;
+    min-block-size: 0;       /* the tab is the head's height */
 }
 .card-head--tabs .tabs {
     flex: 1;

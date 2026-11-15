@@ -8957,12 +8957,23 @@ window.sednaUi = window.sednaUi || {};
        where the first cell starts — from the inline-end edge in a right-to-left grid. */
     function geometry(grid) {
         var cs = getComputedStyle(grid), r = grid.getBoundingClientRect();
-        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 12));
-        var gapX = px(cs.columnGap), gapY = px(cs.rowGap);
+        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 24));
+        var gapY = px(cs.rowGap);
         var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
         var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
         var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
-        var col = (right - left - gapX * (cols - 1)) / cols;
+        /* The column gap is capped at a share of the width, so its computed value can be a
+           percentage the browser leaves unresolved. The drawn tracks are always in pixels:
+           the gap is what is left of the width between them. */
+        var tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
+        var col, gapX;
+        if (cols > 1 && tracks.length === cols) {
+            col = tracks[0];
+            gapX = Math.max(0, (right - left - tracks.reduce(function (a, b) { return a + b; }, 0)) / (cols - 1));
+        } else {
+            gapX = px(cs.columnGap);
+            col = (right - left - gapX * (cols - 1)) / cols;
+        }
         var row = px(cs.gridAutoRows) || 48;
         return {
             cols: cols, col: col, row: row, gapX: gapX, gapY: gapY,

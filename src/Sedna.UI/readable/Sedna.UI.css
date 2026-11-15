@@ -4272,7 +4272,18 @@ a.topbar-version--pre:hover {
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
+/* A head is as tall as one holding a small control — an icon button, a menu button, a
+   drag grip — whatever it holds. Entering a panel grid's arrange mode adds grips, and
+   a head that grew with them would move every panel under it; a head holding only a
+   title is the same height as one holding an icon button. `--card-head-control` is the
+   height of the control a head is sized for: the small tier. A button in a head takes
+   that height and no more — `.btn--lg` aside, which is the app choosing a taller head —
+   with its block padding given up to the height, because a small button's padding and
+   label add up to more than the tier at compact density. The grip is that tall already.
+   The 1px is the border under the head. */
 .card-head {
+    --card-head-control: var(--control-height-sm);
+    min-block-size: calc(2 * var(--card-pad-block) + var(--card-head-control) + 1px);
     display: flex;
     /* A trailing action too wide to share the line goes under the title, rather than
        squeezing the title to a word a line. */
@@ -4283,6 +4294,10 @@ a.topbar-version--pre:hover {
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
     background: var(--card-head-bg);
+}
+.card-head .btn:not(.btn--lg) {
+    min-block-size: var(--card-head-control);
+    padding-block: 0;
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
@@ -4426,6 +4441,7 @@ a.topbar-version--pre:hover {
 .card-head--tabs {
     align-items: stretch;
     padding: 0;
+    min-block-size: 0;       /* the tab is the head's height */
 }
 .card-head--tabs .tabs {
     flex: 1;
@@ -6884,7 +6900,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    A dashboard whose panels each have a place of their own: a column, a row, a width
    and a height in cells, set inline from the arrangement the app stores —
    `style="--panel-x: 0; --panel-y: 0; --panel-w: 8; --panel-h: 4"`, counted from 0 at the
-   inline start and the top. `--panel-cols` (12) columns share the width; a row is
+   inline start and the top. `--panel-cols` (24) columns share the width — the same 24 as
+   `.sedna-grid-24`, so a panel's span means what `.sedna-span-N` means — a row is
    `--panel-row` (3rem) tall, and `--grid-gap` lies between them both ways. Nothing
    flows: a panel stays where it is put, so the app keeps them from overlapping —
    `sednaUi.panels.arrange` and `SednaPanels.Arrange` settle any arrangement into one
@@ -6892,7 +6909,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
    As a drag zone with `data-drag-axis="cells"`, the reader arranges it while it carries
    `data-arrange`: a panel moves by its `[data-drag-handle]` and resizes by its
-   `.card-resize` handles, which show only then, over cells drawn faintly on the grid.
+   `.card-resize` handles, which show only then, over a dot at the centre of every cell.
    While a panel is carried the grid marks the cell it would land on, from the
    `--panel-drop-*` the script writes; the other panels make room through
    `--panel-preview-*`, which the script writes and clears and which are read before the
@@ -6901,7 +6918,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
    their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
 .panel-grid {
-    --panel-cols: 12;
+    --panel-cols: 24;
     --panel-row: 3rem;
     --grid-gap: var(--space-7);
     --panel-drop-x: 0;
@@ -6913,6 +6930,10 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     grid-template-columns: repeat(var(--panel-cols), minmax(0, 1fr));
     grid-auto-rows: var(--panel-row);
     gap: var(--grid-gap);
+    /* The column gap is capped at a share of the width, as `.sedna-grid-24`'s is: 23 gaps
+       of 16px come to 368px, and a grid narrower than that would push its tracks to
+       nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
+    column-gap: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
 }
 :where(.panel-grid > *) {
     --panel-x: 0;
@@ -6934,12 +6955,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
 .panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
-/* Arranging: the cells, a tint each with the gap left clear — one tile per cell, tinted in
-   the quarter of a conic gradient that lies above and before the gap's corner. */
+/* Arranging: a dot at the centre of every cell, so every place a panel can start and
+   every size it can take is marked. The tile is a cell and the gap after it, and the dot
+   sits in the cell, half a gap in from the tile's far corner. `--panel-guide-dot` is its
+   colour. */
 .panel-grid[data-arrange] {
-    background-image: conic-gradient(
-        at calc(100% - var(--grid-gap)) calc(100% - var(--grid-gap)),
-        transparent 75%, var(--surface-soft) 0);
+    --panel-guide-dot: var(--border-strong);
+    background-image: radial-gradient(
+        circle at calc(50% - var(--grid-gap) / 2) calc(50% - var(--grid-gap) / 2),
+        var(--panel-guide-dot) 1.5px, transparent 2px);
     background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
     border-radius: var(--radius-surface);
 }

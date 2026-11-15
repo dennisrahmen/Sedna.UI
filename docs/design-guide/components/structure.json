@@ -95,7 +95,7 @@
     "combineWith": [
       { "page": "/card#width-height-or-both", "how": "Every panel is a .card--resizable whose handles count in cells." },
       { "page": "/drag-drop#keyboard", "how": "The grid is a drag zone with data-drag-axis=\"cells\", picked up and moved with the same keys and announced in the same live region." },
-      { "page": "/grid#two-independent-columns", "how": "Panels the app places itself, beside or above the ones the reader arranges, stay on the 24-column grid." },
+      { "page": "/grid#two-independent-columns", "how": "Panels the app places itself, beside or above the ones the reader arranges, are on the same 24 columns." },
       { "page": "/toolbar", "how": "A toolbar button puts the grid into arrange mode with data-arrange and takes it out again." }
     ],
     "notFor": [

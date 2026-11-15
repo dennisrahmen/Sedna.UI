@@ -34,6 +34,17 @@ public class ToneMatrixTests
     }
 
     [Fact]
+    public void Only_the_labelling_families_take_the_categorical_hues()
+    {
+        // A colour with no meaning labels; a note, an alert or a button is coloured by what it means.
+        foreach (var (family, tones) in Tones.Families().Where(f => !Labels.Contains(f.Key)))
+        {
+            var extra = Categorical.Intersect(tones).ToList();
+            Assert.True(extra.Count == 0, $".{family} takes the categorical hues {string.Join(", ", extra)}, which only {string.Join(" and ", Labels)} do.");
+        }
+    }
+
+    [Fact]
     public void Every_tone_carrier_sets_every_tone_property()
     {
         var properties = Tones.Carriers().Values.SelectMany(p => p.Keys).ToHashSet(StringComparer.Ordinal);
