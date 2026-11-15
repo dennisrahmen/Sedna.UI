@@ -43,6 +43,7 @@ class Policy:
         self.changed_lines_min = None
         self.whole_floor = None
         self.scope = []  # (directory, [extensions])
+        self.require = []  # directories that must hold at least one measured executable line
         self.excludes = []  # (glob, reason)
 
 
@@ -73,6 +74,10 @@ def read_policy(path):
                 if len(words) < 2 or not words[0].endswith("/") or not all(w.startswith(".") for w in words[1:]):
                     raise HarnessError("%s: a scope is `scope = <directory>/ <.ext> [<.ext> ...]`" % where)
                 policy.scope.append((words[0], words[1:]))
+            elif key == "require":
+                if not value.endswith("/"):
+                    raise HarnessError("%s: `require` names a directory and ends with /" % where)
+                policy.require.append(value)
             elif key == "exclude":
                 glob, bar, reason = value.partition("|")
                 glob, reason = glob.strip(), reason.strip()
@@ -348,9 +353,22 @@ def run(args):
     # the files that should have one are listed.
     not_reported = sorted(p for p in scope_files if p not in scoped)
     absent = [p for p in not_reported if p.endswith(".cs")]
+    missing = [d for d in policy.require if not any(p.startswith(d) for p in scoped)]
+    if missing and not args.partial:
+        raise HarnessError("nothing was measured under: %s (a report is missing; --partial allows it)"
+                           % ", ".join(missing))
+    if missing:
+        print("WARNING: nothing was measured under: %s (--partial)" % ", ".join(missing))
     markup_only = len(not_reported) - len(absent)
 
     failures = []
+    for prefix, extensions in policy.scope:
+        group = [t for p, t in scoped.items() if p.startswith(prefix) and os.path.splitext(p)[1] in extensions]
+        if group:
+            group_covered = sum(1 for t in group for h in t.values() if h > 0)
+            group_total = sum(len(t) for t in group)
+            print("  %-48s %6d of %6d (%.2f%%)" % (prefix + " " + " ".join(extensions), group_covered, group_total,
+                                                   percent(group_covered, group_total)))
     print("Whole code: %d of %d executable lines covered (%.2f%%); floor %g%%."
           % (covered, executable, percent(covered, executable), policy.whole_floor))
     if covered * 100 < policy.whole_floor * executable:
@@ -405,6 +423,8 @@ def main(argv):
     parser.add_argument("--skip-changed", action="store_true", help="check the floor only (no pull request)")
     parser.add_argument("--policy", default="build/coverage-policy.txt")
     parser.add_argument("--repo", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    parser.add_argument("--partial", action="store_true",
+                        help="a `require`d directory with nothing measured is a warning, not an error (a local run of one project)")
     parser.add_argument("--markdown", help="write the Markdown report to this path")
     parser.add_argument("--changed-min", type=float, help="override changed_lines_min (tests only)")
     parser.add_argument("--floor", type=float, help="override whole_floor (tests only)")

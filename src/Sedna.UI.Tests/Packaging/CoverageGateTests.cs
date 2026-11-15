@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using Sedna.UI.Tests.TestSupport;
 
@@ -360,6 +361,99 @@ public class CoverageGateTests : IDisposable
         var text = File.ReadAllText(markdown);
         Assert.Contains("In scope, in no report", text, StringComparison.Ordinal);
         Assert.Contains("`src/Lib/B.cs`", text, StringComparison.Ordinal);
+    }
+
+    // ── The script's coverage ────────────────────────────────────────────────────────
+
+    private static string JsConverter => Path.Combine(Assets.RepoRoot, "build", "coverage-js.py");
+
+    private string ServedScriptCoverage(string name, int[][] covered, string? hash = null)
+    {
+        var served = Assets.JsPath;
+        var json = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            scripts = new Dictionary<string, object>
+            {
+                ["/js/Sedna.UI.js"] = new
+                {
+                    length = File.ReadAllText(served).Length,
+                    sha256 = hash ?? Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(served))).ToLowerInvariant(),
+                    covered,
+                },
+            },
+        });
+        Write(name, json);
+        return Path.Combine(_dir, name);
+    }
+
+    [Fact]
+    public void The_served_script_maps_back_to_its_parts_exactly()
+    {
+        // The converter fails unless build/strip-comments.py's output, replayed with line numbers,
+        // equals the served file and every mapped line equals its line in a part.
+        var length = File.ReadAllText(Assets.JsPath).Length;
+        var input = ServedScriptCoverage("js-a.json", [[0, length]]);
+        var output = Path.Combine(_dir, "js.xml");
+
+        var (exit, text) = Run("python3", Assets.RepoRoot, "-I", JsConverter, "--repo", Assets.RepoRoot, "--out", output, input);
+
+        Assert.True(exit == 0, text);
+        Assert.Contains("JavaScript:", text, StringComparison.Ordinal);
+        var xml = File.ReadAllText(output);
+        Assert.Contains("filename=\"src/Sedna.UI/js-parts/00-core.js\"", xml, StringComparison.Ordinal);
+        var core = System.Text.RegularExpressions.Regex.Match(xml, "filename=\"src/Sedna.UI/js-parts/00-core.js\">.*?</class>").Value;
+        Assert.Contains("hits=\"1\"", core, StringComparison.Ordinal);
+        Assert.DoesNotContain("hits=\"0\"", core, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Offsets_that_ran_in_either_of_two_processes_are_covered()
+    {
+        var length = File.ReadAllText(Assets.JsPath).Length;
+        var half = length / 2;
+        var first = ServedScriptCoverage("js-first.json", [[0, half]]);
+        var second = ServedScriptCoverage("js-second.json", [[half, length]]);
+
+        string Covered(params string[] inputs)
+        {
+            var output = Path.Combine(_dir, "js-merge.xml");
+            var args = new List<string> { "-I", JsConverter, "--repo", Assets.RepoRoot, "--out", output };
+            args.AddRange(inputs);
+            var (exit, text) = Run("python3", Assets.RepoRoot, args.ToArray());
+            Assert.True(exit == 0, text);
+            return System.Text.RegularExpressions.Regex.Match(text, @"JavaScript: (\d+) of").Groups[1].Value;
+        }
+
+        var one = int.Parse(Covered(first), System.Globalization.CultureInfo.InvariantCulture);
+        var two = int.Parse(Covered(second), System.Globalization.CultureInfo.InvariantCulture);
+        var both = int.Parse(Covered(first, second), System.Globalization.CultureInfo.InvariantCulture);
+
+        Assert.True(one > 0 && two > 0 && both >= Math.Max(one, two) && both <= one + two, $"{one} {two} {both}");
+    }
+
+    [Fact]
+    public void Coverage_measured_against_another_build_of_the_script_is_an_error()
+    {
+        var input = ServedScriptCoverage("js-stale.json", [[0, 10]], hash: new string('0', 64));
+
+        var (exit, text) = Run("python3", Assets.RepoRoot, "-I", JsConverter, "--repo", Assets.RepoRoot,
+            "--out", Path.Combine(_dir, "js.xml"), input);
+
+        Assert.Equal(2, exit);
+        Assert.Contains("changed since it was measured", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void No_script_coverage_at_all_is_an_error()
+    {
+        var empty = Path.Combine(_dir, "js-empty");
+        Directory.CreateDirectory(empty);
+
+        var (exit, text) = Run("python3", Assets.RepoRoot, "-I", JsConverter, "--repo", Assets.RepoRoot,
+            "--out", Path.Combine(_dir, "js.xml"), empty);
+
+        Assert.Equal(2, exit);
+        Assert.Contains("nothing was measured", text, StringComparison.Ordinal);
     }
 
     // ── The committed pieces ─────────────────────────────────────────────────────────

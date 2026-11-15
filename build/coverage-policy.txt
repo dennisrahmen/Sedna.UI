@@ -14,6 +14,19 @@ whole_floor = 50
 # What is measured: tracked files under a scope directory with one of its extensions.
 scope = src/Sedna.UI/ .cs
 scope = src/Sedna.UI.Catalogue/ .cs .razor
+scope = src/Sedna.UI/js-parts/ .js
+scope = src/Sedna.UI/graph-parts/ .js
+scope = src/Sedna.UI/editor-parts/ .js
+scope = src/Sedna.UI/chart-parts/ .js
+scope = src/Sedna.UI/orb-parts/ .js
+scope = src/Sedna.UI/signature-parts/ .js
+scope = src/Sedna.UI/qr-parts/ .js
+
+# A report that must be there. The gate fails when nothing was measured under one of these, so a
+# job whose report went missing cannot raise the share by leaving its code out of the figure.
+require = src/Sedna.UI/
+require = src/Sedna.UI.Catalogue/
+require = src/Sedna.UI/js-parts/
 
 # What is not measured, file by file, each with its reason. A line is `exclude = <path or glob> | <reason>`;
 # the reason is required and a pattern matching no tracked file is an error. Inside a file,
