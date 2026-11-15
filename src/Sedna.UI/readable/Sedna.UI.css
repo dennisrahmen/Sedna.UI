@@ -28625,7 +28625,11 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 /* ── 90-density.css → @layer sedna.overrides ──────────────────────────────────────────────── */
 @layer sedna.overrides {
 /* ═══ Density ═══════════════════════════════════════════════════════════════
-   [data-density="compact"] or [data-density="touch"] on <html>. A pure token remap,
+   [data-density="compact"] or [data-density="touch"] on <html> for the whole page, or on any
+   element for what is inside it — a dense list of row tools, a touch panel on a desk page —
+   as `data-variant` is. The reader's setting sets it on <html>; an app sets it on a part of
+   the page in its own markup, and inside that part it wins. `data-density="comfortable"` on
+   an element gives a part the default back inside a compact page. A pure token remap,
    like every other theme block, so it composes with the themes and CSS load order
    stays irrelevant. Density moves spacing and control heights and never the type:
    text sizes are the reader's, set by the browser's zoom.
@@ -28644,6 +28648,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    `.table th, .table td { padding: … }` or `.card-body { padding: … }` does not go
    compact until that rule is deleted. No specificity here can substitute for deleting it.
    ─────────────────────────────────────────────────────────────────────────── */
+:root :where([data-density="compact"]),
 :root[data-density="compact"] {
     --cell-pad-y: var(--space-2);
     --cell-pad-x: var(--space-5);
@@ -28660,6 +28665,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --control-height-lg: 38px;
 }
 
+:root :where([data-density="touch"]),
 :root[data-density="touch"] {
     --cell-pad-y: var(--space-6);
     --cell-pad-x: var(--space-7);
@@ -28669,10 +28675,29 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --list-pad-inline: var(--space-7);
     --list-gap: var(--space-6);
     --page-rhythm: var(--space-8);
+    /* The page's own padding stays the default's; said here so a touch part of a compact
+       page takes it back (DensityScopeTests). */
+    --page-pad: var(--space-9);
     --page-banner-pad-block: var(--space-7);
     --control-height-sm: 36px;
     --control-height: 44px;
     --control-height-lg: 52px;
+}
+
+:root :where([data-density="comfortable"]) {
+    --cell-pad-y: 8px;
+    --cell-pad-x: 12px;
+    --card-pad-block: var(--space-6);
+    --card-pad-inline: var(--space-7);
+    --list-pad-block: var(--space-5);
+    --list-pad-inline: var(--space-6);
+    --list-gap: var(--space-4);
+    --page-rhythm: var(--space-7);
+    --page-pad: var(--space-9);
+    --page-banner-pad-block: var(--space-5);
+    --control-height-sm: 28px;
+    --control-height: 36px;
+    --control-height-lg: 44px;
 }
 
 /* ═══ A coarse pointer ══════════════════════════════════════════════════════
