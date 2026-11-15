@@ -128,7 +128,7 @@
     "src/Sedna.UI/css-parts/37-alerts.css": "b373565eb8452442",
     "src/Sedna.UI/css-parts/55-actions-fold.css": "d0cb5ef6aff7f429",
     "src/Sedna.UI/css-parts/55-page-structure.css": "8c074ff1e15ad9d9",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
     "src/Sedna.UI/graph-parts/70-graph.js": "a126adda623ade1e",
     "src/Sedna.UI/js-parts/10-settings.js": "4ccd10f514cabfb5",
     "src/Sedna.UI/orb-parts/50-orb.js": "2e16b28737d8f704",
@@ -159,7 +159,7 @@
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
     "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/69-timeline.css": "b94f67914134dc04",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
     "src/Sedna.UI/js-parts/27-workflow.js": "63763826fdc679ba"
   },
   "/tree": {

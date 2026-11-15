@@ -519,6 +519,7 @@
     "badge--sm": {
       "family": "badge",
       "combinedWith": [
+        "badge--swatch",
         "badge-ai--icon"
       ]
     },
@@ -529,7 +530,10 @@
       ]
     },
     "badge--swatch": {
-      "family": "badge"
+      "family": "badge",
+      "combinedWith": [
+        "badge--sm"
+      ]
     },
     "badge--swatch-outline": {
       "family": "badge"
@@ -807,7 +811,8 @@
     "btn--lg": {
       "family": "btn",
       "combinedWith": [
-        "btn--icon"
+        "btn--icon",
+        "count-host"
       ]
     },
     "btn--secret": {
@@ -816,7 +821,8 @@
     "btn--sm": {
       "family": "btn",
       "combinedWith": [
-        "btn--icon"
+        "btn--icon",
+        "count-host"
       ]
     },
     "btn--solid": {
@@ -2157,14 +2163,28 @@
     "count-badge": {
       "family": "count-badge",
       "variants": [
+        "count-badge--brand",
+        "count-badge--cyan",
         "count-badge--danger",
         "count-badge--go",
         "count-badge--info",
-        "count-badge--muted"
+        "count-badge--lg",
+        "count-badge--muted",
+        "count-badge--orange",
+        "count-badge--secret",
+        "count-badge--sm",
+        "count-badge--teal",
+        "count-badge--warn"
       ],
       "pseudoClasses": [
         ":empty"
       ]
+    },
+    "count-badge--brand": {
+      "family": "count-badge"
+    },
+    "count-badge--cyan": {
+      "family": "count-badge"
     },
     "count-badge--danger": {
       "family": "count-badge"
@@ -2175,7 +2195,25 @@
     "count-badge--info": {
       "family": "count-badge"
     },
+    "count-badge--lg": {
+      "family": "count-badge"
+    },
     "count-badge--muted": {
+      "family": "count-badge"
+    },
+    "count-badge--orange": {
+      "family": "count-badge"
+    },
+    "count-badge--secret": {
+      "family": "count-badge"
+    },
+    "count-badge--sm": {
+      "family": "count-badge"
+    },
+    "count-badge--teal": {
+      "family": "count-badge"
+    },
+    "count-badge--warn": {
       "family": "count-badge"
     },
     "count-host": {
@@ -2184,7 +2222,9 @@
         "count-host--round"
       ],
       "combinedWith": [
-        "btn"
+        "btn",
+        "btn--lg",
+        "btn--sm"
       ]
     },
     "count-host--round": {
@@ -5047,12 +5087,26 @@
     "ribbon": {
       "family": "ribbon",
       "variants": [
+        "ribbon--brand",
+        "ribbon--cyan",
         "ribbon--danger",
         "ribbon--go",
         "ribbon--info",
+        "ribbon--lg",
         "ribbon--muted",
-        "ribbon--tab"
+        "ribbon--orange",
+        "ribbon--secret",
+        "ribbon--sm",
+        "ribbon--tab",
+        "ribbon--teal",
+        "ribbon--warn"
       ]
+    },
+    "ribbon--brand": {
+      "family": "ribbon"
+    },
+    "ribbon--cyan": {
+      "family": "ribbon"
     },
     "ribbon--danger": {
       "family": "ribbon"
@@ -5063,10 +5117,38 @@
     "ribbon--info": {
       "family": "ribbon"
     },
+    "ribbon--lg": {
+      "family": "ribbon",
+      "combinedWith": [
+        "ribbon--tab"
+      ]
+    },
     "ribbon--muted": {
       "family": "ribbon"
     },
+    "ribbon--orange": {
+      "family": "ribbon"
+    },
+    "ribbon--secret": {
+      "family": "ribbon"
+    },
+    "ribbon--sm": {
+      "family": "ribbon",
+      "combinedWith": [
+        "ribbon--tab"
+      ]
+    },
     "ribbon--tab": {
+      "family": "ribbon",
+      "combinedWith": [
+        "ribbon--lg",
+        "ribbon--sm"
+      ]
+    },
+    "ribbon--teal": {
+      "family": "ribbon"
+    },
+    "ribbon--warn": {
       "family": "ribbon"
     },
     "ribbon-host": {
