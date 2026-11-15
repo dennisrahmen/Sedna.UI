@@ -15333,6 +15333,17 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 .table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
 
+/* A cell that holds only a checkbox and its label. An inline-flex box sits on the line's
+   baseline with the strut's descent under it, so the box stood a few pixels above the middle
+   of its row beside text that is centred. As a block of its own its cell centres it, as it
+   does the text beside it; it keeps the width of its content, and the cell's alignment. */
+.table :is(td, th) > .form-check:only-child {
+    display: flex;
+    inline-size: max-content;
+}
+.table :is(td, th):is(.col-num, .text-end) > .form-check:only-child { margin-inline-start: auto; }
+.table :is(td, th):is(.text-center) > .form-check:only-child { margin-inline: auto; }
+
 /* ── Pinned columns ─────────────────────────────────────────────────────────
    `.table--sticky` pins the header for a reader scrolling DOWN. This is the same
    problem on the other axis: a table too wide for its column scrolls sideways in

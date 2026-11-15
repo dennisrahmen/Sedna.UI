@@ -8588,6 +8588,12 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     pointer-events: none;
 }
 .table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
+.table :is(td, th) > .form-check:only-child {
+    display: flex;
+    inline-size: max-content;
+}
+.table :is(td, th):is(.col-num, .text-end) > .form-check:only-child { margin-inline-start: auto; }
+.table :is(td, th):is(.text-center) > .form-check:only-child { margin-inline: auto; }
 .table--pin-start,
 .table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
 .table--pin-start { --pin-edge-start: var(--shadow-edge-start); }
