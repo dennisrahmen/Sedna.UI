@@ -162,6 +162,22 @@
     color: var(--muted);
 }
 .prose data[value] { color: var(--accent); font-weight: 500; }
+/* What the rich-text editor writes for alignment, direction and the indent of a paragraph — classes
+   of its own, so the HTML it posts reads the same where it is shown. `right` is the physical edge
+   Quill stores; it is the end edge, and in a right-to-left block the start. */
+.prose .ql-align-center { text-align: center; }
+.prose .ql-align-justify { text-align: justify; }
+.prose .ql-align-right { text-align: end; }
+.prose .ql-direction-rtl { direction: rtl; text-align: inherit; }
+.prose .ql-direction-rtl.ql-align-right { text-align: start; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-1 { padding-inline-start: 3em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-2 { padding-inline-start: 6em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-3 { padding-inline-start: 9em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-4 { padding-inline-start: 12em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-5 { padding-inline-start: 15em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-6 { padding-inline-start: 18em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-7 { padding-inline-start: 21em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-8 { padding-inline-start: 24em; }
 .prose hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 .prose img { max-width: 100%; height: auto; border-radius: var(--radius-inner); }
 .prose video { display: block; max-width: 100%; height: auto; margin: 1em 0; border-radius: var(--radius-inner); }

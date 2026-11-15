@@ -120,7 +120,7 @@
       { "text": "One line of text", "instead": "/form-text" }
     ],
     "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
-    "stamp": "9e38e9a7723eae55"
+    "stamp": "1799a2cb638b3573"
   },
   {
     "page": "/form-datetime",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "210b197a71a1dda4"
+    "stamp": "c5caceaeadd3dcb3"
   },
   {
     "page": "/form-choice",

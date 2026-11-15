@@ -34,6 +34,7 @@
     "src/Sedna.UI/css-parts/68-guard.css": "74ea9dd76cddf300",
     "src/Sedna.UI/css-parts/68-mochi.css": "4e31d4de3f0b0973",
     "src/Sedna.UI/css-parts/80-utilities.css": "7018485e687d8612",
+    "src/Sedna.UI/editor-parts/60-rule.js": "d79071ade2a9e816",
     "src/Sedna.UI/graph-parts/70-graph.js": "a126adda623ade1e",
     "src/Sedna.UI/js-parts/10-settings.js": "8a301c3a7fe307cb",
     "src/Sedna.UI/js-parts/26-drag.js": "b22f3e7b14ba1cc1",

@@ -1864,6 +1864,11 @@ function updateMention(e, typed, caret) {
         appAnswers = !e.emit('sedna-editor-mention', { query: at.query }, true);
         e.mentionAppAnswers = appAnswers;
     }
+    renderMention(e, at, appAnswers);
+}
+
+// Shows the rows that match the word after the "@" — every row, when the app answered — or closes the list.
+function renderMention(e, at, appAnswers) {
     const score = window.sednaUi?._?.score;
     let any = false;
     for (const item of mentionItems(e)) {
@@ -1931,7 +1936,9 @@ function setMentions(e, list) {
         menu.append(row);
         made++;
     }
-    if (!menu.hidden && e.mentionOpen) updateMention(e, true);
+    // Rows that arrive for a word still being typed open the list, or fill it again.
+    const at = mentionAt(e);
+    if (at && e.formats.includes('mention') && e.mentionDismissed !== at.start) renderMention(e, at, true);
     return made;
 }
 

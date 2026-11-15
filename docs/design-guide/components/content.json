@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "3bdc4925bcd96bf0"
+    "stamp": "4bc6ba232d671124"
   },
   {
     "page": "/carousel",
@@ -95,7 +95,7 @@
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "7e71c1b0ea69710b"
+    "stamp": "a7d9076b95f93614"
   },
   {
     "page": "/markdown",
@@ -178,15 +178,17 @@
       { "page": "/form#fields", "how": "The editor takes a .form-field's place with its label and hint, and the hidden textarea posts, resets and is required like any other field." },
       { "page": "/menu", "how": "The slash menu is a .menu.editor-slash written inside the editor, one item per kind of block." },
       { "page": "/form-validation#error-and-warning", "how": "The notice for a pasted file it did not take is coloured by .form-warning at the editor's foot." },
-      { "page": "/modal", "how": "An image picker of the app's own, opened by cancelling sedna-editor-media and answered with InsertImageAsync." }
+      { "page": "/modal", "how": "An image picker of the app's own, opened by cancelling sedna-editor-media and answered with InsertImageAsync." },
+      { "page": "/prose#pictures-beside-text", "how": "The HTML the editor posts is shown in a .prose, which styles data-align, the alignment classes and the horizontal rule." },
+      { "page": "/avatar", "how": "A person in the mention list is a .menu-item with an .avatar in front of the name." }
     ],
     "notFor": [
       { "text": "Text written in Markdown syntax", "instead": "/markdown#write-and-preview" },
       { "text": "Plain text with no formatting", "instead": "/form-textarea" },
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
-    "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "fcc28ddf4d065901"
+    "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text", "mention-someone", "format-as-you-type", "limit-rich-text-length", "edit-tables-in-text", "write-in-full-screen" ],
+    "stamp": "1fc81f1216cc6bd6"
   },
   {
     "page": "/chat",
@@ -205,6 +207,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "b44e3d39692e69d2"
+    "stamp": "cbdcf59662cf41e8"
   }
 ]

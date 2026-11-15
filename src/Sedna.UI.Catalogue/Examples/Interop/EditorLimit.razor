@@ -1,0 +1,29 @@
+@* The textarea's maxlength is the limit: the editor counts the document's text, cuts what is typed or
+   pasted beyond it, and marks the frame aria-invalid until the next change. The counter is the app's own,
+   written from the event's length — nothing here draws it. *@
+<div class="form-field">
+    <label class="form-label" for="status-value">Status update</label>
+    <div class="editor" data-editor id="status" style="--editor-max-height: 12rem"
+         @onsedna-editor-change="Changed" @onsedna-editor-ready="Changed">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <textarea id="status-value" name="status" data-editor-value hidden maxlength="@Max"
+                  aria-describedby="status-count" placeholder="What is the dock up to?">&lt;p&gt;Truck 6 has arrived.&lt;/p&gt;</textarea>
+    </div>
+    <p class="form-hint" id="status-count" aria-live="polite">@_length of @Max characters, @_words words</p>
+</div>
+
+@code {
+    private const int Max = 120;
+    private int _length;
+    private int _words;
+
+    private void Changed(SednaEditorEventArgs e)
+    {
+        _length = e.Length;
+        _words = e.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+}

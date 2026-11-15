@@ -225,6 +225,46 @@
     "avoid": "Offering a format in the toolbar the server will not keep, or keeping one the toolbar does not offer: the two lists are the same list."
   },
   {
+    "id": "format-as-you-type",
+    "goal": "Let the user format text by typing Markdown shortcuts",
+    "phrases": [ "markdown shortcuts in an editor", "autoformat", "format as you type", "type a hash for a heading", "horizontal rule in an editor" ],
+    "answer": [
+      { "page": "/editor#markdown-shortcuts-and-rules", "role": "primary" }
+    ],
+    "how": "Nothing to write: a heading, quote, rule, code block or inline mark typed the Markdown way becomes the format when the toolbar offers it, and Ctrl+Z puts back what was typed. A data-editor-action=\"rule\" button adds the horizontal rule.",
+    "avoid": "Expecting a shortcut for a format the toolbar does not offer: the editor holds only the formats it offers, so the text stays as typed."
+  },
+  {
+    "id": "limit-rich-text-length",
+    "goal": "Let the user write formatted text up to a limit and show how much is left",
+    "phrases": [ "editor character limit", "max length rich text", "word counter editor", "rich text counter" ],
+    "answer": [
+      { "page": "/editor#length-limit-and-counter", "role": "primary" }
+    ],
+    "how": "maxlength on the editor's textarea is the limit, counted on the document's text; typing beyond it is cut and the frame is marked aria-invalid. The counter is the app's hint, written from the change event's length.",
+    "avoid": "Counting the HTML: the limit and the counter are about what the reader sees, not the markup around it."
+  },
+  {
+    "id": "edit-tables-in-text",
+    "goal": "Let the user put and edit a table in formatted text",
+    "phrases": [ "table in a rich text editor", "insert a table in wysiwyg", "table editing in an editor", "add a row to a table in text" ],
+    "answer": [
+      { "page": "/editor#tables", "role": "primary" }
+    ],
+    "how": "Toolbar buttons with data-editor-action table-insert and the row and column actions make the editor take tables; the actions are disabled where they do not apply.",
+    "avoid": "Offering the row and column actions without table-insert: the editor takes tables from any of them, but the reader has no way to start one."
+  },
+  {
+    "id": "write-in-full-screen",
+    "goal": "Let the user write formatted text with the editor filling the screen",
+    "phrases": [ "full screen editor", "distraction free editor", "expand the editor", "maximise the editor" ],
+    "answer": [
+      { "page": "/editor#full-screen", "role": "primary" }
+    ],
+    "how": "A data-fullscreen button in the toolbar with aria-controls naming the editor; the frame takes the display and the document the height the toolbar leaves.",
+    "avoid": "Calling it from a timer or on load: the browser allows full screen only from the reader's own press."
+  },
+  {
     "id": "insert-blocks-with-a-slash",
     "goal": "Let the user turn a line into a heading or a list by typing a slash",
     "phrases": [ "slash commands", "slash menu", "block menu", "insert block menu" ],
@@ -245,7 +285,7 @@
       { "page": "/editor#refused-pictures", "role": "part" },
       { "page": "/markdown#images-and-videos", "role": "part" }
     ],
-    "how": "The image and video buttons open the app's own media form — address, description and an optional width and height in pixels, so a large picture can be shown smaller — or the app cancels sedna-editor-media and opens its own picker, uploads the file and hands the editor its address. A pasted file the app does not take shows the editor's notice instead of vanishing.",
+    "how": "A click on a picture chooses it, and an app-written bar above it sets its size and how it sits against the text. The image and video buttons open the app's own media form — address, description and an optional width and height in pixels, so a large picture can be shown smaller — or the app cancels sedna-editor-media and opens its own picker, uploads the file and hands the editor its address. A pasted file the app does not take shows the editor's notice instead of vanishing.",
     "avoid": "Expecting a pasted picture to be inlined: the editor never inlines a file, so uploading it is the app's job."
   },
   {
