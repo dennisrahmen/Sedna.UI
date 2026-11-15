@@ -851,4 +851,32 @@ public class CalendarLayoutTests : ScriptTestBase
         Assert.Equal(48, m[5], 0.5);      // and its start has not moved
         Assert.Empty(errors);
     }
+
+    [Fact]
+    public async Task An_events_corners_are_two_pixels_from_one_token_and_a_continuing_edge_stays_square()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div class="cal-month" style="--cal-lanes: 2; width: 700px">
+              <div class="cal-row"><div class="cal-day"><span class="cal-day-num">1</span></div>
+                <div class="cal-row-events">
+                  <a class="cal-event" id="a" href="#" style="grid-column: 1; grid-row: 1">Audit</a>
+                  <a class="cal-event cal-event--continues-end" id="c" href="#" style="grid-column: 1; grid-row: 2">Audit</a>
+                  <a class="cal-event" id="t" href="#" style="grid-column: 1; grid-row: 1; --cal-event-radius: 0px">Audit</a>
+                </div>
+              </div>
+            </div>
+            <div class="cal-week" style="--cal-hours: 4; width: 400px"><div class="cal-days"><div class="cal-col">
+              <a class="cal-block" id="b" href="#" style="--cal-start: 1; --cal-span: 1">Audit</a></div></div></div>
+            """);
+
+        var r = await page.EvaluateAsync<string[]>("""
+            () => ['a', 'c', 't', 'b'].map(id => { const s = getComputedStyle(document.getElementById(id)); return [s.borderStartStartRadius, s.borderStartEndRadius].join('|'); })
+            """);
+        Assert.Equal("2px|2px", r[0]);       // a pill rounds by the token's two pixels,
+        Assert.Equal("2px|0px", r[1]);       // a continuing edge is square,
+        Assert.Equal("0px|0px", r[2]);       // the token is what sets it,
+        Assert.Equal("2px|2px", r[3]);       // and a block takes the same.
+        Assert.Empty(errors);
+    }
 }

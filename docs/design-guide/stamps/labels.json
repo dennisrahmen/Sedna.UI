@@ -16,7 +16,7 @@
     "src/Sedna.UI/css-parts/31-count.css": "67ea1bbe78c68227",
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
     "src/Sedna.UI/css-parts/58-menu.css": "12bf9c27c7f99dbe",
-    "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
+    "src/Sedna.UI/css-parts/59-table-extensions.css": "ee0106d595849204",
     "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c"
   },
@@ -40,7 +40,7 @@
     "src/Sedna.UI/css-parts/35-toolbar.css": "6af09d04e74e171b",
     "src/Sedna.UI/css-parts/46-form-layout.css": "8bf0ca88d161416b",
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
-    "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
+    "src/Sedna.UI/css-parts/59-table-extensions.css": "ee0106d595849204",
     "src/Sedna.UI/css-parts/65-app-switcher.css": "287eea52b11310e9",
     "src/Sedna.UI/css-parts/65-popover.css": "efdd526f226f60f3",
     "src/Sedna.UI/css-parts/66-agent-activity.css": "f04a109f639f81bd",
@@ -85,7 +85,7 @@
     "src/Sedna.UI.Catalogue/Examples/Kbd/Keys.razor": "9863cffb673b809c",
     "src/Sedna.UI.Catalogue/Examples/Kbd/ShortcutList.razor": "149444ae966ea488",
     "src/Sedna.UI/css-parts/31-kbd.css": "e688e111ace655e7",
-    "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01"
+    "src/Sedna.UI/css-parts/59-table-extensions.css": "ee0106d595849204"
   },
   "/ribbon": {
     "src/Sedna.UI.Catalogue/Components/Pages/Ribbon.razor": "891a7f4a8acf78f2",

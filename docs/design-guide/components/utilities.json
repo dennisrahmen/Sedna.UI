@@ -46,7 +46,7 @@
       { "text": "Prose the app did not write", "instead": "/prose" }
     ],
     "goals": [ "read-long-text-in-part" ],
-    "stamp": "ab551e2cc0f1320c"
+    "stamp": "7d91337f16bb112a"
   },
   {
     "page": "/utility-visibility",
@@ -62,7 +62,7 @@
       { "text": "A link that jumps past the navigation", "instead": "/frame#skip-link" }
     ],
     "goals": [ "print-a-page" ],
-    "stamp": "9ba4051eb84183e8"
+    "stamp": "e9946acf46856c68"
   },
   {
     "page": "/utility-scroll",
@@ -79,7 +79,7 @@
       { "text": "Thousands of rows", "instead": "/table-large#virtualized-rows" }
     ],
     "goals": [ "scroll-inside-a-region" ],
-    "stamp": "97b6be217bd137e1"
+    "stamp": "79b12d202eb2cf80"
   },
   {
     "page": "/utility-safe-area",

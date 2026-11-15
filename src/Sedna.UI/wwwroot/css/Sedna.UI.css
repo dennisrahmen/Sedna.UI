@@ -7672,9 +7672,12 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
 .stat-delta--warn { color: var(--warn-fg); }
 .stat-target { font-size: var(--text-3); color: var(--muted); font-variant-numeric: tabular-nums; }
 .stat > :is(.progress, .meter, .stack-bar, .tracker, .sparkline) { margin-top: var(--space-2); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):first-child { margin-block-start: calc(var(--cap-gap) * -1); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):last-child  { margin-block-end:   calc(var(--cap-gap) * -1); }
 a.stat {
-    padding: var(--space-4) var(--space-5);
-    margin: calc(var(--space-4) * -1) calc(var(--space-5) * -1);
+    padding: var(--space-4);
+    margin: calc(var(--space-4) * -1);
     border-radius: var(--radius-surface);
     color: inherit;
     text-decoration: none;
@@ -7723,7 +7726,8 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border-radius: var(--radius-surface);
 }
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
-    padding-block: calc(var(--space-2) + var(--space-3) - 1px);
+    margin-block: calc(var(--space-1) * -1);
+    padding-block: calc(var(--space-2) + var(--space-1) - 1px);
 }
 .stat-row {
     display: grid;
@@ -7740,7 +7744,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .stat-row--divided > .stat,
 .card-body > .stat-row > .stat { position: relative; }
 .card-body > .stat-row > .stat { padding-block: var(--space-2); }
-.card-body > .stat-row > a.stat { padding-block: calc(var(--space-2) + var(--space-4)); }
+.card-body > .stat-row > a.stat { margin-block: calc(var(--space-2) * -1); padding-block: var(--space-4); }
 .stat-row--divided > .stat::before,
 .card-body > .stat-row > .stat::before {
     content: '';
@@ -7752,12 +7756,16 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .stat-row--divided > a.stat::before,
 .card-body > .stat-row > a.stat::before {
     inset-block: var(--space-4);
-    inset-inline-start: calc(var(--space-5) - var(--space-7));
+    inset-inline-start: calc(var(--space-4) - var(--space-7));
 }
+.card-body > .stat-row > a.stat::before { inset-block: var(--space-2); }
 .stat-row--divided > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before,
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
+}
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
+    inset-block: calc(var(--space-1) - 1px);
 }
 }
 @layer sedna.paint {
@@ -8770,9 +8778,23 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
 .table tbody tr[aria-selected="true"] > td,
 .table tbody tr[aria-selected="true"]::after { background: var(--brand-tint); }
-.table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--selected);
+.table:not(.table--pin-start) tbody tr[aria-selected="true"] > td:first-child { position: relative; }
+.table:not(.table--stack) tbody tr[aria-selected="true"] > td:first-child::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--selected);
+    pointer-events: none;
 }
+.table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
+.table :is(td, th) > .form-check:only-child {
+    display: flex;
+    inline-size: max-content;
+}
+.table :is(td, th):is(.col-num, .text-end) > .form-check:only-child { margin-inline-start: auto; }
+.table :is(td, th):is(.text-center) > .form-check:only-child { margin-inline: auto; }
 .table--pin-start,
 .table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
 .table--pin-start { --pin-edge-start: var(--shadow-edge-start); }
@@ -8961,10 +8983,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table tfoot tr { --pin-tint: var(--surface-soft); }
-.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
-}
-.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
@@ -9117,9 +9136,18 @@ tr[data-drag-zone] > [data-drop-edge]::before {
 tr[data-drag-zone] > [data-drop-edge="before"]::before { inset-inline-start: 0; }
 tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
 .tr-detail > td {
+    position: relative;
     padding: 0;
     background: var(--surface-soft);
-    box-shadow: inset 3px 0 0 var(--border-strong);
+}
+.tr-detail > td::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--border-strong);
+    pointer-events: none;
 }
 .table code { overflow-wrap: break-word; }
 .tr-detail-body {
@@ -9590,9 +9618,22 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
     white-space: nowrap;
 }
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
 .table[role="treegrid"] .tree-toggle {
-    margin-inline-end: var(--space-2);
-    vertical-align: -0.15em;
+    display: inline-block;
+    position: relative;
+    width: round(0.75em + 3px, 2px);
+    height: 1cap;
+    margin-inline-end: var(--space-3);
+    vertical-align: baseline;
+}
+.table[role="treegrid"] tr > * > .tree-toggle::before {
+    position: absolute;
+    left: 50%; top: 50%;
+    translate: -50% -50%;
 }
 .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 .tree-check {
@@ -11995,6 +12036,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     --cal-fill: var(--brand-tint);
     --cal-accent: var(--brand);
     --cal-solid: var(--brand-text);
+    --cal-event-radius: 2px;
 }
 .cal-event {
     display: flex;
@@ -12005,7 +12047,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     overflow: hidden;
     background: var(--cal-fill);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -12191,7 +12233,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
     padding: var(--space-1) var(--space-3);
     background: linear-gradient(var(--cal-fill), var(--cal-fill)), var(--card-bg);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -15127,7 +15169,7 @@ button.inbox-item-title {
     inset-inline-end: calc(100% - var(--workflow-gap) / 2);
     inline-size: calc(var(--workflow-gap) * 1.5);
 }
-.workflow-loop + .workflow-step[data-state="running"]::before { inline-size: calc(var(--workflow-gap) * 1.5); }
+.workflow-loop + .workflow-step::before { inline-size: calc(var(--workflow-gap) * 1.5); }
 :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
 .workflow-step[data-state="running"] > .workflow-label::after,
 .workflow-branch:has(> .workflow-path > :first-child[data-state="running"]) > .workflow-label::after,
@@ -15364,7 +15406,7 @@ button.inbox-item-title {
     .workflow-branch > .workflow-path > li:first-child::before { content: none; }
     .workflow-branch > .workflow-label { align-self: flex-start; margin-block-start: 0; }
     .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
-    .workflow-loop + .workflow-step[data-state="running"]::before {
+    .workflow-loop + .workflow-step::before {
         inset-inline-end: auto;
         inline-size: var(--workflow-wire);
     }
@@ -16243,7 +16285,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
     .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
-    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus,
     .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
     .chat-bubble,
     .link-preview,

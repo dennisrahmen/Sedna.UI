@@ -306,7 +306,7 @@ public class PageLoadTests(CatalogueAppFixture app)
             // A page in another group is behind its area: the area link opens the
             // group's first page, and the panel then holds the link to click.
             var group = CataloguePages.All.Single(p => p.Route == route).Group;
-            var areaHref = CataloguePages.InGroup(group).First().Route;
+            var areaHref = CataloguePages.InPanelOrder(group).First().Route;
             if (await sidebar.Locator($".nav-link[href='{route}']").CountAsync() == 0)
             {
                 await sidebar.Locator($".nav-area[href='{areaHref}']").ClickAsync();
@@ -344,7 +344,7 @@ public class PageLoadTests(CatalogueAppFixture app)
         await page.Locator("[aria-label='Collapse navigation']").ClickAsync();
         await sidebar.And(page.Locator(".collapsed")).WaitForAsync();
 
-        var other = CataloguePages.InGroup(CataloguePages.All.Single(p => p.Route == "/table").Group).First().Route;
+        var other = CataloguePages.InPanelOrder(CataloguePages.All.Single(p => p.Route == "/table").Group).First().Route;
         await sidebar.Locator($".nav-area[href='{other}']").ClickAsync();
 
         await sidebar.And(page.Locator(":not(.collapsed)")).WaitForAsync();

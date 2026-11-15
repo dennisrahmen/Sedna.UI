@@ -85,6 +85,27 @@ public class NavigationTests
     }
 
     [Fact]
+    public void A_groups_rail_link_opens_the_first_page_its_panel_lists()
+    {
+        // The panel lists the pages with no section first, then each section's. The
+        // rail link opens InPanelOrder's first, so it cannot open a page below the
+        // one the reader sees on top — registration order is not the panel's order.
+        foreach (var group in CataloguePages.Groups)
+        {
+            var panel = CataloguePages.All.Where(p => p.Group == group && p.Section is null)
+                .Concat(CataloguePages.SectionsOf(group)
+                    .SelectMany(s => CataloguePages.All.Where(p => p.Group == group && p.Section == s)))
+                .Select(p => p.Route)
+                .ToList();
+
+            Assert.Equal(panel, CataloguePages.InPanelOrder(group).Select(p => p.Route));
+            Assert.Equal(CataloguePages.All.Count(p => p.Group == group), panel.Count);
+        }
+
+        Assert.Equal("/stat", CataloguePages.InPanelOrder(CataloguePages.Data).First().Route);
+    }
+
+    [Fact]
     public void Every_group_has_a_rail_icon()
     {
         // Each group is one item in the sidebar's area rail, and an item with no

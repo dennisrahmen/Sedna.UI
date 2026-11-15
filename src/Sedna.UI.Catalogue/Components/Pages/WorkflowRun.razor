@@ -9,23 +9,40 @@
     a script.
 </CatHead>
 
-<CatExample TExample="Examples.Interop.WorkflowLiveRun" Title="Live support call" Demo="ex-demo--block">
+<CatExample TExample="Examples.WorkflowRun.MidRun" Title="Run in progress" Demo="ex-demo--block">
     <p>
-        Press play. A caller reports that no card terminal in their store works; the voice agent asks,
-        listens, looks it up and tries a fix, turn by turn, then opens a ticket and reads the number back.
-        Three checks triage the ticket side by side, the agent weighs where it goes and pages the engineer
-        on call, and the run waits for them to acknowledge before it hands over. Step through it one event at
-        a time to tell the story at your own pace.
+        A voice agent taking a support call, caught twelve seconds in: a caller reports that no card terminal
+        in their store works, and the agent is waiting while they restart the router. This is the whole
+        screen as it stands at that moment &mdash; read top to bottom, it answers what the people watching
+        want to know.
     </p>
     <p>
-        <strong>Two diagrams of one run.</strong> The overview is five steps, <code>.workflow--fill</code> so
-        it fits; the detail is <code>.workflow--sm</code> with <code>data-follow</code>, so it scrolls to
-        the step at work as the run moves. Both are the same markup with a different state dictionary
-        behind them, and a stage's state is simply set alongside its steps'.
+        <strong>Where is it?</strong> The status in the card head says what the run is doing and for how long.
+        The first diagram is the <em>overview</em>: five stages, <code>.workflow--fill</code> so they fit, for
+        the people who will never open a step. The one under it is the <em>detail</em>: every step, in the
+        <code>.workflow--sm</code> size with <code>data-follow</code>, so it scrolls to the step at work as the
+        run moves. Both are the same markup; a stage&rsquo;s <code>data-state</code> is set beside its
+        steps&rsquo;.
+    </p>
+    <p>
+        <strong>What was said, and why it went that way?</strong> The conversation the run started with is a
+        <a href="/chat"><code>.chat</code></a>, and each decision the run took shows how it was weighed. Nothing
+        here is a component: every part is the library&rsquo;s classes on the app&rsquo;s own markup, so a
+        different screen is a different arrangement of the same parts &mdash; the wall screen below is one.
+    </p>
+</CatExample>
+
+<CatExample TExample="Examples.Interop.WorkflowLiveRun" Title="Live support call" Demo="ex-demo--block">
+    <p>
+        The same run, played from its first event. Press play: the voice agent asks, listens, looks it up
+        and tries a fix, turn by turn, then opens a ticket and reads the number back. Three checks triage
+        the ticket side by side, the agent weighs where it goes and pages the engineer on call, and the run
+        waits for them to acknowledge before it hands over. Step through it one event at a time to tell the
+        story at your own pace.
     </p>
     <p>
         <strong>The component holds only what arrived.</strong> A dictionary of step to state and one of
-        step to its meta line; <code>S("assess")</code> is bound to that step's <code>data-state</code>,
+        step to its meta line; <code>S("assess")</code> is bound to that step&rsquo;s <code>data-state</code>,
         and a step nobody has mentioned renders no attribute at all, which is the state for a step not
         reached. The script here plays the events back on a timer; an app receives them.
     </p>
@@ -34,11 +51,6 @@
         <code>.workflow--flow-off</code> on both diagrams, and
         <code>--workflow-flow-speed</code> and <code>--workflow-flow-packets</code> in their
         <code>style</code>.
-    </p>
-    <p>
-        <strong>Nothing here is a component.</strong> The card, the status, both diagrams, the transcript, the
-        decision and the log are the library&rsquo;s classes on the app&rsquo;s own markup, so a different
-        screen is a different arrangement of the same parts &mdash; the wall screen below is one.
     </p>
 </CatExample>
 

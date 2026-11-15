@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "1f73d36840adac75"
+    "stamp": "019ced8bdb363028"
   },
   {
     "page": "/progress",
@@ -92,7 +92,7 @@
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
     "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
-    "stamp": "97ee16aba24800f3"
+    "stamp": "13c2824de77a1c52"
   },
   {
     "page": "/empty-state",
@@ -148,7 +148,7 @@
       { "text": "A share done with no output to show", "instead": "/progress#determinate-and-indeterminate" }
     ],
     "goals": [ "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "29f20a87229e909d"
+    "stamp": "4ca4b2ca0b7cda0a"
   },
   {
     "page": "/logs",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "7ff026b069c71316"
+    "stamp": "536d2e2ba23d65e0"
   }
 ]

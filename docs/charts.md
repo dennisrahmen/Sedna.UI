@@ -68,7 +68,7 @@ On the `[data-chart]` element:
 | Attribute | Values | |
 |---|---|---|
 | `data-chart` | `line` (default), `area`, `column`, `bar`, `pie`, `donut`, `scatter` | The type. Changing it redraws. |
-| `data-chart-stack` | — | Stack the series of a `column`, `bar` or `area` chart rather than setting them side by side or over each other. |
+| `data-chart-stack` | — | Stack the series of a `column`, `bar` or `area` chart rather than setting them side by side or over each other. In a stacked column or bar only the outer end of the whole stack is rounded — the segments join square and the end on the baseline is square; negative values stack the other way and are rounded at their own outer end. |
 | `data-chart-min`, `data-chart-max` | a number | Fix an end of the value axis. Otherwise it takes in zero: a bar that does not start at zero misstates its value. |
 | `data-chart-min="auto"` | — | A `line` or a `scatter` starts near its lowest value instead of at zero. |
 | `data-chart-format` | JSON `Intl.NumberFormat` options | How the axis writes its numbers, and a value given as a bare number: `{"notation":"compact"}`, `{"style":"currency","currency":"EUR"}`, `{"style":"percent"}`. In the page's language, from the nearest `lang`. |

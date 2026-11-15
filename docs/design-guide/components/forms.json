@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "c550a0eaf780b4ce"
+    "stamp": "d0a9e1325b1ae451"
   },
   {
     "page": "/form-saving",
@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "24a3ca4340a2acd0"
+    "stamp": "eb37fa087c779e3b"
   },
   {
     "page": "/form-code",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "c9724157b6e68b8c"
+    "stamp": "454f523edd834a49"
   },
   {
     "page": "/form-select",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "7dcb242af37379fc"
+    "stamp": "62dcabd5b35281f4"
   },
   {
     "page": "/form-choice",

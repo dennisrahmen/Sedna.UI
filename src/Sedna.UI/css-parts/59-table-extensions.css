@@ -177,9 +177,32 @@
    per box, so `> td` gave each cell its own 3px rule and the row read as a set of
    vertical dividers rather than one leading edge. It cannot go on the <tr>: a
    row's box is not painted when the table's borders are collapsed. */
-.table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--selected);
+.table:not(.table--pin-start) tbody tr[aria-selected="true"] > td:first-child { position: relative; }
+/* Drawn over the lines above and below the row, as the detail row's rule is, so the bar
+   fills the row from line to line and two selected rows read as one bar. An inset shadow
+   stopped at the cell's padding box, a border short at each end. The stacked layout keeps the
+   shadow: its cells carry their label in the ::before this one would be. */
+.table:not(.table--stack) tbody tr[aria-selected="true"] > td:first-child::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--selected);
+    pointer-events: none;
 }
+.table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
+
+/* A cell that holds only a checkbox and its label. An inline-flex box sits on the line's
+   baseline with the strut's descent under it, so the box stood a few pixels above the middle
+   of its row beside text that is centred. As a block of its own its cell centres it, as it
+   does the text beside it; it keeps the width of its content, and the cell's alignment. */
+.table :is(td, th) > .form-check:only-child {
+    display: flex;
+    inline-size: max-content;
+}
+.table :is(td, th):is(.col-num, .text-end) > .form-check:only-child { margin-inline-start: auto; }
+.table :is(td, th):is(.text-center) > .form-check:only-child { margin-inline: auto; }
 
 /* ── Pinned columns ─────────────────────────────────────────────────────────
    `.table--sticky` pins the header for a reader scrolling DOWN. This is the same
@@ -605,11 +628,6 @@
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table tfoot tr { --pin-tint: var(--surface-soft); }
-/* The selection marker is an inset shadow, and the pinned cell's box-shadow would
-   replace it — on the very column where it is most visible. Both, in one list. */
-.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
-}
 
 /* ── A keyboard grid ────────────────────────────────────────────────────────
    `role="grid"` on a `.table` makes it one tab stop with arrow-key movement between
@@ -620,7 +638,10 @@
    A selected range is `aria-selected` on each cell, written by the script. Its tint is
    laid over the cell's own background as an image, so a sticky header cell keeps its
    opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
-.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
+/* `:focus`, not `:focus-visible`: a press on a cell makes it the active cell, as in a
+   spreadsheet, and the engines do not match :focus-visible for a pointer's focus on a cell
+   that takes no text — so the active cell was ringed after a key and not after a click. */
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
@@ -899,9 +920,23 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
    The inset rule on the left is the only thing saying it belongs to the row above;
    a plain indent reads as an unrelated row that happens to start further in. */
 .tr-detail > td {
+    position: relative;
     padding: 0;
     background: var(--surface-soft);
-    box-shadow: inset 3px 0 0 var(--border-strong);
+}
+/* The rule is drawn over the lines around the cell, not inside them. An inset shadow stops at
+   the padding box, which is up to a border short of the rows around it: the rule began under
+   the line it hangs from and ended a pixel before the next row. Reaching a border past the
+   cell at each end fills exactly the region from the line above to the line below, in a
+   collapsed table and a separate one, whatever the engine rounds the row's edges to. */
+.tr-detail > td::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--border-strong);
+    pointer-events: none;
 }
 /* An inline <code> breaks anywhere elsewhere, which in a squeezed column put one
    character on each line. In a table it keeps its word, the column keeps its width, and

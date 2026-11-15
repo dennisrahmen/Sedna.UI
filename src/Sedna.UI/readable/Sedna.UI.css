@@ -13761,13 +13761,27 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
    picture. Every one the library draws, so none needs a margin utility in a stat. */
 .stat > :is(.progress, .meter, .stack-bar, .tracker, .sparkline) { margin-top: var(--space-2); }
 
+/* The first and last line of a stat stand on their capitals, not on their line box.
+   A line of text has leading above and below its capitals, so a tile padded the same on
+   every side read taller than it was wide: the label stood a half-leading further from the
+   top than from the start, and the figure the same from the foot. Every line of a stat is
+   trimmed to its capitals and given its line back as padding, like every leaf component's,
+   so it is as tall as before and its ink stands in the middle of it in both engines — and
+   the first and last line then take that padding back as a negative margin, so a tile's
+   padding (a tint's, a link's hover, a card's body) is the distance the eye sees. A delta
+   is a flex row of an icon and a word, with nothing to trim, and takes the margin alone. A
+   drawing as the last child has no line to give back. */
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):first-child { margin-block-start: calc(var(--cap-gap) * -1); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):last-child  { margin-block-end:   calc(var(--cap-gap) * -1); }
+
 /* ── A stat that opens something ────────────────────────────────────────────
    For a tile that leads to the thing it counts. An <a>, so it is a real link. The
    whole tile is the target, which is why the padding and the hover are on it rather
    than on the value. */
 a.stat {
-    padding: var(--space-4) var(--space-5);
-    margin: calc(var(--space-4) * -1) calc(var(--space-5) * -1);
+    padding: var(--space-4);
+    margin: calc(var(--space-4) * -1);
     border-radius: var(--radius-surface);
     color: inherit;
     text-decoration: none;
@@ -13850,8 +13864,12 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border: 1px solid transparent;
     border-radius: var(--radius-surface);
 }
+/* In a card the plain tile already stands `--space-2` inside its track, so a tint reaches
+   only `--space-1` past it: the label stands the same distance from the tint's top as from
+   its start, and a tint is no taller than the card body can hold. */
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
-    padding-block: calc(var(--space-2) + var(--space-3) - 1px);
+    margin-block: calc(var(--space-1) * -1);
+    padding-block: calc(var(--space-2) + var(--space-1) - 1px);
 }
 
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
@@ -13893,7 +13911,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .card-body > .stat-row > .stat { position: relative; }
 .card-body > .stat-row > .stat { padding-block: var(--space-2); }
 /* A linked tile keeps its negative margin, so its padding has to give that back too. */
-.card-body > .stat-row > a.stat { padding-block: calc(var(--space-2) + var(--space-4)); }
+.card-body > .stat-row > a.stat { margin-block: calc(var(--space-2) * -1); padding-block: var(--space-4); }
 /* A border rather than a background, so forced-colors mode keeps it. */
 .stat-row--divided > .stat::before,
 .card-body > .stat-row > .stat::before {
@@ -13907,13 +13925,18 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .stat-row--divided > a.stat::before,
 .card-body > .stat-row > a.stat::before {
     inset-block: var(--space-4);
-    inset-inline-start: calc(var(--space-5) - var(--space-7));
+    inset-inline-start: calc(var(--space-4) - var(--space-7));
 }
+.card-body > .stat-row > a.stat::before { inset-block: var(--space-2); }
 /* A toned tile's box reaches past its track by its tint; the rule does not. */
 .stat-row--divided > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before,
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
+}
+/* In a card a tint reaches `--space-1` past the track, not `--space-3`. */
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
+    inset-block: calc(var(--space-1) - 1px);
 }
 }
 
@@ -15694,9 +15717,32 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    per box, so `> td` gave each cell its own 3px rule and the row read as a set of
    vertical dividers rather than one leading edge. It cannot go on the <tr>: a
    row's box is not painted when the table's borders are collapsed. */
-.table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--selected);
+.table:not(.table--pin-start) tbody tr[aria-selected="true"] > td:first-child { position: relative; }
+/* Drawn over the lines above and below the row, as the detail row's rule is, so the bar
+   fills the row from line to line and two selected rows read as one bar. An inset shadow
+   stopped at the cell's padding box, a border short at each end. The stacked layout keeps the
+   shadow: its cells carry their label in the ::before this one would be. */
+.table:not(.table--stack) tbody tr[aria-selected="true"] > td:first-child::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--selected);
+    pointer-events: none;
 }
+.table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
+
+/* A cell that holds only a checkbox and its label. An inline-flex box sits on the line's
+   baseline with the strut's descent under it, so the box stood a few pixels above the middle
+   of its row beside text that is centred. As a block of its own its cell centres it, as it
+   does the text beside it; it keeps the width of its content, and the cell's alignment. */
+.table :is(td, th) > .form-check:only-child {
+    display: flex;
+    inline-size: max-content;
+}
+.table :is(td, th):is(.col-num, .text-end) > .form-check:only-child { margin-inline-start: auto; }
+.table :is(td, th):is(.text-center) > .form-check:only-child { margin-inline: auto; }
 
 /* ── Pinned columns ─────────────────────────────────────────────────────────
    `.table--sticky` pins the header for a reader scrolling DOWN. This is the same
@@ -16122,11 +16168,6 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table tfoot tr { --pin-tint: var(--surface-soft); }
-/* The selection marker is an inset shadow, and the pinned cell's box-shadow would
-   replace it — on the very column where it is most visible. Both, in one list. */
-.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
-}
 
 /* ── A keyboard grid ────────────────────────────────────────────────────────
    `role="grid"` on a `.table` makes it one tab stop with arrow-key movement between
@@ -16137,7 +16178,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    A selected range is `aria-selected` on each cell, written by the script. Its tint is
    laid over the cell's own background as an image, so a sticky header cell keeps its
    opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
-.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
+/* `:focus`, not `:focus-visible`: a press on a cell makes it the active cell, as in a
+   spreadsheet, and the engines do not match :focus-visible for a pointer's focus on a cell
+   that takes no text — so the active cell was ringed after a key and not after a click. */
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
@@ -16416,9 +16460,23 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
    The inset rule on the left is the only thing saying it belongs to the row above;
    a plain indent reads as an unrelated row that happens to start further in. */
 .tr-detail > td {
+    position: relative;
     padding: 0;
     background: var(--surface-soft);
-    box-shadow: inset 3px 0 0 var(--border-strong);
+}
+/* The rule is drawn over the lines around the cell, not inside them. An inset shadow stops at
+   the padding box, which is up to a border short of the rows around it: the rule began under
+   the line it hangs from and ended a pixel before the next row. Reaching a border past the
+   cell at each end fills exactly the region from the line above to the line below, in a
+   collapsed table and a separate one, whatever the engine rounds the row's edges to. */
+.tr-detail > td::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--border-strong);
+    pointer-events: none;
 }
 /* An inline <code> breaks anywhere elsewhere, which in a squeezed column put one
    character on each line. In a table it keeps its word, the column keeps its width, and
@@ -17266,11 +17324,28 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
     white-space: nowrap;
 }
-/* The caret's box is an em square on the text's baseline; lowered to centre it on the
-   capitals of the label beside it. */
+/* The toggle is a slot of its own: wide enough for the caret and for the spinner that takes its
+   place — the spinner's own size — so a row that is loading is as wide as one that is not and
+   the label does not move, and as tall as the label's capitals, standing on the same baseline,
+   so whatever is drawn in it is centred on them. The tree cell is trimmed to its capitals like
+   a cell of words, which is what makes the first line's capitals the cell's own height. */
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
 .table[role="treegrid"] .tree-toggle {
-    margin-inline-end: var(--space-2);
-    vertical-align: -0.15em;
+    display: inline-block;
+    position: relative;
+    width: round(0.75em + 3px, 2px);
+    height: 1cap;
+    margin-inline-end: var(--space-3);
+    vertical-align: baseline;
+}
+.table[role="treegrid"] tr > * > .tree-toggle::before {
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    translate: -50% -50%;
 }
 .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 
@@ -21173,6 +21248,10 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     --cal-fill: var(--brand-tint);
     --cal-accent: var(--brand);
     --cal-solid: var(--brand-text);
+    /* A tint is lighter or darker than the cell behind it, and the rounding of its corners shows
+       the cell as a wedge in the colour the fill is not. Two pixels keeps the pill and leaves a
+       wedge under a pixel. */
+    --cal-event-radius: 2px;
 }
 .cal-event {
     display: flex;
@@ -21183,7 +21262,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     overflow: hidden;
     background: var(--cal-fill);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -21467,7 +21546,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
        laying a second tint along its foot. */
     background: linear-gradient(var(--cal-fill), var(--cal-fill)), var(--card-bg);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -25956,7 +26035,11 @@ button.inbox-item-title {
     inset-inline-end: calc(100% - var(--workflow-gap) / 2);
     inline-size: calc(var(--workflow-gap) * 1.5);
 }
-.workflow-loop + .workflow-step[data-state="running"]::before { inline-size: calc(var(--workflow-gap) * 1.5); }
+/* The wire out of a loop is the wire into the step after it, in one piece, whatever that step's
+   state: the loop's own wire to its edge — painted in the loop's colour, where the way back leaves —
+   is covered by it, so a loop at work with a step after it that has not run reads as one grey wire
+   and one blue way back, not a wire that starts blue and turns grey. */
+.workflow-loop + .workflow-step::before { inline-size: calc(var(--workflow-gap) * 1.5); }
 
 :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
 .workflow-step[data-state="running"] > .workflow-label::after,
@@ -26266,7 +26349,7 @@ button.inbox-item-title {
 
     /* The wire into a loop, and out of one, is the rail; it runs on over nothing. */
     .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
-    .workflow-loop + .workflow-step[data-state="running"]::before {
+    .workflow-loop + .workflow-step::before {
         inset-inline-end: auto;
         inline-size: var(--workflow-wire);
     }
@@ -27721,7 +27804,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
     .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
-    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus,
     .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* A chat bubble is nothing but a background; without a line around it a
