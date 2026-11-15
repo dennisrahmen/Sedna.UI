@@ -85,7 +85,7 @@ public sealed class SednaEditors : ISednaEditors
     public async Task<int?> SetMentionsAsync(string editorId, IEnumerable<SednaMention> mentions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(mentions);
-        return await Call<int?>(editorId, "mentions", cancellationToken, (object)mentions.ToArray());
+        return await Call<int?>(editorId, "mentions", cancellationToken, new object?[] { mentions.ToArray() });
     }
 
     /// <inheritdoc />
