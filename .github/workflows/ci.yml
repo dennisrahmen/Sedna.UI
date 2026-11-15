@@ -1,10 +1,12 @@
 name: CI
 
-# Pull requests only, and a smoke pass: the generated files, the build, every test
-# that needs no browser, the package and the catalogue image. A pull request is
-# tested in full locally before it is opened; the whole suite, in every engine, runs
-# on the release tag before anything publishes (release.yml). The ruleset on main
-# requires `build` on a branch that is up to date with main, so keep the job's name.
+# Pull requests. `build` is the quick pass: the generated files, the build, every test
+# that needs no browser, the package and the catalogue image. `tests` is the full suite on
+# Linux, in every engine (tests.yml). `ready` is the one check the ruleset on main
+# requires: it succeeds only when everything that had to run succeeded.
+# A change of prose alone does not start the browser suite, and `ready` is still green: the
+# decision is made here, by `changes`, not by a path filter on the trigger, because a
+# required check that never starts blocks the merge.
 # CodeQL still runs on main: it is the baseline pull requests are compared against.
 on:
   pull_request:
@@ -19,6 +21,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Whether the change touches anything but prose. Prose is a Markdown file outside
+  # docs/design-guide/ (the design guide's entries are stamped against the pages they
+  # describe), the licence and the issue templates.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      # On a pull request the checkout is the merge of the branch into its base, so the
+      # first parent is the base and one more commit of history is all the diff needs.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Classify the changed files
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          code=true
+          if [[ "$EVENT" == 'pull_request' ]] && files="$(git diff --name-only HEAD^1 HEAD)" && [[ -n "$files" ]]; then
+            code=false
+            while IFS= read -r f; do
+              case "$f" in
+                docs/design-guide/*) code=true ;;
+                *.md | LICENSE | .github/ISSUE_TEMPLATE/*) ;;
+                *) code=true ;;
+              esac
+            done <<< "$files"
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Browser suite needed: $code"
+
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -60,10 +96,10 @@ jobs:
 
       # The source scans (no hard-coded colours outside the :root blocks, every
       # catalogue page linked and reachable), the bUnit component tests (the markup
-      # tier 1 emits is a version contract) and the catalogue's server-side tests.
+      # tier 1 emits is a version contract) and the catalogue's server-side tests, fast.
       # SEDNA_UI_BROWSER_TESTS=0 is the documented opt-out: the browser tests return
-      # without asserting, and the release tag runs them in every engine.
-      - name: Test (smoke, no browser)
+      # without asserting here, and `tests` runs them in every engine.
+      - name: Test (no browser)
         env:
           SEDNA_UI_BROWSER_TESTS: '0'
         run: dotnet test Sedna.UI.slnx -c Release --no-build --verbosity normal
@@ -94,3 +130,33 @@ jobs:
             artifacts/*.nupkg
             artifacts/*.snupkg
           if-no-files-found: error
+
+  tests:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/tests.yml
+    with:
+      site: true
+
+  # The one name the ruleset requires. It runs whatever happened before it and
+  # succeeds only when the quick pass succeeded and the suite either succeeded or had
+  # nothing to test (a change of prose alone).
+  ready:
+    needs: [changes, build, tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Everything that had to run succeeded
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          BUILD: ${{ needs.build.result }}
+          TESTS: ${{ needs.tests.result }}
+          CODE: ${{ needs.changes.outputs.code }}
+        run: |
+          echo "changes=$CHANGES build=$BUILD tests=$TESTS code=$CODE"
+          [[ "$CHANGES" == 'success' && "$BUILD" == 'success' ]] || exit 1
+          [[ "$TESTS" == 'success' || ( "$TESTS" == 'skipped' && "$CODE" == 'false' ) ]] || exit 1

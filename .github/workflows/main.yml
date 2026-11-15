@@ -1,0 +1,24 @@
+name: Full suite on main
+
+# The full suite on every commit that lands on main, the website's own tests included.
+# A release tag on one of these commits skips its own run of the suite when this run
+# succeeded (release.yml), so the run is per commit and is never cancelled by a later push.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/tests.yml
+    with:
+      site: true

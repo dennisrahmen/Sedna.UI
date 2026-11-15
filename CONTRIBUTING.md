@@ -55,6 +55,9 @@ The tests are source scans that enforce the design rules, not behaviour checks. 
 telling you the change breaks a documented contract — read the failure message before working around it.
 See [docs/development.md](docs/development.md) for what each guard covers.
 
+A pull request runs the whole suite on Linux, in Chromium and WebKit, and is merged only when the
+`ready` check is green. A change of prose alone skips the browser suite and is still checked by `ready`.
+
 ### What will be accepted
 
 - New tokens, classes, variants and catalogue pages.

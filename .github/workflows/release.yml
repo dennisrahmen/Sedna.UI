@@ -7,22 +7,27 @@ on:
     tags: ['v*']
 
 permissions:
-  contents: write        # to create the GitHub release
-  id-token: write        # to request the GitHub OIDC token for trusted publishing
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  # Fails before anything is built or tested when the tag cannot publish.
+  # Fails before anything is built or tested when the tag cannot publish, and decides
+  # whether the suite has to run: it does not when main.yml already ran it, in full, on
+  # exactly this commit.
   preflight:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Waits for main.yml's run on this commit when it is still going: that is a full suite,
+    # so the limit covers one with headroom (the wait gives up at fifty minutes).
+    timeout-minutes: 60
     permissions:
       contents: read
+      actions: read          # to look up the run of main.yml for this commit
     outputs:
       version: ${{ steps.version.outputs.version }}
+      verified: ${{ steps.verified.outputs.verified }}
     steps:
       - name: Derive version from tag
         id: version
@@ -47,75 +52,76 @@ jobs:
           fi
           echo "NUGET_USER is set."
 
+      # Only a commit on main is released: main.yml has run, or will run, the suite on it.
+      - name: Preflight — the tagged commit is on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          STATUS="$(gh api "repos/$REPO/compare/main...$GITHUB_SHA" --jq .status)"
+          if [[ "$STATUS" != 'identical' && "$STATUS" != 'behind' ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' points at $GITHUB_SHA, which is not on main (compare status: $STATUS). Merge the change, then tag the commit on main."
+            exit 1
+          fi
+
+      # main.yml on branch main, for exactly this commit, is the full suite with the site
+      # tests included. The newest run decides, so a re-run replaces the run it repeats.
+      #   success                       verified: the release skips the suite
+      #   queued or in progress         wait for it, then decide by its conclusion
+      #   none, failed, cancelled, ...  not verified: the release runs the suite itself
+      # A tag is pushed as soon as the merge lands, so waiting is the usual case. A run on
+      # another branch, or of another workflow, never counts.
+      - name: Has main.yml verified this commit?
+        id: verified
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Gives up before the job's timeout, so a stuck run falls back to running the suite.
+          DEADLINE=$(( $(date +%s) + 50 * 60 ))
+          while true; do
+            RUN="$(gh api "repos/$REPO/actions/workflows/main.yml/runs?head_sha=$GITHUB_SHA&branch=main&per_page=1" \
+              --jq 'if (.workflow_runs | length) == 0 then "none" else .workflow_runs[0] | "\(.id) \(.status) \(.conclusion)" end')"
+            echo "main.yml run for $GITHUB_SHA: $RUN"
+            case "$RUN" in
+              *" completed success") VERIFIED=true; break ;;
+              none | *" completed "*) VERIFIED=false; break ;;
+            esac
+            if (( $(date +%s) >= DEADLINE )); then VERIFIED=false; echo "Gave up waiting."; break; fi
+            sleep 30
+          done
+          echo "verified=$VERIFIED" >> "$GITHUB_OUTPUT"
+          if [[ "$VERIFIED" == 'true' ]]; then echo "The suite is not run again."; else echo "The release runs the suite."; fi
+
   # ── The full suite ───────────────────────────────────────────────────────
-  # A pull request runs a smoke pass (ci.yml); the whole suite runs here, once per
-  # test project and engine, in parallel. The catalogue's tests of the website alone
-  # (Scope=Site) are left out: a release publishes the package, and catalogue.yml runs
-  # them on main. Nothing publishes unless every slice is green. A red slice leaves nothing on nuget.org, so the same version is still
-  # free: delete the tag, merge the fix, tag again (docs/releasing.md).
-  test:
+  # Skipped when main.yml verified this exact commit. Otherwise the same suite, from the
+  # same workflow, runs here: every test project in every engine, the catalogue's tests of
+  # the website alone (Scope=Site) left out, because a release publishes the package. A red
+  # slice leaves nothing on nuget.org, so the same version is still free: delete the tag,
+  # merge the fix, tag again (docs/releasing.md).
+  tests:
     needs: preflight
-    runs-on: ubuntu-latest
-    # Microsoft's Playwright image, pinned to the Playwright package the tests use: the
-    # browsers and every system library they need are already in it. Installing them per
-    # run meant some seventy apt packages from the Ubuntu mirror, and one slow mirror held
-    # a release for half an hour. BrowserFloorTests keeps the tag and the package in step.
-    container: mcr.microsoft.com/playwright/dotnet:v1.64.1-noble
-    # The slowest slice, the catalogue in WebKit, takes about 46 minutes. A stall — a
-    # download, a hung browser — fails here instead of holding the release for the six
-    # hours GitHub allows; a single hung test fails sooner, by --blame-hang.
-    timeout-minutes: 75
+    if: needs.preflight.outputs.verified != 'true'
     permissions:
       contents: read
-    # Every slice runs to the end, so one red run names every failure instead of the
-    # first slice's, and a fix is not followed by a second red tag for the next one.
-    strategy:
-      fail-fast: false
-      matrix:
-        project: [src/Sedna.UI.Tests, src/Sedna.UI.Catalogue.Tests]
-        engine: [chromium, webkit]
-    name: test (${{ matrix.project }}, ${{ matrix.engine }})
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0      # the tags: class-history.sh dates every entry from them
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v6
-        with:
-          global-json-file: global.json
-
-      # The checkout belongs to the runner's user and the container runs as root, so git
-      # refuses the repository as one of dubious ownership — and the checkout action marks
-      # it safe only for its own commands. The class history reads the tags with git.
-      - name: Trust the checkout
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      # The image has no Python, and the app tooling (build/app-tooling.sh,
-      # rename-classes.py) is tested by running it. One package, with a timeout so a slow
-      # mirror fails the slice instead of holding it.
-      - name: Install Python
-        timeout-minutes: 5
-        run: apt-get update && apt-get install -y --no-install-recommends python3
-
-      - name: Generate the class history
-        run: bash build/class-history.sh
-
-      - name: Build
-        run: dotnet build ${{ matrix.project }} -c Release
-
-      - name: Test
-        env:
-          SEDNA_UI_BROWSER_TESTS: '1'
-          SEDNA_UI_BROWSER: ${{ matrix.engine }}
-        # One hung test fails with a dump of where it hung, rather than using up the job.
-        run: dotnet test ${{ matrix.project }} -c Release --no-build --verbosity normal --blame-hang --blame-hang-timeout 5m --filter "Scope!=Site"
+    uses: ./.github/workflows/tests.yml
+    with:
+      site: false
 
   release:
-    needs: [preflight, test]
+    needs: [preflight, tests]
+    # Publishes when the suite passed in this run, or when main.yml had already passed it
+    # on this commit and the suite was skipped for that reason. Never otherwise: a failed,
+    # cancelled or unexpectedly skipped suite, or a failed preflight, stops here.
+    if: >-
+      ${{ !cancelled() && needs.preflight.result == 'success' &&
+      (needs.tests.result == 'success' ||
+      (needs.tests.result == 'skipped' && needs.preflight.outputs.verified == 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write        # to create the GitHub release
+      id-token: write        # to request the GitHub OIDC token for trusted publishing
 
     steps:
       - uses: actions/checkout@v7
