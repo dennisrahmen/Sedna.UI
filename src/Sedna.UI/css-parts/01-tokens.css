@@ -156,6 +156,7 @@
        rule in the sheet, in both variants, for every built-in and generated theme. */
     --brand-soft:       var(--coral-500);         /* icons/spinners/focus borders — Sedna Red at full strength */
     --brand-text:       var(--coral-400);         /* readable brand text on the theme bg */
+    --qr-brand-ink:     color-mix(in srgb, var(--brand) 45%, var(--black));   /* the QR code's ink in the brand, dark on every theme */
     /* Mixed from --brand rather than restated as literals, so redefining --brand
        alone carries the tint and every focus ring with it. An app may still pin any
        of them.

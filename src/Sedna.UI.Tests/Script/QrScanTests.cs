@@ -50,7 +50,7 @@ public class QrScanTests : ScriptTestBase
     private async Task<IPage> OpenCodes(params Spec[] codes)
     {
         var (page, _) = await OpenStyled("<main id=\"stage\" style=\"display:flex;flex-wrap:wrap;gap:16px;padding:16px\"></main>");
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             async specs => {
               const stage = document.getElementById('stage');
               for (const s of specs) {
@@ -188,7 +188,7 @@ public class QrScanTests : ScriptTestBase
             var report = await page.EvaluateAsync<string[]>($$"""
                 async () => {
                   const el = document.getElementById('{{id}}');
-                  await new Promise(r => setTimeout(r, 50));
+                  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
                   const lum = c => {
                     const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map(Number).map(v => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
                     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -299,7 +299,7 @@ public class QrScanTests : ScriptTestBase
         await page.WaitForFunctionAsync("(was) => document.querySelector('#q > svg > path').getAttribute('d') !== was", before);
         Assert.Equal(Url, await QrReader.Scan(page, "q"));
 
-        await page.EvaluateAsync("src => { const i = document.createElement('img'); i.className = 'qr-logo'; i.alt = ''; i.src = src; document.getElementById('q').append(i); }", Logo);
+        await Js.Run(page, "src => { const i = document.createElement('img'); i.className = 'qr-logo'; i.alt = ''; i.src = src; document.getElementById('q').append(i); }", Logo);
         await page.WaitForFunctionAsync("() => document.getElementById('q').dataset.qrVersion >= 5 && document.querySelector('#q .qr-logo').style.getPropertyValue('--qr-logo-modules') !== ''");
         Assert.Equal("Q", await page.EvaluateAsync<string>("() => sednaUi.qr.get('q').then(h => h.level)"));
         Assert.Equal(Url, await QrReader.Scan(page, "q"));
@@ -318,7 +318,7 @@ public class QrScanTests : ScriptTestBase
         if (NoBrowser) return;
         var name = expectedName.StartsWith("pairing", StringComparison.Ordinal) ? " data-qr-name=\"pairing\"" : string.Empty;
         var page = await OpenCodes(new Spec("q", Url, "style=\"--qr-ink:#7a1f5c;--qr-paper:#fdf6e3\"", Inner: $"<img class=\"qr-logo\" alt=\"\" src=\"{Logo}\">"));
-        await page.EvaluateAsync("""
+        await Js.Run(page, """
             html => {
               const figure = document.createElement('figure');
               figure.className = 'qr-figure';
@@ -358,7 +358,7 @@ public class QrScanTests : ScriptTestBase
     {
         if (NoBrowser) return;
         var page = await OpenCodes(new Spec("q", Url));
-        await page.EvaluateAsync("() => document.addEventListener('sedna-qr-error', e => { window.__failed = e.detail.message; })");
+        await Js.Run(page, "() => document.addEventListener('sedna-qr-error', e => { window.__failed = e.detail.message; })");
 
         var rejected = await page.EvaluateAsync<string>("""
             async () => {

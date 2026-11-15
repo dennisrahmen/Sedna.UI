@@ -176,6 +176,7 @@
     --brand-active:     var(--coral-800);
     --brand-soft:       var(--coral-500);
     --brand-text:       var(--coral-400);
+    --qr-brand-ink:     color-mix(in srgb, var(--brand) 45%, var(--black));
     --state-accent:     var(--brand);
     --viz-1: var(--brand);
     --viz-2: var(--cyan-600);
@@ -9826,6 +9827,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     --qr-paper-safe: var(--white);
     --qr-quiet: 4;
     --qr-logo-size: 0.22;
+    --qr-modules: 25;
+    --qr-logo-modules: 0;
     position: relative;
     display: inline-block;
     flex: none;
@@ -9836,7 +9839,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border-radius: var(--radius-inner);
 }
 .qr > svg {
-    --qr-gap: calc(100% * var(--qr-quiet) / (var(--qr-modules, 25) + 2 * var(--qr-quiet)));
+    --qr-gap: calc(100% * var(--qr-quiet) / (var(--qr-modules) + 2 * var(--qr-quiet)));
     position: absolute;
     inset-block-start: var(--qr-gap);
     inset-inline-start: var(--qr-gap);
@@ -9848,7 +9851,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .qr[data-qr-contrast="fallback"] > svg { fill: var(--qr-ink-safe); }
 .qr--sm { --qr-size: 6rem; }
 .qr--lg { --qr-size: 15rem; }
-.qr--brand  { --qr-ink: color-mix(in srgb, var(--brand) 45%, var(--black)); }
+.qr--brand  { --qr-ink: var(--qr-brand-ink); }
 .qr--go     { --qr-ink: var(--green-900); }
 .qr--warn   { --qr-ink: var(--amber-900); }
 .qr--danger { --qr-ink: var(--crimson-900); }
@@ -9865,8 +9868,8 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     inset: 0;
     margin: auto;
     display: block;
-    inline-size: calc(var(--qr-logo-modules, 0) / (var(--qr-modules, 25) + 2 * var(--qr-quiet)) * 100%);
-    block-size: calc(var(--qr-logo-modules, 0) / (var(--qr-modules, 25) + 2 * var(--qr-quiet)) * 100%);
+    inline-size: calc(var(--qr-logo-modules) / (var(--qr-modules) + 2 * var(--qr-quiet)) * 100%);
+    block-size: calc(var(--qr-logo-modules) / (var(--qr-modules) + 2 * var(--qr-quiet)) * 100%);
     object-fit: contain;
 }
 .qr-logo > :is(img, svg) {
