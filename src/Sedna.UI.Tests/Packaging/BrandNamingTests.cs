@@ -42,16 +42,15 @@ public class BrandNamingTests
         @"\bdr-|DR\\?\.Simple_UI|DrSimpleUi|drSimpleUi|drui\.|@layer\s+dr\.|\bdr\.(tokens|base|frame|paint|utilities|overrides)\b",
         RegexOptions.Compiled);
 
-    public static IEnumerable<object[]> ShippedAssets() =>
+    private static string[] ShippedAssets() =>
     [
-        [Assets.CssPath], [Assets.JsPath], [Assets.BootJsPath], [Assets.TokensPath],
+        Assets.CssPath, Assets.JsPath, Assets.BootJsPath, Assets.TokensPath,
         // The commented copies ship in the package too.
-        [Assets.Readable("Sedna.UI.css")], [Assets.Readable("Sedna.UI.js")],
+        Assets.Readable("Sedna.UI.css"), Assets.Readable("Sedna.UI.js"),
     ];
 
-    [Theory]
-    [MemberData(nameof(ShippedAssets))]
-    public void No_shipped_asset_carries_the_old_brand(string path) => AssertClean(path);
+    [Fact]
+    public void No_shipped_asset_carries_the_old_brand() => AssertAllClean(ShippedAssets());
 
     /// <summary>
     /// Every <c>.cs</c> file in the library project, build output excluded.
@@ -67,14 +66,12 @@ public class BrandNamingTests
     /// source, and scanning them would make this test's outcome depend on which
     /// configurations happen to have been built.
     /// </remarks>
-    public static IEnumerable<object[]> LibrarySourceFiles() =>
+    private static IEnumerable<string> LibrarySourceFiles() =>
         Directory.EnumerateFiles(Assets.ProjectDir, "*.cs", SearchOption.AllDirectories)
-            .Where(path => !IsBuildOutput(path))
-            .Select(path => new object[] { path });
+            .Where(path => !IsBuildOutput(path));
 
-    [Theory]
-    [MemberData(nameof(LibrarySourceFiles))]
-    public void No_library_source_file_carries_the_old_brand(string path) => AssertClean(path);
+    [Fact]
+    public void No_library_source_file_carries_the_old_brand() => AssertAllClean(LibrarySourceFiles());
 
     /// <summary>
     /// Every build script, minus one permanent exception.
@@ -87,10 +84,9 @@ public class BrandNamingTests
     /// to catch. The widened regex only helps if something actually reads these
     /// files with it.
     /// </remarks>
-    public static IEnumerable<object[]> BuildScripts() =>
+    private static IEnumerable<string> BuildScripts() =>
         Directory.EnumerateFiles(Path.Combine(Assets.RepoRoot, "build"), "*.sh")
-            .Where(path => Path.GetFileName(path) != PermanentlyExemptBuildScript)
-            .Select(path => new object[] { path });
+            .Where(path => Path.GetFileName(path) != PermanentlyExemptBuildScript);
 
     /// <summary>
     /// <c>build/css-path.sh</c> hard-codes
@@ -103,9 +99,8 @@ public class BrandNamingTests
     /// </summary>
     private const string PermanentlyExemptBuildScript = "css-path.sh";
 
-    [Theory]
-    [MemberData(nameof(BuildScripts))]
-    public void No_build_script_carries_the_old_brand(string path) => AssertClean(path);
+    [Fact]
+    public void No_build_script_carries_the_old_brand() => AssertAllClean(BuildScripts());
 
     /// <summary>
     /// The fix for a match in a generated bundle lives upstream, in its part files —
@@ -124,16 +119,25 @@ public class BrandNamingTests
         path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
             .Any(segment => segment is "bin" or "obj");
 
-    private static void AssertClean(string path)
+    private static void AssertAllClean(IEnumerable<string> paths)
     {
-        var found = OldBrand.Matches(File.ReadAllText(path))
-            .Select(m => m.Value)
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+        var files = paths.ToList();
+        // A scan over no files passes everything.
+        Assert.NotEmpty(files);
 
-        var hint = BundleFixHints.TryGetValue(path, out var text) ? " " + text : "";
+        var problems = new List<string>();
+        foreach (var path in files)
+        {
+            var found = OldBrand.Matches(File.ReadAllText(path))
+                .Select(m => m.Value)
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+            if (found.Count == 0) continue;
 
-        Assert.True(found.Count == 0,
-            $"{Path.GetFileName(path)} still carries: {string.Join(", ", found)}.{hint}");
+            var hint = BundleFixHints.TryGetValue(path, out var text) ? " " + text : "";
+            problems.Add($"{Path.GetRelativePath(Assets.RepoRoot, path)} still carries: {string.Join(", ", found)}.{hint}");
+        }
+
+        Assert.True(problems.Count == 0, string.Join("\n", problems));
     }
 }
