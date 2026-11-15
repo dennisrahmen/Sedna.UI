@@ -198,6 +198,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "ccb2168fb714932b"
+    "stamp": "10b4df4c1290209e"
   }
 ]

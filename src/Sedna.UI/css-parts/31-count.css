@@ -41,7 +41,7 @@
     display: inline-flex;
     flex-shrink: 0;
 }
-.count-host--round { --count-inset: 14.6%; }
+.count-host--round { --count-inset: round(14.6%, 1px); }
 .btn.count-host    { --count-inset: 3px; }
 /* A bare icon at its own size: the corner of its glyph is where the number would cover it, so the
    badge's centre sits outside the corner by as much as it sat inside it. */
@@ -71,6 +71,9 @@
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
+    /* The system stack, not the host's: a `<button>` does not inherit its parent's font, so a
+       count on a bare button was set in the browser's own button font. */
+    font-family: var(--font-sans);
     font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;

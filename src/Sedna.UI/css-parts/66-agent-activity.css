@@ -180,9 +180,9 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 .context-usage-foot > strong { font-variant-numeric: tabular-nums; }
 
 .skeleton--agent {
-    background-image: linear-gradient(90deg,
-        var(--skeleton-bg) 0%,
+    --skeleton-band: linear-gradient(90deg,
+        transparent 0%,
         var(--agent-skeleton-cool) 40%,
         var(--agent-skeleton-warm) 60%,
-        var(--skeleton-bg) 100%);
+        transparent 100%);
 }

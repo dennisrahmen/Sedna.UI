@@ -5104,7 +5104,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     display: inline-flex;
     flex-shrink: 0;
 }
-.count-host--round { --count-inset: 14.6%; }
+.count-host--round { --count-inset: round(14.6%, 1px); }
 .btn.count-host    { --count-inset: 3px; }
 /* A bare icon at its own size: the corner of its glyph is where the number would cover it, so the
    badge's centre sits outside the corner by as much as it sat inside it. */
@@ -5134,6 +5134,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
+    /* The system stack, not the host's: a `<button>` does not inherit its parent's font, so a
+       count on a bare button was set in the browser's own button font. */
+    font-family: var(--font-sans);
     font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;
@@ -6295,13 +6298,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     /* A block whatever the element: a <span> in a table cell or a list row is the
        natural markup, and an inline box ignores the height that is the whole point. */
     display: block;
-    background: var(--skeleton-bg);
-    background-image: linear-gradient(
-        90deg,
-        var(--skeleton-bg) 0%,
-        var(--skeleton-sheen) 50%,
-        var(--skeleton-bg) 100%);
-    background-size: 200% 100%;
+    /* The placeholder, and over it a band of light that crosses it. The band is half the
+       placeholder wide and drawn once, not tiled: it starts wholly outside the inline start,
+       clipped by the box, and leaves wholly outside the inline end, so it never appears or
+       vanishes on the way. `--skeleton-band` is the band itself, for a variant to recolour. */
+    --skeleton-band: linear-gradient(90deg, transparent 0%, var(--skeleton-sheen) 50%, transparent 100%);
+    background-color: var(--skeleton-bg);
+    background-image: var(--skeleton-band);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    background-position: -100% 0;
     border-radius: var(--radius-inner);
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
@@ -6398,11 +6404,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-inner) var(--radius-inner) 0 0;
 }
 
+/* A percentage `background-position` is measured against the box less the band: for a band half
+   the box wide, -100% puts its far edge on the box's near edge and 200% puts its near edge on
+   the box's far edge, so both ends are wholly outside and the box clips the band.
+   `background-position` is physical, so 70-rtl.css runs the sweep the other way. */
 @keyframes sedna-skeleton {
-    from { background-position: 200% 0; }
-    to   { background-position: -200% 0; }
+    from { background-position: -100% 0; }
+    to   { background-position: 200% 0; }
 }
-
 }
 
 /* ── 41-progress.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -6447,12 +6456,18 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .progress-bar--sev-5 { background: var(--sev-5-solid); }
 
 .progress--indeterminate .progress-bar {
+    --progress-flow: 1;
     width: 35%;
     animation: sedna-progress var(--progress-duration) ease-in-out infinite;
 }
+/* A percentage `translate` is measured against the bar's own width, which is 35% of the track: -110%
+   puts its far edge 3.5% of the track outside the near edge, and 340% puts its near edge 19% outside
+   the far one. Both ends are wholly outside, so the track clips the bar and it never appears or
+   vanishes on the way. `--progress-flow` is 1 from the inline start to the inline end and -1 in a
+   right-to-left page (70-rtl.css), because a translate has no logical form. */
 @keyframes sedna-progress {
-    from { transform: translateX(-110%); }
-    to   { transform: translateX(340%); }
+    from { translate: calc(var(--progress-flow) * -110%) 0; }
+    to   { translate: calc(var(--progress-flow) * 340%) 0; }
 }
 
 /* ── Route progress ─────────────────────────────────────────────────────────
@@ -11268,15 +11283,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     transition: color var(--motion-fast), border-color var(--motion-fast), background var(--motion-fast);
 }
 .tab i { font-size: var(--text-6); }
-.tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
+/* Hover recolours the label and draws a hairline where the indicator will be: no fill, so a
+   strip inside a panel or a card head is not a row of grey boxes against its edge. */
+.tab:hover { color: var(--fg); border-bottom-color: var(--control-border); text-decoration: none; }
 .tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .tab:disabled,
 .tab[aria-disabled="true"] { cursor: not-allowed; }
+.tab:where(:disabled, [aria-disabled="true"]):hover { color: var(--muted); border-bottom-color: transparent; }
 
 .tab--active,
 .tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--tab-indicator); }
 .tab--active:hover,
-.tab[aria-selected="true"]:hover { color: var(--brand-text); background: none; }
+.tab[aria-selected="true"]:hover { color: var(--brand-text); }
 
 /* A count beside the label — how many rows the tab's panel holds. */
 .tab-count {
@@ -14963,6 +14981,17 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     box-shadow: var(--shadow-dropdown);
 }
 
+/* A panel the script has put in the top layer (22-menu.js, `raise`) keeps the place and the look
+   it had: a popover's own styles — an inset on every side, auto margins, scrolling, the
+   canvas colours — are undone, and what the panel is placed by is its own below. It comes first,
+   so the panel's own margins, later, outrank the reset. */
+.menu[data-menu-raised] {
+    inset: auto;
+    margin: 0;
+    overflow: visible;
+    color: inherit;
+}
+
 /* Wrap trigger + panel in this to anchor the panel under the trigger.
    ─── Why this is anchor positioning and no longer `position: absolute` ─────
    An absolutely positioned panel is laid out INSIDE the nearest scroll container
@@ -15153,7 +15182,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     pointer-events: none;
     anchor-name: --sedna-menu-point;
 }
-.menu[popover] {
+.menu[popover]:not([data-menu-raised]) {
     inset: auto;
     margin: 0;
     position: fixed;
@@ -15456,7 +15485,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    reason, a field's results under it, keeps its place under its anchor. */
 @media (max-width: 767px) {
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu,
-    .menu[popover] {
+    .menu[popover]:not([data-menu-raised]) {
         position: fixed;
         inset: auto 0 0;
         position-area: none;
@@ -15486,7 +15515,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     /* Above the catcher, which is the panel's first box: the rows are what a press on
        the panel reaches. */
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu > * { position: relative; z-index: 1; }
-    .menu[popover]::backdrop { background: var(--backdrop); }
+    .menu[popover]:not([data-menu-raised])::backdrop { background: var(--backdrop); }
 
     :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item { padding-block: var(--space-5); }
     :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item:not(:has(> *)) {
@@ -20384,11 +20413,11 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 .context-usage-foot > strong { font-variant-numeric: tabular-nums; }
 
 .skeleton--agent {
-    background-image: linear-gradient(90deg,
-        var(--skeleton-bg) 0%,
+    --skeleton-band: linear-gradient(90deg,
+        transparent 0%,
         var(--agent-skeleton-cool) 40%,
         var(--agent-skeleton-warm) 60%,
-        var(--skeleton-bg) 100%);
+        transparent 100%);
 }
 }
 
@@ -23019,7 +23048,13 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
 /* Opened from a bell at the end of a header, there is no room toward the inline end:
    the panel turns to line up with the bell's end edge instead. On a phone it takes the
    width of the screen, less a margin, under the bell. */
-.popover.inbox { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+/* A percentage here is the width of the area `position-area` leaves beside the bell, so a bell near
+   the end of a window gave the panel a few pixels of width — and, fitting, it never turned. The
+   screen is the limit instead, and a panel too wide for its side turns to the other. */
+.popover.inbox {
+    max-width: calc(100vw - var(--space-8) * 2);
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+}
 @media (max-width: 560px) {
     .popover.inbox {
         position-area: block-end span-all;
@@ -23071,7 +23106,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     align-items: start;
     column-gap: var(--space-5);
     padding-block: var(--space-5);
-    padding-inline: var(--space-7) var(--space-4);
+    padding-inline: var(--space-6) var(--space-4);
 }
 .inbox-item:hover { background: var(--bg-hover); }
 .inbox-item:has(.inbox-item-title:focus-visible) { box-shadow: inset 0 0 0 2px var(--focus-ring); }
@@ -23123,19 +23158,20 @@ button.inbox-item-title {
 }
 .inbox-item-menu { position: relative; z-index: 1; }
 
-/* Unread: the title in the ink of the page, and a dot in the gutter beside the first
-   line. The dot is a picture of the state, so say it in words too — "Unread" in a
-   `.visually-hidden` span in the title. */
+/* Unread: the title in the ink of the page, and a dot in front of the time, with the other
+   things said about the notification. The dot is a picture of the state, so say it in words
+   too — "Unread" in a `.visually-hidden` span in the title. It stands on the capitals' centre
+   of the time beside it, as every mark beside a line of text does. */
 .inbox-item--unread .inbox-item-title { color: var(--fg); font-weight: 600; }
-.inbox-item--unread::before {
+.inbox-item--unread .inbox-item-time::before {
     content: "";
-    position: absolute;
-    inset-inline-start: var(--space-3);
-    inset-block-start: calc(var(--space-5) + 0.5lh - 3px);
+    display: inline-block;
     width: 6px;
     height: 6px;
+    margin-inline-end: var(--space-3);
     border-radius: 50%;
     background: var(--brand);
+    vertical-align: calc((1cap - 6px) / 2);
 }
 
 /* Each tab's empty state: one line of what is not here, in the list's place. */
@@ -27463,6 +27499,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    its place at the inline start or end, which already mirrors. */
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 
+/* 40, 41 — what sweeps across a track runs from the inline start to the inline end, which is
+   from the right here. The indeterminate bar is moved by a translate, which has no logical form,
+   so it reads a sign (41-progress.css); the skeleton's band is a background position, which is
+   physical, so it rests at its far end and runs its sweep backwards, as the busy bar does below. */
+[dir="rtl"] .progress--indeterminate .progress-bar { --progress-flow: -1; }
+[dir="rtl"] .skeleton {
+    animation-direction: reverse;
+    background-position: 200% 0;
+}
+
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
    `direction: ltr`); a fold row holds the app's own words, which follow the page. */
 [dir="rtl"] .diff-fold > td { direction: rtl; }
@@ -27798,7 +27844,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .count-badge,
     .ribbon,
     .badge--swatch::before,
-    .inbox-item--unread::before,
+    .inbox-item--unread .inbox-item-time::before,
     .timeline > li::before { forced-color-adjust: none; }
 
     /* A workflow's wires are the diagram: each is a painted box, and forced colours
@@ -28538,6 +28584,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .spinner          { animation: none; }    /* 39 */
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
+    [dir="rtl"] .skeleton { animation: none; background-image: none; }   /* 70 — the mirrored sweep */
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }

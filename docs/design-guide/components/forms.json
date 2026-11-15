@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "dbcccba8f217048b"
+    "stamp": "eb37fa087c779e3b"
   },
   {
     "page": "/form-code",
@@ -120,7 +120,7 @@
       { "text": "One line of text", "instead": "/form-text" }
     ],
     "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
-    "stamp": "72c36e2e3cd4eada"
+    "stamp": "ce6f755e4dc127d6"
   },
   {
     "page": "/form-datetime",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "c62b71c9c1c8bd21"
+    "stamp": "454f523edd834a49"
   },
   {
     "page": "/form-select",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "686f13f72bb60f91"
+    "stamp": "62dcabd5b35281f4"
   },
   {
     "page": "/form-choice",
@@ -209,7 +209,7 @@
       { "text": "A long set the reader builds up row by row", "instead": "/form-select#moving-rows-between-two-lists" }
     ],
     "goals": [ "pick-a-set-from-a-list" ],
-    "stamp": "18142d98e064c8e6"
+    "stamp": "e5f8a6fcd170dd1d"
   },
   {
     "page": "/segmented",
@@ -227,7 +227,7 @@
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
     "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
-    "stamp": "38a6f041c4f80b31"
+    "stamp": "7fda8254a3ef94f3"
   },
   {
     "page": "/form-rating",
@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "05ff11fd529e1711"
+    "stamp": "4e46fe804262c325"
   },
   {
     "page": "/form-numeric",
@@ -273,7 +273,7 @@
       { "text": "An exact amount typed with its unit", "instead": "/form-text#kinds-of-affix" }
     ],
     "goals": [ "choose-a-value-on-a-slider", "choose-a-span-of-values", "step-a-count" ],
-    "stamp": "61339bf2f539787c"
+    "stamp": "f4b7d46c9dc10f44"
   },
   {
     "page": "/form-color",
