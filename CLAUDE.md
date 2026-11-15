@@ -709,13 +709,16 @@ version first.
 7. Nothing follows the tag in the repo. `class-history.json` is generated, never committed, and the
    running catalogue reads the release's own copy.
 
-`release.yml` runs the full suite — every test project in every engine, in parallel, without the
-catalogue's tests of the website alone (`Scope=Site`), which `catalogue.yml` runs on every push to
-`main` — and only then
-builds, packs, verifies the package contents, publishes to nuget.org, and creates the GitHub release.
-A pull request runs a smoke pass, so the tag is where a browser regression is caught. **A red tag has
-published nothing**, so the version is still free: delete the tag (`git push --delete origin v0.2.0`
-and `git tag -d v0.2.0`), merge the fix, and tag the same version again.
+The suite is one reusable workflow, `tests.yml`: every test project in every engine on Linux, the
+catalogue's page scans (`Kind=Scan`) in shards. A pull request runs `ci.yml` — `build`, and `tests`
+unless the change is prose alone — and the one required check is `ready`. Every push to `main` runs
+`main.yml`, the full suite with the website's tests (`Scope=Site`) included. `release.yml` publishes
+only a commit on `main`. It skips the suite when `main.yml` succeeded for exactly the tagged commit,
+and otherwise runs `tests.yml` itself, without `Scope=Site`, and publishes only when it is green. So a
+browser regression is caught before the merge, and a tag on a commit whose `main.yml` run is green
+publishes without a second run. **A red tag has published nothing**, so the version is still free:
+delete the tag (`git push --delete origin v0.2.0` and `git tag -d v0.2.0`), merge the fix, and tag the
+same version again.
 
 ### Version rules
 
