@@ -14806,7 +14806,7 @@ button.inbox-item-title {
     inset-inline-end: calc(100% - var(--workflow-gap) / 2);
     inline-size: calc(var(--workflow-gap) * 1.5);
 }
-.workflow-loop + .workflow-step[data-state="running"]::before { inline-size: calc(var(--workflow-gap) * 1.5); }
+.workflow-loop + .workflow-step::before { inline-size: calc(var(--workflow-gap) * 1.5); }
 :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
 .workflow-step[data-state="running"] > .workflow-label::after,
 .workflow-branch:has(> .workflow-path > :first-child[data-state="running"]) > .workflow-label::after,
@@ -15043,7 +15043,7 @@ button.inbox-item-title {
     .workflow-branch > .workflow-path > li:first-child::before { content: none; }
     .workflow-branch > .workflow-label { align-self: flex-start; margin-block-start: 0; }
     .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
-    .workflow-loop + .workflow-step[data-state="running"]::before {
+    .workflow-loop + .workflow-step::before {
         inset-inline-end: auto;
         inline-size: var(--workflow-wire);
     }

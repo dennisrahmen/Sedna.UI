@@ -1142,7 +1142,11 @@
     inset-inline-end: calc(100% - var(--workflow-gap) / 2);
     inline-size: calc(var(--workflow-gap) * 1.5);
 }
-.workflow-loop + .workflow-step[data-state="running"]::before { inline-size: calc(var(--workflow-gap) * 1.5); }
+/* The wire out of a loop is the wire into the step after it, in one piece, whatever that step's
+   state: the loop's own wire to its edge — painted in the loop's colour, where the way back leaves —
+   is covered by it, so a loop at work with a step after it that has not run reads as one grey wire
+   and one blue way back, not a wire that starts blue and turns grey. */
+.workflow-loop + .workflow-step::before { inline-size: calc(var(--workflow-gap) * 1.5); }
 
 :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
 .workflow-step[data-state="running"] > .workflow-label::after,
@@ -1452,7 +1456,7 @@
 
     /* The wire into a loop, and out of one, is the rail; it runs on over nothing. */
     .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
-    .workflow-loop + .workflow-step[data-state="running"]::before {
+    .workflow-loop + .workflow-step::before {
         inset-inline-end: auto;
         inline-size: var(--workflow-wire);
     }
