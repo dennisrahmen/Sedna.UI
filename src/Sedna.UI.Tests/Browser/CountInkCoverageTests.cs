@@ -43,9 +43,9 @@ public class CountInkCoverageTests : ScriptTestBase
     {
         var icon = (await page.Locator($"#{id} > i").BoundingBoxAsync())!;
         var clip = new Clip { X = icon.X, Y = icon.Y, Width = icon.Width, Height = icon.Height };
-        await page.EvaluateAsync($"() => document.getElementById('{id}-n').style.visibility = 'hidden'");
+        await page.EvaluateAsync<bool>($"() => {{ document.getElementById('{id}-n').style.visibility = 'hidden'; return true; }}");
         var bare = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = clip }));
-        await page.EvaluateAsync($"() => document.getElementById('{id}-n').style.visibility = ''");
+        await page.EvaluateAsync<bool>($"() => {{ document.getElementById('{id}-n').style.visibility = ''; return true; }}");
         var marked = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = clip }));
 
         var counts = new Dictionary<(int, int, int), int>();
