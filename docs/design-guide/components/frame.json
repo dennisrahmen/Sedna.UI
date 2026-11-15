@@ -16,7 +16,7 @@
       { "text": "A whole page to start from", "instead": "/page-recipes" }
     ],
     "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "skip-to-the-content", "fill-the-screen-below-the-header", "show-on-a-wall-screen", "use-the-app-on-a-narrow-screen", "pick-a-workspace", "keep-a-footer-at-the-bottom", "sign-in", "explain-access-denied", "say-a-page-was-not-found", "sign-in-after-the-session-expired" ],
-    "stamp": "ea39c1c46fec7162"
+    "stamp": "724fdf9d221ff9f0"
   },
   {
     "page": "/nav",
@@ -90,7 +90,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "f2b5986f07c6198c"
+    "stamp": "80ddf137e50ff0fd"
   },
   {
     "page": "/search",
@@ -121,7 +121,7 @@
       { "text": "The state of one live feed on a page", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
-    "stamp": "4089e254248a8fdc"
+    "stamp": "eed3d1457b479db8"
   },
   {
     "page": "/banner",
@@ -138,7 +138,7 @@
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
     "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
-    "stamp": "9f1d9774f267f80b"
+    "stamp": "dee1fa34f92e6d96"
   },
   {
     "page": "/hover-hints",
@@ -180,7 +180,7 @@
   },
   {
     "page": "/page-recipes",
-    "useFor": "A whole page to start from, in the app's frame: an overview, a list, a record, the forms that create and change one, search, settings, an account and sign-in.",
+    "useFor": "A whole page to start from: in the app's frame an overview, a list, a record, the forms that create and change one, search, settings, an account and sign-in, and without one a public start page.",
     "combineWith": [
       { "page": "/frame#full-shell", "how": "A recipe is the content of .page, in the frame taken once from Shell; sign-in is the content of .auth-layout." },
       { "page": "/structure#title-and-actions", "how": "Every recipe starts with a page head: the title, a line of purpose and the actions for the whole page." },
@@ -188,14 +188,15 @@
       { "page": "/table#toolbar-in-a-card", "how": "A list page's table sits in a card, with the pager after it." },
       { "page": "/grid#main-column-and-aside", "how": "A detail page, a list beside its record and settings lay their two regions out in a .sedna-split." },
       { "page": "/skeleton#table-rows", "how": "While a list loads it keeps its head and toolbar, and only its rows are skeletons." },
-      { "page": "/form-saving#actions-that-stay-in-reach", "how": "A long create or edit form keeps its actions in reach." }
+      { "page": "/form-saving#actions-that-stay-in-reach", "how": "A long create or edit form keeps its actions in reach." },
+      { "page": "/structure#with-a-picture", "how": "A start page opens with a page head with a picture." }
     ],
     "notFor": [
       { "text": "The page shown when something is missing or fails", "instead": "/common-pages" },
       { "text": "The frame around a page", "instead": "/frame" },
       { "text": "A dashboard of panels the reader arranges", "instead": "/panel-grid#panels-the-reader-reorders" }
     ],
-    "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
-    "stamp": "bb33205700981a88"
+    "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on", "see-what-a-site-offers" ],
+    "stamp": "d212b3856fbc34ba"
   }
 ]

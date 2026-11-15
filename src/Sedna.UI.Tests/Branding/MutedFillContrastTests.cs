@@ -4,8 +4,9 @@ using Sedna.UI.Tests.TestSupport;
 namespace Sedna.UI.Tests;
 
 /// <summary>
-/// Every filled <c>--muted</c> modifier — a ribbon, a count badge, and the next family that adds
-/// one — names its own label and sets it at AA on its fill, in every theme and palette.
+/// Every filled <c>--muted</c> modifier written outside the tone system names its own label and
+/// sets it at AA on its fill, in every theme and palette. The ribbon and the count badge, which
+/// were the first, are muted tone carriers now and are measured by <see cref="SolidToneContrastTests"/>.
 /// </summary>
 /// <remarks>
 /// The muted tone is not one of the tone carriers <see cref="SolidToneContrastTests"/> measures,
@@ -42,6 +43,9 @@ public partial class MutedFillContrastTests
         {
             var muted = Regex.Match(selector, @"\.([a-z][a-z0-9-]*)--muted\b");
             if (!muted.Success) continue;
+            // A tone carrier and the rule that reads it are the tone system's, measured by
+            // SolidToneContrastTests.
+            if (body.Contains("--tone-", StringComparison.Ordinal)) continue;
             var fill = Fill().Match(body);
             if (!fill.Success) continue;
             var block = "." + muted.Groups[1].Value;
@@ -54,11 +58,15 @@ public partial class MutedFillContrastTests
     }
 
     [Fact]
-    public void The_scan_finds_the_muted_fills()
+    public void The_ribbon_and_the_count_take_muted_through_the_tone_system()
     {
-        var selectors = MutedFills().Select(f => f.Selector).ToList();
-        Assert.Contains(selectors, s => s.Contains(".ribbon--muted", StringComparison.Ordinal));
-        Assert.Contains(selectors, s => s.Contains(".count-badge--muted", StringComparison.Ordinal));
+        // Muted is a tone carrier now, so SolidToneContrastTests measures its label on its fill in
+        // every theme and palette. This scan is for a filled `--muted` written outside the system.
+        var families = Tones.Families();
+        Assert.Contains("muted", families["ribbon"]);
+        Assert.Contains("muted", families["count-badge"]);
+        Assert.DoesNotContain(MutedFills().Select(f => f.Selector),
+            s => s.Contains(".ribbon--muted", StringComparison.Ordinal) || s.Contains(".count-badge--muted", StringComparison.Ordinal));
     }
 
     [Theory]

@@ -76,6 +76,7 @@
      55-page-structure.css
      56-code-block.css
      56-diff.css
+     56-page-head-hero.css
      57-navigation-aids.css
      58-menu.css
      59-table-extensions.css
@@ -140,7 +141,8 @@
        !important inside a layer becomes HARDER for you to override, not easier.
      * Because your unlayered :root wins outright, a token you set at bare :root
        now also beats this library's [data-variant="light"] value for it. Set
-       both blocks, as the rebrand recipe in the catalogue shows. */
+       both blocks, each with its subtree form, as the rebrand recipe in the catalogue
+       shows. */
 @layer sedna.tokens, sedna.base, sedna.frame, sedna.paint, sedna.utilities, sedna.overrides;
 
 /* ── 00-header.css → @layer sedna.tokens ──────────────────────────────────────────────── */
@@ -383,7 +385,26 @@
 @layer sedna.tokens {
 /* ═══ Tokens — the contract ═════════════════════════════════════════════════
    Everything below this block references these and nothing else. */
+/* Which tokens are variant-sensitive. A subtree carrying `data-variant` — an always-dark band
+   on a light page, a light card on a dark one — redeclares exactly the tokens that differ by
+   variant, so everything inside it reads the way the variant says (docs/architecture.md,
+   "Theming"). That is the tokens a variant, the colour-blind palette, high
+   contrast or forced colours remap, and every token derived from one of those: a derived token
+   resolves where it is declared, so it has to be declared in the subtree too.
+
+   Two blocks follow. The first is those tokens, and its selector list is the whole mechanism:
+   `:root` is the page, `:root :where([data-variant])` is any element below it that names a
+   variant. The second is everything else — spacing, type, motion, the families that look the
+   same in both variants — declared once at `:root` and inherited down, which is why a subtree
+   keeps the page's density and an app's own override of one of them. A new token goes in the
+   first block when it is remapped by a variant, the colour-blind palette or contrast, or reads
+   a token that is; `ScopedVariantTests` fails when it is in the wrong one.
+
+   The selector list ends with `:root` on purpose: every reader of this file finds a token
+   block by that selector. */
+:root :where([data-variant]),
 :root {
+
     /* ── Appearance ─────────────────────────────────────────────────────────
        Consumed once, as `html { color-scheme: var(--color-scheme) }`, which is
        why it is a token and not a literal: it has to move with the theme. It
@@ -395,16 +416,11 @@
        no longer one of them — base appearance puts it in reach of the stylesheet,
        and 49-form-select-base.css styles it. */
     --color-scheme: dark;
-
     /* The UA's date-picker glyph is drawn in a fixed dark colour we cannot reach.
        Inverting it is the only way to see it on a dark surface, so the amount of
        inversion moves with the theme: 1 on dark, 0 on light. A number, not a
        colour — there is nothing here to recolour. */
     --picker-invert: 1;
-
-    /* ── Typography ─────────────────────────────────────────────────────── */
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: "SF Mono", Menlo, Consolas, monospace;
 
     /* ── Surfaces, text, lines ──────────────────────────────────────────────
        Dark is the library's default and the identity is strongest here: Deep
@@ -430,6 +446,7 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
     --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
+
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
        An app asking "what colour is the navigation?" had to know that the
@@ -441,6 +458,7 @@
     --surface-app:     var(--bg);
     --surface-chrome:  var(--sidebar-bg);
     --surface-content: var(--bg);
+
     /* ── Elevation ──────────────────────────────────────────────────────
        Three steps, so a surface inside a surface inside a surface is still
        three distinguishable surfaces. Level 1 is the card's own colour, which
@@ -536,10 +554,6 @@
        moves it into the danger ramp — and the sprite reads it through the <use> shadow
        tree without knowing which state it is drawing. */
     --state-accent:     var(--brand);
-    /* Whether a drawing's moving part moves. `paused` here, `running` from
-       .state-art--live or .empty-state--pending; the sprite's motion classes read it as
-       their play state, and the reduced-motion block removes the animations outright. */
-    --state-motion:     paused;
 
     /* ── Data visualisation ────────────────────────────────────────────────
        Six series colours for parts of a chart that are merely different from each
@@ -613,8 +627,6 @@
        topbar and the current item in the bottom bar — where you are, rather than what
        you picked. It follows --selected unless an app separates the two. */
     --selected:         var(--brand);
-    /* The strip at the start of a clickable row under the pointer; none until an app sets it. */
-    --row-hover-accent: transparent;
     --tab-indicator:    var(--selected);
 
     /* ── Fields ─────────────────────────────────────────────────────────────
@@ -626,12 +638,6 @@
        every divider. The focused edge is its own role for the same reason: --brand-soft
        also tints spinners and icons, and an app with a neutral focus ring wants a
        neutral focused field without them. */
-    /* A field's and a choice control's edge is the only thing that says it is a control:
-       a step past --border-strong, for 3:1 against a card (StateContrastTests).
-       --control-on is what a checked checkbox, a checked radio, an on switch and a
-       slider's filled track and thumb are painted in. */
-    --field-border:       var(--slate-500);
-    --control-border:     var(--field-border);
     --field-border-focus: var(--brand-soft);
     /* The edge of a field in a state (46-form-layout.css, "Field states"): rejected and
        unusual. Their own roles rather than --danger-border-strong and --warn-border,
@@ -650,7 +656,6 @@
     /* ── Disabled ───────────────────────────────────────────────────────────
        How far a disabled control's graphic fades — the check, the radio dot, the
        switch, the slider, the colour swatch. A number, not a colour. Labels do not fade. */
-    --disabled-opacity: 0.4;
     /* A disabled control keeps a label that reads at 4.5:1 — dimming by opacity alone
        measured 1.3–3.5:1 — and says it is unavailable by its flat, quiet look instead. */
     --disabled-fg:     var(--muted);
@@ -690,15 +695,6 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
-    /* The header's height, and the sidebar's brand and area title, which line up with it. */
-    --topbar-height:   44px;
-
-    /* ── Panel bars ─────────────────────────────────────────────────────────
-       A modal's header and footer and a card's head sit on the panel's own surface; an
-       app that wants them as bars sets these. */
-    --modal-head-bg:   transparent;
-    --modal-foot-bg:   transparent;
-    --card-head-bg:    transparent;
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -719,18 +715,10 @@
     --go-border:  var(--green-800);
     --go-fg:      var(--green-400);
     --go-ring:    color-mix(in srgb, var(--green-500) 50%, transparent);
-
     --warn-solid:      var(--amber-700);
-    --warn-hover:      var(--amber-800);
-    --warn-active:     var(--amber-900);
     --warn-bg:         color-mix(in srgb, var(--amber-500) 12%, transparent);
-    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
-    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
     --warn-border:     var(--amber-800);
     --warn-fg:         var(--amber-300);
-    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
-    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
-
     /* crimson-700, not the old #dc2626: that red sits 7° from the Sedna Red brand
        in OKLCH — a Delete button and a Save button would read as the same colour
        at a glance. crimson-700 is 32° away and slightly darker, so the two separate
@@ -744,14 +732,12 @@
     --danger-border-strong: var(--crimson-800);
     --danger-fg:            var(--crimson-400);
     --danger-ring:          color-mix(in srgb, var(--crimson-500) 40%, transparent);   /* focus ring on a danger control */
-
     --info-bg:      color-mix(in srgb, var(--orbit-400) 12%, transparent);
     --info-border:  var(--orbit-800);
     --info-fg:      var(--orbit-300);
     --info-solid:   var(--orbit-700);                     /* a filled info dot or bar */
     --info-on-solid: var(--on-solid);                     /* a label on it — dark where the fill is light */
     --info-ring:    color-mix(in srgb, var(--orbit-400) 50%, transparent);     /* its glow */
-
     /* Data in motion: the light running into a .workflow's step at work, the line it
        runs on, and that step's ring and glow. The info colours, so every theme moves
        them with info; forced colours points the light at Highlight. */
@@ -759,17 +745,14 @@
     --flow-line:  var(--info-border);
     --flow-tint:  var(--info-bg);
     --flow-glow:  var(--info-ring);
-
     --secret-bg:     color-mix(in srgb, var(--violet-600) 12%, transparent);
     --secret-border: var(--violet-800);
     --secret-fg:     var(--violet-300);
-
     /* The out-of-office presence mark. Not a semantic family: every other presence
        state borrows go, warn or danger, and this one means none of them. Violet-600
        clears 3:1 as a graphic against both the dark and the light page, so no theme
        remaps it; the arrow knocked out of it is what carries the state. */
     --presence-out-of-office: var(--violet-600);
-
     /* Extra badge hues — categorical only, no semantics attached. */
     --badge-cyan-bg:     color-mix(in srgb, var(--cyan-400) 15%, transparent);
     --badge-cyan-border: var(--cyan-800);
@@ -805,22 +788,18 @@
     --sev-1-bg:     var(--crimson-800);
     --sev-1-border: var(--crimson-700);
     --sev-1-fg:     var(--on-solid);
-
     --sev-2-solid:  var(--orange-700);
     --sev-2-bg:     color-mix(in srgb, var(--orange-400) 28%, transparent);
     --sev-2-border: var(--orange-700);
     --sev-2-fg:     var(--orange-200);
-
     --sev-3-solid:  var(--amber-600);
     --sev-3-bg:     color-mix(in srgb, var(--amber-500) 20%, transparent);
     --sev-3-border: var(--amber-800);
     --sev-3-fg:     var(--amber-300);
-
     --sev-4-solid:  var(--orbit-500);
     --sev-4-bg:     color-mix(in srgb, var(--orbit-400) 13%, transparent);
     --sev-4-border: var(--orbit-800);
     --sev-4-fg:     var(--orbit-300);
-
     --sev-5-solid:  var(--slate-400);
     --sev-5-bg:     color-mix(in srgb, var(--slate-400) 8%, transparent);
     --sev-5-border: var(--slate-700);
@@ -829,7 +808,6 @@
     /* ── Component surfaces ─────────────────────────────────────────────── */
     --badge-bg:      color-mix(in srgb, var(--white) 7%, transparent);
     --table-head-bg: color-mix(in srgb, var(--white) 4%, transparent);
-
     /* Feedback surfaces. Tinted from the theme rather than the brand: a loading
        placeholder is not a branded element, and a brand-tinted skeleton reads as
        content that is already there. */
@@ -846,14 +824,6 @@
        --backdrop is the exception that proves it — pure black belongs to no ramp,
        has no hue to drift, and is what a modal backdrop should be in every theme. */
     --backdrop:      color-mix(in srgb, var(--black) 65%, transparent);       /* modal backdrop */
-    /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
-       Black in every theme for the same reason as --backdrop: a film is framed in
-       black, and a label on a photograph cannot know what the photograph is. */
-    --media-bg:      var(--black);
-    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
-    /* One square of the checkerboard behind a picture in a `--transparency` frame
-       (62-media-and-prose.css). */
-    --checker-size:  8px;
     --overlay:       color-mix(in srgb, var(--slate-900) 66%, transparent);  /* in-card blocking overlay */
     --spotlight-dim: color-mix(in srgb, var(--slate-950) 62%, transparent);  /* guided-tour / spotlight dim */
     --tip-bg:        var(--slate-925);
@@ -896,6 +866,140 @@
        reaches for, because box-shadow has no logical form. */
     --shadow-edge-start:  6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
     --shadow-edge-end:   -6px 0 8px -6px color-mix(in srgb, var(--black) 45%, transparent);
+
+    /* ── Agents ─────────────────────────────────────────────────────────────
+       The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
+       orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
+       so a theme that re-points them re-colours every agent part at once. */
+    --agent-from:  var(--coral-500);
+    --agent-to:    var(--orbit-400);
+    /* The orb's orbit paths: the page's own text colour, faint. */
+    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
+    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
+    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
+    /* A glow in the orbit's blue: full round a step at work, dim round a .beam. */
+    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
+    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
+    /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */
+    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
+    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
+    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
+    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
+}
+
+/* Everything that does not depend on the variant. Declared once, inherited by every subtree. */
+:root {
+
+    /* ── Typography ─────────────────────────────────────────────────────── */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "SF Mono", Menlo, Consolas, monospace;
+
+    /* ── Brand — THE app override point ─────────────────────────────────────
+       An app redefines this family (and --accent / --sidebar-active) in its own
+       override file, or supplies a whole theme; nothing else needs touching.
+       The four ring tokens are separate because the alphas differ per control.
+
+       --brand is NOT Sedna Red (coral-500) — Sedna Red is a display colour.
+       White text on coral-500 is 2.82:1, far under the 4.5:1 a .btn label
+       needs. coral-600 is the darkest-chroma point on the Sedna Red hue that
+       still carries white text at AA (4.55:1): solved for maximum chroma at
+       the contrast boundary, not "coral, darkened" — a naive darkening goes
+       brick and dull. Sedna Red itself survives everywhere it can be seen at
+       full strength: --brand-soft, tints, glows, the sidebar indicator. See
+       docs/BRANDING.md §4.1. */
+    /* Whether a drawing's moving part moves. `paused` here, `running` from
+       .state-art--live or .empty-state--pending; the sprite's motion classes read it as
+       their play state, and the reduced-motion block removes the animations outright. */
+    --state-motion:     paused;
+
+    /* ── Selection ──────────────────────────────────────────────────────────
+       The mark on the one that is chosen or on show: a selected row's leading bar, a
+       chosen card's ring, the step a workflow is showing, the spotlight's ring, the
+       graph's selected record. A line or a ring, never a fill carrying text — those stay
+       --brand, because --on-solid is measured against it.
+
+       Its own role because the brand is not always the right colour for it: on a
+       status display whose brand is red, a red ring round the one on show reads as
+       "failed". Redefine this alone to move every selection mark at once.
+
+       --tab-indicator is the line under the current tab, the current area in the
+       topbar and the current item in the bottom bar — where you are, rather than what
+       you picked. It follows --selected unless an app separates the two. */
+    /* The strip at the start of a clickable row under the pointer; none until an app sets it. */
+    --row-hover-accent: transparent;
+
+    /* ── Fields ─────────────────────────────────────────────────────────────
+       The edge of every box a reader types or picks into — .form-input, .form-select,
+       .input-group, .form-combo-box, .form-color, the Markdown editor, the search and
+       nav-filter boxes — at rest and focused. --border is also the line between cards,
+       rows and panels, and a calm line colour leaves a field's edge under the 3:1 a
+       control's boundary needs; this lets an app firm up fields without firming up
+       every divider. The focused edge is its own role for the same reason: --brand-soft
+       also tints spinners and icons, and an app with a neutral focus ring wants a
+       neutral focused field without them. */
+    /* A field's and a choice control's edge is the only thing that says it is a control:
+       a step past --border-strong, for 3:1 against a card (StateContrastTests).
+       --control-on is what a checked checkbox, a checked radio, an on switch and a
+       slider's filled track and thumb are painted in. */
+    --field-border:       var(--slate-500);
+    --control-border:     var(--field-border);
+
+    /* ── Disabled ───────────────────────────────────────────────────────────
+       How far a disabled control's graphic fades — the check, the radio dot, the
+       switch, the slider, the colour swatch. A number, not a colour. Labels do not fade. */
+    --disabled-opacity: 0.4;
+
+    /* ── Topbar ─────────────────────────────────────────────────────────────
+       The header's surface and what is drawn straight on it: the icon buttons, the
+       area links, the user widget's name and sign-out, the version tag. Aliases of the
+       roles the header has always used, so nothing moves until an app points them
+       elsewhere — a brand-coloured header with white text in the light variant is
+       --topbar-bg, --topbar-fg and --topbar-muted together, and --topbar-hover for what
+       the pointer is on. Panels that open from the header (the user menu, the search
+       results) are surfaces of their own and keep the page's roles.
+
+       Each frame region with a surface of its own — the topbar, the sidebar, the bottom
+       bar — says what quiet text on it is painted in, as --muted-here, the way it says
+       what its surface is as --surface-here; .text-muted, .eyebrow and
+       .nav-section-label read it, and every surface resets it to --muted. */
+    /* The header's height, and the sidebar's brand and area title, which line up with it. */
+    --topbar-height:   44px;
+
+    /* ── Panel bars ─────────────────────────────────────────────────────────
+       A modal's header and footer and a card's head sit on the panel's own surface; an
+       app that wants them as bars sets these. */
+    --modal-head-bg:   transparent;
+    --modal-foot-bg:   transparent;
+    --card-head-bg:    transparent;
+
+    /* ── Semantic status families ───────────────────────────────────────────
+       "go"     — the action that sends something outward (approve, apply, send)
+       "warn"   — the action that changes who is in control (take over)
+       "danger" — destructive / failed
+       "info", "secret" — informational and sensitive-value surfaces
+       [data-cvd="1"] swaps ONLY the go family to blue, so go-vs-danger reads as
+       blue-vs-red for deuteranopia/protanopia. Amber and brand keep their roles. */
+    --warn-hover:      var(--amber-800);
+    --warn-active:     var(--amber-900);
+    --warn-bg-hover:   color-mix(in srgb, var(--amber-500) 20%, transparent);
+    --warn-bg-active:  color-mix(in srgb, var(--amber-500) 28%, transparent);
+    --warn-ring:       color-mix(in srgb, var(--amber-500) 40%, transparent);
+    --warn-ring-solid: color-mix(in srgb, var(--amber-500) 50%, transparent);
+
+    /* ── Component surfaces ─────────────────────────────────────────────── */
+    /* A video's letterbox, and the scrim under a label or a play glyph on a picture.
+       Black in every theme for the same reason as --backdrop: a film is framed in
+       black, and a label on a photograph cannot know what the photograph is. */
+    --media-bg:      var(--black);
+    --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
+    /* The two ends of the scrim over a page head's picture (56-page-head-hero.css): strong
+       where the words are, soft where the picture shows. Black in every theme, and solved
+       for white text over the brightest photograph there is — HeroTests measures it. */
+    --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
+    --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
+    /* One square of the checkerboard behind a picture in a `--transparency` frame
+       (62-media-and-prose.css). */
+    --checker-size:  8px;
 
     /* ── Blazor reconnect banner (deliberately dark in both themes) ───────
        Not covered by docs/BRANDING.md's per-token tables. The border and the
@@ -962,7 +1066,6 @@
        rendered control. */
     --choice-inset-check:  calc(15px + var(--space-4));   /* checkbox and radio */
     --choice-inset-switch: calc(34px + var(--space-5));
-
     /* How tall a clamped code block is before it scrolls. Raise it for docs, lower it
        for a dense admin page. */
     --code-clamp: 360px;
@@ -1050,27 +1153,22 @@
     --list-pad-block:  var(--space-5);
     --list-pad-inline: var(--space-6);
     --list-gap:        var(--space-4);
-
     /* The space between a page's sections and the page's own padding — .page reads
        them, and the density remaps move them with the rows and cells above. */
     --page-rhythm:     var(--space-7);
     --page-pad:        var(--space-9);
-
     /* The block padding of a `.page-banner` under the topbar; its inline padding is the
        page's own, so its words start on the page's column. */
     --page-banner-pad-block: var(--space-5);
-
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one
        `.list-title` or `.list-sub` it shapes that line alone. */
     --list-lines: 1;
-
     /* The key column's share of a `.kv` row once the rows beside it carry a `.kv-action`
        — a check-answers list — so every value starts on one edge. Set on the list to
        give the keys more room, or on one row. */
     --kv-key-width: 30%;
-
     /* Where an anchored panel opens against its trigger: `block-end` (below, the
        default), `block-start` (above), `inline-end` or `inline-start` (beside it,
        mirrored in RTL). Every panel anchored to a trigger reads it — a `.menu` in
@@ -1084,23 +1182,11 @@
        The two bodies of the Sedna mark: Sedna Red is the focal body, Orbit Blue the
        orbit. The orb, the beam, the shimmer and the reasoning all draw with these two,
        so a theme that re-points them re-colours every agent part at once. */
-    --agent-from:  var(--coral-500);
-    --agent-to:    var(--orbit-400);
     /* The voice level, 0 to 1, that the app's audio code writes on any element: the
        orb, the avatar, the bars, the mic button and Mochi below it all follow it.
        Unset here, on purpose — with no level an orb moves on its own and every other
        part reads silence. */
     --level: initial;
-    /* The orb's orbit paths: the page's own text colour, faint. */
-    --agent-trail: color-mix(in srgb, var(--fg) 30%, transparent);
-    --agent-tint:  color-mix(in srgb, var(--agent-to) 12%, transparent);
-    --agent-edge:  color-mix(in srgb, var(--agent-to) 35%, transparent);
-    /* A glow in the orbit's blue: full round a step at work, dim round a .beam. */
-    --agent-glow:      color-mix(in srgb, var(--agent-to) 55%, transparent);
-    --agent-glow-dim:  color-mix(in srgb, var(--agent-to) 25%, transparent);
-    /* A placeholder the agent is filling: the skeleton, warmed at its sheen. */
-    --agent-skeleton-cool: color-mix(in srgb, var(--agent-to) 24%, var(--skeleton-bg));
-    --agent-skeleton-warm: color-mix(in srgb, var(--agent-from) 24%, var(--skeleton-bg));
     /* An agent avatar's sphere: three stops per identity tone, lit from inside, and the
        glow a speaking sphere gives off in its own colour. */
     --agent-sedna-1:   var(--coral-400);  --agent-sedna-2:   var(--violet-500); --agent-sedna-3:   var(--orbit-400);
@@ -1118,8 +1204,6 @@
     --agent-sphere-gloss: color-mix(in srgb, var(--white) 42%, transparent);
     --agent-sphere-shade: color-mix(in srgb, var(--black) 26%, transparent);
     --agent-sphere-rim:   color-mix(in srgb, var(--white) 14%, transparent);
-    --agent-sphere-ring:  color-mix(in srgb, var(--agent-to) 30%, transparent);
-    --agent-sphere-halo:  color-mix(in srgb, var(--agent-to) 70%, transparent);
 
     /* ── Mochi ──────────────────────────────────────────────────────────────
        The agent's character keeps its own colours under every theme and both
@@ -1205,6 +1289,7 @@
    specifies Ice White as *the* light surface — cards must therefore keep their
    border in light theme; it is doing the separation work that lightness alone no
    longer does. */
+:root [data-variant="light"],
 :root[data-variant="light"] {
     --color-scheme:   light;
     --picker-invert:  0;
@@ -1416,6 +1501,7 @@
    both desaturate toward a similar warm brown. Danger therefore also moves
    colder and darker here, so the pair separates on lightness when hue is
    unavailable (docs/BRANDING.md §9.2). */
+:root[data-cvd="1"] :where([data-variant]),
 :root[data-cvd="1"] {
     --go-solid:  var(--orbit-700);
     --go-hover:  var(--orbit-800);
@@ -1449,6 +1535,7 @@
     --sev-2-border: var(--violet-700);
     --sev-2-fg:     var(--violet-300);
 }
+:root[data-cvd="1"] [data-variant="light"],
 :root[data-variant="light"][data-cvd="1"] {
     --go-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --go-border: var(--orbit-300);
@@ -1502,6 +1589,7 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* Dark, high contrast. */
+:root[data-contrast="more"] :where([data-variant]),
 :root[data-contrast="more"] {
     /* Pure black/white: no palette step reaches either extreme, and that is the
        point of this mode — see --on-solid's comment in 01-tokens.css. */
@@ -1606,6 +1694,7 @@
 }
 
 /* Light, high contrast. Composes with the light variant by being more specific. */
+:root[data-contrast="more"] [data-variant="light"],
 :root[data-variant="light"][data-contrast="more"] {
     --bg:              var(--white);
     --bg-elevated:     var(--white);
@@ -1711,6 +1800,7 @@
 /* The OS setting, for anybody who never opens the app's own settings. Only :root
    remaps, so `Appearance_media_queries_only_remap_tokens` holds. */
 @media (prefers-contrast: more) {
+    :root :where([data-variant]),
     :root {
         --border:         var(--slate-400);
         --border-strong:  var(--slate-300);
@@ -1720,6 +1810,7 @@
         --surface-soft:   var(--slate-900);
         --surface-strong: var(--slate-800);
     }
+    :root [data-variant="light"],
     :root[data-variant="light"] {
         --border:         var(--slate-600);
         --border-strong:  var(--slate-800);
@@ -1752,6 +1843,18 @@ html, body { margin: 0; height: 100%; }
 html {
     color-scheme: var(--color-scheme);
     scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+}
+
+/* A subtree that names its own variant — `<section data-variant="dark">` — is a page of its
+   own inside the page. Its tokens are redeclared by the token blocks (01-tokens.css); this is
+   the part a token cannot reach. Its text takes the variant's own colour, because `color` is
+   inherited as a computed value and would otherwise stay the page's; its native controls and
+   scrollbars follow it, as `html` does for the page. The subtree paints no background of its
+   own — a photograph, a gradient or a surface the app writes sits behind its content. */
+:root [data-variant] {
+    color-scheme: var(--color-scheme);
+    color: var(--fg);
     scrollbar-color: var(--scrollbar) transparent;
 }
 
@@ -4272,6 +4375,28 @@ a.topbar-version--pre:hover {
     background: var(--surface-raised-3);
     --muted: var(--fg-soft);
 }
+/* ── A card that is one link ────────────────────────────────────────────────
+   `<a class="card" href="…">` makes the whole card the target: a service, a reference, a
+   product — a tile that leads somewhere and has nothing else to do. The card's own
+   rules stay as they are; this adds the box an <a> lacks, the two states a link needs and
+   nothing that restyles the text inside — it keeps the colours a card's text has, so a
+   title is the title's colour and not the link colour, and no part underlines.
+
+   The reader sees the frame answer: the edge steps up and the surface warms on hover, and a
+   keyboard reader gets the ring on the frame, the same two states `a.stat` and a `.list-row`
+   give. A card holds no second link or button when it is itself the link — a link inside a
+   link is not HTML — so its actions are text the reader sees, not controls. */
+a.card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+a.card:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+a.card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
+/* `a.card` outweighs `.card--fill`, so a fill card that is a link says its column again. */
+a.card.card--fill { display: flex; }
+
 .card-head {
     display: flex;
     /* A trailing action too wide to share the line goes under the title, rather than
@@ -4615,8 +4740,13 @@ a.topbar-version--pre:hover {
    band at its own edge, so a card's radius still shapes the corner.
 
    The word is the whole message and is read in place, so keep it to one or two words;
-   a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
-   brand by default, `--go`, `--info`, `--danger` and `--muted`. */
+   a state that needs a sentence is an alert, and a state of one value is a badge.
+
+   Tones are the library's own, read from the tone system in 69-tone.css: brand by default,
+   then `--go`, `--warn`, `--danger`, `--info`, `--secret`, the labelling hues `--cyan`,
+   `--orange` and `--teal`, and `--muted`. A ribbon is filled by nature, so the tone alone gives
+   the fill and there is no `--solid`. Sizes are the labelling scale: `--sm` for a small tile,
+   the default, and `--lg` for a hero card, on the band and on the tab alike. */
 .ribbon-host { position: relative; overflow: hidden; }
 /* The ribbon's own box is only its word, turned 45° and centred --ribbon-inset in from both
    edges of the corner, so the box stays inside its host. The band either side of the word is
@@ -4625,13 +4755,20 @@ a.topbar-version--pre:hover {
    word keeps its own box. */
 .ribbon {
     --ribbon-inset: 30px;
+    --ribbon-pad-block: var(--space-1);
+    --ribbon-pad-inline: var(--space-3);
     --ribbon-bg: var(--brand);
     position: absolute;
     inset-block-start: var(--ribbon-inset);
     inset-inline-end: var(--ribbon-inset);
     translate: 50% -50%;
     rotate: 45deg;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-3);
+    padding: calc(var(--ribbon-pad-block) + var(--cap-gap)) var(--ribbon-pad-inline);
+    /* The shadow copies are 30px apart, so the box is never narrower, or a short word leaves
+       a seam between two of them. */
+    min-width: 30px;
+    box-sizing: border-box;
+    text-align: center;
     background: var(--ribbon-bg);
     box-shadow:
         -30px 0 0 var(--ribbon-bg), 30px 0 0 var(--ribbon-bg),
@@ -4646,23 +4783,24 @@ a.topbar-version--pre:hover {
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
     pointer-events: none;
+    /* The fill is what the word is read on, so a printout keeps it. */
+    print-color-adjust: exact;
 }
+.ribbon--sm { --ribbon-inset: 22px; --ribbon-pad-block: 0px; --ribbon-pad-inline: var(--space-2); }
+.ribbon--lg { --ribbon-inset: 40px; --ribbon-pad-block: var(--space-2); --ribbon-pad-inline: var(--space-4); font-size: var(--text-2); }
 .ribbon--tab {
+    --ribbon-pad-inline: var(--space-4);
     inset-block-start: 0;
     inset-inline-end: 0;
     translate: none;
     rotate: none;
     box-shadow: none;
-    padding-inline: var(--space-4);
+    min-width: 0;
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
-.ribbon--go     { --ribbon-bg: var(--go-solid); }
-.ribbon--info   { --ribbon-bg: var(--info-solid); }
-.ribbon--danger { --ribbon-bg: var(--danger-solid); }
-/* The muted fill is the muted text colour and its word is the page's own background: the
-   pair the theme already holds at AA, turned inside out, so it flips with the variant. */
-.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
+.ribbon--tab.ribbon--sm { --ribbon-pad-inline: var(--space-3); }
+.ribbon--tab.ribbon--lg { --ribbon-pad-inline: var(--space-5); }
 }
 
 /* ── 31-badges.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4790,17 +4928,19 @@ a.topbar-version--pre:hover {
    A label a reader made and coloured, as in an issue tracker. The colour is the app's
    data, set as `--label-colour` on the badge; the library decides how much of it to use.
    The text never takes it, so a yellow a reader picked is still legible in every theme.
+   The dot steps down with `.badge--sm`, as the text beside it does.
 
      <span class="badge badge--swatch" style="--label-colour: #8b5cf6">design</span>
 
    `.badge--swatch-outline` draws the pill's edge in the colour as well as the dot. There is
    no tinted fill: a tint of a colour the library does not know is a colour function on a
    rule, which no theme could reach. */
-.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch { --label-colour: var(--muted); --badge-dot: 8px; }
+.badge--sm.badge--swatch { --badge-dot: 6px; }
 .badge--swatch::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: var(--badge-dot);
+    height: var(--badge-dot);
     flex-shrink: 0;
     border-radius: 50%;
     background: var(--label-colour);
@@ -4848,15 +4988,37 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
    outward from it. An icon's corner is its own; a round host puts the point on its curve,
    at the 45° mark, so the dot touches the avatar instead of floating off its box; a button
    puts it inside its corner radius. A `translate` has no logical form, so 70-rtl.css turns
-   its inline half round. */
+   its inline half round.
+
+   The badge marks the corner; it does not cover the icon. Its size is --count-size, and
+   it follows the host: a small button or avatar carries the small badge, a large one the
+   large, a bare icon the small one, and any other host takes the middle one. `.count-badge--sm` and `--lg` name a
+   size outright, and an app that sets --count-size on the host gives it any other. On a
+   host under about 24px, such as an icon at its own size, send the dot, not a number.
+
+   Tones are the library's own, from the tone system in 69-tone.css: brand by default, then
+   `--go`, `--warn`, `--danger`, `--info`, `--secret`, `--cyan`, `--orange`, `--teal` and
+   `--muted`. A count is filled by nature, so the tone alone gives the fill. */
 .count-host {
     --count-inset: 2px;
+    --count-size: 14px;
+    --count-dot: 8px;
+    --count-text: var(--text-1);
     position: relative;
     display: inline-flex;
     flex-shrink: 0;
 }
 .count-host--round { --count-inset: 14.6%; }
 .btn.count-host    { --count-inset: 3px; }
+/* The size follows the host the library draws, and `--sm` and `--lg` on the badge name one
+   outright, over the host's. A dot is a little over half the number's height, and even. */
+.btn--sm.count-host,
+.count-host:not(.btn):has(> i),
+.count-host:has(> .avatar--sm),
+.count-badge--sm { --count-size: 12px; --count-dot: 6px; --count-text: var(--text-1); --count-pad: var(--space-1); }
+.btn--lg.count-host,
+.count-host:has(> .avatar--lg),
+.count-badge--lg { --count-size: 16px; --count-dot: 10px; --count-text: var(--text-2); --count-pad: var(--space-2); }
 
 .count-badge {
     position: absolute;
@@ -4864,13 +5026,13 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     inset-inline-end: var(--count-inset);
     translate: 50% -50%;
     box-sizing: border-box;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
+    min-width: var(--count-size, 14px);
+    height: var(--count-size, 14px);
+    padding: 0 var(--count-pad, var(--space-2));
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
-    font-size: var(--text-1);
+    font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;
     text-align: center;
@@ -4883,15 +5045,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
        host's edge. */
     box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
     pointer-events: none;
+    print-color-adjust: exact;
 }
-.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
-.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
-
-.count-badge--danger { background: var(--danger-solid); }
-.count-badge--go     { background: var(--go-solid); }
-.count-badge--info   { background: var(--info-solid); }
-/* As .ribbon--muted: the muted text colour as the fill, the page's background as the number. */
-.count-badge--muted  { background: var(--muted); color: var(--bg); }
+.count-badge:empty { min-width: 0; width: var(--count-dot, 8px); height: var(--count-dot, 8px); padding: 0; }
 }
 
 /* ── 31-kbd.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -6974,8 +7130,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* ── 44-markdown.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Markdown editor ────────────────────────────────────────────────────────
-   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
-   tabs flip [data-md-view] on the root (done by the JS). */
+   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview/Split
+   switch sets [data-md-view="write|preview|split"] on the root, and the full-screen
+   button [data-md-fullscreen] — both done by the JS; the layouts are drawn here. */
 /* ── Editor chrome ──────────────────────────────────────────────────────────
    The frame, toolbar and body for a rich-text editor the APP brings — TipTap, Quill,
    ProseMirror, a plain contenteditable. Not an editor: no document model, no sanitiser,
@@ -7056,6 +7213,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     display: inline-flex; align-items: center; justify-content: center;
 }
 .md-tool:hover { background: var(--bg-hover); color: var(--fg); }
+/* A command that is on — full-screen — is `aria-pressed`, the attribute, as the rich-text
+   editor's toolbar draws it. */
+.md-tool[aria-pressed="true"] { background: var(--brand-tint); color: var(--brand-text); }
 /* The Write/Preview switch is the tier-2 .segmented control, not a private set of
    tab classes. It is exactly what a segmented control is for — two mutually
    exclusive options, applied immediately — and using it means the editor gets the
@@ -7080,6 +7240,68 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .md-editor[data-md-view="preview"] .md-input   { display: none; }
 .md-editor[data-md-view="preview"] .md-preview { display: block; }
+
+/* A file dragged over the textarea: the frame takes the focus ring a focused field has. */
+.md-editor[data-md-dragging] { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
+
+/* ── Side by side ───────────────────────────────────────────────────────────
+   Write and preview at once. The root becomes a two-column grid: the toolbar and anything
+   else the app put in the editor span both, the textarea sits left and the preview right.
+   The preview's height is the textarea's, so it scrolls inside the row instead of
+   stretching it (size containment takes its content out of the row's height), and a manual
+   resize of the textarea resizes both. Under 40rem the two stack. */
+.md-editor[data-md-view="split"],
+.md-editor[data-md-fullscreen] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+}
+.md-editor[data-md-view="split"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.md-editor[data-md-view="split"] > * { grid-column: 1 / span 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > * { grid-column: 1; }
+.md-editor[data-md-view="split"] > .md-toolbar,
+.md-editor[data-md-fullscreen] > .md-toolbar { grid-row: 1; }
+.md-editor[data-md-view="split"] > .md-input,
+.md-editor[data-md-fullscreen] > .md-input { grid-column: 1; grid-row: 2; }
+.md-editor[data-md-view="split"] > .md-preview,
+.md-editor[data-md-fullscreen] > .md-preview { grid-column: 2; grid-row: 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > .md-preview { grid-column: 1; }
+.md-editor[data-md-view="split"] > .md-preview {
+    display: block;
+    contain: size;
+    resize: none;
+    border-inline-start: 1px solid var(--border);
+}
+@media (max-width: 40rem) {
+    .md-editor[data-md-view="split"] > .md-input,
+    .md-editor[data-md-view="split"] > .md-preview { grid-column: 1 / span 2; }
+    .md-editor[data-md-view="split"] > .md-preview {
+        grid-row: 3;
+        border-inline-start-color: transparent;
+        border-block-start: 1px solid var(--border);
+    }
+    .md-editor[data-md-view="split"]:not([data-md-fullscreen]) { grid-template-rows: auto auto auto; }
+}
+
+/* ── Full screen ────────────────────────────────────────────────────────────
+   The editor fills the window, above the page and below a dialog; the script makes
+   what it covers inert and Escape leaves. The page does not scroll behind it. */
+.md-editor[data-md-fullscreen] {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    border: 0;
+    border-radius: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.md-editor[data-md-fullscreen] > .md-input,
+.md-editor[data-md-fullscreen] > .md-preview {
+    block-size: 100%;
+    min-block-size: 0;
+    max-block-size: none;
+    resize: none;
+}
+html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 
 /* Theme the scroll + resize chrome on both panes so the browser-default white
    scrollbar corner and resizer grip don't show through. */
@@ -7112,9 +7334,33 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .markdown-body h1 { font-size: 1.4em; }
 .markdown-body h2 { font-size: 1.25em; }
 .markdown-body h3 { font-size: 1.1em; }
+.markdown-body h4 { font-size: 1em; }
+.markdown-body h5 { font-size: 0.9em; }
+.markdown-body h6 { font-size: 0.9em; color: var(--muted); }
 .markdown-body p  { margin: 0.5em 0; }
 .markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-inline-start: 1.5em; }
 .markdown-body li { margin: 0.15em 0; }
+/* A nested list sits tight under its item; a loose item's paragraphs keep their space. */
+.markdown-body li > :is(ul, ol) { margin: 0.15em 0; }
+.markdown-body li > p { margin: 0.3em 0; }
+.markdown-body li > :first-child { margin-top: 0; }
+.markdown-body li > :last-child { margin-bottom: 0; }
+/* A loose item — one whose paragraphs are wrapped — is set apart from the next. */
+.markdown-body li:has(> p) { margin: 0.6em 0; }
+.markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 1.2em 0; }
+.markdown-body del { color: var(--muted); }
+/* A task list: the box stands where the bullet would, and is the item's state, not a
+   control — the preview never changes the text. The renderer makes the box and the text of
+   the item's first paragraph one <label>, which is the box's name. */
+.markdown-body .task-list-item { list-style: none; }
+.markdown-body .task-list-item input[type="checkbox"] {
+    margin-block: 0;
+    margin-inline: -1.5em 0.5em;
+    inline-size: 1em;
+    block-size: 1em;
+    vertical-align: middle;
+    accent-color: var(--control-on);
+}
 /* Underlined, not colour alone: a link inside a block of text must be
    distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same.
 
@@ -7141,6 +7387,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;
     color: var(--muted);
 }
+.markdown-body blockquote > :first-child { margin-top: 0; }
+.markdown-body blockquote > :last-child  { margin-bottom: 0; }
+/* A table is the one thing that breaks the width of the box it is in, because its own
+   content sets its minimum size: it scrolls, and the renderer gives it a tab stop so a
+   keyboard can reach the part that is off-screen. Alignment is the `align` attribute the
+   renderer writes, which is what a GitHub-flavoured table says. */
+.markdown-body table { display: block; overflow-x: auto; max-inline-size: 100%; border-collapse: collapse; margin: 0.6em 0; }
+.markdown-body th, .markdown-body td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.markdown-body th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
+.markdown-body :is(th, td)[align="center"] { text-align: center; }
+.markdown-body :is(th, td)[align="right"] { text-align: end; }
 
 
 }
@@ -11615,15 +11872,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    already has 7px and needs nothing. */
 .chip:not(.chip--lg) > .avatar { --avatar-size: 20px; }
 
-/* A status dot inside a chip, for a filter whose value carries a state. Colour it
-   with a semantic token from the markup, or it says nothing. */
+/* A status dot inside a chip, for a filter whose value carries a state. It takes the chip's
+   own tone, or a colour from a semantic token in the markup; with neither it says nothing.
+   It steps with the chip's size, as the text beside it does. */
 .chip-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: var(--border-hover);
+    background: var(--tone-solid, var(--border-hover));
 }
+.chip--sm .chip-dot { width: 6px; height: 6px; }
+.chip--lg .chip-dot { width: 8px; height: 8px; }
 
 /* The remove button. A real <button> with an accessible name — "×" alone is
    announced as "times" and gives no clue what it removes, so write
@@ -14017,6 +14277,123 @@ td.diff-gap { background: var(--surface-soft); }
 .diff--split .diff-table { min-inline-size: calc(2 * (var(--diff-min) + var(--diff-num))); }
 .diff--split .diff-code { inline-size: 50%; }
 .diff--split .diff-code + .diff-num { border-inline-start: 1px solid var(--border); }
+}
+
+/* ── 56-page-head-hero.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── A page head with a picture ─────────────────────────────────────────────
+   The head a start page or a section opens with: the picture the page is about, the
+   eyebrow, the title, a lead and what to do. The app writes every part:
+
+     <header class="page-head page-head--hero" data-variant="dark">
+       <img class="page-head-image" src="…" alt="" width="1600" height="900">
+       <div class="page-head-text">
+         <p class="eyebrow">Services</p>
+         <h1>What we build</h1>
+         <p>One sentence that says what the page is for.</p>
+       </div>
+       <div class="page-head-actions">
+         <a class="btn btn--solid btn--lg" href="…">Get in touch</a>
+         <a class="btn btn--ghost btn--lg" href="…">See the work</a>
+       </div>
+     </header>
+
+   An <img>, not a CSS `url()`: the app owns the picture, its `srcset`, its `loading`, its
+   `fetchpriority` and its alternative text, and a stylesheet cannot carry any of them.
+   `alt=""` when the picture only decorates the words beside it. The eyebrow is the
+   utility `.eyebrow`, which keeps its own size and colour inside the head: it is a label for
+   the title and sits on it.
+
+   `data-variant="dark"` is part of the markup. A photograph is as dark as its scrim makes it
+   in either page variant, so the words and buttons on it are always the dark variant's: the
+   attribute redeclares the tokens for everything inside the head (01-tokens.css), and a
+   `.btn`, a `.btn--ghost`, a badge and a link read correctly on it in both.
+
+   The head is a box of its own, no wider than `--page-max` and centred, so on a very wide
+   screen the picture stops at the content column and the page around it carries on.
+
+   The scrim is a gradient from the inline start, where the words are, to the inline end, where
+   the picture shows. It stays at full strength for as wide as the text column is, so the
+   text sits on the strong part wherever the head is as wide as the column and wider, and on
+   a phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
+   Full strength is solved for the brightest photograph there is, white text clearing 4.5:1
+   over white behind it — `HeroTests` measures it in both page variants.
+
+   Knobs, set on the head or on one instance:
+     --hero-height   the least height (22rem);
+     --hero-measure  how wide the text column is, and how far the scrim holds (40rem);
+     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim, declared in 01-tokens.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+.page-head--hero {
+    --hero-height: 22rem;
+    --hero-measure: 40rem;
+    --hero-pad-inline: var(--space-8);
+    --hero-scrim-angle: 90deg;
+    position: relative;
+    isolation: isolate;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: var(--space-6);
+    box-sizing: border-box;
+    min-block-size: var(--hero-height);
+    max-inline-size: var(--page-max);
+    margin-inline: auto;
+    padding: var(--space-10) var(--hero-pad-inline);
+    overflow: hidden;
+    border-radius: var(--radius-surface);
+    /* What shows before the picture does, and where there is none. */
+    background: var(--media-bg);
+}
+/* The picture fills the head and is cropped to it, from its middle. */
+.page-head-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+/* The scrim, over the picture; the words and actions are over the scrim. Local stacking only. */
+.page-head--hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        var(--hero-scrim-angle),
+        var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
+        var(--hero-scrim-soft));
+}
+.page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
+.page-head--hero .page-head-text {
+    flex: 0 1 auto;
+    inline-size: 100%;
+    max-inline-size: var(--hero-measure);
+    /* The surface tint is nothing visible on the scrim, and in forced colours it is the
+       user's canvas, which is what the words then stand on: the scrim is a gradient and is
+       dropped there, and the picture is not. */
+    background: var(--surface-soft);
+}
+.page-head--hero .page-head-text > p {
+    margin: var(--space-4) 0 0;
+    color: var(--fg-soft);
+    font-size: var(--text-7);
+}
+.page-head--hero :is(h1, h2, h3) {
+    color: var(--fg);
+    font-size: var(--text-10);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+@media (min-width: 48rem) {
+    .page-head--hero :is(h1, h2, h3) { font-size: var(--text-11); }
+}
+@media (max-width: 560px) {
+    .page-head--hero { --hero-pad-inline: var(--space-6); padding-block: var(--space-8); }
+}
 }
 
 /* ── 57-navigation-aids.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -22517,6 +22894,7 @@ button.inbox-item-title {
     transition: border-color var(--motion-fast), background var(--motion-fast);
 }
 .source-card:hover { border-color: var(--border-hover); background: var(--surface-strong); text-decoration: none; }
+.source-card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .source-card-host { display: flex; align-items: center; gap: var(--space-3); color: var(--muted); min-inline-size: 0; }
 .source-card-n {
     display: grid;
@@ -25978,9 +26356,11 @@ button.inbox-item-title {
      .btn--ghost                      no tone: the neutral ghost
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
-   teal on the families that label (badge, chip). Families: btn badge alert callout toast
-   chip stat, a table row (tr), and the frame's page-banner. ToneMatrixTests holds every family to every tone it
-   takes, so a family cannot lack one by accident.
+   teal on the families that label (badge, chip) and on the two that mark a corner (ribbon,
+   count-badge), which also take muted. Families: btn badge alert callout toast chip stat,
+   a table row (tr), the frame's page-banner, and the corner marks ribbon and count-badge.
+   ToneMatrixTests holds every family to every tone it takes, so a family cannot lack one by
+   accident.
 
    A tone modifier sets nothing but --tone-* properties, and every family reads them
    through the rules below — so a new family joins the system by being named here. The
@@ -25994,7 +26374,7 @@ button.inbox-item-title {
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -26010,7 +26390,7 @@ button.inbox-item-title {
     --tone-on-solid: initial;
 }
 
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -26026,7 +26406,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -26042,7 +26422,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -26058,7 +26438,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -26074,7 +26454,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -26090,7 +26470,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -26106,7 +26486,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--bg);
 }
 
-.badge--cyan, .chip--cyan {
+.badge--cyan, .chip--cyan, .ribbon--cyan, .count-badge--cyan {
     --tone-fg: var(--badge-cyan-fg);
     --tone-bg: var(--badge-cyan-bg);
     --tone-bg-hover: var(--badge-cyan-bg-hover);
@@ -26122,7 +26502,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--bg);
 }
 
-.badge--orange, .chip--orange {
+.badge--orange, .chip--orange, .ribbon--orange, .count-badge--orange {
     --tone-fg: var(--badge-orange-fg);
     --tone-bg: var(--badge-orange-bg);
     --tone-bg-hover: var(--badge-orange-bg-hover);
@@ -26138,7 +26518,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--bg);
 }
 
-.badge--teal, .chip--teal {
+.badge--teal, .chip--teal, .ribbon--teal, .count-badge--teal {
     --tone-fg: var(--badge-teal-fg);
     --tone-bg: var(--badge-teal-bg);
     --tone-bg-hover: var(--badge-teal-bg-hover);
@@ -26149,6 +26529,27 @@ button.inbox-item-title {
     --tone-solid-hover: var(--badge-teal-hover);
     --tone-solid-active: var(--badge-teal-active);
     --tone-solid-edge: var(--badge-teal-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+/* Muted: the tone of a total that asks nothing of the reader. It is the neutral of the system
+   written as a tone, for the families that are filled by nature and so have no neutral of their
+   own — a corner ribbon and a corner count. Its fill is the muted text colour and its label is the
+   page's own background, the pair every theme already holds at AA turned inside out, so it flips
+   with the variant. A family with a neutral of its own — .badge, .chip, .btn — does not take it. */
+.ribbon--muted, .count-badge--muted {
+    --tone-fg: var(--fg-soft);
+    --tone-bg: var(--badge-bg);
+    --tone-bg-hover: var(--bg-hover);
+    --tone-bg-active: var(--btn-active-bg);
+    --tone-border: var(--border);
+    --tone-border-strong: var(--border-hover);
+    --tone-solid: var(--muted);
+    --tone-solid-hover: var(--fg-soft);
+    --tone-solid-active: var(--fg);
+    --tone-solid-edge: var(--muted);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
@@ -26196,6 +26597,11 @@ button.inbox-item-title {
 /* Chips. */
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
 
+/* A corner ribbon and a corner count are filled by nature, as a toast's edge is its tone's solid:
+   the tone modifier alone gives the fill, and they take no --solid or --ghost. */
+.ribbon:is(.ribbon--brand, .ribbon--go, .ribbon--warn, .ribbon--danger, .ribbon--info, .ribbon--secret, .ribbon--cyan, .ribbon--orange, .ribbon--teal, .ribbon--muted) { --ribbon-bg: var(--tone-solid); color: var(--tone-on-solid); }
+.count-badge:is(.count-badge--brand, .count-badge--go, .count-badge--warn, .count-badge--danger, .count-badge--info, .count-badge--secret, .count-badge--cyan, .count-badge--orange, .count-badge--teal, .count-badge--muted) { background: var(--tone-solid); color: var(--tone-on-solid); }
+
 /* A stat tile over a threshold — its tint, its edge and its figure. */
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
@@ -26227,6 +26633,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     cursor: not-allowed;
 }
 .btn.btn--ghost:is(:disabled, [aria-disabled="true"]):is(*, :hover, :active) { background: transparent; border-color: transparent; }
+/* A chip that is a button or a link goes the same way: its fill, its edge and its icon give up
+   their tone, and the pointer no longer lifts it. */
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]),
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]) > i { color: inherit; }
 :is(.btn-bare, .tab, .menu-item, button.list-row, .page-link):is(:disabled, [aria-disabled="true"]),
 .segmented-option:has(input:disabled) { color: var(--disabled-fg); }
 }
@@ -26284,6 +26700,11 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    Both are real gaps in CSS rather than shortcuts taken here, which is why each one
    is named individually instead of being covered by a sweeping rule.
    ─────────────────────────────────────────────────────────────────────────── */
+
+/* The scrim of a page head with a picture runs from the inline start to the inline end, and
+   an angle is physical: 90deg is left to right. */
+[dir="rtl"] .page-head--hero,
+.page-head--hero[dir="rtl"] { --hero-scrim-angle: 270deg; }
 
 /* A resize cursor names a physical diagonal. A card's corner handle sits at the block-end,
    inline-end corner, which is the bottom left right to left. */
@@ -26486,7 +26907,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 @media (forced-colors: active) {
     /* The system keywords are the palette the user chose; they are legal here and
        nowhere else. Mapping the tokens means every class picks the palette up without
-       being touched. */
+       being touched. A subtree that names its own variant redeclares the variant-sensitive
+       tokens, so it takes the same mapping. */
+    :root :where([data-variant]),
     :root {
         --bg:              Canvas;
         --bg-elevated:     Canvas;
@@ -26631,6 +27054,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
+    a.card:focus-visible,
+    .source-card:focus-visible,
     .code-block-copy:focus-visible,
     .code-block-expand:focus-visible,
     .carousel-track:focus-visible,
@@ -26769,6 +27194,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .th-filter--active::after,
     .avatar-presence::after,
     .count-badge,
+    .ribbon,
+    .badge--swatch::before,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 
@@ -27512,6 +27939,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     /* 57 — the button comes in at once, a screen down, instead of fading in. */
     .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }   /* 54 */
+    a.card            { transition: none; }   /* 30 */
     /* 54 — a chart is drawn whole at once, rather than fading in. */
     .chart-svg[data-chart-enter] .chart-marks { animation: none; }
     /* 54 — a running link's key holds its dashes still; they still say "running". */

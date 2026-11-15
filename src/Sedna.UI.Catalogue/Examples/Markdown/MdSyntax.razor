@@ -1,0 +1,62 @@
+<div class="md-editor" data-md-view="split" id="syntax-md">
+    <div class="md-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="strike" aria-label="Strikethrough"><i class="ri-strikethrough"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="code" aria-label="Code"><i class="ri-code-line"></i></button>
+        <div class="segmented" role="group" aria-label="Editor view">
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="write" /> <span>Write</span></label>
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="preview" /> <span>Preview</span></label>
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="split" checked /> <span>Split</span></label>
+        </div>
+    </div>
+    <textarea class="form-input md-input" data-md-input rows="22" aria-label="Markdown source" spellcheck="false"># Heading 1
+## Heading 2
+###### Heading 6
+
+A paragraph with **strong**, _emphasis_, ***both***,
+~~strikethrough~~, `code with a ``backtick`` inside`
+and a soft line break.  
+Two spaces end a line with a hard break. A \*backslash\* escapes.
+
+Setext heading
+--------------
+
+> A quote
+>
+> - with a list
+> - inside it
+
+1. First
+2. Second
+   - nested
+   - [x] a task
+   - [ ] another
+
+- loose items
+
+- keep their paragraphs
+
+| Left | Centre | Right |
+| :--- | :----: | ----: |
+| a | **b** | c \| d |
+
+```js
+const answer = 42;
+```
+
+    indented code
+
+---
+
+[A link](https://example.com "With a title"), &lt;https://example.com&gt;,
+https://example.com/bare, and a [reference][ref].
+![An image](/logo.png "With a title")
+
+[ref]: https://example.com/reference
+</textarea>
+    <div class="markdown-body md-preview" data-md-preview></div>
+</div>

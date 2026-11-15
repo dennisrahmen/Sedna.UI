@@ -1,0 +1,21 @@
+<div class="form-field" style="max-width:560px">
+    <label class="form-label" for="md-summary">Summary for the customer</label>
+    <div class="md-editor" data-md-view="write">
+        <div class="md-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link"><i class="ri-link"></i></button>
+            <div class="segmented" role="group" aria-label="Editor view">
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="write" checked /> <span>Write</span></label>
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="preview" /> <span>Preview</span></label>
+            </div>
+        </div>
+        <textarea class="form-input md-input" id="md-summary" data-md-input rows="4" maxlength="400"
+                  aria-describedby="md-summary-count">Your replacement headset ships tomorrow. We will send the tracking link as soon as the carrier has collected it.</textarea>
+        <div class="markdown-body md-preview" data-md-preview></div>
+    </div>
+    <p class="form-hint" id="md-summary-count"><span data-md-count="words"></span> words &middot;
+        <span data-md-count="characters"></span> of 400 characters</p>
+</div>
