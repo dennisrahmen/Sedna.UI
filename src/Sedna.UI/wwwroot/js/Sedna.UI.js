@@ -5712,12 +5712,20 @@ window.sednaUi = window.sednaUi || {};
     function px(value) { var n = parseFloat(value); return isFinite(n) ? n : 0; }
     function geometry(grid) {
         var cs = getComputedStyle(grid), r = grid.getBoundingClientRect();
-        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 12));
-        var gapX = px(cs.columnGap), gapY = px(cs.rowGap);
+        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 24));
+        var gapY = px(cs.rowGap);
         var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
         var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
         var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
-        var col = (right - left - gapX * (cols - 1)) / cols;
+        var tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
+        var col, gapX;
+        if (cols > 1 && tracks.length === cols) {
+            col = tracks[0];
+            gapX = Math.max(0, (right - left - tracks.reduce(function (a, b) { return a + b; }, 0)) / (cols - 1));
+        } else {
+            gapX = px(cs.columnGap);
+            col = (right - left - gapX * (cols - 1)) / cols;
+        }
         var row = px(cs.gridAutoRows) || 48;
         return {
             cols: cols, col: col, row: row, gapX: gapX, gapY: gapY,
@@ -6837,6 +6845,7 @@ window.sednaUi = window.sednaUi || {};
         return sheet && sheet.hasAttribute('open') && grip.parentElement === sheet ? sheet : null;
     }
     function slideOut(sheet) {
+        if (ui._.slideFrom) ui._.slideFrom(sheet, sheet.style.transform);
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
         if (typeof sheet.requestClose === 'function') sheet.requestClose();
@@ -8842,15 +8851,22 @@ window.sednaUi = window.sednaUi || {};
     if (supported) return;
     var HELD = 'data-sedna-closing';
     var opened = new WeakSet();
+    var modal = new WeakSet();
+    var dropped = new WeakMap();
+    function seen(d) {
+        opened.add(d);
+        dropped.delete(d);
+        if (d.matches(':modal')) modal.add(d); else modal.delete(d);
+    }
     function watch(record) {
         var d = record.target;
-        if (d.tagName === 'DIALOG' && d.open) opened.add(d);
+        if (d.tagName === 'DIALOG' && d.open) seen(d);
     }
     if (typeof MutationObserver === 'function') {
         new MutationObserver(function (records) { records.forEach(watch); })
             .observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
     }
-    document.querySelectorAll('dialog[open]').forEach(function (d) { opened.add(d); });
+    document.querySelectorAll('dialog[open]').forEach(seen);
     function seconds(value) {
         var n = parseFloat(value);
         if (!isFinite(n)) return 0;
@@ -8869,21 +8885,36 @@ window.sednaUi = window.sednaUi || {};
         if (!d.hasAttribute(HELD)) return;
         d.removeAttribute(HELD);
         d.style.removeProperty('display');
+        d.style.removeProperty('--sedna-exit-duration');
+        d.style.removeProperty('--sedna-exit-easing');
+    }
+    function openTransform(d, style) {
+        var drop = dropped.get(d);
+        dropped.delete(d);
+        if (drop && performance.now() - drop.time < 250) return drop.transform;
+        if (d.hasAttribute('data-sheet-snap')) {
+            var rest = style.getPropertyValue('--sheet-rest').trim();
+            if (rest) return 'translateY(' + rest + ')';
+        }
+        return 'none';
     }
     function slideOut(d) {
         if (!d || d.tagName !== 'DIALOG' || d.open || !opened.has(d)) return;
         opened.delete(d);
         if (d.hasAttribute(HELD) || !d.matches('.drawer')) return;
-        var closed = getComputedStyle(d);
-        var t = timing(closed);
+        var t = timing(getComputedStyle(d));
         if (!t) return;
-        var to = closed.transform;
-        d.setAttribute(HELD, '');
+        d.setAttribute(HELD, modal.has(d) ? 'modal' : '');
         d.style.setProperty('display', 'flex');
+        d.style.setProperty('--sedna-exit-duration', t.duration + 'ms');
+        d.style.setProperty('--sedna-exit-easing', t.easing);
+        var style = getComputedStyle(d);
+        var to = style.transform;
+        var from = openTransform(d, style);
         var run;
         try {
             run = d.animate(
-                [{ transform: 'none', visibility: 'visible' }, { transform: to, visibility: 'visible' }],
+                [{ transform: from, visibility: 'visible' }, { transform: to, visibility: 'visible' }],
                 { duration: t.duration, easing: t.easing });
         } catch (err) {
             release(d);
@@ -8894,6 +8925,7 @@ window.sednaUi = window.sednaUi || {};
         run.oncancel = done;
     }
     ui._.slideOut = slideOut;
+    ui._.slideFrom = function (d, transform) { if (transform) dropped.set(d, { transform: transform, time: performance.now() }); };
     document.addEventListener('close', function (e) { slideOut(e.target); }, true);
     document.addEventListener('toggle', function (e) {
         var d = e.target;
@@ -9003,12 +9035,25 @@ window.sednaUi = window.sednaUi || {};
         e.preventDefault();
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
+    function dismissible(d) {
+        var by = (d.getAttribute('closedby') || '').toLowerCase();
+        if (d.classList.contains('lightbox')) return by === 'any';
+        if (!d.matches('.modal, .drawer') || !d.matches(':modal')) return false;
+        if (by === 'closerequest' || by === 'none') return false;
+        return !(by === 'any' && 'closedBy' in d);   // the platform does this one
+    }
     var besideDown = null;
     function beside(e) {
         var t = e.target instanceof Element ? e.target : null;
-        var d = t ? t.closest('dialog.lightbox[open]') : null;
-        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
-        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        if (!t) return null;
+        var d = t.closest('dialog[open]');
+        if (!d || !dismissible(d)) return null;
+        if (d.classList.contains('lightbox')) {
+            return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        }
+        if (t !== d) return null;
+        var r = d.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom ? d : null;
     }
     document.addEventListener('pointerdown', function (e) {
         besideDown = e.button === 0 ? beside(e) : null;

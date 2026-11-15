@@ -18,9 +18,14 @@
    `aria-current="page"`. The popover is the platform's, so opening, light dismiss and
    Escape need no script.
 
-   A topbar button sits at either end of the header, and a popover spans towards the
-   inline end by default — from the last button in the header that is off the screen.
-   A popover holding a switcher tries the other side first. */
+   A topbar button sits at the trailing end of the header more often than the leading one,
+   so a popover holding a switcher spans towards the inline start from the button's
+   trailing edge, and flips to the other side where that has no room — from a button at
+   the header's leading end. In the header it keeps `--topbar-panel-gap` below the bar
+   and from the window's edge, the same gap the user menu keeps.
+
+   `.app-switcher--icons` shows the marks alone. Each name stays in the markup, which
+   is the link's accessible name; it is only not drawn. */
 .app-switcher {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -30,9 +35,42 @@
     margin: 0;
     padding: 0;
 }
-.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+.popover:has(> .app-switcher) {
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    margin-block-start: var(--topbar-panel-gap);
+    margin-inline-end: var(--topbar-panel-gap);
+}
+/* `--panel-placement` still places it, as it does every panel anchored to a trigger
+   (65-popover.css): the same three placements, with the gap the header keeps. */
+@container style(--panel-placement: block-start) {
+    .popover:has(> .app-switcher) {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--topbar-panel-gap);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--topbar-panel-gap) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--topbar-panel-gap);
+    }
+}
 
 .app-switcher-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -41,7 +79,7 @@
     padding: var(--space-5) var(--space-2);
     border-radius: var(--radius-control);
     color: var(--fg-soft);
-    font-size: var(--text-3);
+    font-size: var(--text-5);
     line-height: round(1.4em, 2px);
     text-align: center;
     text-decoration: none;
@@ -50,6 +88,29 @@
 .app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The name is trimmed to its capitals, as a label in a row is, and given its line back on
+   the side that faces the mark only: the tile's edge is as far from the icon above as from
+   the last line of the name below. A name is any child that is not the mark. */
+.app-switcher-item > :not(.app-switcher-icon) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap) 0;
+}
+
+/* The marks alone: a tile is the icon, and the name is read by a screen reader and
+   shown by the hover hint the app puts on the link. */
+.app-switcher--icons { grid-template-columns: repeat(3, max-content); inline-size: auto; }
+.app-switcher--icons .app-switcher-item { padding: var(--space-3); }
+.app-switcher--icons .app-switcher-item > :not(.app-switcher-icon) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
 
 /* The app's mark: an icon on a tile of its own. */
 .app-switcher-icon {

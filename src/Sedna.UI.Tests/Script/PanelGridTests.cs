@@ -17,6 +17,8 @@ namespace Sedna.UI.Tests;
 /// </remarks>
 public class PanelGridTests : ScriptTestBase
 {
+    // The fixtures lay panels on 12 columns by setting `--panel-cols`, which keeps the cells' sizes
+    // in whole numbers; the grid's own default is 24, held by the tests under "The 24 columns".
     private const double Pitch = 64;          // a 960px grid of 12 columns with 16px gaps: 65.33 + 16
     private const double ColumnPitch = (960 - 11 * 16) / 12.0 + 16;
 
@@ -36,13 +38,13 @@ public class PanelGridTests : ScriptTestBase
         </section>
         """;
 
-    private static string Grid(string panels, string arrange = "data-arrange", int width = 960) => $$"""
+    private static string Grid(string panels, string arrange = "data-arrange", int width = 960, int columns = 12) => $$"""
         <p class="visually-hidden" aria-live="assertive" id="live" data-drag-live
            data-drag-pickup="Picked up {item} at column {column}, row {row}."
            data-drag-move="{item}: column {column}, row {row}."
            data-drag-drop="Dropped {item} at column {column}, row {row}."
            data-drag-cancel="{item} is back at column {column}, row {row}."></p>
-        <div class="panel-grid" id="grid" style="width: {{width}}px; --panel-row: 48px; --grid-gap: 16px"
+        <div class="panel-grid" id="grid" style="width: {{width}}px; --panel-cols: {{columns}}; --panel-row: 48px; --grid-gap: 16px"
              data-drag-zone="dashboard" data-drag-axis="cells" {{arrange}} aria-label="Dashboard">
           {{panels}}
         </div>
@@ -66,7 +68,8 @@ public class PanelGridTests : ScriptTestBase
           // Each panel's cell as it is drawn: column, row, width and height, measured.
           window.cells = () => {
             const g = document.getElementById('grid'), gr = g.getBoundingClientRect(), cs = getComputedStyle(g);
-            const gap = parseFloat(cs.columnGap), col = (gr.width - gap * 11) / 12, px = col + gap;
+            const cols = parseInt(cs.getPropertyValue('--panel-cols')), tracks = cs.gridTemplateColumns.split(' ').map(parseFloat);
+            const col = tracks[0], gap = (gr.width - tracks.reduce((a, b) => a + b, 0)) / (cols - 1), px = col + gap;
             const py = parseFloat(cs.gridAutoRows) + parseFloat(cs.rowGap), rtl = cs.direction === 'rtl';
             return [...g.children].filter(e => e.dataset.dragItem && e.getAttribute('data-dragging') !== 'pointer').map(e => {
               const r = e.getBoundingClientRect();
@@ -461,6 +464,148 @@ public class PanelGridTests : ScriptTestBase
         await page.FocusAsync("#w");
         await page.Keyboard.PressAsync("ArrowLeft");
         Assert.Equal(592, (await page.Locator("#card").BoundingBoxAsync())!.Width, 0.5);
+        Assert.Empty(errors);
+    }
+
+    // ── The 24 columns ──────────────────────────────────────────────────────
+    // The grid's own default is the library's grid: the same 24 as `.sedna-grid-24`, so a span
+    // means the same in both.
+
+    private const double Pitch24 = (960 - 23 * 16) / 24.0 + 16;
+
+    [Fact]
+    public async Task The_grid_has_24_columns_and_a_panel_spans_what_a_sedna_span_spans()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div style="width: 960px; --grid-gap: 16px">
+              <div class="panel-grid" id="grid" style="--panel-row: 48px">
+                <section class="card" id="panel" style="--panel-x: 4; --panel-y: 0; --panel-w: 8; --panel-h: 2"><div class="card-body">Panel</div></section>
+              </div>
+              <div class="sedna-grid-24" id="reference" style="margin-top: 16px">
+                <div class="card sedna-span-8" id="span"><div class="card-body">Span</div></div>
+              </div>
+            </div>
+            """);
+        Assert.Equal(24, await page.EvaluateAsync<int>("() => getComputedStyle(document.getElementById('grid')).gridTemplateColumns.split(' ').length"));
+        Assert.Equal("24", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('grid')).getPropertyValue('--panel-cols').trim()"));
+        var panel = (await page.Locator("#panel").BoundingBoxAsync())!;
+        var span = (await page.Locator("#span").BoundingBoxAsync())!;
+        Assert.Equal(span.Width, panel.Width, 0.5);
+        // Four columns in.
+        var grid = (await page.Locator("#grid").BoundingBoxAsync())!;
+        Assert.Equal(4 * Pitch24, panel.X - grid.X, 0.5);
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_drag_and_a_resize_count_in_24ths()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Grid(Panel("orders", 0, 0, 6, 4), columns: 24));
+        Assert.Equal("orders:0,0,6,4", await Cells(page));
+        await Drag(page, "#grip-orders", 5 * Pitch24, 0);
+        var drop = (await Events(page)).Single(e => e.Name == "sedna-drop");
+        Assert.Equal(5, drop.Detail.GetProperty("x").GetInt32());
+        Assert.Equal("orders:5,0,6,4", Panels(drop.Detail));
+
+        await Drag(page, "#w-orders", 3 * Pitch24 + 6, 0);
+        var wider = (await Events(page)).Last();
+        Assert.Equal("--panel-w", wider.Detail.GetProperty("property").GetString());
+        Assert.Equal(9, wider.Detail.GetProperty("value").GetInt32());
+        Assert.Equal("orders:5,0,9,4", Panels(wider.Detail));
+        await AssertPreviewCleared(page);
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_grid_narrower_than_its_gaps_does_not_overflow()
+    {
+        if (NoBrowser) return;
+        // 23 gaps of 16px are 368px: a phone's column is narrower, and the gap gives way.
+        var (page, errors) = await OpenStyled("""
+            <div style="width: 300px">
+              <div class="panel-grid" id="grid" style="--panel-row: 48px">
+                <section class="card" id="panel" style="--panel-x: 0; --panel-y: 0; --panel-w: 24; --panel-h: 2"><div class="card-body">Panel</div></section>
+              </div>
+            </div>
+            """);
+        var panel = (await page.Locator("#panel").BoundingBoxAsync())!;
+        Assert.Equal(300, panel.Width, 0.5);
+        Assert.True(await page.EvaluateAsync<bool>("() => { const g = document.getElementById('grid'); return g.scrollWidth <= g.clientWidth; }"),
+            "The grid's tracks and gaps came to more than its width.");
+        Assert.Empty(errors);
+    }
+
+    // The guide: while arranging, a dot at the centre of every cell, first column to last.
+    [Fact]
+    public async Task Arranging_marks_the_centre_of_every_cell_with_a_dot_and_viewing_marks_none()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div style="width: 960px; --grid-gap: 16px; padding: 8px">
+              <div class="panel-grid" id="grid" data-arrange style="--panel-row: 48px; block-size: 160px"></div>
+            </div>
+            """);
+        var box = (await page.Locator("#grid").BoundingBoxAsync())!;
+
+        async Task<Ink.Png> Shot() => Ink.Png.Decode(await page.Locator("#grid").ScreenshotAsync(new() { Animations = ScreenshotAnimations.Disabled }));
+        var gap = 16.0;
+        var pitchX = (box.Width + gap) / 24;
+        var pitchY = 48 + gap;
+        var cells = new[] { (0, 0), (11, 0), (23, 0), (0, 1), (23, 1), (7, 2) };
+
+        var drawn = await Shot();
+        foreach (var (col, row) in cells)
+        {
+            var cx = (int)Math.Round(col * pitchX + (pitchX - gap) / 2);
+            var cy = (int)Math.Round(row * pitchY + 24);
+            var corner = drawn.Pixel((int)(col * pitchX) + 2, (int)(row * pitchY) + 2);
+            Assert.NotEqual(corner, drawn.Pixel(cx, cy));
+        }
+
+        await Js.Run(page, "() => document.getElementById('grid').removeAttribute('data-arrange')");
+        await Js.Frames(page);
+        var plain = await Shot();
+        foreach (var (col, row) in cells)
+        {
+            var cx = (int)Math.Round(col * pitchX + (pitchX - gap) / 2);
+            var cy = (int)Math.Round(row * pitchY + 24);
+            Assert.Equal(plain.Pixel(2, 2), plain.Pixel(cx, cy));
+        }
+        Assert.Empty(errors);
+    }
+
+    // Where the column gap is capped at a share of the width, the cells are as wide as nothing and
+    // the dots stay where the cells are: at each column's start, a column's pitch apart.
+    [Fact]
+    public async Task Where_the_column_gap_is_capped_the_dots_stay_with_the_columns()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div style="width: 600px; padding: 8px">
+              <div class="panel-grid" id="grid" data-arrange style="--grid-gap: 40px; --panel-row: 48px; block-size: 140px"></div>
+            </div>
+            """);
+        var box = (await page.Locator("#grid").BoundingBoxAsync())!;
+        var gapX = Math.Min(40.0, box.Width / 23);               // the cap binds: 40px > 600/23
+        Assert.Equal(gapX, await page.EvaluateAsync<double>(
+            "() => { const g = document.getElementById('grid'); const t = getComputedStyle(g).gridTemplateColumns.split(' ').map(parseFloat); return (g.getBoundingClientRect().width - t.reduce((a, b) => a + b, 0)) / 23; }"), 0.1);
+
+        var png = Ink.Png.Decode(await page.Locator("#grid").ScreenshotAsync(new() { Animations = ScreenshotAnimations.Disabled }));
+        var pitchX = (box.Width + gapX) / 24;
+        var pitchY = 48.0 + 40;
+        var background = png.Pixel(3, 3);
+        // A dot is a few pixels across, so look a pixel or two around where its centre should be.
+        bool Dot(double cx, double cy) =>
+            Enumerable.Range(-2, 5).Any(dx => Enumerable.Range(-2, 5).Any(dy => png.Pixel((int)Math.Round(cx) + dx, (int)Math.Round(cy) + dy) != background));
+        foreach (var col in new[] { 3, 10, 17 })
+        {
+            Assert.True(Dot(col * pitchX, 24), $"No dot at column {col}, row 0.");
+            Assert.True(Dot(col * pitchX, pitchY + 24), $"No dot at column {col}, row 1.");
+            // Half way between two columns there is none.
+            Assert.False(Dot(col * pitchX + pitchX / 2, 24), $"A dot between columns {col} and {col + 1}.");
+        }
         Assert.Empty(errors);
     }
 }

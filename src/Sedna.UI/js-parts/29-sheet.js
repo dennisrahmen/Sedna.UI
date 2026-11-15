@@ -87,6 +87,8 @@
        before closing (`data-close-guard` in 42-modal.js) stays open, and with the
        transform already cleared that is the spring back. */
     function slideOut(sheet) {
+        // An engine that cannot keep a closed dialog displayed slides it out from here.
+        if (ui._.slideFrom) ui._.slideFrom(sheet, sheet.style.transform);
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
         if (typeof sheet.requestClose === 'function') sheet.requestClose();

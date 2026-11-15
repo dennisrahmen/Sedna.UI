@@ -47,7 +47,7 @@
                 </div>
             }
             <div class="card-resize card-resize--inline" data-resize="--panel-w" role="separator" aria-orientation="vertical"
-                 aria-label="@($"Width of {content.Title}")" aria-valuemin="@content.MinW" aria-valuemax="12" aria-valuenow="@panel.W" tabindex="0"></div>
+                 aria-label="@($"Width of {content.Title}")" aria-valuemin="@content.MinW" aria-valuemax="@Columns" aria-valuenow="@panel.W" tabindex="0"></div>
             <div class="card-resize" data-resize="--panel-h" role="separator" aria-orientation="horizontal"
                  aria-label="@($"Height of {content.Title}")" aria-valuemin="@content.MinH" aria-valuenow="@panel.H" tabindex="0"></div>
             <div class="card-resize card-resize--corner" data-resize="--panel-w --panel-h" aria-hidden="true"></div>
@@ -56,16 +56,16 @@
 </div>
 
 @code {
-    private const int Columns = 12;
+    private const int Columns = 24;
 
     private sealed record Content(string Title, string Label, string Value, string Note, int MinW, int MinH, string? Ratio = null);
 
     private static readonly Dictionary<string, Content> Contents = new()
     {
-        ["orders"] = new("Open orders", "Open now", "1 204", "37 awaiting stock", 3, 3),
-        ["dispatch"] = new("Dispatch", "Median time", "4.2 h", "20 min faster than last week", 3, 3),
-        ["returns"] = new("Returns", "This week", "12", "3 awaiting inspection", 3, 3),
-        ["dock"] = new("Dock 4 camera", "", "", "Live view of dock 4", 3, 2, Ratio: "16:9"),
+        ["orders"] = new("Open orders", "Open now", "1 204", "37 awaiting stock", 6, 3),
+        ["dispatch"] = new("Dispatch", "Median time", "4.2 h", "20 min faster than last week", 6, 3),
+        ["returns"] = new("Returns", "This week", "12", "3 awaiting inspection", 6, 3),
+        ["dock"] = new("Dock 4 camera", "", "", "Live view of dock 4", 6, 2, Ratio: "16:9"),
     };
 
     private bool _arranging = true;
@@ -74,10 +74,10 @@
     // whatever was stored renders without an overlap.
     private IReadOnlyList<SednaPanel> _panels = SednaPanels.Arrange(
     [
-        new("orders", 0, 0, 4, 3),
-        new("dispatch", 4, 0, 4, 3),
-        new("dock", 8, 0, 4, 3),
-        new("returns", 0, 3, 8, 3),
+        new("orders", 0, 0, 8, 3),
+        new("dispatch", 8, 0, 8, 3),
+        new("dock", 16, 0, 8, 3),
+        new("returns", 0, 3, 16, 3),
     ], Columns);
 
     // A drop and a resize both carry the whole arrangement: store it and render it back.

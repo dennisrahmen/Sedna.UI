@@ -15,7 +15,7 @@
       { "text": "Filters and actions above a list", "instead": "/toolbar#filters-and-actions" }
     ],
     "goals": [],
-    "stamp": "598407647675f137"
+    "stamp": "a8374daeb6ae4d0a"
   },
   {
     "page": "/utility-spacing",
@@ -79,7 +79,7 @@
       { "text": "Thousands of rows", "instead": "/table-large#virtualized-rows" }
     ],
     "goals": [ "scroll-inside-a-region" ],
-    "stamp": "4ca9adf55a203b1a"
+    "stamp": "d0478a581d09802a"
   },
   {
     "page": "/utility-safe-area",

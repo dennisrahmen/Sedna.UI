@@ -695,6 +695,10 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
+    /* The dividers drawn in the header: its bottom edge, the line before a section, a
+       button or the user widget. A brand-coloured header sets it beside --topbar-bg, so
+       its dividers are a step off its own colour instead of the page's. */
+    --topbar-border:   var(--border);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -964,6 +968,10 @@
        .nav-section-label read it, and every surface resets it to --muted. */
     /* The header's height, and the sidebar's brand and area title, which line up with it. */
     --topbar-height:   44px;
+    /* The gap between the header and a panel that opens from it — the user menu, the app
+       switcher — and, for a panel at the trailing end, between the panel and the window's
+       edge. One value for both, so the panel floats level whatever the header's height. */
+    --topbar-panel-gap: var(--space-2);
 
     /* ── Panel bars ─────────────────────────────────────────────────────────
        A modal's header and footer and a card's head sit on the panel's own surface; an
@@ -2216,7 +2224,9 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-link-tool i { opacity: 0.75; }
 .nav-link-tool:hover { color: var(--sidebar-fg); }
 .nav-link-tool:hover i { opacity: 1; }
-.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-5) var(--space-8) var(--space-2); }
+/* Level between the two groups it divides: the same space above and below, so a link either side
+   of it stands the same distance from the line. */
+.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-3) var(--space-8); }
 
 /* Sidebar status card (a monitored dependency: API reachable, DB connected, …).
    The --ok / --fail modifiers are commonly composed dynamically in the nav. */
@@ -2332,7 +2342,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     transition: position var(--snap) allow-discrete, width var(--snap) allow-discrete, height var(--snap) allow-discrete, overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
 .sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; transition: width var(--snap), height var(--snap); }
-.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); transition: margin var(--snap); }
+.sidebar.collapsed .nav-tools-sep { margin: var(--space-3) var(--space-7); transition: margin var(--snap); }
 /* A rail has no room to type in, so the nav filter goes with the labels. */
 .sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own
@@ -2388,7 +2398,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     --muted-here: var(--topbar-muted);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--topbar-border);
     flex-shrink: 0;
     position: relative;
     z-index: 60;
@@ -2400,7 +2410,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: center;
     gap: var(--space-3);
     padding: 0 var(--space-8);
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 
 /* Square icon button living in the topbar. --start carries its divider on the
@@ -2408,12 +2418,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .topbar-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: var(--topbar-height); flex-shrink: 0;
-    background: none; border: none; border-inline-start: 1px solid var(--border);
+    background: none; border: none; border-inline-start: 1px solid var(--topbar-border);
     color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
 .topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
-.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
+.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--topbar-border); }
 
 
 /* A header that stays at the top while the document scrolls under it — for a page
@@ -2592,7 +2602,7 @@ a.topbar-version--pre:hover {
     z-index: 200;
     display: flex;
     align-items: stretch;
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 .user-trigger {
     display: flex; align-items: center; gap: var(--space-5);
@@ -2622,7 +2632,8 @@ a.topbar-version--pre:hover {
 /* ── The widget's dropdown ──────────────────────────────────────────────────
    The panel itself is the tier-2 `.menu` (58-menu.css) — there is one dropdown
    style in this library, not one per place that needs one. Only the anchoring is
-   the frame's business, and it uses the same 4px gap as `.menu-anchor`. Flush
+   the frame's business, and it keeps `--topbar-panel-gap` below the header and from the
+   window's edge, the same gap the app switcher keeps. Flush
    against `top: 100%` the panel reads as welded to the topbar's bottom edge rather
    than floating below the trigger — the header's own border and the panel's top
    border land on the same line, so neither is legible as an edge.
@@ -2639,8 +2650,8 @@ a.topbar-version--pre:hover {
     color: var(--fg);
     min-width: 220px;
     position: absolute;
-    top: calc(100% + var(--space-2));
-    inset-inline-end: 0;
+    top: calc(100% + var(--topbar-panel-gap));
+    inset-inline-end: var(--topbar-panel-gap);
     z-index: 550;
 }
 
@@ -2765,9 +2776,11 @@ a.topbar-version--pre:hover {
 
 /* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
    hard. The two solid cover gradients (background-attachment: local) ride the
-   content and hide the shadow at the very top/bottom; the two radial shadows
+   content and hide the shadow at the very top/bottom; the two edge shadows
    (attachment: scroll) are pinned to the box and only show when there IS more
-   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   content that way. They run the full width of the box and fade out across their
+   height: a radial one was a smudge in the middle of the edge, which on a narrow
+   panel read as a shadow cast by something inside it. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band.
 
    It reads --surface-here, which every surface the library paints declares once
@@ -2780,8 +2793,8 @@ a.topbar-version--pre:hover {
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
-        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
-        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+        linear-gradient(to bottom, var(--scroll-shade), transparent) center top,
+        linear-gradient(to top, var(--scroll-shade), transparent) center bottom;
     background-repeat: no-repeat;
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
@@ -2899,6 +2912,25 @@ a.topbar-version--pre:hover {
     font-size: var(--text-4);
     /* A long address or token in the message wraps instead of widening the frame. */
     overflow-wrap: anywhere;
+}
+
+/* ── The shadow moves down ──────────────────────────────────────────────────
+   The header's shadow says "the page scrolls behind me", and with a banner under the
+   header it would fall on the banner instead of on the page. So the header gives its
+   shadow up and the banner draws it, from the same `--shadow-topbar`: the line between
+   the two stays a plain edge, and content scrolling behind the banner still reads as
+   behind. Setting `--shadow-topbar: none` removes it from both.
+
+   `z-index: 3` is local stacking: it lifts the banner over the page's own positioned
+   rows and the sticky header of a table, and stays under the header (60), which hides
+   the few pixels of the shadow that reach up. Where the banner scrolls away under a
+   sticky header — `.topbar--sticky`, and `.layout--flow` on a phone — the header keeps
+   its shadow and the banner has none; 19-frame-responsive.css puts the flow case back. */
+.topbar:not(.topbar--sticky):has(+ .page-banner) { box-shadow: none; }
+.topbar:not(.topbar--sticky) + .page-banner {
+    position: relative;
+    z-index: 3;
+    box-shadow: var(--shadow-topbar);
 }
 
 .page-banner > i {
@@ -3308,7 +3340,7 @@ a.topbar-version--pre:hover {
         clip-path: inset(50%);
     }
     .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
-    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-3) var(--space-7); }
     .layout--responsive .sidebar .nav-filter { display: none; }
     .layout--responsive .sidebar.sidebar--areas > .nav { display: none; }
     .layout--responsive .sidebar.sidebar--areas .nav-areas { border-inline-end: none; }
@@ -3396,6 +3428,10 @@ a.topbar-version--pre:hover {
         position: sticky;
         top: var(--safe-block-start);
     }
+    /* The banner scrolls away under the sticky header, which keeps the shadow: see
+       18-frame-banner.css. */
+    .layout--flow .topbar:has(+ .page-banner) { box-shadow: var(--shadow-topbar); }
+    .layout--flow .topbar + .page-banner { position: static; box-shadow: none; }
     .layout--flow > .sidebar {
         position: sticky;
         top: 0;
@@ -4415,7 +4451,18 @@ a.card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* `a.card` outweighs `.card--fill`, so a fill card that is a link says its column again. */
 a.card.card--fill { display: flex; }
 
+/* A head is as tall as one holding a small control — an icon button, a menu button, a
+   drag grip — whatever it holds. Entering a panel grid's arrange mode adds grips, and
+   a head that grew with them would move every panel under it; a head holding only a
+   title is the same height as one holding an icon button. `--card-head-control` is the
+   height of the control a head is sized for: the small tier. A button in a head takes
+   that height and no more — `.btn--lg` aside, which is the app choosing a taller head —
+   with its block padding given up to the height, because a small button's padding and
+   label add up to more than the tier at compact density. The grip is that tall already.
+   The 1px is the border under the head. */
 .card-head {
+    --card-head-control: var(--control-height-sm);
+    min-block-size: calc(2 * var(--card-pad-block) + var(--card-head-control) + 1px);
     display: flex;
     /* A trailing action too wide to share the line goes under the title, rather than
        squeezing the title to a word a line. */
@@ -4426,6 +4473,10 @@ a.card.card--fill { display: flex; }
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
     background: var(--card-head-bg);
+}
+.card-head .btn:not(.btn--lg) {
+    min-block-size: var(--card-head-control);
+    padding-block: 0;
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
@@ -4569,6 +4620,7 @@ a.card.card--fill { display: flex; }
 .card-head--tabs {
     align-items: stretch;
     padding: 0;
+    min-block-size: 0;       /* the tab is the head's height */
 }
 .card-head--tabs .tabs {
     flex: 1;
@@ -7109,7 +7161,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    A dashboard whose panels each have a place of their own: a column, a row, a width
    and a height in cells, set inline from the arrangement the app stores —
    `style="--panel-x: 0; --panel-y: 0; --panel-w: 8; --panel-h: 4"`, counted from 0 at the
-   inline start and the top. `--panel-cols` (12) columns share the width; a row is
+   inline start and the top. `--panel-cols` (24) columns share the width — the same 24 as
+   `.sedna-grid-24`, so a panel's span means what `.sedna-span-N` means — a row is
    `--panel-row` (3rem) tall, and `--grid-gap` lies between them both ways. Nothing
    flows: a panel stays where it is put, so the app keeps them from overlapping —
    `sednaUi.panels.arrange` and `SednaPanels.Arrange` settle any arrangement into one
@@ -7117,7 +7170,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
    As a drag zone with `data-drag-axis="cells"`, the reader arranges it while it carries
    `data-arrange`: a panel moves by its `[data-drag-handle]` and resizes by its
-   `.card-resize` handles, which show only then, over cells drawn faintly on the grid.
+   `.card-resize` handles, which show only then, over a dot at the centre of every cell.
    While a panel is carried the grid marks the cell it would land on, from the
    `--panel-drop-*` the script writes; the other panels make room through
    `--panel-preview-*`, which the script writes and clears and which are read before the
@@ -7126,7 +7179,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
    their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
 .panel-grid {
-    --panel-cols: 12;
+    --panel-cols: 24;
     --panel-row: 3rem;
     --grid-gap: var(--space-7);
     --panel-drop-x: 0;
@@ -7138,6 +7191,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     grid-template-columns: repeat(var(--panel-cols), minmax(0, 1fr));
     grid-auto-rows: var(--panel-row);
     gap: var(--grid-gap);
+    /* The column gap is capped at a share of the width, as `.sedna-grid-24`'s is: 23 gaps
+       of 16px come to 368px, and a grid narrower than that would push its tracks to
+       nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
+    --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
+    column-gap: var(--panel-gap-x);
 }
 :where(.panel-grid > *) {
     --panel-x: 0;
@@ -7159,14 +7217,38 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
 .panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
-/* Arranging: the cells, a tint each with the gap left clear — one tile per cell, tinted in
-   the quarter of a conic gradient that lies above and before the gap's corner. */
+/* Arranging: a dot at the centre of every cell, so every place a panel can start and
+   every size it can take is marked. It is drawn on a layer behind the panels as two
+   stripe patterns that a mask intersects — a stripe a cell wide, the column gap as drawn
+   (`--panel-gap-x`) apart, across, and a stripe a row high, `--grid-gap` apart, down —
+   rather than as a tiled background: WebKit rounds a tile to whole pixels, and over 24
+   columns the dots drift out of their cells. Where the gap is capped the cell is as wide
+   as nothing and the dot sits at the start of its column. The layer is at 0 and the panels
+   at 1, at no specificity, so a panel being carried (3) still wins. `--panel-guide-dot` is its
+   colour. */
 .panel-grid[data-arrange] {
-    background-image: conic-gradient(
-        at calc(100% - var(--grid-gap)) calc(100% - var(--grid-gap)),
-        transparent 75%, var(--surface-soft) 0);
-    background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
-    border-radius: var(--radius-surface);
+    --panel-guide-dot: var(--border-strong);
+    position: relative;
+}
+:where(.panel-grid[data-arrange] > *) { z-index: 1; }
+.panel-grid[data-arrange]::after {
+    --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
+    --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
+    --panel-dot-y: calc(var(--panel-row) / 2 - 1px);
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--panel-guide-dot);
+    mask:
+        repeating-linear-gradient(90deg, transparent 0 var(--panel-dot-x),
+            currentColor var(--panel-dot-x) calc(var(--panel-dot-x) + 2px),
+            transparent calc(var(--panel-dot-x) + 2px) var(--panel-pitch-x)),
+        repeating-linear-gradient(180deg, transparent 0 var(--panel-dot-y),
+            currentColor var(--panel-dot-y) calc(var(--panel-dot-y) + 2px),
+            transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
+    mask-composite: intersect;
 }
 /* Not arranging, a panel is content: its own handles are not there. A handle of a zone
    nested inside a panel — a list in it the reader reorders — is that zone's. */
@@ -7577,19 +7659,22 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
    unchecked">` and draws the marker itself, into a `.ql-ui` span, so the browser's own
    markers are off and the counters below number an ordered list through its indents:
    1. a. i. and round again, as a document editor does. */
-/* A table the editor takes (data-editor-format="table" or a table action): the
-   document's own grid, in the table tokens, so a stored table reads as one. */
+/* A table the editor takes (data-editor-format="table" or a table action). Its look is
+   the document's own, `.prose`'s: the same grid, padding and cell trim, so a stored
+   table reads as the one the page later shows. Only what editing needs is added — it
+   fills the column, as a block of fixed columns, so every cell is a target the pointer
+   can hit and a long word wraps inside its cell, where `.prose` lets a table shrink to
+   its content and scroll. */
 .editor .ql-editor table {
-    border-collapse: collapse;
+    display: table;
     inline-size: 100%;
     margin-block: var(--space-4);
     table-layout: fixed;
 }
 .editor .ql-editor td {
-    border: 1px solid var(--border);
-    padding: var(--space-2) var(--space-4);
     vertical-align: top;
     min-inline-size: 2em;
+    overflow-wrap: anywhere;
 }
 .editor .ql-editor ol { padding-inline-start: 1.5em; }
 .editor .ql-editor li {
@@ -9296,6 +9381,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     border: 0;
 }
 .form-file-name { color: var(--muted); font-size: var(--text-3); }
+/* Its overflow rules are the file name's, in 64-files.css. */
 /* The focus ring has to be drawn on the label, because the focused element is the
    input the reader cannot see. */
 .form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--focus-ring); }
@@ -9424,7 +9510,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     font-size: var(--text-3);
 }
 .file-item > i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
-.file-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-name { flex: 1; }
 .file-item-size { color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
 /* Failed upload or a rejected type. The icon carries it too, so it is not colour
    alone. */
@@ -18352,7 +18438,38 @@ dialog.sheet {
     border: 1px solid var(--border);
     border-bottom: none;
 }
-dialog.drawer::backdrop { background: var(--dialog-backdrop); }
+/* The backdrop fades in with the panel and out with it, over the same duration, so the
+   page is never dimmed with nothing on top of it nor left bare while the panel is still
+   leaving. `display` and `overlay` keep it in the top layer for the fade out, as they do
+   the panel. An engine without `overlay` takes the backdrop away with the dialog; the
+   held state below stands in for it. */
+dialog.drawer::backdrop {
+    background-color: transparent;
+    transition: background-color var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+dialog.drawer[open]::backdrop { background-color: var(--dialog-backdrop); }
+/* A drawer opened without a modal has no backdrop to draw. */
+@starting-style {
+    dialog.drawer[open]::backdrop { background-color: transparent; }
+}
+
+/* ── Closing, where the engine cannot keep a closed dialog displayed ─────────
+   42-modal-exit.js holds the dialog displayed and slides it out (`data-sedna-closing`),
+   and for a modal one the page's dimming is this: a shadow spread over the viewport
+   that fades to nothing over the slide's own duration and easing, which the script
+   writes as `--sedna-exit-duration` and `--sedna-exit-easing`. The shadow travels with
+   the panel, and its spread is wider than any distance the panel has to go. */
+.drawer {
+    --sedna-exit-duration: var(--motion-mid);
+    --sedna-exit-easing: ease;
+}
+.drawer[data-sedna-closing="modal"] {
+    box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--dialog-backdrop);
+    animation: sedna-dim-out var(--sedna-exit-duration) var(--sedna-exit-easing) forwards;
+}
+@keyframes sedna-dim-out {
+    to { box-shadow: var(--shadow-modal), 0 0 0 100vmax transparent; }
+}
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
    is what makes it visible and the visibility rule must not fight it. */
 dialog.drawer[open] { visibility: visible; transform: none; }
@@ -18594,36 +18711,40 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
 .file-icon--media  { --file-icon-ink: var(--viz-5); }
 .file-icon--doc    { --file-icon-ink: var(--viz-6); }
 
-/* ── A name cut in the middle ───────────────────────────────────────────────
+/* ── A name that never runs out of its box ──────────────────────────────────
+   Every file name is one box that holds its own overflow: `.file-name` here, and the
+   same two rules on `.file-item-name` (an upload, an attachment) and `.form-file-name`
+   (the file a picker holds). A name too long for its box ends in an ellipsis rather
+   than running out of a tile or widening a column, so a name written as plain text
+   needs nothing more. Put the whole name in `title` too, for the pointer.
+
    `text-overflow` only cuts at the end, which is where a file name keeps what tells
-   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app splits the name in two and
-   only the start is cut: the end, a few characters and the extension, never shrinks.
-   Read aloud, the two spans are the whole name. Put the name in `title` too, for the
-   pointer. A name that fits shows whole and the split is invisible. */
-.file-name {
-    display: flex;
+   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app may split the name in two,
+   and then only the start is cut: the end, a few characters and the extension, never
+   shrinks. Read aloud, the two spans are the whole name. A name that fits shows whole
+   and the split is invisible. */
+:is(.file-name, .file-item-name, .form-file-name) {
+    display: block;
     min-width: 0;
     max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+}
+:is(.file-name, .file-item-name, .form-file-name):has(> .file-name-start) {
+    display: flex;
+    overflow: visible;
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
-/* A name the app did not split is one run of text, and a flex container leaves a bare
-   text run as an anonymous item that never shrinks — so a long name, joined by dashes
-   and with no place to break, ran out of its tile. Without the split spans the name is
-   a block cut at its end, which is all `text-overflow` can do to it. */
-.file-name:not(.file-name--wrap, :has(> .file-name-start)) {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 /* The whole name over as many lines as it takes, for a reader who has to see every
    character of a name they did not choose — an upload straight off a phone. A token
    with no break in it breaks anywhere rather than running out of the tile, and does
    not widen the column it sits in. The split spans, if the markup has them, simply
    run on as text. */
-.file-name--wrap {
+:is(.file-name, .file-item-name, .form-file-name).file-name--wrap {
     display: block;
+    overflow: visible;
     white-space: normal;
     overflow-wrap: anywhere;
 }
@@ -19574,9 +19695,14 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    `aria-current="page"`. The popover is the platform's, so opening, light dismiss and
    Escape need no script.
 
-   A topbar button sits at either end of the header, and a popover spans towards the
-   inline end by default — from the last button in the header that is off the screen.
-   A popover holding a switcher tries the other side first. */
+   A topbar button sits at the trailing end of the header more often than the leading one,
+   so a popover holding a switcher spans towards the inline start from the button's
+   trailing edge, and flips to the other side where that has no room — from a button at
+   the header's leading end. In the header it keeps `--topbar-panel-gap` below the bar
+   and from the window's edge, the same gap the user menu keeps.
+
+   `.app-switcher--icons` shows the marks alone. Each name stays in the markup, which
+   is the link's accessible name; it is only not drawn. */
 .app-switcher {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -19586,9 +19712,42 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin: 0;
     padding: 0;
 }
-.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+.popover:has(> .app-switcher) {
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    margin-block-start: var(--topbar-panel-gap);
+    margin-inline-end: var(--topbar-panel-gap);
+}
+/* `--panel-placement` still places it, as it does every panel anchored to a trigger
+   (65-popover.css): the same three placements, with the gap the header keeps. */
+@container style(--panel-placement: block-start) {
+    .popover:has(> .app-switcher) {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--topbar-panel-gap);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--topbar-panel-gap) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--topbar-panel-gap);
+    }
+}
 
 .app-switcher-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19597,7 +19756,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     padding: var(--space-5) var(--space-2);
     border-radius: var(--radius-control);
     color: var(--fg-soft);
-    font-size: var(--text-3);
+    font-size: var(--text-5);
     line-height: round(1.4em, 2px);
     text-align: center;
     text-decoration: none;
@@ -19606,6 +19765,29 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The name is trimmed to its capitals, as a label in a row is, and given its line back on
+   the side that faces the mark only: the tile's edge is as far from the icon above as from
+   the last line of the name below. A name is any child that is not the mark. */
+.app-switcher-item > :not(.app-switcher-icon) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap) 0;
+}
+
+/* The marks alone: a tile is the icon, and the name is read by a screen reader and
+   shown by the hover hint the app puts on the link. */
+.app-switcher--icons { grid-template-columns: repeat(3, max-content); inline-size: auto; }
+.app-switcher--icons .app-switcher-item { padding: var(--space-3); }
+.app-switcher--icons .app-switcher-item > :not(.app-switcher-icon) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
 
 /* The app's mark: an icon on a tile of its own. */
 .app-switcher-icon {
@@ -23043,7 +23225,10 @@ button.inbox-item-title {
 .chat-feedback > .btn:hover { color: var(--fg); }
 .chat-feedback > .btn[aria-pressed="true"] { color: var(--brand-text); }
 .chat-feedback-sep { inline-size: 1px; block-size: 16px; margin-inline: var(--space-4); background: var(--border); }
-.chat-versions { display: inline-flex; align-items: center; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+.chat-versions { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+/* The two arrows are a step under the small control, so the hover fill and the focus ring
+   stand off the label with the gap between them instead of touching it. */
+.chat-versions > .btn { width: calc(var(--control-height-sm) - var(--space-2)); min-height: calc(var(--control-height-sm) - var(--space-2)); padding: 0; border-radius: var(--radius-small); }
 
 .citation {
     display: inline-grid;
@@ -23116,9 +23301,26 @@ button.inbox-item-title {
     box-shadow: none;
     font-size: var(--text-6);
 }
+/* In a docked or side panel the composer is a frame inside the panel, not the panel's
+   own edge: it takes the thread's inset on every side, and its rounded corners meet the
+   panel's straight lines nowhere. `.chat-pane > .chat-composer` pads the composer in 66-chat.css;
+   a bordered one is set in from the pane, or the flyover, instead. */
+.chat-pane > .chat-composer--prompt,
+.chat-flyover > .chat-composer--prompt { margin: 0 var(--space-5) var(--space-5); padding: var(--space-4); }
+
+/* What is attached sits inside the frame, above the text, on the text's own left edge. */
+.chat-composer--prompt > .chat-composer-files { padding-inline: var(--space-4); padding-block-start: var(--space-2); }
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+/* A `.menu-anchor` sets itself at the start of its row (58-menu.css) so a menu opens under its
+   trigger; in the toolbar its trigger stands on the row's line like every other control. */
+.chat-composer-tools > .menu-anchor { align-self: center; }
+/* A hint in the toolbar's row starts where the text above it does: the field's own inset, 
+   which a button's padding gives the glyphs beside it. */
+.chat-composer-tools > .form-hint { padding-inline: var(--space-4); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
-.chat-composer-send > .btn { border-radius: 50%; }
+/* Round, and only the icon buttons: a labelled button here (the model) keeps the control radius,
+   so its focus ring follows its corners instead of an oval of 50% of a wide box. */
+.chat-composer-send > .btn--icon { border-radius: 50%; }
 .chat-composer-send [data-when] { display: none; }
 .chat-composer-send:not([data-state]) [data-when~="idle"],
 .chat-composer-send[data-state="idle"] [data-when~="idle"],
@@ -26138,15 +26340,23 @@ button.inbox-item-title {
     background-image: linear-gradient(var(--brand-soft), var(--brand-soft));
     background-size: 30% 2px;
     background-repeat: no-repeat;
-    background-position: -30% 0;
+    background-position: -42.8572% 0;
     animation: sedna-busy-bar var(--progress-duration) ease-in-out infinite;
 }
 :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] > * {
     opacity: 0.55;
     pointer-events: none;
 }
+/* A percentage `background-position` is measured against the track less the bar, so the
+   bar's own width decides where "outside" is: for a bar 30% wide, -30 / 70 puts its far
+   edge on the track's near edge, and 100 / 70 puts its near edge on the track's far edge.
+   Both ends are therefore fully outside the track, which clips the bar, so it slides in
+   from the inline start and out past the inline end without appearing or vanishing. The
+   rest position above is the first frame, so a delayed or paused animation shows no bar.
+   `background-position` is physical: 70-rtl.css runs the same sweep the other way. */
 @keyframes sedna-busy-bar {
-    to { background-position: 130% 0; }
+    from { background-position: -42.8572% 0; }
+    to   { background-position: 142.8572% 0; }
 }
 
 :is(.form-select, .form-combo-box, .form-color)[aria-readonly="true"],
@@ -27070,6 +27280,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    left, so it slopes the other way, and the translate that centres it on its point turns round. */
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 
+/* The busy bar (69-busy.css) is a background, and a background position is physical: the
+   sweep runs from the inline start, which is the right edge, to the left. */
+[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    animation-direction: reverse;
+    background-position: 142.8572% 0;
+}
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -28165,6 +28381,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    dialog.drawer::backdrop { transition: none; }
+    .drawer[data-sedna-closing="modal"] { animation: none; }   /* the dim of a held, closing one */
     button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 
@@ -28333,6 +28551,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
     :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
+    /* 70-rtl — the mirrored sweep stands still as well. */
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
         animation: none;
         background-size: 100% 2px;
         background-position: 0 0;

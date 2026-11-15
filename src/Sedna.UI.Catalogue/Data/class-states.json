@@ -239,6 +239,12 @@
       "family": "alert"
     },
     "app-switcher": {
+      "family": "app-switcher",
+      "variants": [
+        "app-switcher--icons"
+      ]
+    },
+    "app-switcher--icons": {
       "family": "app-switcher"
     },
     "app-switcher-icon": {
@@ -2382,6 +2388,7 @@
       ],
       "attributes": [
         ":not([open])",
+        "[data-sedna-closing=\"modal\"]",
         "[open]"
       ],
       "combinedWith": [

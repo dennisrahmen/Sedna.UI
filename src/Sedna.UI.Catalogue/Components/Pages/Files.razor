@@ -25,6 +25,8 @@
 
     <CatExample TExample="Examples.Files.Names" Title="Names cut in the middle" Demo="ex-demo--block">
         <p>
+            A name written as plain text in <code>.file-name</code> (or <code>.file-item-name</code>, or
+            <code>.form-file-name</code>) stays inside its box and ends in an ellipsis. But
             <code>text-overflow</code> cuts at the end, which is exactly where two files differ &mdash;
             <code>-signed.pdf</code> and <code>-unsigned.pdf</code> both end in an ellipsis. So the app
             splits the name in two: <code>.file-name-start</code> is cut and
