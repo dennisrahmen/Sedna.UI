@@ -42,8 +42,8 @@ public class ToneMatrixTests
         var families = Tones.Families();
         foreach (var family in CornerMarks)
         {
-            Assert.True(families.ContainsKey(family), $".{family} is not a tone carrier.");
-            var missing = Semantic.Concat(Categorical).Append("muted").Except(families[family]).ToList();
+            Assert.True(families.TryGetValue(family, out var tones), $".{family} is not a tone carrier.");
+            var missing = Semantic.Concat(Categorical).Append("muted").Except(tones).ToList();
             Assert.True(missing.Count == 0, $".{family} lacks the tones {string.Join(", ", missing)}.");
         }
         Assert.Equal("--muted", Tones.Carriers()["muted"]["solid"]);
