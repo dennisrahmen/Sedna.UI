@@ -178,16 +178,21 @@ tests hold the model up: one fails if any rule escapes a layer — an unlayered 
 outrank the whole library *and* be unreachable from your stylesheet — and one fails if a layer is used
 without being in the ordering statement, since an undeclared layer sorts after every declared one.
 
-### Three things it means for your own stylesheet
+### Four things it means for your own stylesheet
 
 **A token you set at bare `:root` beats the library's `[data-variant="light"]` value for it.** Set both
-blocks, as the rebrand recipe shows.
+blocks, each with the subtree form, as the rebrand recipe shows.
 
 **An unconditional rule of yours beats a library rule at any specificity.** The case to check is
 compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` or
 `.card-body { padding: … }` wins over the padding compact density remaps, so those tables and cards
 stop tightening. Delete the copied rule. The same goes for a `:root[data-density="compact"] .card-body`
 rule written before cards compacted on their own: it still wins, and now fights the library's value.
+
+**A rule of yours outside the layers beats every library rule, button colours included.** A bare
+`a { color: inherit }` beats the white text of `a.btn.btn--solid` in the light variant, and a bare
+`a { text-decoration: underline }` underlines every `.btn` link. Write the rule for the elements it is for
+(`.prose a`) and never for a bare element.
 
 **`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
 declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
@@ -445,8 +450,10 @@ emits at bare `:root`. It reaches the browser twice, because the boot script run
 can: `data-theme-default` on the boot script tag, and `themeDefault` from `ISednaUi.ConfigureAsync()`.
 Both fall back to `sedna`, so an app that changes neither behaves as before.
 
-Consuming apps select on `:root[data-variant="light"]` to brand the light palette, so that selector has
-to match whenever the light palette is in use. The two used to be one attribute (`data-theme` took
+Consuming apps select on `:root[data-variant="light"], :root [data-variant="light"]` to brand the light
+palette — the page, and a subtree that names the light variant — so that selector has to match whenever
+the light palette is in use. The dark values of tokens that differ by variant go in
+`:root, :root :where([data-variant="dark"])`. The two used to be one attribute (`data-theme` took
 `dark`/`light` directly), which is why there was nowhere to put a second theme; splitting them is a
 breaking change, permitted pre-1.0 (see [releasing](releasing.md)).
 
@@ -457,6 +464,21 @@ light-theme branding would silently stop applying. `sedna.variant` in `localStor
 on read: with it stored, the variant follows a live `matchMedia('(prefers-color-scheme: light)')`
 listener, and a stored `dark`/`light` still wins outright over both the listener and the boot script
 tag's own `data-variant-default`.
+
+**`data-variant` on any element scopes the variant to that subtree.** The attribute is the library's: an element that carries it for another purpose of the app's own is a subtree now, so name that attribute something else. `<section data-variant="dark">` on a
+light page reads as a dark page inside — text, controls, badges, native form controls and scrollbars — and
+`"light"` does the same on a dark one. The token blocks that remap by variant, colour-blind palette,
+contrast or forced colours each carry a second selector for the subtree, listed with the page's own form
+(`:root :where([data-variant])`, `:root [data-variant="light"]`), at the same specificity, so the cascade
+between them is the same inside the subtree as on the page. Only the **variant-sensitive tokens** are
+redeclared there — what those blocks remap, and every token that reads one, because a derived token resolves
+where it is declared. The rest of `:root` — spacing, type, motion, a family that is the same in both
+variants — is declared once and inherited, which is why a subtree keeps the page's density and an app's own
+override of such a token. `01-tokens.css` holds the two blocks and `ScopedVariantTests` keeps every token in
+the right one. The subtree sets `color` and `color-scheme` and paints no background. A theme's own roles
+(`SednaTheme.DarkRoles`, `LightRoles`) reach the subtree through the same selector lists. An app's own
+override of a token that differs by variant names the subtree in its selector, as
+[getting started](getting-started.md#your-own-css) shows.
 
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.

@@ -43,6 +43,15 @@ internal sealed class ThemeTokens
 {
     public const string LightSelector = ":root[data-variant=\"light\"]";
 
+    /// <summary>
+    /// What an app's <c>brand.css</c> writes for the dark value of a variant-sensitive token: the
+    /// page, and a subtree that names the dark variant.
+    /// </summary>
+    public const string DarkScopedSelector = ":root,\n:root :where([data-variant=\"dark\"])";
+
+    /// <summary>The light value's selector: the page, and a subtree that names the light variant.</summary>
+    public const string LightScopedSelector = ":root[data-variant=\"light\"],\n:root [data-variant=\"light\"]";
+
     public const string ColourSection = "Colour roles";
     public const string ValueSection = "Type, space, shape and motion";
     public const string PaletteSection = "Palette";
@@ -55,8 +64,10 @@ internal sealed class ThemeTokens
         IReadOnlyList<ThemeTokenGroup> groups,
         IReadOnlyDictionary<string, string> dark,
         IReadOnlyDictionary<string, string> light,
-        IReadOnlyList<string> order)
+        IReadOnlyList<string> order,
+        IReadOnlySet<string> sensitive)
     {
+        Sensitive = sensitive;
         Groups = groups;
         DarkDefaults = dark;
         LightDefaults = light;
@@ -84,6 +95,13 @@ internal sealed class ThemeTokens
     /// <summary>The library's colours in the light variant, resolved.</summary>
     public IReadOnlyDictionary<string, Rgba> LightColours { get; }
 
+    /// <summary>
+    /// The tokens that differ by variant, colour-blind palette, contrast or forced colours, and every
+    /// token that reads one. A subtree that names its own variant redeclares exactly these, so an
+    /// app's own value for one has to be written for that subtree too.
+    /// </summary>
+    public IReadOnlySet<string> Sensitive { get; }
+
     /// <summary>Every <c>:root</c> token in declaration order: the palette first, then the roles.</summary>
     public IReadOnlyList<string> Order { get; }
 
@@ -102,9 +120,16 @@ internal sealed class ThemeTokens
         var dark = new Dictionary<string, string>(StringComparer.Ordinal);
         var light = new Dictionary<string, string>(StringComparer.Ordinal);
         var order = new List<string>();
+        var remapped = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var block in export.RootElement.GetProperty("blocks").EnumerateArray())
         {
+            // What a variant, the colour-blind palette, contrast or forced colours remap.
+            var selector = block.GetProperty("selector").GetString() ?? string.Empty;
+            if (block.GetProperty("media").ValueKind != JsonValueKind.Null
+                || (selector != ":root" && System.Text.RegularExpressions.Regex.IsMatch(selector, @"data-(variant|cvd|contrast)=")))
+                foreach (var token in block.GetProperty("tokens").EnumerateObject()) remapped.Add(token.Name);
+
             if (block.GetProperty("media").ValueKind != JsonValueKind.Null) continue;
             var target = block.GetProperty("selector").GetString() switch
             {
@@ -124,6 +149,22 @@ internal sealed class ThemeTokens
 
         var darkColours = CssColour.ResolveAll(dark);
         var lightColours = CssColour.ResolveAll(LightEffective(dark, light));
+
+        static HashSet<string> SensitiveClosure(Dictionary<string, string> declared, HashSet<string> remapped)
+        {
+            var sensitive = new HashSet<string>(remapped.Where(declared.ContainsKey), StringComparer.Ordinal);
+            bool grew;
+            do
+            {
+                grew = false;
+                foreach (var (name, value) in declared)
+                    if (!sensitive.Contains(name)
+                        && System.Text.RegularExpressions.Regex.Matches(value, @"var\((?<n>--[\w-]+)")
+                            .Any(m => sensitive.Contains(m.Groups["n"].Value)))
+                        grew |= sensitive.Add(name);
+            } while (grew);
+            return sensitive;
+        }
 
         ThemeToken? Token(string name, bool palette)
         {
@@ -155,6 +196,6 @@ internal sealed class ThemeTokens
 
         // Sections in their order, and the groups inside each in the Tokens page's order.
         var ordered = groups.OrderBy(g => Sections.ToList().IndexOf(g.Section)).ToList();
-        return new ThemeTokens(ordered, dark, light, order);
+        return new ThemeTokens(ordered, dark, light, order, SensitiveClosure(dark, remapped));
     }
 }

@@ -19,6 +19,11 @@
    is named individually instead of being covered by a sweeping rule.
    ─────────────────────────────────────────────────────────────────────────── */
 
+/* The scrim of a page head with a picture runs from the inline start to the inline end, and
+   an angle is physical: 90deg is left to right. */
+[dir="rtl"] .page-head--hero,
+.page-head--hero[dir="rtl"] { --hero-scrim-angle: 270deg; }
+
 /* A resize cursor names a physical diagonal. A card's corner handle sits at the block-end,
    inline-end corner, which is the bottom left right to left. */
 [dir="rtl"] .card-resize--corner { cursor: nesw-resize; }

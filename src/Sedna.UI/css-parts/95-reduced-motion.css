@@ -108,6 +108,7 @@
     /* 57 — the button comes in at once, a screen down, instead of fading in. */
     .back-to-top { animation-timing-function: step-end; }
     a.stat            { transition: none; }   /* 54 */
+    a.card            { transition: none; }   /* 30 */
     /* 54 — a chart is drawn whole at once, rather than fading in. */
     .chart-svg[data-chart-enter] .chart-marks { animation: none; }
     /* 54 — a running link's key holds its dashes still; they still say "running". */
