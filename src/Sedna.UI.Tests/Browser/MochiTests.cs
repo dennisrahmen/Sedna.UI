@@ -356,8 +356,9 @@ public class MochiTests : ScriptTestBase
                     for (let i = 1; i <= 20; i++) { ease.currentTime = end * i / 20; out.push(angle()); }
                     ease.finish();
                 }
-                const t0 = performance.now();
-                while (performance.now() - t0 < 1100) {
+                // Once the change is over it stays over: the arm is read again after frames, which
+                // is where a settled pose that something then moves would show.
+                for (let i = 0; i < 30; i++) {
                     await new Promise(r => requestAnimationFrame(r));
                     out.push(angle());
                 }
@@ -498,12 +499,11 @@ public class MochiTests : ScriptTestBase
         () => document.getAnimations().filter(a => a instanceof CSSAnimation && a.playState === 'running' && a.effect.target.closest('#m')).length
         """;
 
-    /// <summary>The most loops stepping inside #m on any frame across half a second.</summary>
+    /// <summary>The most loops stepping inside #m on any of thirty frames in a row.</summary>
     private const string RunningOverTime = """
         async () => {
             let most = 0;
-            const t0 = performance.now();
-            while (performance.now() - t0 < 500) {
+            for (let frame = 0; frame < 30; frame++) {
                 await new Promise(r => requestAnimationFrame(r));
                 most = Math.max(most, document.getAnimations().filter(a => a instanceof CSSAnimation && a.playState === 'running' && a.effect.target.closest('#m')).length);
             }
@@ -577,8 +577,9 @@ public class MochiTests : ScriptTestBase
                     for (let i = 1; i <= 20; i++) { ease.currentTime = end * i / 20; out.push(angle()); }
                     ease.finish();
                 }
-                const t0 = performance.now();
-                while (performance.now() - t0 < 1100) {
+                // Once the change is over it stays over: the arm is read again after frames, which
+                // is where a settled pose that something then moves would show.
+                for (let i = 0; i < 30; i++) {
                     await new Promise(r => requestAnimationFrame(r));
                     out.push(angle());
                 }

@@ -87,7 +87,7 @@ public abstract class ScriptTestBase : BrowserTestBase
         DateTime? clockPausedAt = null,
         float? deviceScaleFactor = null)
     {
-        var context = await Browser!.NewContextAsync(new()
+        var context = await NewContextAsync(new()
         {
             DeviceScaleFactor = deviceScaleFactor,
             ColorScheme = colorScheme,
