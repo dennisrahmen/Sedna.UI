@@ -10,15 +10,18 @@
     "src/Sedna.UI.Catalogue/Examples/Banner/Titled.razor": "817063f2e77589ae",
     "src/Sedna.UI.Catalogue/Examples/Banner/Tones.razor": "4d8e7f46f712f3ca",
     "src/Sedna.UI.Catalogue/Examples/Banner/UnderTheTopbar.razor": "3828d09d713ccb65",
+    "src/Sedna.UI/css-parts/06-base-elements.css": "47391386aedbcdb1",
     "src/Sedna.UI/css-parts/10-frame-shell.css": "fdab7b2c2df6b99d",
     "src/Sedna.UI/css-parts/13-frame-topbar.css": "ad0f8b685900c38d",
     "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
     "src/Sedna.UI/css-parts/18-frame-banner.css": "48f6d841eb000b0d",
     "src/Sedna.UI/css-parts/19-frame-responsive.css": "18e78ee09cc08198",
     "src/Sedna.UI/css-parts/24-frame-bottombar.css": "a38b70eec70c5dec",
-    "src/Sedna.UI/css-parts/33-buttons.css": "c031f84426b8e0a8",
+    "src/Sedna.UI/css-parts/31-badges.css": "220ee6589d0d3960",
+    "src/Sedna.UI/css-parts/31-count.css": "454bb7039bc264ff",
+    "src/Sedna.UI/css-parts/33-buttons.css": "b00270add80e9927",
     "src/Sedna.UI/css-parts/46-form-layout.css": "8bf0ca88d161416b",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c",
     "src/Sedna.UI/js-parts/23-nav.js": "89ac7f455237f563",
     "src/Sedna.UI/js-parts/29-viewport.js": "6d1010fc021a3db3",
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412"
@@ -40,7 +43,7 @@
     "src/Sedna.UI/css-parts/19-frame-responsive.css": "18e78ee09cc08198",
     "src/Sedna.UI/css-parts/24-frame-bottombar.css": "a38b70eec70c5dec",
     "src/Sedna.UI/css-parts/46-form-layout.css": "8bf0ca88d161416b",
-    "src/Sedna.UI/css-parts/61-buttons-extra.css": "a000a7294fa7201b",
+    "src/Sedna.UI/css-parts/61-buttons-extra.css": "76638f9a921a28df",
     "src/Sedna.UI/js-parts/23-nav.js": "89ac7f455237f563",
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412"
   },
@@ -180,7 +183,7 @@
     "src/Sedna.UI/css-parts/57-navigation-aids.css": "f3bfb16a5d4c2018",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c",
     "src/Sedna.UI/graph-parts/70-graph.js": "a126adda623ade1e",
     "src/Sedna.UI/js-parts/10-settings.js": "4ccd10f514cabfb5",
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5",
@@ -191,7 +194,7 @@
     "src/Sedna.UI/signature-parts/50-pad.js": "1a37766ccae6eb73"
   },
   "/search": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Search.razor": "ad608525c2ce769b",
+    "src/Sedna.UI.Catalogue/Components/Pages/Search.razor": "101ba01fe0f29607",
     "src/Sedna.UI.Catalogue/Examples/Interop/SearchRankFromCsharp.razor": "1a85be6375d4ad03",
     "src/Sedna.UI.Catalogue/Examples/Search/AnchoredSearch.html": "70314b00b21b9a49",
     "src/Sedna.UI.Catalogue/Examples/Search/HeaderSearch.razor": "54777557eae73e16",
@@ -211,7 +214,7 @@
     "src/Sedna.UI.Catalogue/Examples/StatusBar/StatusBar.razor": "08b5a42ff9f26392",
     "src/Sedna.UI/css-parts/17-frame-hover-hints.css": "c76ee0ee677b0843",
     "src/Sedna.UI/css-parts/18-frame-status-bar.css": "be0c79553307f56b",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6"
+    "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c"
   },
   "/topbar": {
     "src/Sedna.UI.Catalogue/Components/Pages/Topbar.razor": "6e292cf0505a787f",
@@ -221,14 +224,14 @@
     "src/Sedna.UI.Catalogue/Examples/Topbar/UserMenu.razor": "f9a1eeec6e5975cd",
     "src/Sedna.UI.Catalogue/Examples/Topbar/VersionTag.razor": "b9ec1dfac97da7f4",
     "src/Sedna.UI/css-parts/13-frame-topbar.css": "ad0f8b685900c38d",
-    "src/Sedna.UI/css-parts/15-frame-user-widget.css": "5a8918a36a9a8dee",
+    "src/Sedna.UI/css-parts/15-frame-user-widget.css": "e1147e85b834a693",
     "src/Sedna.UI/css-parts/46-form-layout.css": "8bf0ca88d161416b",
-    "src/Sedna.UI/css-parts/58-menu.css": "78bd082703fd47e9",
+    "src/Sedna.UI/css-parts/58-menu.css": "cb6c2271d4ba6d2d",
     "src/Sedna.UI/css-parts/65-app-switcher.css": "4d2abd1533417256",
     "src/Sedna.UI/css-parts/69-busy.css": "3b12f0dd9589d085",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c",
     "src/Sedna.UI/css-parts/80-utilities.css": "7018485e687d8612",
     "src/Sedna.UI/js-parts/22-anchored.js": "eccfa21cf94ce110",
-    "src/Sedna.UI/js-parts/22-menu.js": "b7020a230408c688"
+    "src/Sedna.UI/js-parts/22-menu.js": "9480756e5026ca4f"
   }
 }

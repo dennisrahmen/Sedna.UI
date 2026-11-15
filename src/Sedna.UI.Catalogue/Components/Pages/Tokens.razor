@@ -21,11 +21,12 @@
     </div>
 </div>
 
-<CatSnippet Name="Tokens/ComponentHooks.css" Title="One component, not the whole theme">
+<CatSnippet Name="Tokens/ComponentHooks.css" Title="Change one part of the page">
     <p>
-        A shared role moves everything that paints with it: <code>--border</code> is every divider as
-        well as every field. Where an app needs one part to differ, it has a role of its own that
-        points at the shared one until redefined — <code>--field-border</code> and
+        Most tokens are shared: <code>--border</code> paints every divider as well as every field, so
+        redefining it changes both. When only one part should change, redefine that part's own token.
+        It follows the shared one until you set it, so setting it moves that part and nothing else —
+        <code>--field-border</code> and
         <code>--field-border-focus</code> for the boxes a reader types into, <code>--selected</code>
         for the mark on the one chosen, <code>--tab-indicator</code> for the line under the current
         tab, <code>--topbar-bg</code>, <code>--topbar-fg</code>, <code>--topbar-muted</code> and

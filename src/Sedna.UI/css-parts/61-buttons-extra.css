@@ -112,11 +112,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-4);
-    min-height: 48px;
+    gap: var(--btn-gap);
+    --fab-size: 48px;
+    min-height: var(--fab-size);
     padding: 0 var(--space-8);
     background: var(--brand);
-    border: none;
+    border: 1px solid var(--brand-edge);
     border-radius: var(--radius-pill);
     color: var(--on-solid);
     font-family: inherit;
@@ -129,7 +130,15 @@
 .fab:hover { background: var(--brand-hover); }
 .fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* Icon-only: circular, and the label goes in an aria-label. */
-.fab--icon { width: 48px; padding: 0; }
+.fab--icon { width: var(--fab-size); padding: 0; }
+/* Three sizes, as the button has: the size is the height, and an icon-only one is as wide.
+   A tone is a modifier too — .fab--go, --warn, --danger, --info, --secret — read in
+   69-tone.css. */
+.fab--sm { --fab-size: 40px; padding-inline: var(--space-7); font-size: var(--text-4); }
+.fab--sm i { font-size: var(--text-7); }
+.fab--lg { --fab-size: 56px; padding-inline: var(--space-9); }
+.fab--lg i { font-size: var(--text-9); }
+.fab--icon:is(.fab--sm, .fab--lg) { padding: 0; }
 
 /* ── Speed dial ─────────────────────────────────────────────────────────────
    A FAB that fans out a few related actions above itself instead of doing one:

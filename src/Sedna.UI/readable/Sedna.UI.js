@@ -53,6 +53,8 @@
      29-time.js
      29-viewport.js
      30-markdown.js
+     31-markdown-render.js
+     32-markdown-edit.js
      40-interop.js
      41-spotlight.js
      42-modal-exit.js
@@ -3248,6 +3250,19 @@ window.sednaUi = window.sednaUi || {};
     var secondaryDown = false;
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
+
+    /* A secondary press selects the word under it before the contextmenu event, on macOS,
+       so the text flashed selected and then the menu opened over it. The press is cancelled
+       on an element that has a menu at the pointer, which is the only place the selection
+       is the browser's own default for a gesture the app has taken over; a primary press
+       there still selects, and so does a secondary press anywhere else. Ctrl+click is the
+       secondary press on a Mac. */
+    document.addEventListener('mousedown', function (e) {
+        if (e.button !== 2 && !(e.button === 0 && e.ctrlKey)) return;
+        var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
+        if (!on || !document.getElementById(on.getAttribute('data-menu-context'))) return;
+        e.preventDefault();
+    });
 
     document.addEventListener('contextmenu', function (e) {
         var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
@@ -11706,15 +11721,28 @@ window.sednaUi = window.sednaUi || {};
 /* ── 30-markdown.js ──────────────────────────────────────────────── */
 /* ── Markdown editor ─────────────────────────────────────────────────────────
    Toolbar + textarea + live preview inside one .md-editor root. Blazor owns the
-   value through the textarea's two-way @bind (@bind:event="oninput"); toolbar
-   edits mutate the textarea and dispatch a bubbling 'input' event so the binding
-   picks them up, which is the whole of its conversation with .NET.
+   value through the textarea's two-way @bind (@bind:event="oninput"); every edit — a
+   toolbar command, a shortcut, a pasted link — reaches the textarea as an `input` event,
+   which is the whole of its conversation with .NET.
+
+   This part is the wiring: it finds the pieces of an editor, switches its view, keeps the
+   preview and the counts current and runs full-screen. The commands, the keyboard and the
+   paste and drop of files are 32-markdown-edit.js; the renderer is 31-markdown-render.js.
 
    init() is idempotent per editor, since Blazor re-renders its host. Call it with no
    argument to wire every .md-editor in the document, with a container to wire the ones
    inside it, or with an editor to wire exactly that one — an app renders editors and
    then calls init(), and does not have to know how many there are or hold a reference
    to each. From C#: ISednaUi.InitMarkdownAsync().
+
+   The markup the app writes (all of it the app's — nothing here draws an element):
+
+     .md-editor [data-md-view="write|preview|split"]
+       toolbar     buttons with data-md-cmd="…"; radios with data-md-tab="write|preview|split"
+       textarea    [data-md-input]
+       preview     [data-md-preview]
+       [data-md-count="words|characters|lines"]   a number, filled in as the text changes
+       [data-md-file-notice]                       shown when a pasted or dropped file is not taken
 
    insert() puts the app's own text at the caret — from C#, ISednaUi.InsertMarkdownAsync().
    An image is `![description](address)`; the same syntax with the address of a video file
@@ -11723,228 +11751,1436 @@ window.sednaUi = window.sednaUi || {};
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
-    ui.md = {
-        /* Counter for the per-editor radio group name. Private. */
-        _seq: 0,
+    var md = ui.md = ui.md || {};
 
-        init: function (root) {
-            root = root || document;
-            // An editor initialises itself; anything else initialises the editors
-            // inside it. Each one is wired against its OWN root, so two editors on a
-            // page get separate radio groups and separate listeners — which they would
-            // not if a shared container were treated as the root.
-            var editors = root.matches && root.matches('.md-editor')
-                ? [root]
-                : root.querySelectorAll('.md-editor');
+    /* Counter for the per-editor radio group name. Private. */
+    md._seq = 0;
 
-            for (var i = 0; i < editors.length; i++) this._initOne(editors[i]);
-        },
+    md.init = function (root) {
+        root = root || document;
+        // An editor initialises itself; anything else initialises the editors
+        // inside it. Each one is wired against its OWN root, so two editors on a
+        // page get separate radio groups and separate listeners — which they would
+        // not if a shared container were treated as the root.
+        var editors = root.matches && root.matches('.md-editor')
+            ? [root]
+            : root.querySelectorAll('.md-editor');
 
-        /* One editor. Private: init() is the entry point. */
-        _initOne: function (root) {
-            if (!root || root.dataset.mdReady === '1') return;
-            root.dataset.mdReady = '1';
-            var self = this;
-            var ta = root.querySelector('[data-md-input]');
-            var preview = root.querySelector('[data-md-preview]');
-            if (!ta) return;
+        for (var i = 0; i < editors.length; i++) md._initOne(editors[i]);
+    };
 
-            var renderPreview = function () {
-                if (preview) preview.innerHTML = self.render(ta.value);
-            };
-
-            // The Write/Preview switch is a .segmented control, so it is a radio
-            // group: the checked state comes from the platform and CSS draws it with
-            // :has(input:checked). Nothing here toggles a class.
-            //
-            // The radios need a shared `name` to be one group, and it has to be unique
-            // per editor or two editors on a page fight over one selection. Assigned
-            // here rather than in the markup, because only this code knows how many
-            // roots exist.
-            var views = root.querySelectorAll('input[data-md-tab]');
-            if (views.length) {
-                var group = 'sedna-md-view-' + (++ui.md._seq);
-                views.forEach(function (r) { r.name = group; });
-            }
-
-            root.addEventListener('click', function (e) {
-                var cmdBtn = e.target.closest('[data-md-cmd]');
-                if (cmdBtn && root.contains(cmdBtn)) {
-                    e.preventDefault();
-                    self.apply(ta, cmdBtn.getAttribute('data-md-cmd'));
-                    renderPreview();
-                }
-            });
-
-            root.addEventListener('change', function (e) {
-                var radio = e.target.closest('input[data-md-tab]');
-                if (!radio || !root.contains(radio) || !radio.checked) return;
-
-                var view = radio.getAttribute('data-md-tab');
-                // Carry the height between panes (both are resize:vertical), reading
-                // the visible one before the flip. The preview then fills the same box
-                // and scrolls internally instead of ballooning its host on long text,
-                // and a manual resize in either pane sticks across the switch.
-                if (view === 'preview') {
-                    renderPreview();
-                    if (preview) preview.style.height = ta.offsetHeight + 'px';
-                } else if (preview && preview.offsetHeight) {
-                    ta.style.height = preview.offsetHeight + 'px';
-                }
-                root.setAttribute('data-md-view', view);
-            });
-
-            ta.addEventListener('input', renderPreview);
-            renderPreview();
-        },
-
-        // Apply a toolbar command to the current selection, then fire the input
-        // event so the binding captures the new value.
-        apply: function (ta, cmd) {
-            var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
-            var sel = v.slice(s, e);
-            var wrap = function (before, after, ph) {
-                var body = sel || ph;
-                ta.value = v.slice(0, s) + before + body + after + v.slice(e);
-                ta.selectionStart = s + before.length;
-                ta.selectionEnd = s + before.length + body.length;
-            };
-            var linePrefix = function (prefix) {
-                // Expand the selection to whole lines, then prefix each.
-                var ls = v.lastIndexOf('\n', s - 1) + 1;
-                var le = v.indexOf('\n', e); if (le === -1) le = v.length;
-                var block = v.slice(ls, le) || prefix.trim();
-                var prefixed = block.split('\n').map(function (line, i) {
-                    return (cmd === 'ol' ? (i + 1) + '. ' : prefix) + line;
-                }).join('\n');
-                ta.value = v.slice(0, ls) + prefixed + v.slice(le);
-                ta.selectionStart = ls;
-                ta.selectionEnd = ls + prefixed.length;
-            };
-            switch (cmd) {
-                case 'bold':   wrap('**', '**', 'bold text'); break;
-                case 'italic': wrap('_', '_', 'italic text'); break;
-                case 'code':   wrap('`', '`', 'code'); break;
-                case 'h2':     linePrefix('## '); break;
-                case 'ul':     linePrefix('- '); break;
-                case 'ol':     linePrefix('1. '); break;
-                case 'quote':  linePrefix('> '); break;
-                case 'link':   wrap('[', '](https://)', 'link text'); break;
-                case 'image':  wrap('![', '](https://)', 'image description'); break;
-                case 'video':  wrap('![', '](https://)', 'video description'); break;
-                default: return;
-            }
-            ta.dispatchEvent(new Event('input', { bubbles: true }));
-            ta.focus();
-        },
-
-        // Replace the current selection with `text` — a link from the app's own picker, a
-        // snippet, a mention — leave the caret right after it, and fire the input event so
-        // the binding captures the new value. The same edit apply() makes, without a
-        // command's wrapping.
-        //
-        // It works while focus is elsewhere, which is the usual case: the picker is a
-        // dialog opened from the toolbar, and the textarea has been blurred by the time
-        // the app has its answer. A textarea keeps selectionStart/selectionEnd across a
-        // blur, so the text lands where the caret was, and nothing is stored here to make
-        // that true. The one thing that moves the caret is assigning a DIFFERENT value
-        // while focus is away; assigning the same value, which is what a Blazor re-render
-        // after the input event does, leaves it where it was.
-        insert: function (ta, text) {
-            if (!ta || typeof ta.selectionStart !== 'number') return;
-            text = text == null ? '' : String(text);
-            var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
-            ta.value = v.slice(0, s) + text + v.slice(e);
-            ta.selectionStart = ta.selectionEnd = s + text.length;
-            ta.dispatchEvent(new Event('input', { bubbles: true }));
-            ta.focus();
-        },
-
-        // Minimal, self-contained Markdown → HTML. HTML is escaped FIRST; only a
-        // fixed set of block/inline constructs is re-introduced, and link hrefs
-        // and image and video sources are scheme-checked. Not a spec-complete parser — enough for authored
-        // prose, and safe enough that its output can be injected.
-        //
-        // esc() escapes the double quote as well, so its output is safe in an
-        // attribute value and not only in a text node. Without it a link target of
-        // https://x"onmouseover=alert(1) closes the href and opens a handler.
-        render: function (src) {
-            if (!src) return '';
-            var esc = function (s) {
-                return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-            };
-            // Pull fenced code blocks out first so their contents are never formatted.
-            var blocks = [];
-            src = src.replace(/```([\s\S]*?)```/g, function (_, code) {
-                blocks.push('<pre><code>' + esc(code.replace(/^\n/, '').replace(/\n$/, '')) + '</code></pre>');
-                return '  B' + (blocks.length - 1) + ' ';
-            });
-            var inline = function (t) {
-                t = esc(t);
-                // A code span, then an image or a video, is held aside as a numbered placeholder
-                // between two NUL characters until the end, so nothing below formats what a code
-                // span says or reaches into an address with an underscore in it.
-                var held = [];
-                var hold = function (html) {
-                    held.push(html);
-                    return '\u0000' + (held.length - 1) + '\u0000';
-                };
-                t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
-                t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
-                // A link's tags are held aside too, before bold and italic run, so an
-                // underscore in its address is never read as emphasis; its text is still
-                // formatted. The whole line went through esc() above, so `url` is already
-                // escaped — escaping it again turned every & into &amp;amp;.
-                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
-                    var safe = ui._.safeHref(url) || '#';
-                    return hold('<a href="' + safe + '" target="_blank" rel="noopener">') + txt + hold('</a>');
-                });
-                t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-                t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
-                return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
-            };
-            // `alt` and `url` are already escaped, as the whole line is. The source is kept only
-            // when it is http, https or relative — no scheme before its first / ? or # — and an
-            // image whose source is not kept is its description, as text.
-            var mediaHtml = function (alt, url) {
-                if (!/^(https?:|[^:\/?#]*(?:[\/?#]|$))/i.test(url)) return alt;
-                if (/\.(mp4|m4v|mov|webm|ogv)$/i.test(url.split(/[?#]/)[0])) {
-                    return '<video controls preload="metadata" src="' + url + '"' +
-                        (alt ? ' aria-label="' + alt + '"' : '') + '></video>';
-                }
-                return '<img src="' + url + '" alt="' + alt + '" loading="lazy">';
-            };
-            var out = [], list = null;
-            var closeList = function () { if (list) { out.push('</' + list + '>'); list = null; } };
-            src.split(/\r?\n/).forEach(function (line) {
-                var ph = line.match(/^  B(\d+) $/);
-                if (ph) { closeList(); out.push(blocks[+ph[1]]); return; }
-                if (!line.trim()) { closeList(); return; }
-                var m;
-                if ((m = line.match(/^(#{1,6})\s+(.*)$/))) {
-                    closeList();
-                    var n = m[1].length;
-                    out.push('<h' + n + '>' + inline(m[2]) + '</h' + n + '>');
-                    return;
-                }
-                if (/^(---|\*\*\*|___)\s*$/.test(line)) { closeList(); out.push('<hr>'); return; }
-                if ((m = line.match(/^>\s?(.*)$/))) {
-                    closeList(); out.push('<blockquote>' + inline(m[1]) + '</blockquote>'); return;
-                }
-                if ((m = line.match(/^[-*]\s+(.*)$/))) {
-                    if (list !== 'ul') { closeList(); out.push('<ul>'); list = 'ul'; }
-                    out.push('<li>' + inline(m[1]) + '</li>'); return;
-                }
-                if ((m = line.match(/^\d+\.\s+(.*)$/))) {
-                    if (list !== 'ol') { closeList(); out.push('<ol>'); list = 'ol'; }
-                    out.push('<li>' + inline(m[1]) + '</li>'); return;
-                }
-                closeList(); out.push('<p>' + inline(line) + '</p>');
-            });
-            closeList();
-            return out.join('');
+    // How many words, characters (code points) and lines a text holds.
+    function counts(text) {
+        var chars = 0, words = 0, inWord = false;
+        for (var i = 0; i < text.length; i++) {
+            var code = text.charCodeAt(i);
+            if (code >= 0xdc00 && code <= 0xdfff) continue;
+            chars++;
+            var space = code === 32 || (code >= 9 && code <= 13) || code === 0xa0 || code === 0x2028 || code === 0x2029;
+            if (space) inWord = false;
+            else if (!inWord) { inWord = true; words++; }
         }
+        return { words: words, characters: chars, lines: text ? text.split('\n').length : 0 };
+    }
+
+    /* One editor. Private: init() is the entry point. */
+    md._initOne = function (root) {
+        if (!root || root.dataset.mdReady === '1') return;
+        root.dataset.mdReady = '1';
+        var ta = root.querySelector('[data-md-input]');
+        var preview = root.querySelector('[data-md-preview]');
+        if (!ta) return;
+
+        var timer = 0;
+        var renderPreview = function () {
+            if (preview) preview.innerHTML = md.render(ta.value);
+        };
+        var update = function () {
+            // A long text is rendered once the reader pauses, so typing never waits on it.
+            if (ta.value.length > 30000) {
+                clearTimeout(timer);
+                timer = setTimeout(renderPreview, 120);
+            } else {
+                renderPreview();
+            }
+            var numbers = root.querySelectorAll('[data-md-count]');
+            if (numbers.length) {
+                var c = counts(ta.value);
+                for (var i = 0; i < numbers.length; i++) {
+                    var kind = numbers[i].getAttribute('data-md-count');
+                    if (Object.prototype.hasOwnProperty.call(c, kind)) numbers[i].textContent = String(c[kind]);
+                }
+            }
+        };
+
+        // The Write/Preview switch is a .segmented control, so it is a radio
+        // group: the checked state comes from the platform and CSS draws it with
+        // :has(input:checked). Nothing here toggles a class.
+        //
+        // The radios need a shared `name` to be one group, and it has to be unique
+        // per editor or two editors on a page fight over one selection. Assigned
+        // here rather than in the markup, because only this code knows how many
+        // roots exist.
+        var views = root.querySelectorAll('input[data-md-tab]');
+        if (views.length) {
+            var group = 'sedna-md-view-' + (++md._seq);
+            var current = root.getAttribute('data-md-view') || 'write';
+            views.forEach(function (r) {
+                r.name = group;
+                r.checked = r.getAttribute('data-md-tab') === current;
+            });
+        }
+
+        // Switches the view. The height is carried between panes (both are
+        // resize:vertical), reading the visible one before the flip. The preview then fills
+        // the same box and scrolls internally instead of ballooning its host on long text,
+        // and a manual resize in either pane sticks across the switch. Side by side, the
+        // grid gives both the height the textarea has.
+        var setView = function (view) {
+            var was = root.getAttribute('data-md-view') || 'write';
+            if (view === was) return;
+            if (view === 'preview') {
+                renderPreview();
+                if (preview && was === 'write') preview.style.height = ta.offsetHeight + 'px';
+            } else if (view === 'split') {
+                renderPreview();
+                if (preview) preview.style.height = '';
+                if (was === 'preview' && preview && preview.offsetHeight) ta.style.height = preview.offsetHeight + 'px';
+            } else {
+                if (preview && preview.offsetHeight && was === 'preview') ta.style.height = preview.offsetHeight + 'px';
+            }
+            root.setAttribute('data-md-view', view);
+        };
+
+        root.addEventListener('click', function (e) {
+            var cmdBtn = e.target.closest('[data-md-cmd]');
+            if (!cmdBtn || !root.contains(cmdBtn)) return;
+            e.preventDefault();
+            var cmd = cmdBtn.getAttribute('data-md-cmd');
+            if (cmd === 'fullscreen') md._fullscreen(root, cmdBtn);
+            else md.apply(ta, cmd);
+        });
+
+        root.addEventListener('change', function (e) {
+            var radio = e.target.closest('input[data-md-tab]');
+            if (!radio || !root.contains(radio) || !radio.checked) return;
+            setView(radio.getAttribute('data-md-tab'));
+        });
+
+        // Side by side, the preview follows the textarea: the same share of the way down.
+        ta.addEventListener('scroll', function () {
+            if (!preview || root.getAttribute('data-md-view') !== 'split') return;
+            var from = ta.scrollHeight - ta.clientHeight, to = preview.scrollHeight - preview.clientHeight;
+            if (from > 0 && to > 0) preview.scrollTop = ta.scrollTop / from * to;
+        });
+
+        ta.addEventListener('input', update);
+        update();
+        md._wire(root, ta);
+    };
+
+    // Full-screen: the editor fills the window, and the page behind it is inert, so
+    // neither the keyboard nor a screen reader reaches what the editor covers. The root
+    // keeps its place in the document; `data-md-fullscreen` is what the stylesheet draws.
+    md._fullscreen = function (root, button, on) {
+        var is = root.hasAttribute('data-md-fullscreen');
+        if (on === undefined) on = !is;
+        if (on === is) return;
+        var ta = root.querySelector('[data-md-input]');
+        var preview = root.querySelector('[data-md-preview]');
+        var held = root._mdInert || [];
+        if (on) {
+            // The panes keep the heights they were resized to; full-screen sets its own.
+            root._mdHeights = [ta && ta.style.height, preview && preview.style.height];
+            if (ta) ta.style.height = '';
+            if (preview) preview.style.height = '';
+            for (var node = root; node.parentElement; node = node.parentElement) {
+                var kids = node.parentElement.children;
+                for (var i = 0; i < kids.length; i++) {
+                    if (kids[i] !== node && !kids[i].inert && !/^(HEAD|SCRIPT|STYLE|LINK|TEMPLATE)$/.test(kids[i].tagName)) {
+                        kids[i].inert = true;
+                        held.push(kids[i]);
+                    }
+                }
+            }
+            root._mdInert = held;
+            root.setAttribute('data-md-fullscreen', '');
+        } else {
+            root.removeAttribute('data-md-fullscreen');
+            held.forEach(function (el) { el.inert = false; });
+            root._mdInert = [];
+            if (root._mdHeights) {
+                if (ta) ta.style.height = root._mdHeights[0] || '';
+                if (preview) preview.style.height = root._mdHeights[1] || '';
+            }
+        }
+        root.querySelectorAll('[data-md-cmd="fullscreen"]').forEach(function (b) {
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (ta) ta.focus();
+    };
+
+})(window.sednaUi);
+
+/* ── 31-markdown-render.js ──────────────────────────────────────────────── */
+/* ── Markdown → HTML ─────────────────────────────────────────────────────────
+   `sednaUi.md.render(source)` — the library's own Markdown renderer, which the editor's
+   preview and any page showing authored prose use. A part of its own so the editor's wiring
+   (30-markdown.js) and its commands (32-markdown-edit.js) stay short; it needs nothing
+   from them but the `md` object, which it creates when it comes first.
+
+   What it reads (CommonMark with the GitHub extensions an editor's author expects):
+
+     blocks   paragraphs, ATX and setext headings, blockquotes (nested, with anything
+              inside), bullet and numbered lists (nested, tight and loose, a numbered
+              list's first number), task lists, fenced code (``` and ~~~, with a
+              language), indented code, horizontal rules, tables with alignment
+     inline   emphasis, strong, both, ~~strikethrough~~, `code` (with backticks inside),
+              links with a title, <autolinks>, bare http(s):// and www. addresses,
+              images and videos, link and image references, hard and soft line breaks,
+              backslash escapes, character references
+
+   What it does not read, and why:
+
+     raw HTML          Every `<` is text. The preview is a security boundary, and an
+                       allow-list of tags is a sanitiser's job, done on the server.
+     footnotes, definition lists, math, emoji codes, heading ids, front matter
+                       Not CommonMark; each needs markup or an id the page may not have.
+     link reference definitions that span lines
+
+   Every string that reaches the output is built here: text and attribute values go through
+   esc(), an address through ui._.safeHref(), and what is left — a tag, a class, `align`,
+   `start` — is written from a fixed list. Nothing the source says is ever placed as markup.
+
+   The parse is two phases. The blocks are found first, as plain objects holding their raw
+   text; the inline syntax of each is read only when the HTML is written, so a reference
+   defined below a paragraph still reaches it.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var md = ui.md = ui.md || {};
+
+    // How deep blockquotes and lists nest before the rest is read as plain text, so a
+    // line of ten thousand ">" cannot exhaust the stack.
+    var MAX_DEPTH = 24;
+
+    var NAMED = {
+        amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', copy: '©', reg: '®',
+        trade: '™', hellip: '…', mdash: '—', ndash: '–', lsquo: '‘', rsquo: '’',
+        ldquo: '“', rdquo: '”', laquo: '«', raquo: '»', bull: '•', middot: '·',
+        times: '×', divide: '÷', deg: '°', plusmn: '±', euro: '€', pound: '£',
+        yen: '¥', cent: '¢', sect: '§', para: '¶', larr: '←', rarr: '→',
+        uarr: '↑', darr: '↓', harr: '↔', ne: '≠', le: '≤', ge: '≥'
+    };
+
+    var ESCAPABLE = /[!-\/:-@\[-`{-~]/;
+    var PUNCT = /[!-\/:-@\[-`{-~\p{P}\p{S}]/u;
+    var ENTITY = /&(#[xX][0-9a-fA-F]{1,6}|#[0-9]{1,7}|[A-Za-z][A-Za-z0-9]{1,31});/;
+    var BLANK = /^\s*$/;
+
+    var RE_FENCE = /^( {0,3})(`{3,}|~{3,})(.*)$/;
+    var RE_ATX = /^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$/;
+    var RE_HR = /^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$/;
+    var RE_QUOTE = /^ {0,3}>/;
+    var RE_SETEXT = /^ {0,3}(=+|-+)[ \t]*$/;
+    var RE_LIST = /^( {0,3})([-+*]|(\d{1,9})([.)]))( +|$)(.*)$/;
+    var RE_DEF = /^ {0,3}\[((?:[^\]\\]|\\.)+)\]:[ \t]*(<[^<>\n]*>|[^\s<]\S*)(?:[ \t]+("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|\((?:[^()\\]|\\.)*\)))?[ \t]*$/;
+    var RE_DELIM_CELL = /^:?-+:?$/;
+
+    // A character reference or a backslash escape, in one pass, so `\&amp;` stays an ampersand
+    // followed by "amp;" instead of being decoded after it was escaped.
+    var RE_UNESC = /\\([!-\/:-@\[-`{-~])|&(#[xX][0-9a-fA-F]{1,6}|#[0-9]{1,7}|[A-Za-z][A-Za-z0-9]{1,31});/g;
+
+    function esc(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function entity(name) {
+        if (name.charAt(0) === '#') {
+            var hex = name.charAt(1) === 'x' || name.charAt(1) === 'X';
+            var code = parseInt(name.slice(hex ? 2 : 1), hex ? 16 : 10);
+            if (!code || code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) return '�';
+            return String.fromCodePoint(code);
+        }
+        return Object.prototype.hasOwnProperty.call(NAMED, name) ? NAMED[name] : null;
+    }
+
+    function unesc(s) {
+        return s.replace(RE_UNESC, function (all, ch, ent) {
+            if (ch) return ch;
+            var v = entity(ent);
+            return v === null ? all : v;
+        });
+    }
+
+    function normLabel(s) { return s.trim().replace(/\s+/g, ' ').toLowerCase(); }
+
+    function expandTabs(line) {
+        var m = /^[ \t]+/.exec(line);
+        if (!m || m[0].indexOf('\t') === -1) return line;
+        var col = 0;
+        for (var i = 0; i < m[0].length; i++) col += m[0].charAt(i) === '\t' ? 4 - (col % 4) : 1;
+        return new Array(col + 1).join(' ') + line.slice(m[0].length);
+    }
+
+    function indentOf(line) {
+        var k = 0;
+        while (line.charAt(k) === ' ') k++;
+        return k;
+    }
+
+    function trimStart(s) { return s.replace(/^[ \t]+/, ''); }
+
+    // ── Media ────────────────────────────────────────────────────────────────
+    // `alt`, `url` and `title` are raw here. The source is kept only when it is http, https
+    // or relative — no scheme before its first / ? or # — and an image whose source is not
+    // kept is its description, as text.
+    function mediaHtml(alt, url, title) {
+        if (!/^(https?:|[^:\/?#]*(?:[\/?#]|$))/i.test(url.trim())) return esc(alt);
+        url = url.trim();
+        var t = title === null ? '' : ' title="' + esc(title) + '"';
+        if (/\.(mp4|m4v|mov|webm|ogv)$/i.test(url.split(/[?#]/)[0])) {
+            return '<video controls preload="metadata" src="' + esc(url) + '"' +
+                (alt ? ' aria-label="' + esc(alt) + '"' : '') + t + '></video>';
+        }
+        return '<img src="' + esc(url) + '" alt="' + esc(alt) + '"' + t + ' loading="lazy">';
+    }
+
+    function linkOpen(url, title) {
+        var safe = ui._.safeHref(url) || '#';
+        return '<a href="' + esc(safe) + '"' + (title === null ? '' : ' title="' + esc(title) + '"') +
+            ' target="_blank" rel="noopener">';
+    }
+
+    // ── Inline ───────────────────────────────────────────────────────────────
+
+    function isWs(c) { return c === '' || /\s/.test(c); }
+    function isPunct(c) { return c !== '' && PUNCT.test(c); }
+
+    function skipWs(src, j) {
+        while (j < src.length && /\s/.test(src.charAt(j))) j++;
+        return j;
+    }
+
+    // "(" destination "title"? ")" — j is at the "(". Null when it is not one.
+    function parseTail(src, j) {
+        var n = src.length, k, ch, buf = '', dest, title = null;
+        j = skipWs(src, j + 1);
+        if (src.charAt(j) === '<') {
+            for (k = j + 1; k < n; k++) {
+                ch = src.charAt(k);
+                if (ch === '\\' && k + 1 < n) { buf += ch + src.charAt(k + 1); k++; continue; }
+                if (ch === '>') break;
+                if (ch === '<' || ch === '\n') return null;
+                buf += ch;
+            }
+            if (k >= n) return null;
+            dest = buf; j = k + 1;
+        } else {
+            var depth = 0;
+            for (k = j; k < n; k++) {
+                ch = src.charAt(k);
+                if (ch === '\\' && k + 1 < n && ESCAPABLE.test(src.charAt(k + 1))) { buf += ch + src.charAt(k + 1); k++; continue; }
+                if (ch === '(') depth++;
+                else if (ch === ')') { if (depth === 0) break; depth--; }
+                else if (/\s/.test(ch) || ch < ' ') break;
+                buf += ch;
+            }
+            if (k >= n || depth !== 0) return null;
+            dest = buf; j = k;
+        }
+        var afterDest = j;
+        j = skipWs(src, j);
+        var c = src.charAt(j);
+        if (j > afterDest && (c === '"' || c === "'" || c === '(')) {
+            var close = c === '(' ? ')' : c;
+            buf = '';
+            for (k = j + 1; k < n; k++) {
+                ch = src.charAt(k);
+                if (ch === '\\' && k + 1 < n) { buf += ch + src.charAt(k + 1); k++; continue; }
+                if (ch === close) break;
+                buf += ch;
+            }
+            if (k >= n) return null;
+            title = unesc(buf);
+            j = skipWs(src, k + 1);
+        }
+        if (src.charAt(j) !== ')') return null;
+        return { dest: unesc(dest), title: title, end: j + 1 };
+    }
+
+    var AUTOLINK = /<([A-Za-z][A-Za-z0-9+.\-]{1,31}:[^\s<>]*)>/y;
+    var EMAIL = /<([A-Za-z0-9.!#$%&'*+\/=?^_`{|}~\-]+@[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?)+)>/y;
+    var BARE = /(?:https?:\/\/|www\.)[^\s<]+/iy;
+    var ENT_AT = new RegExp(ENTITY.source, 'y');
+    var PLAIN = /[^\\`&\n*_~\[\]!<]+/y;
+    var PLAIN_NO_URL = /[^\\`&\n*_~\[\]!<hHwW]+/y;
+
+    // A bare address ends before the punctuation that ends the sentence around it, and
+    // before a closing parenthesis it did not open.
+    function trimBare(url) {
+        for (;;) {
+            var last = url.charAt(url.length - 1);
+            if (/[?!.,:*_~'";]/.test(last)) { url = url.slice(0, -1); continue; }
+            if (last === ')') {
+                var open = (url.match(/\(/g) || []).length, close = (url.match(/\)/g) || []).length;
+                if (close > open) { url = url.slice(0, -1); continue; }
+            }
+            return url;
+        }
+    }
+
+    // The text of a run of nodes, without markup — what an image's `alt` is.
+    function plainOf(nodes) {
+        var s = '';
+        for (var i = 0; i < nodes.length; i++) {
+            var nd = nodes[i];
+            if (nd.t === 'text') s += nd.v;
+            else if (nd.t === 'html') s += nd.p;
+            else if (nd.t === 'delim') s += new Array(nd.n + 1).join(nd.ch);
+            else if (nd.t === 'link') s += plainOf(nd.kids);
+            else if (nd.t === 'img') s += plainOf(nd.kids);
+        }
+        return s;
+    }
+
+    // Emphasis, strong and strikethrough, by the CommonMark delimiter rules: a run opens
+    // or closes by what is on each side of it, "_" does not open inside a word, and a
+    // closer finds the nearest opener of its own kind. A match writes its tags onto the
+    // two delimiter nodes (`opens`, `closes`) and kills the delimiters between them, so
+    // nothing is spliced and the indices stay valid.
+    function emphasis(nodes) {
+        var bottoms = {};
+        for (var ci = 0; ci < nodes.length; ci++) {
+            var c = nodes[ci];
+            if (c.t !== 'delim' || !c.close || c.dead) continue;
+            while (c.n > 0) {
+                var key = c.ch + (c.orig % 3) + (c.open ? 'o' : '');
+                var bottom = Object.prototype.hasOwnProperty.call(bottoms, key) ? bottoms[key] : -1;
+                var o = null, oi;
+                for (oi = ci - 1; oi > bottom; oi--) {
+                    var d = nodes[oi];
+                    if (d.t !== 'delim' || !d.open || d.dead || d.n === 0 || d.ch !== c.ch) continue;
+                    if (c.ch === '~') { if (d.n === 2 && c.n === 2) { o = d; break; } continue; }
+                    if ((d.close || c.open) && (d.orig + c.orig) % 3 === 0 && !(d.orig % 3 === 0 && c.orig % 3 === 0)) continue;
+                    o = d; break;
+                }
+                if (!o) { bottoms[key] = ci - 1; break; }
+                var use = c.ch === '~' ? 2 : (o.n >= 2 && c.n >= 2 ? 2 : 1);
+                var tag = c.ch === '~' ? 'del' : (use === 2 ? 'strong' : 'em');
+                o.n -= use; c.n -= use;
+                o.opens = '<' + tag + '>' + o.opens;
+                c.closes += '</' + tag + '>';
+                for (var k = oi + 1; k < ci; k++) if (nodes[k].t === 'delim') nodes[k].dead = true;
+            }
+        }
+    }
+
+    function renderInline(nodes, depth) {
+        var out = '';
+        for (var i = 0; i < nodes.length; i++) {
+            var nd = nodes[i];
+            switch (nd.t) {
+                case 'text': out += esc(nd.v); break;
+                case 'html': out += nd.v; break;
+                case 'delim': out += nd.closes + new Array(nd.n + 1).join(nd.ch) + nd.opens; break;
+                case 'link':
+                    // Past the nesting limit a link is its text, so a thousand nested
+                    // brackets cannot exhaust the stack.
+                    out += depth > MAX_DEPTH ? esc(plainOf(nd.kids))
+                        : linkOpen(nd.dest, nd.title) + renderInline(nd.kids, depth + 1) + '</a>';
+                    break;
+                case 'img': out += mediaHtml(plainOf(nd.kids), nd.dest, nd.title); break;
+            }
+        }
+        return out;
+    }
+
+    function inline(src, st) {
+        var nodes = [], brackets = [], text = '', i = 0, n = src.length, m;
+        var noClose = {};
+        var bare = /https?:\/\/|www\./i.test(src);
+        var plain = bare ? PLAIN_NO_URL : PLAIN;
+
+        function flush() {
+            if (text) { nodes.push({ t: 'text', v: text }); text = ''; }
+        }
+        function html(h, p) { flush(); nodes.push({ t: 'html', v: h, p: p || '' }); }
+        // The spaces at the end of the text so far — counted back from the end, since a
+        // pattern anchored there reads the whole string on every line break.
+        function trailingSpaces() {
+            var k = text.length;
+            while (k > 0 && text.charAt(k - 1) === ' ') k--;
+            return text.length - k;
+        }
+
+        while (i < n) {
+            plain.lastIndex = i;
+            if ((m = plain.exec(src))) { text += m[0]; i = plain.lastIndex; continue; }
+            var c = src.charAt(i);
+
+            if (c === '\\') {
+                var nx = src.charAt(i + 1);
+                if (nx === '\n') { text = text.slice(0, text.length - trailingSpaces()); html('<br>', '\n'); i += 2; continue; }
+                if (nx && ESCAPABLE.test(nx)) { text += nx; i += 2; continue; }
+                text += c; i++; continue;
+            }
+
+            if (c === '\n') {
+                var spaces = trailingSpaces(), hard = spaces >= 2;
+                text = text.slice(0, text.length - spaces);
+                if (hard) html('<br>', '\n'); else text += '\n';
+                i++; continue;
+            }
+
+            if (c === '`') {
+                var k = i;
+                while (src.charAt(k) === '`') k++;
+                var len = k - i, found = -1, endRun = 0;
+                if (!noClose[len]) {
+                    var runs = /`+/g;
+                    runs.lastIndex = k;
+                    var r;
+                    while ((r = runs.exec(src))) {
+                        if (r[0].length === len) { found = r.index; endRun = found + len; break; }
+                    }
+                    if (found === -1) noClose[len] = true;
+                }
+                if (found === -1) { text += src.slice(i, k); i = k; continue; }
+                var code = src.slice(k, found).replace(/\n/g, ' ');
+                if (/^ .* $/.test(code) && /[^ ]/.test(code)) code = code.slice(1, -1);
+                html('<code>' + esc(code) + '</code>', code);
+                i = endRun; continue;
+            }
+
+            if (c === '&') {
+                ENT_AT.lastIndex = i;
+                var em = ENT_AT.exec(src);
+                var ch = em ? entity(em[1]) : null;
+                if (ch !== null) { text += ch; i += em[0].length; continue; }
+                text += c; i++; continue;
+            }
+
+            if (c === '*' || c === '_' || c === '~') {
+                var e = i;
+                while (src.charAt(e) === c) e++;
+                var run = e - i;
+                if (c === '~' && run !== 2) { text += src.slice(i, e); i = e; continue; }
+                var before = i > 0 ? src.charAt(i - 1) : '', after = e < n ? src.charAt(e) : '';
+                var left = !isWs(after) && (!isPunct(after) || isWs(before) || isPunct(before));
+                var right = !isWs(before) && (!isPunct(before) || isWs(after) || isPunct(after));
+                var canOpen = c === '_' ? left && (!right || isPunct(before)) : left;
+                var canClose = c === '_' ? right && (!left || isPunct(after)) : right;
+                flush();
+                nodes.push({ t: 'delim', ch: c, n: run, orig: run, open: canOpen, close: canClose, dead: false, opens: '', closes: '' });
+                i = e; continue;
+            }
+
+            if (c === '[' || (c === '!' && src.charAt(i + 1) === '[')) {
+                var img = c === '!';
+                flush();
+                nodes.push({ t: 'text', v: img ? '![' : '[' });
+                brackets.push({ idx: nodes.length - 1, pos: i + (img ? 2 : 1), img: img, active: true });
+                i += img ? 2 : 1; continue;
+            }
+
+            if (c === ']') {
+                var op = brackets.length ? brackets[brackets.length - 1] : null;
+                if (!op) { text += c; i++; continue; }
+                if (!op.active) { brackets.pop(); text += c; i++; continue; }
+                var res = null, j = i + 1, label = src.slice(op.pos, i);
+                if (src.charAt(j) === '(') {
+                    var tail = parseTail(src, j);
+                    if (tail) res = { dest: tail.dest, title: tail.title, end: tail.end };
+                }
+                if (!res) {
+                    var ref = null, end = j;
+                    if (src.charAt(j) === '[') {
+                        var close = src.indexOf(']', j + 1);
+                        if (close !== -1) {
+                            var l2 = src.slice(j + 1, close);
+                            ref = st.refs[normLabel(l2 === '' ? label : l2)];
+                            end = close + 1;
+                        }
+                    } else {
+                        ref = st.refs[normLabel(label)];
+                    }
+                    if (ref) res = { dest: ref.dest, title: ref.title, end: end };
+                }
+                if (!res) {
+                    brackets.pop(); text += c; i++; continue;
+                }
+                flush();
+                var kids = nodes.splice(op.idx).slice(1);
+                emphasis(kids);
+                nodes.push({ t: op.img ? 'img' : 'link', dest: res.dest, title: res.title, kids: kids });
+                brackets.pop();
+                // A link cannot hold a link: every "[" still open before this one is plain text.
+                if (!op.img) for (var b = 0; b < brackets.length; b++) if (!brackets[b].img) brackets[b].active = false;
+                i = res.end; continue;
+            }
+
+            if (c === '<') {
+                AUTOLINK.lastIndex = i;
+                var am = AUTOLINK.exec(src);
+                if (am) {
+                    html(linkOpen(am[1], null) + esc(am[1]) + '</a>', am[1]);
+                    i += am[0].length; continue;
+                }
+                EMAIL.lastIndex = i;
+                am = EMAIL.exec(src);
+                if (am) {
+                    html(linkOpen('mailto:' + am[1], null) + esc(am[1]) + '</a>', am[1]);
+                    i += am[0].length; continue;
+                }
+                text += c; i++; continue;
+            }
+
+            // h, H, w, W — only reached when the source holds an address at all.
+            if (!brackets.length) {
+                var prev = i > 0 ? src.charAt(i - 1) : '';
+                if (prev === '' || /[\s*_~(]/.test(prev)) {
+                    BARE.lastIndex = i;
+                    var bm = BARE.exec(src);
+                    if (bm) {
+                        var url = trimBare(bm[0]);
+                        if (url.replace(/^(?:https?:\/\/|www\.)/i, '').length > 0) {
+                            var href = /^www\./i.test(url) ? 'http://' + url : url;
+                            html(linkOpen(href, null) + esc(url) + '</a>', url);
+                            i += url.length; continue;
+                        }
+                    }
+                }
+            }
+            text += c; i++;
+        }
+        flush();
+        emphasis(nodes);
+        return renderInline(nodes, 0);
+    }
+
+    // ── Blocks ───────────────────────────────────────────────────────────────
+
+    function splitRow(line) {
+        var s = line.trim();
+        if (s.charAt(0) === '|') s = s.slice(1);
+        if (s.charAt(s.length - 1) === '|' && s.charAt(s.length - 2) !== '\\') s = s.slice(0, -1);
+        var cells = [], cur = '';
+        for (var i = 0; i < s.length; i++) {
+            var ch = s.charAt(i);
+            if (ch === '\\' && s.charAt(i + 1) === '|') { cur += '|'; i++; }
+            else if (ch === '|') { cells.push(cur.trim()); cur = ''; }
+            else cur += ch;
+        }
+        cells.push(cur.trim());
+        return cells;
+    }
+
+    function isDelimRow(line) {
+        if (line === undefined || line.indexOf('|') === -1 || line.indexOf('-') === -1) return false;
+        var cells = splitRow(line);
+        for (var i = 0; i < cells.length; i++) if (!RE_DELIM_CELL.test(cells[i])) return false;
+        return true;
+    }
+
+    function isTableStart(line, next) {
+        return line !== undefined && line.indexOf('|') !== -1 && indentOf(line) < 4 && isDelimRow(next) &&
+            splitRow(line).length === splitRow(next).length;
+    }
+
+    // Whether a line begins a block that ends the paragraph or the list item above it.
+    // `lazy`: any list marker ends it; otherwise only the ones that may interrupt a
+    // paragraph — a bullet, or a number that is 1 — and only with text after them.
+    function startsBlock(line, lazy) {
+        if (indentOf(line) >= 4) return false;
+        if (RE_FENCE.test(line) || RE_ATX.test(line) || RE_HR.test(line) || RE_QUOTE.test(line)) return true;
+        var m = RE_LIST.exec(line);
+        if (!m) return false;
+        if (lazy) return true;
+        if (!m[6].trim()) return false;
+        return !m[3] || +m[3] === 1;
+    }
+
+    function parseList(lines, i, st, depth) {
+        var n = lines.length, first = RE_LIST.exec(lines[i]);
+        var ordered = !!first[3], kind = ordered ? first[4] : first[2];
+        var list = { type: 'list', ordered: ordered, start: ordered ? +first[3] : 1, items: [], loose: false };
+        while (i < n) {
+            var m = RE_LIST.exec(lines[i]);
+            if (!m || RE_HR.test(lines[i]) || (m[3] ? m[4] : m[2]) !== kind || !!m[3] !== ordered) break;
+            var rest = m[6], spaces = m[5].length;
+            var offset;
+            if (!rest.trim()) offset = m[1].length + m[2].length + 1;
+            else if (spaces >= 5) { offset = m[1].length + m[2].length + 1; rest = new Array(spaces).join(' ') + rest; }
+            else offset = m[1].length + m[2].length + spaces;
+            var item = [rest];
+            i++;
+            var gapAfter = false;
+            while (i < n) {
+                var l = lines[i];
+                if (BLANK.test(l)) {
+                    var j = i;
+                    while (j < n && BLANK.test(lines[j])) j++;
+                    if (j < n && indentOf(lines[j]) >= offset) {
+                        for (; i < j; i++) item.push('');
+                        continue;
+                    }
+                    var sib = j < n ? RE_LIST.exec(lines[j]) : null;
+                    if (sib && !RE_HR.test(lines[j]) && (sib[3] ? sib[4] : sib[2]) === kind && !!sib[3] === ordered) {
+                        gapAfter = true;
+                        i = j;
+                    }
+                    break;
+                }
+                if (indentOf(l) >= offset) { item.push(l.slice(offset)); i++; continue; }
+                var prev = item[item.length - 1];
+                if (!BLANK.test(prev) && !startsBlock(l, true) && !RE_SETEXT.test(l)) { item.push(trimStart(l)); i++; continue; }
+                break;
+            }
+            // A task is "[ ] " or "[x] " and then text, which is the checkbox's label: an item
+            // that has none, or whose first block is not a paragraph, is an ordinary item.
+            var task = null, plainFirst = item[0];
+            var tm = /^\[([ xX])\][ \t]+(?=\S)/.exec(item[0]);
+            if (tm) { task = tm[1] !== ' '; item[0] = item[0].slice(tm[0].length); }
+            var kids = parseBlocks(item, st, depth + 1);
+            if (task !== null && (!kids.length || kids[0].type !== 'p')) {
+                task = null;
+                item[0] = plainFirst;
+                kids = parseBlocks(item, st, depth + 1);
+            }
+            var loose = false;
+            for (var k = 1; k < kids.length; k++) if (kids[k].gap) loose = true;
+            if (gapAfter || loose) list.loose = true;
+            list.items.push({ kids: kids, task: task });
+        }
+        return { node: list, next: i };
+    }
+
+    function parseTable(lines, i) {
+        var head = splitRow(lines[i]), delim = splitRow(lines[i + 1]);
+        var aligns = delim.map(function (c) {
+            var l = c.charAt(0) === ':', r = c.charAt(c.length - 1) === ':';
+            return l && r ? 'center' : l ? 'left' : r ? 'right' : '';
+        });
+        var rows = [], j = i + 2;
+        while (j < lines.length && !BLANK.test(lines[j]) && !startsBlock(lines[j], true)) {
+            var cells = splitRow(lines[j]);
+            while (cells.length < head.length) cells.push('');
+            rows.push(cells.slice(0, head.length));
+            j++;
+        }
+        return { node: { type: 'table', head: head, aligns: aligns, rows: rows }, next: j };
+    }
+
+    function parseBlocks(lines, st, depth) {
+        var nodes = [], i = 0, n = lines.length, gap = false, m;
+        function add(nd) { nd.gap = gap && nodes.length > 0; gap = false; nodes.push(nd); }
+
+        if (depth > MAX_DEPTH) {
+            var flat = lines.map(trimStart).join('\n').replace(/\s+$/, '');
+            if (flat) add({ type: 'p', raw: flat });
+            return nodes;
+        }
+
+        while (i < n) {
+            var line = lines[i];
+            if (BLANK.test(line)) { gap = true; i++; continue; }
+
+            if (indentOf(line) >= 4) {
+                var code = [];
+                while (i < n && (BLANK.test(lines[i]) || indentOf(lines[i]) >= 4)) { code.push(lines[i].slice(4)); i++; }
+                while (code.length && BLANK.test(code[code.length - 1])) { code.pop(); }
+                add({ type: 'code', lang: '', text: code.join('\n') });
+                continue;
+            }
+
+            if ((m = RE_FENCE.exec(line)) && !(m[2].charAt(0) === '`' && m[3].indexOf('`') !== -1)) {
+                var fch = m[2].charAt(0), indent = m[1].length;
+                var lang = unesc(m[3].trim().split(/\s+/)[0] || '');
+                var closer = new RegExp('^ {0,3}' + (fch === '`' ? '`' : '~') + '{' + m[2].length + ',}[ \\t]*$');
+                var body = [];
+                for (i++; i < n && !closer.test(lines[i]); i++) {
+                    var bl = lines[i], strip = Math.min(indent, indentOf(bl));
+                    body.push(bl.slice(strip));
+                }
+                i++;
+                add({ type: 'code', lang: lang, text: body.join('\n') });
+                continue;
+            }
+
+            if ((m = RE_ATX.exec(line))) {
+                add({ type: 'h', n: m[1].length, raw: m[2] || '' });
+                i++; continue;
+            }
+
+            if (RE_HR.test(line)) { add({ type: 'hr' }); i++; continue; }
+
+            if (RE_QUOTE.test(line)) {
+                var q = [];
+                while (i < n) {
+                    var ql = lines[i], qm = /^ {0,3}>[ ]?(.*)$/.exec(ql);
+                    if (qm) { q.push(qm[1]); i++; continue; }
+                    if (BLANK.test(ql)) break;
+                    var lastQ = q[q.length - 1];
+                    if (!BLANK.test(lastQ) && !RE_FENCE.test(lastQ) && !RE_ATX.test(lastQ) && !RE_HR.test(lastQ) &&
+                        !startsBlock(ql, true)) { q.push(ql); i++; continue; }
+                    break;
+                }
+                add({ type: 'quote', kids: parseBlocks(q, st, depth + 1) });
+                continue;
+            }
+
+            if (RE_LIST.test(line)) {
+                var li = parseList(lines, i, st, depth);
+                add(li.node); i = li.next;
+                continue;
+            }
+
+            if (isTableStart(line, lines[i + 1])) {
+                var tb = parseTable(lines, i);
+                add(tb.node); i = tb.next;
+                continue;
+            }
+
+            if ((m = RE_DEF.exec(line))) {
+                var label = normLabel(m[1]);
+                if (!st.refs[label]) {
+                    var d = m[2].charAt(0) === '<' ? m[2].slice(1, -1) : m[2];
+                    var t = m[3] ? unesc(m[3].slice(1, -1)) : null;
+                    st.refs[label] = { dest: unesc(d), title: t };
+                }
+                i++; continue;
+            }
+
+            var para = [trimStart(line)], setext = 0;
+            i++;
+            while (i < n) {
+                var pl = lines[i];
+                if (BLANK.test(pl)) break;
+                if (indentOf(pl) < 4 && (m = RE_SETEXT.exec(pl))) { setext = m[1].charAt(0) === '=' ? 1 : 2; i++; break; }
+                if (startsBlock(pl, false) || isTableStart(pl, lines[i + 1])) break;
+                para.push(trimStart(pl)); i++;
+            }
+            var raw = para.join('\n').replace(/\s+$/, '');
+            add(setext ? { type: 'h', n: setext, raw: raw } : { type: 'p', raw: raw });
+        }
+        return nodes;
+    }
+
+    // ── Output ───────────────────────────────────────────────────────────────
+
+    var CHECKBOX = { on: '<input type="checkbox" disabled checked> ', off: '<input type="checkbox" disabled> ' };
+
+    function renderBlocks(nodes, tight, st, lead) {
+        var out = '';
+        for (var i = 0; i < nodes.length; i++) {
+            var nd = nodes[i], pre = i === 0 && lead ? lead : '';
+            if (pre && nd.type !== 'p') { out += pre; pre = ''; }
+            switch (nd.type) {
+                case 'p': {
+                    // A task's checkbox and the text of its first paragraph are one label.
+                    var text = pre ? '<label>' + pre + inline(nd.raw, st) + '</label>' : inline(nd.raw, st);
+                    out += tight ? text : '<p>' + text + '</p>';
+                    break;
+                }
+                case 'h':
+                    out += '<h' + nd.n + '>' + inline(nd.raw.trim(), st) + '</h' + nd.n + '>';
+                    break;
+                case 'hr': out += '<hr>'; break;
+                case 'code':
+                    out += '<pre><code' + (/^[\w#+.\-]+$/.test(nd.lang) ? ' class="language-' + nd.lang + '"' : '') + '>' +
+                        esc(nd.text) + '</code></pre>';
+                    break;
+                case 'quote':
+                    out += '<blockquote>' + renderBlocks(nd.kids, false, st) + '</blockquote>';
+                    break;
+                case 'list': out += renderList(nd, st); break;
+                case 'table': out += renderTable(nd, st); break;
+            }
+        }
+        return out;
+    }
+
+    function renderList(list, st) {
+        var tag = list.ordered ? 'ol' : 'ul', items = '';
+        for (var i = 0; i < list.items.length; i++) {
+            var it = list.items[i];
+            if (it.task === null) {
+                items += '<li>' + renderBlocks(it.kids, !list.loose, st) + '</li>';
+            } else {
+                var box = it.task ? CHECKBOX.on : CHECKBOX.off;
+                items += '<li class="task-list-item">' + renderBlocks(it.kids, !list.loose, st, box) + '</li>';
+            }
+        }
+        var attrs = list.ordered && list.start !== 1 ? ' start="' + list.start + '"' : '';
+        return '<' + tag + attrs + '>' + items + '</' + tag + '>';
+    }
+
+    function renderTable(t, st) {
+        var cell = function (tag, text, k) {
+            var a = t.aligns[k] ? ' align="' + t.aligns[k] + '"' : '';
+            return '<' + tag + a + '>' + inline(text, st) + '</' + tag + '>';
+        };
+        var out = '<table role="table" tabindex="0"><thead><tr>';
+        for (var k = 0; k < t.head.length; k++) out += cell('th', t.head[k], k);
+        out += '</tr></thead>';
+        if (t.rows.length) {
+            out += '<tbody>';
+            for (var r = 0; r < t.rows.length; r++) {
+                out += '<tr>';
+                for (var c = 0; c < t.rows[r].length; c++) out += cell('td', t.rows[r][c], c);
+                out += '</tr>';
+            }
+            out += '</tbody>';
+        }
+        return out + '</table>';
+    }
+
+    md.render = function (src) {
+        if (!src) return '';
+        src = String(src).replace(/\r\n?/g, '\n').replace(/\u0000/g, '�');
+        var st = { refs: {} };
+        var nodes = parseBlocks(src.split('\n').map(expandTabs), st, 0);
+        return renderBlocks(nodes, false, st);
+    };
+
+})(window.sednaUi);
+
+/* ── 32-markdown-edit.js ──────────────────────────────────────────────── */
+/* ── Markdown editor: editing ────────────────────────────────────────────────
+   What happens to the textarea's text: the toolbar's commands, the keyboard, a pasted
+   address, a pasted or dropped file.
+
+   Every edit goes through edit(), which types it into the textarea with
+   document.execCommand('insertText') — so the browser's own undo steps back over it, one
+   command at a time, which assigning `value` does not give. Where the browser refuses, the
+   value is written and an `input` event dispatched, and the edit is then not undoable. Either
+   way the textarea sees exactly one `input` event, which is what a Blazor binding listens to.
+
+   Commands — `data-md-cmd` on any element of the editor, or sednaUi.md.apply(textarea, cmd):
+
+     bold italic strike code codeblock link image video
+     h1 h2 h3 h4 h5 h6      a heading, off again on a line that has that level
+     ul ol task quote       a list or a quote, off again on lines that have it
+     hr table               a block, on a line of its own
+     indent outdent         the list items under the selection, one level
+     undo redo              the browser's own
+     fullscreen             (30-markdown.js)
+
+   Keys, while the textarea has focus — Ctrl, or Cmd on a Mac. `data-md-keys="off"` on the
+   editor turns all of it off.
+
+     Mod+B bold   Mod+I italic   Mod+K link   Mod+E code   Mod+Shift+X strike
+     Mod+Shift+7 numbered list   Mod+Shift+8 bullet list   Mod+Shift+9 quote
+     Mod+Alt+1…6 heading         Mod+Alt+C code block
+     Enter       goes on with the list, task or quote it ends a line of, and an empty
+                 item ends it
+     Tab         indents a list item (or moves to the next cell of a table), Shift+Tab the
+                 other way — only where it can. Everywhere else Tab leaves the field, as
+                 it does from any textarea.
+
+   Files — a file pasted or dropped on the textarea sends `sedna-md-file`, bubbling and
+   cancelable, with { files: [{ id, name, type, size }], index }. The app takes them by
+   cancelling it, reads each with sednaUi.md.file(textarea, id), uploads it and answers with
+   insert(). Files nobody takes show the editor's `[data-md-file-notice]`.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var md = ui.md = ui.md || {};
+
+    var IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
+
+    function lineStart(v, p) { return p <= 0 ? 0 : v.lastIndexOf('\n', p - 1) + 1; }
+    function lineEnd(v, p) { var k = v.indexOf('\n', p); return k === -1 ? v.length : k; }
+
+    // The whole lines a selection touches — not the one it only ends at the start of.
+    function lineRange(v, s, e) {
+        var last = e > s && v.charAt(e - 1) === '\n' ? e - 1 : e;
+        return [lineStart(v, s), lineEnd(v, last)];
+    }
+
+    // Replaces v[from, to) with `text`, and selects [a, b) afterwards — by default the
+    // caret right after the text. The one place the textarea is written.
+    function edit(ta, from, to, text, a, b) {
+        var v = ta.value;
+        if (v.slice(from, to) !== text) {
+            var want = v.slice(0, from) + text + v.slice(to), done = false;
+            try {
+                ta.focus();
+                ta.setSelectionRange(from, to);
+                done = text === '' ? document.execCommand('delete') : document.execCommand('insertText', false, text);
+            } catch (x) { done = false; }
+            if (!done) {
+                ta.value = want;
+                ta.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+        if (a === undefined) a = from + text.length;
+        ta.setSelectionRange(a, b === undefined ? a : b);
+    }
+
+    // ── Inline ───────────────────────────────────────────────────────────────
+
+    // Marks the selection, or takes the marks off a selection that has them — inside it
+    // or around it. Whitespace at its ends is left outside, where emphasis can still be read.
+    function wrap(ta, open, close, placeholder) {
+        var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+        while (s < e && /\s/.test(v.charAt(s))) s++;
+        while (e > s && /\s/.test(v.charAt(e - 1))) e--;
+        var sel = v.slice(s, e);
+        if (s > 0 && sel && v.slice(s - open.length, s) === open && v.slice(e, e + close.length) === close) {
+            return edit(ta, s - open.length, e + close.length, sel, s - open.length, s - open.length + sel.length);
+        }
+        if (sel.length > open.length + close.length && sel.slice(0, open.length) === open && sel.slice(sel.length - close.length) === close) {
+            var inner = sel.slice(open.length, sel.length - close.length);
+            return edit(ta, s, e, inner, s, s + inner.length);
+        }
+        var body = sel || placeholder;
+        edit(ta, s, e, open + body + close, s + open.length, s + open.length + body.length);
+    }
+
+    var URLISH = /^(?:https?:\/\/|www\.)\S+$/i;
+
+    // [text](address) and ![text](address): the selection is the text — or, when it is an
+    // address, the address. What the reader types next is the part that is still missing.
+    function link(ta, open, placeholder, selectAddress) {
+        var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd, sel = v.slice(s, e).trim();
+        var text, address, a, b;
+        if (sel && URLISH.test(sel)) { text = placeholder; address = sel; a = s + open.length; b = a + text.length; }
+        else if (sel) {
+            text = sel; address = 'https://';
+            a = s + open.length; b = a + text.length;
+            if (selectAddress) { a = b + 2; b = a + address.length; }
+        } else { text = placeholder; address = 'https://'; a = s + open.length; b = a + text.length; }
+        edit(ta, s, e, open + text + '](' + address + ')', a, b);
+    }
+
+    // ── Lines ────────────────────────────────────────────────────────────────
+
+    var ANY_LIST = /^(\s*)(?:[-*+]|\d+[.)])\s+(?:\[[ xX]\]\s+)?/;
+    var HAS = {
+        ul: /^\s*[-*+]\s+(?!\[[ xX]\]\s)/,
+        ol: /^\s*\d+[.)]\s+/,
+        task: /^\s*[-*+]\s+\[[ xX]\]\s+/,
+        quote: /^\s*>/
+    };
+
+    // A list or a quote, on every line the selection touches: taken off again when every
+    // line has it, otherwise put on — in place of any other list marker.
+    function listOf(ta, kind) {
+        var v = ta.value, r = lineRange(v, ta.selectionStart, ta.selectionEnd);
+        var lines = v.slice(r[0], r[1]).split('\n');
+        var filled = lines.filter(function (l) { return l.trim(); });
+        var off = filled.length > 0 && filled.every(function (l) { return HAS[kind].test(l); });
+        var n = 0;
+        var out = lines.map(function (l) {
+            if (!l.trim() && lines.length > 1) return l;
+            if (off) return kind === 'quote' ? l.replace(/^(\s*)>[ ]?/, '$1') : l.replace(ANY_LIST, '$1');
+            n++;
+            if (kind === 'quote') return '> ' + l;
+            var base = l.replace(ANY_LIST, '$1');
+            var indent = /^\s*/.exec(base)[0];
+            var marker = kind === 'ol' ? n + '. ' : kind === 'task' ? '- [ ] ' : '- ';
+            return indent + marker + base.slice(indent.length);
+        });
+        var text = out.join('\n');
+        var empty = lines.length === 1 && !lines[0].trim();
+        edit(ta, r[0], r[1], text, empty && !off ? r[0] + text.length : r[0], empty && !off ? r[0] + text.length : r[0] + text.length);
+    }
+
+    function heading(ta, level) {
+        var v = ta.value, r = lineRange(v, ta.selectionStart, ta.selectionEnd);
+        var lines = v.slice(r[0], r[1]).split('\n');
+        var marks = new Array(level + 1).join('#');
+        var filled = lines.filter(function (l) { return l.trim(); });
+        var off = filled.length > 0 && filled.every(function (l) {
+            var m = /^ {0,3}(#{1,6})\s+/.exec(l);
+            return m && m[1].length === level;
+        });
+        var out = lines.map(function (l) {
+            if (!l.trim() && lines.length > 1) return l;
+            var text = l.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '');
+            return off ? text : marks + ' ' + text;
+        });
+        var text = out.join('\n');
+        edit(ta, r[0], r[1], text, r[0] + (lines.length === 1 && !off ? text.length : 0), r[0] + text.length);
+    }
+
+    // A block of its own — a rule, a table — after the line the selection ends on, or in
+    // place of that line when it is empty, with an empty line each side. Without one a
+    // rule under a paragraph is the paragraph's underline.
+    function block(ta, text, a, b) {
+        var v = ta.value, e = ta.selectionEnd;
+        var ls = lineStart(v, e), le = lineEnd(v, e);
+        var from = /^\s*$/.test(v.slice(ls, le)) ? ls : le;
+        var head = v.slice(0, from), tail = v.slice(le);
+        var before = head === '' ? '' : /\n\n$/.test(head) ? '' : /\n$/.test(head) ? '\n' : '\n\n';
+        var after = /^\n\n/.test(tail) ? '' : '\n';
+        var base = from + before.length;
+        edit(ta, from, le, before + text + after, a === undefined ? from + before.length + text.length + after.length : base + a,
+            a === undefined ? undefined : base + b);
+    }
+
+    function codeBlock(ta) {
+        var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
+        var body = v.slice(s, e).replace(/^\n+|\n+$/g, '') || 'code';
+        var fence = '```';
+        while (body.indexOf(fence) !== -1) fence += '`';
+        var pre = s === lineStart(v, s) ? '' : '\n';
+        var post = e === lineEnd(v, e) ? '' : '\n';
+        edit(ta, s, e, pre + fence + '\n' + body + '\n' + fence + post, s + pre.length + fence.length + 1, s + pre.length + fence.length + 1 + body.length);
+    }
+
+    function table(ta) {
+        var rows = '| Column | Column | Column |\n| --- | --- | --- |\n|  |  |  |';
+        block(ta, rows, 2, 8);
+    }
+
+    // ── Lists: Enter, Tab ────────────────────────────────────────────────────
+
+    var ITEM = /^( *)([-*+]|\d{1,9}[.)])( +)/;
+
+    function itemOf(line) {
+        var m = ITEM.exec(line);
+        return m ? { indent: m[1].length, offset: m[0].length } : null;
+    }
+
+    // Whether the caret is inside a fenced code block, where a line that looks like a
+    // list item is code.
+    function inFence(v, pos) {
+        var open = null, k = 0;
+        while (k < pos) {
+            var end = lineEnd(v, k);
+            var m = /^ {0,3}(`{3,}|~{3,})/.exec(v.slice(k, end));
+            if (m) {
+                if (!open) open = m[1];
+                else if (m[1].charAt(0) === open.charAt(0) && m[1].length >= open.length && /^ {0,3}[`~]+\s*$/.test(v.slice(k, end))) open = null;
+            }
+            k = end + 1;
+        }
+        return !!open;
+    }
+
+    // Enter at the end of a list item, task or quote line: the next line begins with the
+    // same marker. An empty item ends the list. Returns whether it did anything.
+    function newline(ta) {
+        var v = ta.value, s = ta.selectionStart;
+        if (s !== ta.selectionEnd) return false;
+        var ls = lineStart(v, s), le = lineEnd(v, s), line = v.slice(ls, le);
+        // Each ">" is a delimiter and the blanks after it are one run, so the pattern cannot
+        // backtrack over a long line of them.
+        var m = /^([ \t]*(?:>[ \t]*)*)(?:([-*+])|(\d{1,9})([.)]))([ \t]+)(\[[ xX]\][ \t]+)?/.exec(line);
+        var q = /^([ \t]*(?:>[ \t]*)+)/.exec(line);
+        if (!m && !q) return false;
+        if (inFence(v, ls)) return false;
+        if (m) {
+            if (s - ls < m[0].length) return false;
+            if (!line.slice(m[0].length).trim()) {
+                var indent = /^ */.exec(m[1])[0].length;
+                if (m[1].indexOf('>') === -1 && indent > 0) return outdent(ta, true);
+                edit(ta, ls, le, m[1].indexOf('>') === -1 ? '' : m[1].replace(/\s+$/, ' '));
+                return true;
+            }
+            var marker = m[2] ? m[2] : (+m[3] + 1) + m[4];
+            edit(ta, s, s, '\n' + m[1] + marker + m[5] + (m[6] ? '[ ] ' : ''));
+            return true;
+        }
+        if (s - ls < q[0].length) return false;
+        if (!line.slice(q[0].length).trim()) { edit(ta, ls, le, ''); return true; }
+        edit(ta, s, s, '\n' + q[1]);
+        return true;
+    }
+
+    function isItem(line) { return ITEM.test(line); }
+
+    // The list items under the selection, one level in. Only where there is a level to go
+    // to: the first item of a list, or one already nested a level under the item above,
+    // stays where it is, and the key does what it does everywhere else.
+    function indent(ta) {
+        var v = ta.value, r = lineRange(v, ta.selectionStart, ta.selectionEnd);
+        var lines = v.slice(r[0], r[1]).split('\n');
+        var filled = lines.filter(function (l) { return l.trim(); });
+        if (!filled.length || !filled.every(isItem)) return false;
+        var first = itemOf(lines[0]);
+        // The nearest line above that is not empty must be an item, and the one to go under.
+        var k = r[0], above = null;
+        while (k > 0) {
+            var ps = lineStart(v, k - 1), pl = v.slice(ps, k - 1);
+            if (pl.trim()) { above = pl; break; }
+            k = ps;
+        }
+        var parent = above && itemOf(above);
+        if (!first || !parent || first.indent > parent.indent) return false;
+        var step = first.indent < parent.indent ? parent.indent - first.indent : parent.offset - parent.indent;
+        if (first.indent >= parent.offset) return false;
+        var pad = new Array(step + 1).join(' ');
+        var text = lines.map(function (l) { return l.trim() ? pad + l : l; }).join('\n');
+        edit(ta, r[0], r[1], text, r[0], r[0] + text.length);
+        return true;
+    }
+
+    // The list items under the selection, one level out: to the indent of the item they
+    // were under, or the margin.
+    function outdent(ta, caret) {
+        var v = ta.value, r = lineRange(v, ta.selectionStart, ta.selectionEnd);
+        var lines = v.slice(r[0], r[1]).split('\n');
+        var filled = lines.filter(function (l) { return l.trim(); });
+        if (!filled.length || !filled.every(isItem)) return false;
+        var first = itemOf(lines[0]);
+        if (!first || first.indent === 0) return false;
+        var target = 0, k = r[0];
+        while (k > 0) {
+            var ps = lineStart(v, k - 1), pl = v.slice(ps, k - 1), it = itemOf(pl);
+            if (it && it.indent < first.indent) { target = it.indent; break; }
+            k = ps;
+        }
+        var cut = first.indent - target;
+        var text = lines.map(function (l) {
+            var n = Math.min(cut, indentOf(l));
+            return l.slice(n);
+        }).join('\n');
+        if (caret) edit(ta, r[0], r[1], text, r[0] + text.length);
+        else edit(ta, r[0], r[1], text, r[0], r[0] + text.length);
+        return true;
+    }
+
+    function indentOf(l) { var k = 0; while (l.charAt(k) === ' ') k++; return k; }
+
+    // ── Tables: Tab ──────────────────────────────────────────────────────────
+
+    // The positions of a row's cell borders — the pipes that are not escaped.
+    function pipes(line) {
+        var at = [];
+        for (var i = 0; i < line.length; i++) {
+            if (line.charAt(i) === '\\') i++;
+            else if (line.charAt(i) === '|') at.push(i);
+        }
+        return at;
+    }
+
+    function isRow(line) { return /^\s*\|.*\|\s*$/.test(line) && pipes(line).length >= 2; }
+    function isRule(line) { return /^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(line); }
+
+    // Puts the selection on a cell's text, or the caret in an empty cell.
+    function toCell(ta, lineStartAt, line, index) {
+        var p = pipes(line), from = p[index] + 1, to = p[index + 1];
+        var inner = line.slice(from, to), lead = /^ */.exec(inner)[0].length, trail = /\s*$/.exec(inner)[0].length;
+        if (lead === inner.length) ta.setSelectionRange(lineStartAt + from + Math.min(1, inner.length), lineStartAt + from + Math.min(1, inner.length));
+        else ta.setSelectionRange(lineStartAt + from + lead, lineStartAt + to - trail);
+    }
+
+    // Tab and Shift+Tab inside a table row: the next cell, the previous one; Tab in the
+    // last cell of the last row adds a row. Returns whether it did anything.
+    function cell(ta, back) {
+        var v = ta.value, s = ta.selectionStart;
+        var ls = lineStart(v, s), le = lineEnd(v, s), line = v.slice(ls, le);
+        if (!isRow(line) || isRule(line)) return false;
+        var p = pipes(line), col = s - ls, i = 0;
+        for (var k = 0; k < p.length; k++) if (p[k] < col) i = k;
+        i = Math.min(i, p.length - 2);
+        if (!back) {
+            if (i + 1 < p.length - 1) { toCell(ta, ls, line, i + 1); return true; }
+            var nextStart = le + 1, nextEnd = lineEnd(v, nextStart);
+            // The rule under the headings is not a row to type in.
+            if (le < v.length && isRule(v.slice(nextStart, nextEnd))) { nextStart = nextEnd + 1; nextEnd = lineEnd(v, nextStart); }
+            if (nextStart <= v.length && isRow(v.slice(nextStart, nextEnd))) {
+                toCell(ta, nextStart, v.slice(nextStart, nextEnd), 0);
+                return true;
+            }
+            var cells = p.length - 1;
+            var row = '\n|' + new Array(cells + 1).join('  |');
+            edit(ta, le, le, row, le + 3);
+            return true;
+        }
+        if (i > 0) { toCell(ta, ls, line, i - 1); return true; }
+        var prevEnd = ls - 1;
+        if (prevEnd < 0) return false;
+        var prevStart = lineStart(v, prevEnd), prev = v.slice(prevStart, prevEnd);
+        if (isRule(prev) && prevStart > 0) {
+            prevEnd = prevStart - 1; prevStart = lineStart(v, prevEnd); prev = v.slice(prevStart, prevEnd);
+        }
+        if (!isRow(prev)) return false;
+        toCell(ta, prevStart, prev, pipes(prev).length - 2);
+        return true;
+    }
+
+    // ── Commands ─────────────────────────────────────────────────────────────
+
+    // Apply a toolbar command to the current selection. The edit reaches the textarea as
+    // an `input` event, so the binding captures the new value. Returns whether `cmd` is one.
+    md.apply = function (ta, cmd) {
+        if (!ta || typeof ta.selectionStart !== 'number' || ta.readOnly || ta.disabled) return false;
+        var level = /^h([1-6])$/.exec(cmd);
+        if (level) heading(ta, +level[1]);
+        else switch (cmd) {
+            case 'bold':      wrap(ta, '**', '**', 'bold text'); break;
+            case 'italic':    wrap(ta, '_', '_', 'italic text'); break;
+            case 'strike':    wrap(ta, '~~', '~~', 'struck text'); break;
+            case 'code':      wrap(ta, '`', '`', 'code'); break;
+            case 'codeblock': codeBlock(ta); break;
+            case 'ul':
+            case 'ol':
+            case 'task':
+            case 'quote':     listOf(ta, cmd); break;
+            case 'hr':        block(ta, '---'); break;
+            case 'table':     table(ta); break;
+            case 'link':      link(ta, '[', 'link text', true); break;
+            case 'image':     link(ta, '![', 'image description', false); break;
+            case 'video':     link(ta, '![', 'video description', false); break;
+            case 'indent':    indent(ta); break;
+            case 'outdent':   outdent(ta); break;
+            case 'undo':
+            case 'redo':
+                ta.focus();
+                try { document.execCommand(cmd); } catch (x) { /* the browser has no history to step */ }
+                break;
+            default: return false;
+        }
+        ta.focus();
+        return true;
+    };
+
+    // Replace the current selection with `text` — a link from the app's own picker, a
+    // snippet, a mention — leave the caret right after it, and fire the input event so
+    // the binding captures the new value. The same edit apply() makes, without a
+    // command's wrapping.
+    //
+    // It works while focus is elsewhere, which is the usual case: the picker is a
+    // dialog opened from the toolbar, and the textarea has been blurred by the time
+    // the app has its answer. A textarea keeps selectionStart/selectionEnd across a
+    // blur, so the text lands where the caret was, and nothing is stored here to make
+    // that true. The one thing that moves the caret is assigning a DIFFERENT value
+    // while focus is away; assigning the same value, which is what a Blazor re-render
+    // after the input event does, leaves it where it was.
+    md.insert = function (ta, text) {
+        if (!ta || typeof ta.selectionStart !== 'number') return;
+        text = text == null ? '' : String(text);
+        edit(ta, ta.selectionStart, ta.selectionEnd, text);
+        ta.focus();
+    };
+
+    // ── Keys ─────────────────────────────────────────────────────────────────
+
+    // The command a key chord stands for, or null.
+    function chord(e) {
+        var mod = IS_MAC ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
+        if (!mod) return null;
+        var code = /^(?:Key|Digit)(.)$/.exec(e.code || '');
+        if (e.altKey) {
+            if (e.shiftKey || !code) return null;
+            if (/[1-6]/.test(code[1])) return 'h' + code[1];
+            return code[1] === 'C' ? 'codeblock' : null;
+        }
+        if (e.shiftKey) {
+            if (!code) return null;
+            return { X: 'strike', 7: 'ol', 8: 'ul', 9: 'quote' }[code[1]] || null;
+        }
+        // A letter is the one the layout types; a layout with no Latin letters falls back
+        // to the key's place on a QWERTY board.
+        var letter = /^[a-z]$/i.test(e.key) ? e.key.toLowerCase() : code && /[A-Z]/.test(code[1]) ? code[1].toLowerCase() : '';
+        return { b: 'bold', i: 'italic', k: 'link', e: 'code' }[letter] || null;
+    }
+
+    // ── Files ────────────────────────────────────────────────────────────────
+
+    var FILES_KEPT = 20, fileSeq = 0, held = new WeakMap();
+
+    // The File behind an id a `sedna-md-file` event named — for the app to upload; null once
+    // the editor has let it go, which it does after the last few.
+    md.file = function (ta, id) {
+        var files = held.get(ta);
+        return files && files.get(id) || null;
+    };
+
+    // Offers files to the app. Returns whether anything was offered.
+    function offer(root, ta, list) {
+        list = Array.prototype.slice.call(list || []).filter(Boolean);
+        if (!list.length) return false;
+        var files = held.get(ta);
+        if (!files) held.set(ta, files = new Map());
+        var listed = list.map(function (file) {
+            var id = 'file-' + (++fileSeq);
+            files.set(id, file);
+            return { id: id, name: file.name || '', type: file.type || '', size: file.size || 0 };
+        });
+        while (files.size > FILES_KEPT) files.delete(files.keys().next().value);
+        var taken = !ta.dispatchEvent(new CustomEvent('sedna-md-file', {
+            bubbles: true, cancelable: true, detail: { files: listed, index: ta.selectionStart }
+        }));
+        var notice = root.querySelector('[data-md-file-notice]');
+        if (notice) notice.hidden = taken;
+        return true;
+    }
+
+    function hasFiles(dt) {
+        return !!dt && Array.prototype.indexOf.call(dt.types || [], 'Files') !== -1;
+    }
+
+    /* Wires the keyboard, the paste and the drop of one editor. Private: _initOne calls it. */
+    md._wire = function (root, ta) {
+        var off = function () { return root.getAttribute('data-md-keys') === 'off' || ta.readOnly || ta.disabled; };
+
+        ta.addEventListener('keydown', function (e) {
+            if (e.defaultPrevented || e.isComposing || off()) return;
+            var cmd = chord(e);
+            if (cmd) { e.preventDefault(); md.apply(ta, cmd); return; }
+            var plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+            if (e.key === 'Enter' && plain && !e.shiftKey) {
+                if (newline(ta)) e.preventDefault();
+            } else if (e.key === 'Tab' && plain) {
+                var did = e.shiftKey ? (outdent(ta) || cell(ta, true)) : (indent(ta) || cell(ta, false));
+                if (did) e.preventDefault();
+            }
+        });
+
+        root.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !e.defaultPrevented && root.hasAttribute('data-md-fullscreen')) {
+                e.preventDefault();
+                md._fullscreen(root, null, false);
+            }
+        });
+
+        ta.addEventListener('paste', function (e) {
+            if (e.defaultPrevented || ta.readOnly || ta.disabled) return;
+            var data = e.clipboardData;
+            if (!data) return;
+            var text = data.getData('text/plain');
+            var s = ta.selectionStart, end = ta.selectionEnd;
+            // An address pasted over a selection makes the selection a link to it.
+            if (end > s && !off() && /^(?:https?:\/\/|mailto:)\S+$/i.test(text.trim()) && ta.value.slice(s, end).indexOf('\n') === -1) {
+                e.preventDefault();
+                edit(ta, s, end, '[' + ta.value.slice(s, end) + '](' + text.trim() + ')');
+                return;
+            }
+            // A picture copied from a screen has no text; a document copied with its pictures
+            // has, and is pasted as the text.
+            if (!text && data.files && data.files.length) {
+                e.preventDefault();
+                offer(root, ta, data.files);
+            }
+        });
+
+        // A file dropped on a textarea would otherwise be opened in the tab, taking the
+        // reader's draft with it.
+        var drag = 0;
+        var clear = function () { drag = 0; root.removeAttribute('data-md-dragging'); };
+        ta.addEventListener('dragenter', function (e) {
+            if (!hasFiles(e.dataTransfer)) return;
+            drag++;
+            root.setAttribute('data-md-dragging', '');
+        });
+        ta.addEventListener('dragover', function (e) {
+            if (hasFiles(e.dataTransfer)) e.preventDefault();
+        });
+        ta.addEventListener('dragleave', function (e) {
+            if (hasFiles(e.dataTransfer) && --drag <= 0) clear();
+        });
+        ta.addEventListener('drop', function (e) {
+            if (!hasFiles(e.dataTransfer)) return;
+            e.preventDefault();
+            clear();
+            if (!ta.readOnly && !ta.disabled) offer(root, ta, e.dataTransfer.files);
+        });
     };
 
 })(window.sednaUi);

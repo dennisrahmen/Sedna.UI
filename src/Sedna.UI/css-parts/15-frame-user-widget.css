@@ -51,6 +51,7 @@
     /* The page's ink, not the header's: the panel is a surface of its own, and a header
        painted with --topbar-fg would otherwise hand white text to a white panel. */
     color: var(--fg);
+    min-width: 220px;
     position: absolute;
     top: calc(100% + var(--space-2));
     inset-inline-end: 0;
