@@ -105,7 +105,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-the-whole-app" ],
-    "stamp": "e7bb4053839dd87f"
+    "stamp": "0e4ec93d622aec01"
   },
   {
     "page": "/status-bar",
