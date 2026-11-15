@@ -1,3 +1,4 @@
+using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
 
 namespace Sedna.UI;
@@ -230,6 +231,24 @@ public interface ISednaUi
     /// </para>
     /// </remarks>
     Task InsertMarkdownAsync(ElementReference textarea, string text);
+
+    /// <summary>
+    /// Opens a file pasted or dropped on a <c>.md-editor</c>'s textarea, by the id its
+    /// <c>sedna-md-file</c> event named, for the app to upload.
+    /// </summary>
+    /// <param name="textarea">The editor's <c>[data-md-input]</c> textarea, captured with <c>@ref</c>.</param>
+    /// <param name="fileId">An id from <see cref="SednaMarkdownFileEventArgs.Files"/>.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// The file's bytes as a stream reference — <c>OpenReadStream(maxAllowedSize)</c> reads them —
+    /// or null when the editor has let the file go; it keeps the last few that arrived.
+    /// </returns>
+    /// <remarks>
+    /// The app takes the files by cancelling the event (<c>@onsedna-md-file:preventDefault</c>),
+    /// uploads each and answers with <see cref="InsertMarkdownAsync"/> and the Markdown for the
+    /// address it uploaded to — <c>![description](address)</c> for a picture.
+    /// </remarks>
+    Task<IJSStreamReference?> OpenMarkdownFileAsync(ElementReference textarea, string fileId, CancellationToken cancellationToken = default);
 
     /// <summary>Reads the stored theme, variant, colour-blind, density, direction and language settings.</summary>
     /// <returns>The settings currently applied.</returns>

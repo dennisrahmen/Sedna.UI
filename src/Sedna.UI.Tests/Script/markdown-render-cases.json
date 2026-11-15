@@ -1,0 +1,1182 @@
+[
+ {
+  "name": "h1",
+  "source": "# Title",
+  "html": "<h1>Title</h1>"
+ },
+ {
+  "name": "h2",
+  "source": "## Title",
+  "html": "<h2>Title</h2>"
+ },
+ {
+  "name": "h3",
+  "source": "### Title",
+  "html": "<h3>Title</h3>"
+ },
+ {
+  "name": "h4",
+  "source": "#### Title",
+  "html": "<h4>Title</h4>"
+ },
+ {
+  "name": "h5",
+  "source": "##### Title",
+  "html": "<h5>Title</h5>"
+ },
+ {
+  "name": "h6",
+  "source": "###### Title",
+  "html": "<h6>Title</h6>"
+ },
+ {
+  "name": "h7 is text",
+  "source": "####### no",
+  "html": "<p>####### no</p>"
+ },
+ {
+  "name": "no space is text",
+  "source": "#hashtag",
+  "html": "<p>#hashtag</p>"
+ },
+ {
+  "name": "closing hashes",
+  "source": "## Title ##",
+  "html": "<h2>Title</h2>"
+ },
+ {
+  "name": "empty heading",
+  "source": "#",
+  "html": "<h1></h1>"
+ },
+ {
+  "name": "heading inline",
+  "source": "# A *b* `c`",
+  "html": "<h1>A <em>b</em> <code>c</code></h1>"
+ },
+ {
+  "name": "setext 1",
+  "source": "Title\n=====",
+  "html": "<h1>Title</h1>"
+ },
+ {
+  "name": "setext 2",
+  "source": "Title\n-----",
+  "html": "<h2>Title</h2>"
+ },
+ {
+  "name": "setext multiline",
+  "source": "a\nb\n---",
+  "html": "<h2>a\nb</h2>"
+ },
+ {
+  "name": "heading then text",
+  "source": "# T\ntext",
+  "html": "<h1>T</h1><p>text</p>"
+ },
+ {
+  "name": "paragraphs",
+  "source": "one\n\ntwo",
+  "html": "<p>one</p><p>two</p>"
+ },
+ {
+  "name": "soft break",
+  "source": "one\ntwo",
+  "html": "<p>one\ntwo</p>"
+ },
+ {
+  "name": "hard break spaces",
+  "source": "one  \ntwo",
+  "html": "<p>one<br>two</p>"
+ },
+ {
+  "name": "hard break backslash",
+  "source": "one\\\ntwo",
+  "html": "<p>one<br>two</p>"
+ },
+ {
+  "name": "trailing spaces end",
+  "source": "one  ",
+  "html": "<p>one</p>"
+ },
+ {
+  "name": "leading spaces trimmed",
+  "source": "   one\n   two",
+  "html": "<p>one\ntwo</p>"
+ },
+ {
+  "name": "crlf",
+  "source": "a\r\nb\r\n\r\nc",
+  "html": "<p>a\nb</p><p>c</p>"
+ },
+ {
+  "name": "empty",
+  "source": "",
+  "html": ""
+ },
+ {
+  "name": "em star",
+  "source": "*a*",
+  "html": "<p><em>a</em></p>"
+ },
+ {
+  "name": "em underscore",
+  "source": "_a_",
+  "html": "<p><em>a</em></p>"
+ },
+ {
+  "name": "strong star",
+  "source": "**a**",
+  "html": "<p><strong>a</strong></p>"
+ },
+ {
+  "name": "strong underscore",
+  "source": "__a__",
+  "html": "<p><strong>a</strong></p>"
+ },
+ {
+  "name": "both",
+  "source": "***a***",
+  "html": "<p><em><strong>a</strong></em></p>"
+ },
+ {
+  "name": "both underscores",
+  "source": "___a___",
+  "html": "<p><em><strong>a</strong></em></p>"
+ },
+ {
+  "name": "nested",
+  "source": "**a _b_ c**",
+  "html": "<p><strong>a <em>b</em> c</strong></p>"
+ },
+ {
+  "name": "nested other way",
+  "source": "_a **b** c_",
+  "html": "<p><em>a <strong>b</strong> c</em></p>"
+ },
+ {
+  "name": "snake case",
+  "source": "snake_case_name",
+  "html": "<p>snake_case_name</p>"
+ },
+ {
+  "name": "intraword star",
+  "source": "in*tra*word",
+  "html": "<p>in<em>tra</em>word</p>"
+ },
+ {
+  "name": "star spaces literal",
+  "source": "a * b * c",
+  "html": "<p>a * b * c</p>"
+ },
+ {
+  "name": "unclosed",
+  "source": "**a",
+  "html": "<p>**a</p>"
+ },
+ {
+  "name": "em across words",
+  "source": "*a b*",
+  "html": "<p><em>a b</em></p>"
+ },
+ {
+  "name": "strikethrough",
+  "source": "~~gone~~",
+  "html": "<p><del>gone</del></p>"
+ },
+ {
+  "name": "strike inside strong",
+  "source": "**a ~~b~~**",
+  "html": "<p><strong>a <del>b</del></strong></p>"
+ },
+ {
+  "name": "single tilde",
+  "source": "~5 min",
+  "html": "<p>~5 min</p>"
+ },
+ {
+  "name": "strike unclosed",
+  "source": "~~a",
+  "html": "<p>~~a</p>"
+ },
+ {
+  "name": "em in link text",
+  "source": "[*a*](/x)",
+  "html": "<p><a href=\"/x\" target=\"_blank\" rel=\"noopener\"><em>a</em></a></p>"
+ },
+ {
+  "name": "code span",
+  "source": "`a`",
+  "html": "<p><code>a</code></p>"
+ },
+ {
+  "name": "code span backticks inside",
+  "source": "`` a`b ``",
+  "html": "<p><code>a`b</code></p>"
+ },
+ {
+  "name": "code span no format",
+  "source": "`*a* _b_`",
+  "html": "<p><code>*a* _b_</code></p>"
+ },
+ {
+  "name": "code span escapes html",
+  "source": "`<b>`",
+  "html": "<p><code>&lt;b&gt;</code></p>"
+ },
+ {
+  "name": "unclosed backtick",
+  "source": "`a",
+  "html": "<p>`a</p>"
+ },
+ {
+  "name": "code span keeps inner spaces",
+  "source": "`  a  `",
+  "html": "<p><code> a </code></p>"
+ },
+ {
+  "name": "fence",
+  "source": "```\ncode\n```",
+  "html": "<pre><code>code</code></pre>"
+ },
+ {
+  "name": "fence lang",
+  "source": "```js\nlet a = 1;\n```",
+  "html": "<pre><code class=\"language-js\">let a = 1;</code></pre>"
+ },
+ {
+  "name": "fence tilde",
+  "source": "~~~\ncode\n~~~",
+  "html": "<pre><code>code</code></pre>"
+ },
+ {
+  "name": "fence tilde lang",
+  "source": "~~~python title=\"x\"\nx\n~~~",
+  "html": "<pre><code class=\"language-python\">x</code></pre>"
+ },
+ {
+  "name": "fence escapes html",
+  "source": "```\n<script>x</script>\n```",
+  "html": "<pre><code>&lt;script&gt;x&lt;/script&gt;</code></pre>"
+ },
+ {
+  "name": "fence no format",
+  "source": "```\n**a** _b_ # c\n- d\n```",
+  "html": "<pre><code>**a** _b_ # c\n- d</code></pre>"
+ },
+ {
+  "name": "fence unclosed",
+  "source": "```\na\nb",
+  "html": "<pre><code>a\nb</code></pre>"
+ },
+ {
+  "name": "fence longer closer",
+  "source": "````\n```\n````",
+  "html": "<pre><code>```</code></pre>"
+ },
+ {
+  "name": "fence blank lines kept",
+  "source": "```\na\n\nb\n```",
+  "html": "<pre><code>a\n\nb</code></pre>"
+ },
+ {
+  "name": "fence bad lang chars",
+  "source": "```\"><img src=x onerror=boom>\nx\n```",
+  "html": "<pre><code>x</code></pre>"
+ },
+ {
+  "name": "fence between text",
+  "source": "a\n```\nb\n```\nc",
+  "html": "<p>a</p><pre><code>b</code></pre><p>c</p>"
+ },
+ {
+  "name": "indented code",
+  "source": "    a\n    b",
+  "html": "<pre><code>a\nb</code></pre>"
+ },
+ {
+  "name": "indented code keeps extra indent",
+  "source": "    a\n      b",
+  "html": "<pre><code>a\n  b</code></pre>"
+ },
+ {
+  "name": "tab indented code",
+  "source": "\ta",
+  "html": "<pre><code>a</code></pre>"
+ },
+ {
+  "name": "indented code blank between",
+  "source": "    a\n\n    b",
+  "html": "<pre><code>a\n\nb</code></pre>"
+ },
+ {
+  "name": "indent continues paragraph",
+  "source": "a\n    b",
+  "html": "<p>a\nb</p>"
+ },
+ {
+  "name": "quote",
+  "source": "> a",
+  "html": "<blockquote><p>a</p></blockquote>"
+ },
+ {
+  "name": "quote multi",
+  "source": "> a\n> b",
+  "html": "<blockquote><p>a\nb</p></blockquote>"
+ },
+ {
+  "name": "quote lazy",
+  "source": "> a\nb",
+  "html": "<blockquote><p>a\nb</p></blockquote>"
+ },
+ {
+  "name": "quote two paragraphs",
+  "source": "> a\n>\n> b",
+  "html": "<blockquote><p>a</p><p>b</p></blockquote>"
+ },
+ {
+  "name": "quote nested",
+  "source": "> a\n>> b",
+  "html": "<blockquote><p>a</p><blockquote><p>b</p></blockquote></blockquote>"
+ },
+ {
+  "name": "quote nested clean",
+  "source": "> a\n>\n> > b",
+  "html": "<blockquote><p>a</p><blockquote><p>b</p></blockquote></blockquote>"
+ },
+ {
+  "name": "quote list inside",
+  "source": "> - a\n> - b",
+  "html": "<blockquote><ul><li>a</li><li>b</li></ul></blockquote>"
+ },
+ {
+  "name": "quote heading inside",
+  "source": "> # T\n> x",
+  "html": "<blockquote><h1>T</h1><p>x</p></blockquote>"
+ },
+ {
+  "name": "quote code inside",
+  "source": "> ```\n> x\n> ```",
+  "html": "<blockquote><pre><code>x</code></pre></blockquote>"
+ },
+ {
+  "name": "quote then paragraph",
+  "source": "> a\n\nb",
+  "html": "<blockquote><p>a</p></blockquote><p>b</p>"
+ },
+ {
+  "name": "quote no space",
+  "source": ">a",
+  "html": "<blockquote><p>a</p></blockquote>"
+ },
+ {
+  "name": "quote inline",
+  "source": "> **a**",
+  "html": "<blockquote><p><strong>a</strong></p></blockquote>"
+ },
+ {
+  "name": "ul dash",
+  "source": "- a\n- b",
+  "html": "<ul><li>a</li><li>b</li></ul>"
+ },
+ {
+  "name": "ul star",
+  "source": "* a\n* b",
+  "html": "<ul><li>a</li><li>b</li></ul>"
+ },
+ {
+  "name": "ul plus",
+  "source": "+ a\n+ b",
+  "html": "<ul><li>a</li><li>b</li></ul>"
+ },
+ {
+  "name": "ul markers change",
+  "source": "- a\n* b",
+  "html": "<ul><li>a</li></ul><ul><li>b</li></ul>"
+ },
+ {
+  "name": "ol",
+  "source": "1. a\n2. b",
+  "html": "<ol><li>a</li><li>b</li></ol>"
+ },
+ {
+  "name": "ol paren",
+  "source": "1) a\n2) b",
+  "html": "<ol><li>a</li><li>b</li></ol>"
+ },
+ {
+  "name": "ol start",
+  "source": "3. a\n4. b",
+  "html": "<ol start=\"3\"><li>a</li><li>b</li></ol>"
+ },
+ {
+  "name": "ol all ones",
+  "source": "1. a\n1. b",
+  "html": "<ol><li>a</li><li>b</li></ol>"
+ },
+ {
+  "name": "ol delim change",
+  "source": "1. a\n1) b",
+  "html": "<ol><li>a</li></ol><ol><li>b</li></ol>"
+ },
+ {
+  "name": "nested ul",
+  "source": "- a\n  - b\n  - c\n- d",
+  "html": "<ul><li>a<ul><li>b</li><li>c</li></ul></li><li>d</li></ul>"
+ },
+ {
+  "name": "nested ul four spaces",
+  "source": "- a\n    - b",
+  "html": "<ul><li>a<ul><li>b</li></ul></li></ul>"
+ },
+ {
+  "name": "nested ol in ul",
+  "source": "- a\n  1. b\n  2. c",
+  "html": "<ul><li>a<ol><li>b</li><li>c</li></ol></li></ul>"
+ },
+ {
+  "name": "nested ul in ol",
+  "source": "1. a\n   - b",
+  "html": "<ol><li>a<ul><li>b</li></ul></li></ol>"
+ },
+ {
+  "name": "nested three",
+  "source": "- a\n  - b\n    - c",
+  "html": "<ul><li>a<ul><li>b<ul><li>c</li></ul></li></ul></li></ul>"
+ },
+ {
+  "name": "loose list",
+  "source": "- a\n\n- b",
+  "html": "<ul><li><p>a</p></li><li><p>b</p></li></ul>"
+ },
+ {
+  "name": "loose two paragraphs in item",
+  "source": "- a\n\n  b",
+  "html": "<ul><li><p>a</p><p>b</p></li></ul>"
+ },
+ {
+  "name": "tight nested blank before sublist",
+  "source": "- a\n  - b\n\n  - c",
+  "html": "<ul><li>a<ul><li><p>b</p></li><li><p>c</p></li></ul></li></ul>"
+ },
+ {
+  "name": "list lazy continuation",
+  "source": "- a\nb",
+  "html": "<ul><li>a\nb</li></ul>"
+ },
+ {
+  "name": "list inline",
+  "source": "- **a** `b`",
+  "html": "<ul><li><strong>a</strong> <code>b</code></li></ul>"
+ },
+ {
+  "name": "list then paragraph",
+  "source": "- a\n\nb",
+  "html": "<ul><li>a</li></ul><p>b</p>"
+ },
+ {
+  "name": "list interrupts paragraph",
+  "source": "text\n- a",
+  "html": "<p>text</p><ul><li>a</li></ul>"
+ },
+ {
+  "name": "number not one does not interrupt",
+  "source": "text\n2. a",
+  "html": "<p>text\n2. a</p>"
+ },
+ {
+  "name": "one interrupts paragraph",
+  "source": "text\n1. a",
+  "html": "<p>text</p><ol><li>a</li></ol>"
+ },
+ {
+  "name": "item with code fence",
+  "source": "- a\n  ```\n  x\n  ```",
+  "html": "<ul><li>a<pre><code>x</code></pre></li></ul>"
+ },
+ {
+  "name": "item with quote",
+  "source": "- a\n  > b",
+  "html": "<ul><li>a<blockquote><p>b</p></blockquote></li></ul>"
+ },
+ {
+  "name": "dash hr not list",
+  "source": "- - -",
+  "html": "<hr>"
+ },
+ {
+  "name": "star line not list",
+  "source": "*a*",
+  "html": "<p><em>a</em></p>"
+ },
+ {
+  "name": "bullet without text",
+  "source": "-\n- a",
+  "html": "<ul><li></li><li>a</li></ul>"
+ },
+ {
+  "name": "two spaces indent ol",
+  "source": "10. a\n11. b",
+  "html": "<ol start=\"10\"><li>a</li><li>b</li></ol>"
+ },
+ {
+  "name": "task",
+  "source": "- [ ] a\n- [x] b",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label></li><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled checked> b</label></li></ul>"
+ },
+ {
+  "name": "task upper X",
+  "source": "- [X] a",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled checked> a</label></li></ul>"
+ },
+ {
+  "name": "task with inline",
+  "source": "- [ ] **a**",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> <strong>a</strong></label></li></ul>"
+ },
+ {
+  "name": "task with link",
+  "source": "- [ ] see [x](/y)",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> see <a href=\"/y\" target=\"_blank\" rel=\"noopener\">x</a></label></li></ul>"
+ },
+ {
+  "name": "task needs space",
+  "source": "- [x]a",
+  "html": "<ul><li>[x]a</li></ul>"
+ },
+ {
+  "name": "task needs text",
+  "source": "- [ ]",
+  "html": "<ul><li>[ ]</li></ul>"
+ },
+ {
+  "name": "task before a block is text",
+  "source": "- [ ] # a",
+  "html": "<ul><li>[ ] # a</li></ul>"
+ },
+ {
+  "name": "task numbered",
+  "source": "1. [ ] a",
+  "html": "<ol><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label></li></ol>"
+ },
+ {
+  "name": "task mixed with plain",
+  "source": "- [ ] a\n- b",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label></li><li>b</li></ul>"
+ },
+ {
+  "name": "task nested",
+  "source": "- [ ] a\n  - [x] b",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label><ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled checked> b</label></li></ul></li></ul>"
+ },
+ {
+  "name": "task loose",
+  "source": "- [ ] a\n\n- [x] b",
+  "html": "<ul><li class=\"task-list-item\"><p><label><input type=\"checkbox\" disabled> a</label></p></li><li class=\"task-list-item\"><p><label><input type=\"checkbox\" disabled checked> b</label></p></li></ul>"
+ },
+ {
+  "name": "task html escaped",
+  "source": "- [ ] <b>",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> &lt;b&gt;</label></li></ul>"
+ },
+ {
+  "name": "hr dashes",
+  "source": "---",
+  "html": "<hr>"
+ },
+ {
+  "name": "hr stars",
+  "source": "***",
+  "html": "<hr>"
+ },
+ {
+  "name": "hr underscores",
+  "source": "___",
+  "html": "<hr>"
+ },
+ {
+  "name": "hr spaced",
+  "source": "- - -",
+  "html": "<hr>"
+ },
+ {
+  "name": "hr long",
+  "source": "----------",
+  "html": "<hr>"
+ },
+ {
+  "name": "hr between",
+  "source": "a\n\n---\n\nb",
+  "html": "<p>a</p><hr><p>b</p>"
+ },
+ {
+  "name": "two dashes is text",
+  "source": "--",
+  "html": "<p>--</p>"
+ },
+ {
+  "name": "hr stars after para",
+  "source": "a\n***",
+  "html": "<p>a</p><hr>"
+ },
+ {
+  "name": "table",
+  "source": "| a | b |\n| - | - |\n| 1 | 2 |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>"
+ },
+ {
+  "name": "table no outer pipes",
+  "source": "a | b\n--|--\n1 | 2",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>"
+ },
+ {
+  "name": "table alignment",
+  "source": "| a | b | c | d |\n|:--|:-:|--:|---|\n| 1 | 2 | 3 | 4 |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th align=\"left\">a</th><th align=\"center\">b</th><th align=\"right\">c</th><th>d</th></tr></thead><tbody><tr><td align=\"left\">1</td><td align=\"center\">2</td><td align=\"right\">3</td><td>4</td></tr></tbody></table>"
+ },
+ {
+  "name": "table inline",
+  "source": "| a | b |\n|---|---|\n| **x** | `y` |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td><strong>x</strong></td><td><code>y</code></td></tr></tbody></table>"
+ },
+ {
+  "name": "table escaped pipe",
+  "source": "| a | b |\n|---|---|\n| x \\| y | z |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>x | y</td><td>z</td></tr></tbody></table>"
+ },
+ {
+  "name": "table short row padded",
+  "source": "| a | b |\n|---|---|\n| 1 |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td></td></tr></tbody></table>"
+ },
+ {
+  "name": "table long row cut",
+  "source": "| a |\n|---|\n| 1 | 2 |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table>"
+ },
+ {
+  "name": "table header only",
+  "source": "| a | b |\n|---|---|",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th><th>b</th></tr></thead></table>"
+ },
+ {
+  "name": "table count mismatch is text",
+  "source": "| a | b |\n|---|\n| 1 | 2 |",
+  "html": "<p>| a | b |\n|---|\n| 1 | 2 |</p>"
+ },
+ {
+  "name": "table ends at blank",
+  "source": "| a |\n|---|\n| 1 |\n\ntext",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table><p>text</p>"
+ },
+ {
+  "name": "table after paragraph",
+  "source": "text\n| a |\n|---|\n| 1 |",
+  "html": "<p>text</p><table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table>"
+ },
+ {
+  "name": "table html escaped",
+  "source": "| <b> |\n|---|\n| <i> |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>&lt;b&gt;</th></tr></thead><tbody><tr><td>&lt;i&gt;</td></tr></tbody></table>"
+ },
+ {
+  "name": "table link in cell",
+  "source": "| a |\n|---|\n| [x](/y) |",
+  "html": "<table role=\"table\" tabindex=\"0\"><thead><tr><th>a</th></tr></thead><tbody><tr><td><a href=\"/y\" target=\"_blank\" rel=\"noopener\">x</a></td></tr></tbody></table>"
+ },
+ {
+  "name": "pipe text without delimiter",
+  "source": "a | b",
+  "html": "<p>a | b</p>"
+ },
+ {
+  "name": "link",
+  "source": "[a](https://example.com)",
+  "html": "<p><a href=\"https://example.com\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link title",
+  "source": "[a](https://example.com \"T\")",
+  "html": "<p><a href=\"https://example.com\" title=\"T\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link title single quote",
+  "source": "[a](/x 'T')",
+  "html": "<p><a href=\"/x\" title=\"T\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link title parens",
+  "source": "[a](/x (T))",
+  "html": "<p><a href=\"/x\" title=\"T\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link angle dest",
+  "source": "[a](</my url>)",
+  "html": "<p><a href=\"/my url\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link parens in dest",
+  "source": "[a](https://x.test/a_(b))",
+  "html": "<p><a href=\"https://x.test/a_(b)\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link relative",
+  "source": "[a](docs/x.md)",
+  "html": "<p><a href=\"docs/x.md\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link anchor",
+  "source": "[a](#top)",
+  "html": "<p><a href=\"#top\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link mailto",
+  "source": "[a](mailto:x@example.com)",
+  "html": "<p><a href=\"mailto:x@example.com\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link empty dest",
+  "source": "[a]()",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link ampersand once",
+  "source": "[a](https://example.test/?a=1&b=2)",
+  "html": "<p><a href=\"https://example.test/?a=1&amp;b=2\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "link underscores in url",
+  "source": "[a](https://x.test/my_file_name.pdf) _b_",
+  "html": "<p><a href=\"https://x.test/my_file_name.pdf\" target=\"_blank\" rel=\"noopener\">a</a> <em>b</em></p>"
+ },
+ {
+  "name": "link text brackets",
+  "source": "[a [b] c](/x)",
+  "html": "<p><a href=\"/x\" target=\"_blank\" rel=\"noopener\">a [b] c</a></p>"
+ },
+ {
+  "name": "link no nested link",
+  "source": "[a [b](/y) c](/x)",
+  "html": "<p>[a <a href=\"/y\" target=\"_blank\" rel=\"noopener\">b</a> c](/x)</p>"
+ },
+ {
+  "name": "link broken",
+  "source": "[a](",
+  "html": "<p>[a](</p>"
+ },
+ {
+  "name": "link no dest",
+  "source": "[a] b",
+  "html": "<p>[a] b</p>"
+ },
+ {
+  "name": "link escaped bracket",
+  "source": "\\[a](/x)",
+  "html": "<p>[a](/x)</p>"
+ },
+ {
+  "name": "image link",
+  "source": "[![alt](/i.png)](/x)",
+  "html": "<p><a href=\"/x\" target=\"_blank\" rel=\"noopener\"><img src=\"/i.png\" alt=\"alt\" loading=\"lazy\"></a></p>"
+ },
+ {
+  "name": "autolink",
+  "source": "<https://example.com/a?b=1&c=2>",
+  "html": "<p><a href=\"https://example.com/a?b=1&amp;c=2\" target=\"_blank\" rel=\"noopener\">https://example.com/a?b=1&amp;c=2</a></p>"
+ },
+ {
+  "name": "autolink email",
+  "source": "<alex@example.com>",
+  "html": "<p><a href=\"mailto:alex@example.com\" target=\"_blank\" rel=\"noopener\">alex@example.com</a></p>"
+ },
+ {
+  "name": "autolink js scheme is text",
+  "source": "<javascript:boom>",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">javascript:boom</a></p>"
+ },
+ {
+  "name": "bare url",
+  "source": "see https://example.com/a now",
+  "html": "<p>see <a href=\"https://example.com/a\" target=\"_blank\" rel=\"noopener\">https://example.com/a</a> now</p>"
+ },
+ {
+  "name": "bare url trailing dot",
+  "source": "see https://example.com.",
+  "html": "<p>see <a href=\"https://example.com\" target=\"_blank\" rel=\"noopener\">https://example.com</a>.</p>"
+ },
+ {
+  "name": "bare url trailing paren",
+  "source": "(https://example.com/a)",
+  "html": "<p>(<a href=\"https://example.com/a\" target=\"_blank\" rel=\"noopener\">https://example.com/a</a>)</p>"
+ },
+ {
+  "name": "bare url keeps balanced paren",
+  "source": "https://x.test/a_(b)",
+  "html": "<p><a href=\"https://x.test/a_(b)\" target=\"_blank\" rel=\"noopener\">https://x.test/a_(b)</a></p>"
+ },
+ {
+  "name": "bare www",
+  "source": "www.example.com",
+  "html": "<p><a href=\"http://www.example.com\" target=\"_blank\" rel=\"noopener\">www.example.com</a></p>"
+ },
+ {
+  "name": "bare url mid word is text",
+  "source": "xhttps://example.com",
+  "html": "<p>xhttps://example.com</p>"
+ },
+ {
+  "name": "bare url in code is text",
+  "source": "`https://example.com`",
+  "html": "<p><code>https://example.com</code></p>"
+ },
+ {
+  "name": "bare url with underscores",
+  "source": "https://x.test/a_b_c",
+  "html": "<p><a href=\"https://x.test/a_b_c\" target=\"_blank\" rel=\"noopener\">https://x.test/a_b_c</a></p>"
+ },
+ {
+  "name": "ref link",
+  "source": "[a][x]\n\n[x]: https://example.com \"T\"",
+  "html": "<p><a href=\"https://example.com\" title=\"T\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "ref shortcut",
+  "source": "[x]\n\n[x]: /y",
+  "html": "<p><a href=\"/y\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "ref collapsed",
+  "source": "[x][]\n\n[x]: /y",
+  "html": "<p><a href=\"/y\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "ref case insensitive",
+  "source": "[a][X]\n\n[x]: /y",
+  "html": "<p><a href=\"/y\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "ref defined first",
+  "source": "[x]: /y\n\n[a][x]",
+  "html": "<p><a href=\"/y\" target=\"_blank\" rel=\"noopener\">a</a></p>"
+ },
+ {
+  "name": "ref missing is text",
+  "source": "[a][nope]",
+  "html": "<p>[a][nope]</p>"
+ },
+ {
+  "name": "ref image",
+  "source": "![a][x]\n\n[x]: /i.png",
+  "html": "<p><img src=\"/i.png\" alt=\"a\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "image",
+  "source": "![alt](/a.png)",
+  "html": "<p><img src=\"/a.png\" alt=\"alt\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "image title",
+  "source": "![alt](/a.png \"T\")",
+  "html": "<p><img src=\"/a.png\" alt=\"alt\" title=\"T\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "image empty alt",
+  "source": "![](/a.png)",
+  "html": "<p><img src=\"/a.png\" alt=\"\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "image alt emphasis flattened",
+  "source": "![a *b* c](/a.png)",
+  "html": "<p><img src=\"/a.png\" alt=\"a b c\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "image underscore url",
+  "source": "![Orders _w_](/charts/orders_week_12.png?a=1&b=2)",
+  "html": "<p><img src=\"/charts/orders_week_12.png?a=1&amp;b=2\" alt=\"Orders w\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "image js scheme is alt",
+  "source": "![x](javascript:boom)",
+  "html": "<p>x</p>"
+ },
+ {
+  "name": "image data scheme is alt",
+  "source": "![x](data:image/png;base64,AAAA)",
+  "html": "<p>x</p>"
+ },
+ {
+  "name": "video mp4",
+  "source": "![tour](/t.mp4)",
+  "html": "<p><video controls preload=\"metadata\" src=\"/t.mp4\" aria-label=\"tour\"></video></p>"
+ },
+ {
+  "name": "video webm query",
+  "source": "![](https://example.com/t.webm?v=2)",
+  "html": "<p><video controls preload=\"metadata\" src=\"https://example.com/t.webm?v=2\"></video></p>"
+ },
+ {
+  "name": "video MOV case",
+  "source": "![t](clips/tour.MOV)",
+  "html": "<p><video controls preload=\"metadata\" src=\"clips/tour.MOV\" aria-label=\"t\"></video></p>"
+ },
+ {
+  "name": "video title",
+  "source": "![t](/t.mp4 \"T\")",
+  "html": "<p><video controls preload=\"metadata\" src=\"/t.mp4\" aria-label=\"t\" title=\"T\"></video></p>"
+ },
+ {
+  "name": "image in code stays text",
+  "source": "Write `![a](/b.png)`",
+  "html": "<p>Write <code>![a](/b.png)</code></p>"
+ },
+ {
+  "name": "image src quote breakout",
+  "source": "![x\"onerror=\"boom](https://example.com/a.png\"onerror=boom)",
+  "html": "<p><img src=\"https://example.com/a.png&quot;onerror=boom\" alt=\"x&quot;onerror=&quot;boom\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "backslash escapes",
+  "source": "\\*a\\* \\_b\\_ \\# \\`c\\`",
+  "html": "<p>*a* _b_ # `c`</p>"
+ },
+ {
+  "name": "backslash literal",
+  "source": "a\\b",
+  "html": "<p>a\\b</p>"
+ },
+ {
+  "name": "backslash hash heading",
+  "source": "\\# not",
+  "html": "<p># not</p>"
+ },
+ {
+  "name": "backslash list",
+  "source": "\\- not",
+  "html": "<p>- not</p>"
+ },
+ {
+  "name": "entity amp",
+  "source": "a &amp; b",
+  "html": "<p>a &amp; b</p>"
+ },
+ {
+  "name": "entity named",
+  "source": "&copy; &mdash; &nbsp;|",
+  "html": "<p>© —  |</p>"
+ },
+ {
+  "name": "entity numeric",
+  "source": "&#35; &#x263A;",
+  "html": "<p># ☺</p>"
+ },
+ {
+  "name": "entity unknown",
+  "source": "&nosuchthing;",
+  "html": "<p>&amp;nosuchthing;</p>"
+ },
+ {
+  "name": "entity lone amp",
+  "source": "AT&T",
+  "html": "<p>AT&amp;T</p>"
+ },
+ {
+  "name": "entity escaped",
+  "source": "\\&amp;",
+  "html": "<p>&amp;amp;</p>"
+ },
+ {
+  "name": "entity lt is escaped",
+  "source": "&lt;script&gt;",
+  "html": "<p>&lt;script&gt;</p>"
+ },
+ {
+  "name": "entity encoded script",
+  "source": "&#60;script&#62;boom&#60;/script&#62;",
+  "html": "<p>&lt;script&gt;boom&lt;/script&gt;</p>"
+ },
+ {
+  "name": "entity nul",
+  "source": "&#0;",
+  "html": "<p>�</p>"
+ },
+ {
+  "name": "quotes stay text",
+  "source": "He said \"no\" & <left>.",
+  "html": "<p>He said &quot;no&quot; &amp; &lt;left&gt;.</p>"
+ },
+ {
+  "name": "script tag",
+  "source": "<script>boom()</script>",
+  "html": "<p>&lt;script&gt;boom()&lt;/script&gt;</p>"
+ },
+ {
+  "name": "script block multi",
+  "source": "<script>\nboom()\n</script>",
+  "html": "<p>&lt;script&gt;\nboom()\n&lt;/script&gt;</p>"
+ },
+ {
+  "name": "img onerror",
+  "source": "<img src=x onerror=boom>",
+  "html": "<p>&lt;img src=x onerror=boom&gt;</p>"
+ },
+ {
+  "name": "iframe",
+  "source": "<iframe src=\"https://evil.test\"></iframe>",
+  "html": "<p>&lt;iframe src=&quot;https://evil.test&quot;&gt;&lt;/iframe&gt;</p>"
+ },
+ {
+  "name": "style tag",
+  "source": "<style>*{display:none}</style>",
+  "html": "<p>&lt;style&gt;*{display:none}&lt;/style&gt;</p>"
+ },
+ {
+  "name": "html comment",
+  "source": "<!-- x -->",
+  "html": "<p>&lt;!-- x --&gt;</p>"
+ },
+ {
+  "name": "html in heading",
+  "source": "# <b>x</b>",
+  "html": "<h1>&lt;b&gt;x&lt;/b&gt;</h1>"
+ },
+ {
+  "name": "html in code",
+  "source": "`<b>`",
+  "html": "<p><code>&lt;b&gt;</code></p>"
+ },
+ {
+  "name": "html in link text",
+  "source": "[<b>x</b>](/y)",
+  "html": "<p><a href=\"/y\" target=\"_blank\" rel=\"noopener\">&lt;b&gt;x&lt;/b&gt;</a></p>"
+ },
+ {
+  "name": "js link",
+  "source": "[x](javascript:boom)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link upper",
+  "source": "[x](JAVASCRIPT:boom)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link space",
+  "source": "[x]( javascript:boom )",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link tab",
+  "source": "[x](java\tscript:boom)",
+  "html": "<p>[x](java\tscript:boom)</p>"
+ },
+ {
+  "name": "js link entity",
+  "source": "[x](&#106;avascript:boom)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link entity named colon",
+  "source": "[x](javascript&colon;boom)",
+  "html": "<p><a href=\"javascript&amp;colon;boom\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link escaped",
+  "source": "[x](\\javascript:boom)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link angle",
+  "source": "[x](<javascript:boom>)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "js link ref",
+  "source": "[x]\n\n[x]: javascript:boom",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "data link",
+  "source": "[x](data:text/html,<script>boom()</script>)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "vbscript link",
+  "source": "[x](vbscript:boom)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "file link",
+  "source": "[x](file:///etc/passwd)",
+  "html": "<p><a href=\"#\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "href quote breakout",
+  "source": "[x](https://evil\"onmouseover=boom)",
+  "html": "<p><a href=\"https://evil&quot;onmouseover=boom\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "title quote breakout",
+  "source": "[x](/y \"a\\\" onmouseover=boom\")",
+  "html": "<p><a href=\"/y\" title=\"a&quot; onmouseover=boom\" target=\"_blank\" rel=\"noopener\">x</a></p>"
+ },
+ {
+  "name": "autolink quote breakout",
+  "source": "<https://x.test/\"onmouseover=boom>",
+  "html": "<p><a href=\"https://x.test/&quot;onmouseover=boom\" target=\"_blank\" rel=\"noopener\">https://x.test/&quot;onmouseover=boom</a></p>"
+ },
+ {
+  "name": "bare url quote",
+  "source": "https://x.test/a\"b",
+  "html": "<p><a href=\"https://x.test/a&quot;b\" target=\"_blank\" rel=\"noopener\">https://x.test/a&quot;b</a></p>"
+ },
+ {
+  "name": "video src breakout",
+  "source": "![x](https://x.test/a.mp4\"onerror=boom)",
+  "html": "<p><img src=\"https://x.test/a.mp4&quot;onerror=boom\" alt=\"x\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "alt breakout",
+  "source": "![a\"><script>boom()</script>](/x.png)",
+  "html": "<p><img src=\"/x.png\" alt=\"a&quot;&gt;&lt;script&gt;boom()&lt;/script&gt;\" loading=\"lazy\"></p>"
+ },
+ {
+  "name": "lang with quote",
+  "source": "```a\"b\nx\n```",
+  "html": "<pre><code>x</code></pre>"
+ },
+ {
+  "name": "ref label html",
+  "source": "[<script>]\n\n[<script>]: /x",
+  "html": "<p><a href=\"/x\" target=\"_blank\" rel=\"noopener\">&lt;script&gt;</a></p>"
+ },
+ {
+  "name": "nul char",
+  "source": "a\u0000b",
+  "html": "<p>a�b</p>"
+ },
+ {
+  "name": "mixed doc",
+  "source": "# T\n\nSome *text* with `code`.\n\n- a\n- b\n\n> q\n\n```\nx\n```",
+  "html": "<h1>T</h1><p>Some <em>text</em> with <code>code</code>.</p><ul><li>a</li><li>b</li></ul><blockquote><p>q</p></blockquote><pre><code>x</code></pre>"
+ },
+ {
+  "name": "code after list",
+  "source": "- a\n\n```\nx\n```",
+  "html": "<ul><li>a</li></ul><pre><code>x</code></pre>"
+ },
+ {
+  "name": "heading after list",
+  "source": "- a\n# T",
+  "html": "<ul><li>a</li></ul><h1>T</h1>"
+ },
+ {
+  "name": "emphasis does not cross paragraphs",
+  "source": "*a\n\nb*",
+  "html": "<p>*a</p><p>b*</p>"
+ },
+ {
+  "name": "url in emphasis",
+  "source": "*https://x.test/a*",
+  "html": "<p><em><a href=\"https://x.test/a\" target=\"_blank\" rel=\"noopener\">https://x.test/a</a></em></p>"
+ }
+]
