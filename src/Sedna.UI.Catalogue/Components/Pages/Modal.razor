@@ -169,21 +169,29 @@
         </p>
     </CatExample>
 
-    <CatSnippet Name="Modal/ClosedByAny.html" Title="Closing on a backdrop click">
+    <CatSnippet Name="Modal/BackdropClose.html" Title="Closing on a backdrop click">
         <p>
-            <code>closedby="any"</code> on the <code>&lt;dialog&gt;</code> closes it on a click on the
-            backdrop, as <kbd>Escape</kbd> does — the platform's own light dismiss, in every browser
-            this library supports, with nothing to script and no <code>target === dialog</code> test
-            to get wrong: the press and the release both have to land on the backdrop, so a drag that
-            starts in a field and ends beside the dialog closes nothing. It works the same on a
-            <a href="/drawer">drawer or a sheet</a>, modal or not, and on a
-            <a href="/media">lightbox</a>, where the stage beside the picture stands in for the backdrop.
+            A click on the backdrop closes a modal, as <kbd>Escape</kbd> does, and
+            <code>ShowModalAsync</code> and <code>ISednaOverlays</code> complete the same way for both:
+            <code>null</code>, a close with no <code>returnValue</code>. The press and the release
+            both have to land on the backdrop, so a drag that starts in a field and ends beside the
+            dialog closes nothing. It is the same on a <a href="/drawer">drawer or a sheet</a>, and it
+            is the default: a dialog says nothing.
+        </p>
+        <p>
+            A dialog where a stray click would lose work &mdash; a form with something typed into it
+            &mdash; opts out with the platform's own <code>closedby="closerequest"</code>:
+            <kbd>Escape</kbd> still closes it and the backdrop does not.
+            <code>closedby="none"</code> gives up <kbd>Escape</kbd> too, so keep it for a dialog that
+            has to be answered. A drawer opened without a modal has no backdrop to click and stays open
+            when the page beside it is clicked, unless it says <code>closedby="any"</code>.
         </p>
         <p>
             With <code>data-close-guard</code> the click is a close request like <kbd>Escape</kbd>: the
             dialog stays open and raises <code>cancel</code>, every time, so your
             <code>&#64;oncancel</code> decides &mdash; save a pending note and close, or route it to the
-            same outcome as the Cancel button.
+            same outcome as the Cancel button. Use it where the app can say what to do with the work;
+            <code>closedby="closerequest"</code> where the answer is always to keep the dialog.
         </p>
     </CatSnippet>
 </CatGroup>

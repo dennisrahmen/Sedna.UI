@@ -95,6 +95,35 @@ public class EditorContentTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task A_table_in_the_editor_fills_the_column_and_is_drawn_as_a_prose_table()
+    {
+        if (NoBrowser) return;
+        const string stored = "&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Site&lt;/td&gt;&lt;td&gt;Orders&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;";
+        var page = await OpenEditor(
+            $"""<div id="ref" class="prose" style="width:600px">{System.Net.WebUtility.HtmlDecode(stored)}</div>""" +
+            Editor(stored, """<button type="button" data-editor-action="table-insert" aria-label="Insert table"></button>""")
+                .Replace("class=\"editor\"", "class=\"editor\" style=\"width:600px\"", StringComparison.Ordinal));
+
+        var report = await page.EvaluateAsync<string[]>(@"() => {
+            const out = [];
+            const body = document.querySelector('.ql-editor');
+            const t = body.querySelector('table'), td = t.querySelector('td');
+            const r = document.querySelector('#ref td');
+            const cs = getComputedStyle(td), rs = getComputedStyle(r);
+            if (t.getBoundingClientRect().width < body.clientWidth - 40)
+                out.push('the table is ' + t.getBoundingClientRect().width + 'px in a ' + body.clientWidth + 'px column');
+            for (const p of ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'borderTopWidth', 'borderTopColor', 'borderTopStyle', 'fontSize'])
+                if (cs[p] !== rs[p]) out.push(p + ': the page shows ' + rs[p] + ', the editor ' + cs[p]);
+            const cells = t.querySelectorAll('td');
+            if (Math.abs(cells[0].getBoundingClientRect().width - cells[1].getBoundingClientRect().width) > 1)
+                out.push('the columns are not equal');
+            return out;
+        }");
+
+        Assert.True(report.Length == 0, string.Join(Environment.NewLine, report));
+    }
+
+    [Fact]
     public async Task Without_tables_a_stored_table_reads_as_its_text()
     {
         if (NoBrowser) return;

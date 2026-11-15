@@ -110,9 +110,11 @@
 
 /* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
    hard. The two solid cover gradients (background-attachment: local) ride the
-   content and hide the shadow at the very top/bottom; the two radial shadows
+   content and hide the shadow at the very top/bottom; the two edge shadows
    (attachment: scroll) are pinned to the box and only show when there IS more
-   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   content that way. They run the full width of the box and fade out across their
+   height: a radial one was a smudge in the middle of the edge, which on a narrow
+   panel read as a shadow cast by something inside it. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band.
 
    It reads --surface-here, which every surface the library paints declares once
@@ -125,8 +127,8 @@
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
-        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
-        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+        linear-gradient(to bottom, var(--scroll-shade), transparent) center top,
+        linear-gradient(to top, var(--scroll-shade), transparent) center bottom;
     background-repeat: no-repeat;
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;

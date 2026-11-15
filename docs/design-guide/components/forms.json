@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "c05762a65635db56"
+    "stamp": "4c499b57553fc59f"
   },
   {
     "page": "/form-saving",
@@ -69,7 +69,7 @@
       { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
     ],
     "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
-    "stamp": "14ffb21b72ec580d"
+    "stamp": "aecace22e1c43086"
   },
   {
     "page": "/form-text",
@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "0999251e7bea3239"
+    "stamp": "14bc80f43d7c3596"
   },
   {
     "page": "/form-numeric",

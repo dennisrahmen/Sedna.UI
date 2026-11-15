@@ -143,6 +143,8 @@
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    dialog.drawer::backdrop { transition: none; }
+    .drawer[data-sedna-closing="modal"] { animation: none; }   /* the dim of a held, closing one */
     button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 

@@ -165,8 +165,8 @@
     "src/Sedna.UI/css-parts/33-buttons.css": "b00270add80e9927",
     "src/Sedna.UI/css-parts/34-forms.css": "ca2169ace25a07fa",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
-    "src/Sedna.UI/css-parts/47-form-file.css": "cc2c15b8180eae70",
-    "src/Sedna.UI/css-parts/64-files.css": "998a3ece50b11181",
+    "src/Sedna.UI/css-parts/47-form-file.css": "46c042c814eaa0ec",
+    "src/Sedna.UI/css-parts/64-files.css": "8bc287487fff1b74",
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5",
     "src/Sedna.UI/js-parts/26-dropzone.js": "0b08cb826cf0a7f0"
   },
@@ -179,7 +179,7 @@
     "src/Sedna.UI.Catalogue/Examples/FormFlow/QuestionText.razor": "481f25cedbc8d9e1",
     "src/Sedna.UI.Catalogue/Examples/FormFlow/TaskList.razor": "57c04f637845bcad",
     "src/Sedna.UI/css-parts/06-base-elements.css": "47391386aedbcdb1",
-    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
     "src/Sedna.UI/css-parts/30-cards.css": "52a17637c3b152cc",
     "src/Sedna.UI/css-parts/31-badges.css": "220ee6589d0d3960",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
@@ -226,14 +226,14 @@
     "src/Sedna.UI.Catalogue/Examples/FormSaving/SaveBar.razor": "beba6a4764ca8077",
     "src/Sedna.UI.Catalogue/Examples/FormSaving/StickyActions.razor": "aad14344e29a6d4c",
     "src/Sedna.UI.Catalogue/Examples/Interop/UnsavedChanges.razor": "29da58f137903649",
-    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
     "src/Sedna.UI/css-parts/19-frame-responsive.css": "18e78ee09cc08198",
     "src/Sedna.UI/css-parts/30-cards.css": "52a17637c3b152cc",
     "src/Sedna.UI/css-parts/36-modal.css": "6985409884cb5142",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
     "src/Sedna.UI/js-parts/29-viewport.js": "6d1010fc021a3db3",
     "src/Sedna.UI/js-parts/40-interop.js": "70bae7b61809f412",
-    "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"
+    "src/Sedna.UI/js-parts/42-modal.js": "26acd4b9cda02cfc"
   },
   "/form-select": {
     "src/Sedna.UI.Catalogue/Components/Pages/FormSelect.razor": "233cc41e82ecbd82",

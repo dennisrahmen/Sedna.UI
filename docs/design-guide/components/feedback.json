@@ -73,7 +73,7 @@
       { "text": "The steps of a task the reader moves through", "instead": "/collections#steps" }
     ],
     "goals": [ "show-progress-of-a-job", "show-busy-state", "list-running-jobs", "show-route-progress", "show-app-starting", "show-saving-then-saved", "show-usage-against-a-limit", "follow-an-agents-plan", "follow-uploads" ],
-    "stamp": "d7e91b1486b45324"
+    "stamp": "43e5a91da11ff0a5"
   },
   {
     "page": "/skeleton",
@@ -92,7 +92,7 @@
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
     "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
-    "stamp": "e2ab44cbaa8bcd9a"
+    "stamp": "514313217b9ee0fa"
   },
   {
     "page": "/empty-state",
@@ -112,7 +112,7 @@
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
     "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
-    "stamp": "c05153672ac8db6e"
+    "stamp": "5a23d982f9bb98b3"
   },
   {
     "page": "/state-art",
@@ -148,7 +148,7 @@
       { "text": "A share done with no output to show", "instead": "/progress#determinate-and-indeterminate" }
     ],
     "goals": [ "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "7c43360b6bc869d9"
+    "stamp": "3e0a6dc1e833f38e"
   },
   {
     "page": "/logs",

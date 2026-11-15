@@ -1,7 +1,7 @@
 [
   {
     "page": "/modal",
-    "useFor": "A question the reader has to answer before anything else happens: a confirmation, a short prompt, an edit that must be saved or cancelled, a first-run welcome.",
+    "useFor": "A question the reader has to answer before anything else happens: a confirmation, a short prompt, an edit that must be saved or cancelled, a first-run welcome. A click on the backdrop closes it like Escape; a form with something typed into it says closedby=\"closerequest\" so a stray click does not lose the work.",
     "combineWith": [
       { "page": "/button#in-a-footer-row", "how": "The answer in .modal-footer: Cancel first in the source, the confirming button last and the only filled one." },
       { "page": "/form#fields", "how": "A prompt's fields in .modal-body, the whole panel in one form so Enter submits it." },
@@ -17,11 +17,11 @@
       { "text": "Looking at one picture large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "confirm-before-it-happens", "answer-in-a-dialog", "edit-in-a-dialog", "welcome-a-new-user", "save-a-view", "keep-unsaved-work", "warn-before-the-session-ends", "view-a-picture-large" ],
-    "stamp": "60020255c84897af"
+    "stamp": "0cd0b78f8db4ebcd"
   },
   {
     "page": "/drawer",
-    "useFor": "A panel from an edge for a secondary flow that should not lose the page behind it: a record's detail, filters, a form on a phone, a sheet of actions.",
+    "useFor": "A panel from an edge for a secondary flow that should not lose the page behind it: a record's detail, filters, a form on a phone, a sheet of actions. A click on the backdrop closes it like Escape, and it leaves the way it came, the backdrop fading with the panel.",
     "combineWith": [
       { "page": "/filtering#drawer-on-a-narrow-screen", "how": "The filter panel moves into a start drawer on a narrow screen, opened by a Filters button with the count that applies." },
       { "page": "/list", "how": "A sheet's body is a list of button rows, and a record's drawer is opened from its row." },
@@ -37,7 +37,7 @@
       { "text": "An assistant docked beside the page", "instead": "/assistant-panels#assistant-beside-the-page" }
     ],
     "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone", "dock-an-assistant" ],
-    "stamp": "4bc414a4f8288409"
+    "stamp": "1d709f355df2e07f"
   },
   {
     "page": "/palette",
