@@ -59,7 +59,7 @@
     "src/Sedna.UI.Catalogue/Examples/Calendar/MoreEvents.razor": "2ad101a1dd837ad2",
     "src/Sedna.UI.Catalogue/Examples/Interop/CalendarMonthMove.razor": "9b051eac30218aee",
     "src/Sedna.UI.Catalogue/Examples/Interop/CalendarWeekEdit.razor": "dda9c6b3fe3a01c4",
-    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
     "src/Sedna.UI/css-parts/65-popover.css": "efdd526f226f60f3",
     "src/Sedna.UI/css-parts/66-calendar-agenda.css": "07787691b9ff38ae",
@@ -403,7 +403,7 @@
     "src/Sedna.UI/css-parts/32-tables.css": "cb925b5f133daea0",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/js-parts/22-grid.js": "da8ec0ba531efa86",
-    "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"
+    "src/Sedna.UI/js-parts/42-modal.js": "26acd4b9cda02cfc"
   },
   "/table-large": {
     "src/Sedna.UI.Catalogue/Components/Pages/TableLarge.razor": "477ab98bbffb88d5",
@@ -427,7 +427,7 @@
     "src/Sedna.UI.Catalogue/Examples/Tracker/HeatmapHours.razor": "ad481bd92665b97f",
     "src/Sedna.UI.Catalogue/Examples/Tracker/Sizes.razor": "e492f5014d60f153",
     "src/Sedna.UI.Catalogue/Examples/Tracker/Uptime.razor": "d18279b24ee99046",
-    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
     "src/Sedna.UI/css-parts/54-data-viz.css": "5693602ac6fd2d54",
     "src/Sedna.UI/css-parts/54-heatmap.css": "3479b74e5cb53a1f",

@@ -38,7 +38,7 @@
     "src/Sedna.UI.Catalogue/Examples/Chat/Reactions.razor": "0acb75a72a5af5ce",
     "src/Sedna.UI.Catalogue/Examples/Chat/Thread.razor": "9417fa59292a1582",
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "4813ed16ec96fe49",
-    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
     "src/Sedna.UI/css-parts/34-forms.css": "ca2169ace25a07fa",
     "src/Sedna.UI/css-parts/40-skeleton.css": "63af0635a215f060",
     "src/Sedna.UI/css-parts/41-progress.css": "ffbc80efb4f3d690",
@@ -173,7 +173,8 @@
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/js-parts/21-readonly.js": "5b20258743ff7fbd",
     "src/Sedna.UI/js-parts/30-markdown.js": "8b8c25465e56b2e9",
-    "src/Sedna.UI/js-parts/32-markdown-edit.js": "d56b40676914112f"
+    "src/Sedna.UI/js-parts/32-markdown-edit.js": "d56b40676914112f",
+    "src/Sedna.UI/js-parts/42-modal.js": "26acd4b9cda02cfc"
   },
   "/media": {
     "src/Sedna.UI.Catalogue/Components/Pages/Media.razor": "b55b91a6e6c1c84f",
