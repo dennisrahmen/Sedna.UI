@@ -1284,8 +1284,8 @@ a.topbar-version--pre:hover {
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
-        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
-        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+        linear-gradient(to bottom, var(--scroll-shade), transparent) center top,
+        linear-gradient(to top, var(--scroll-shade), transparent) center bottom;
     background-repeat: no-repeat;
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
@@ -10102,7 +10102,21 @@ dialog.sheet {
     border: 1px solid var(--border);
     border-bottom: none;
 }
-dialog.drawer::backdrop { background: var(--dialog-backdrop); }
+dialog.drawer::backdrop {
+    background-color: transparent;
+    transition: background-color var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+dialog.drawer[open]::backdrop { background-color: var(--dialog-backdrop); }
+@starting-style {
+    dialog.drawer[open]::backdrop { background-color: transparent; }
+}
+dialog.drawer[data-sedna-closing="modal"] {
+    box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--dialog-backdrop);
+    animation: sedna-dim-out var(--sedna-exit-duration, var(--motion-mid)) var(--sedna-exit-easing, ease) forwards;
+}
+@keyframes sedna-dim-out {
+    to { box-shadow: var(--shadow-modal), 0 0 0 100vmax transparent; }
+}
 dialog.drawer[open] { visibility: visible; transform: none; }
 @starting-style {
     dialog.drawer[open] { transform: translateX(100%); }
@@ -16307,6 +16321,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    dialog.drawer::backdrop { transition: none; }
+    dialog.drawer[data-sedna-closing] { animation: none; }
     button.badge-ai   { transition: none; }
     .fab-dial > .fab i { transition: none; }
     .sedna-art-bob,

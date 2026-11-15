@@ -173,7 +173,34 @@ dialog.sheet {
     border: 1px solid var(--border);
     border-bottom: none;
 }
-dialog.drawer::backdrop { background: var(--dialog-backdrop); }
+/* The backdrop fades in with the panel and out with it, over the same duration, so the
+   page is never dimmed with nothing on top of it nor left bare while the panel is still
+   leaving. `display` and `overlay` keep it in the top layer for the fade out, as they do
+   the panel. An engine without `overlay` takes the backdrop away with the dialog; the
+   held state below stands in for it. */
+dialog.drawer::backdrop {
+    background-color: transparent;
+    transition: background-color var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+dialog.drawer[open]::backdrop { background-color: var(--dialog-backdrop); }
+/* A drawer opened without a modal has no backdrop to draw. */
+@starting-style {
+    dialog.drawer[open]::backdrop { background-color: transparent; }
+}
+
+/* ── Closing, where the engine cannot keep a closed dialog displayed ─────────
+   42-modal-exit.js holds the dialog displayed and slides it out (`data-sedna-closing`),
+   and for a modal one the page's dimming is this: a shadow spread over the viewport
+   that fades to nothing over the slide's own duration and easing, which the script
+   writes as `--sedna-exit-duration` and `--sedna-exit-easing`. The shadow travels with
+   the panel, and its spread is wider than any distance the panel has to go. */
+dialog.drawer[data-sedna-closing="modal"] {
+    box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--dialog-backdrop);
+    animation: sedna-dim-out var(--sedna-exit-duration, var(--motion-mid)) var(--sedna-exit-easing, ease) forwards;
+}
+@keyframes sedna-dim-out {
+    to { box-shadow: var(--shadow-modal), 0 0 0 100vmax transparent; }
+}
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
    is what makes it visible and the visibility rule must not fight it. */
 dialog.drawer[open] { visibility: visible; transform: none; }

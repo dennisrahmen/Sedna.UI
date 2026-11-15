@@ -112,7 +112,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "1f7334c816ace779"
+    "stamp": "29eb1cda796435bc"
   },
   {
     "page": "/diff",
@@ -208,6 +208,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "7bf0681dbcd8cdaa"
+    "stamp": "0c7a955be7ba4468"
   }
 ]

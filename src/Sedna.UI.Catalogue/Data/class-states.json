@@ -2382,6 +2382,8 @@
       ],
       "attributes": [
         ":not([open])",
+        "[data-sedna-closing=\"modal\"]",
+        "[data-sedna-closing]",
         "[open]"
       ],
       "combinedWith": [

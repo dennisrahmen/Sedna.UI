@@ -109,15 +109,15 @@
     "src/Sedna.UI/css-parts/43-content-grids.css": "a5c5bec12e3be5d5",
     "src/Sedna.UI/css-parts/56-code-block.css": "b1598e93b88dee20",
     "src/Sedna.UI/css-parts/61-buttons-extra.css": "a000a7294fa7201b",
-    "src/Sedna.UI/css-parts/63-drawer.css": "b1fc1edf9e34413e",
+    "src/Sedna.UI/css-parts/63-drawer.css": "d6d54ed8e2696b68",
     "src/Sedna.UI/css-parts/66-chat.css": "000306460663709b",
     "src/Sedna.UI/css-parts/67-agent-chat.css": "5531148e2c8cd1a0",
     "src/Sedna.UI/css-parts/67-artifact.css": "0de8b0f0d2a4bea2",
     "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
     "src/Sedna.UI/js-parts/21-copy.js": "aea50bb40b6b5197",
-    "src/Sedna.UI/js-parts/29-sheet.js": "35f112c70192e3b6",
-    "src/Sedna.UI/js-parts/42-modal-exit.js": "af06a127707af316",
-    "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"
+    "src/Sedna.UI/js-parts/29-sheet.js": "1babdd9e41572cc9",
+    "src/Sedna.UI/js-parts/42-modal-exit.js": "953143173b9da09f",
+    "src/Sedna.UI/js-parts/42-modal.js": "26acd4b9cda02cfc"
   },
   "/mochi": {
     "src/Sedna.UI.Catalogue/Components/Pages/Mochi.razor": "f95a6563cee3ddf3",
