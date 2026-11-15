@@ -201,7 +201,7 @@ unsupported format, a size out of range, or a logo that cannot be read.
 
 **The logo** goes into the file as an image. An `<img>` is read through a canvas, which a page may not
 do to a picture from another origin: serve it from the same origin or write it as a data URL. An inline
-`<svg>` is written out as it is and must carry its own fills — a file has no stylesheet to give it any. A
+`<svg>` is written out with the colours the page resolved for each shape — its CSS and tokens included, turned into plain values — since a file has no stylesheet. A
 logo that cannot be read stops the save rather than leaving a hole in the code.
 
 Saving needs no .NET: the script owns it and nothing is held across the boundary.

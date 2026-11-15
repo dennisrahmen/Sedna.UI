@@ -60,7 +60,7 @@
         </p>
     </CatExample>
 
-    <CatSnippet Name="Qr/Formats.txt" Title="The formats written out">
+    <CatSnippet Name="Qr/Formats.txt" Title="Formats written out">
         <p>
             Nothing needs the helpers: a payload is plain text, so an app may write the string itself. These
             are the formats the helpers write. An HTML attribute turns a line break in its value into a bare
@@ -107,7 +107,7 @@
         </p>
     </CatExample>
 
-    <CatExample TExample="Examples.Qr.Logo" Title="A logo in the middle" Demo="ex-demo--block ex-demo--pad">
+    <CatExample TExample="Examples.Qr.Logo" Title="Logo in the middle" Demo="ex-demo--block ex-demo--pad">
         <p>
             Write the logo as a child with the class <code>qr-logo</code> &mdash; an <code>&lt;img&gt;</code>, an
             <code>&lt;svg&gt;</code>, or a box holding one. The modules under it are left out and the error
@@ -115,7 +115,7 @@
             <strong>the level is at least <code>Q</code></strong> (<code>H</code> if you ask for it), the symbol
             is at least version 5, and the square takes only what the level can pay for, however large
             <code>--qr-logo-size</code> (a share of the symbol's side, <code>0.22</code> by default) asks. Give
-            the logo a transparent or paper-coloured background.
+            the logo a transparent or paper-coloured background. An inline <code>&lt;svg&gt;</code> may be coloured by the app's own CSS and tokens: its colours are resolved into plain values when the code is saved.
         </p>
     </CatExample>
 </CatGroup>
@@ -161,9 +161,18 @@
             module whole pixels, which reads best), and <code>data-qr-name</code> the file's name without
             its extension. The file has the colours the code shows &mdash; plain values, so it opens anywhere
             &mdash; the quiet zone, the shapes, and the logo, which must be an <code>&lt;img&gt;</code> from the
-            same origin or a data URL, or an <code>&lt;svg&gt;</code> with its own fills. From script:
+            same origin or a data URL, or an inline <code>&lt;svg&gt;</code>. From script:
             <code>sednaUi.qr.download(el, { format, size, name })</code>. The code says how it went with the
             bubbling events <code>sedna-qr-download</code> and <code>sedna-qr-error</code>.
         </p>
     </CatExample>
+
+    <CatSnippet Name="Qr/SaveFromScript.txt" Title="Saving from script">
+        <p>
+            For a control of the app's own &mdash; a menu item, a keyboard shortcut &mdash; the script does what
+            the button does. In Blazor the two events bind as <code>@@onsedna-qr-download</code> and
+            <code>@@onsedna-qr-error</code>, with <code>SednaQrDownloadEventArgs</code> and
+            <code>SednaQrErrorEventArgs</code>.
+        </p>
+    </CatSnippet>
 </CatGroup>

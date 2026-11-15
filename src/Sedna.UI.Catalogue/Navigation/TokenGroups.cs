@@ -68,6 +68,8 @@ internal static class TokenGroups
             "--brand-tint", "--brand-tint-strong",
             "--brand-ring", "--brand-ring-soft", "--brand-ring-check",
             "--brand-glow", "--brand-edge", "--accent",
+            // The deep shade of the brand a QR code is inked with: dark on every theme, because a camera reads dark on light.
+            "--qr-brand-ink",
             // The accent inside a state illustration. It lives with the brand tokens
             // because that is what it points at by default; .empty-state--failed moves
             // it into the danger ramp for its own subtree.

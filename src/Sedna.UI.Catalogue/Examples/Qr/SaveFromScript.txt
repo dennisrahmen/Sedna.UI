@@ -1,0 +1,16 @@
+// Save as a file, from the app's own control.
+sednaUi.qr.download('pair', { format: 'png', size: 1000, name: 'pair-dock-3' })
+    .then(saved => console.log(saved.name))        // { format, size, name }
+    .catch(error => console.warn(error.message));  // an unsupported format, a size out of range, a logo that cannot be read
+
+// The same picture without saving it.
+const code = await sednaUi.qr.get('pair');
+const svgText = await code.toSvg({ size: 512 });
+const blob = await code.toBlob({ format: 'png', size: 512 });
+
+// What the code says about itself.
+code.version; code.modules; code.mode; code.level;
+
+// Either way, the code dispatches bubbling events.
+document.addEventListener('sedna-qr-download', e => console.log(e.detail));  // { format, size, name }
+document.addEventListener('sedna-qr-error', e => console.warn(e.detail));    // { message }

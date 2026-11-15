@@ -238,8 +238,8 @@
   },
   {
     "id": "download-a-qr-code",
-    "goal": "Let the user save a QR code as a picture for a sign, a label or a document",
-    "phrases": [ "download qr code", "save qr code", "qr code png", "qr code svg", "print a qr code", "qr code with logo", "wifi qr code", "vcard qr code" ],
+    "goal": "Let the user save a scannable code from the page as a picture for a sign, a label or a document",
+    "phrases": [ "download a qr", "save a qr as a picture", "qr png", "qr svg", "print a qr", "qr with a logo", "wifi qr", "vcard qr", "qr image" ],
     "answer": [
       { "page": "/qr#download-as-svg-or-png", "role": "primary" },
       { "page": "/qr#wi-fi-contacts-and-places", "role": "part" },

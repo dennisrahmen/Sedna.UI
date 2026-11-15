@@ -679,13 +679,30 @@ function pixelsOf(options) {
     if (!Number.isInteger(v) || v < 16 || v > 8192) throw new Error('A QR code is saved at a whole number of pixels from 16 to 8192.');
     return v;
 }
+function paintValue(value) {
+    if (!value || value === 'none') return 'none';
+    const c = channels(value);
+    return c ? hex(c) : value;
+}
+function paintOf(from, to) {
+    const cs = getComputedStyle(from);
+    const style = [
+        'fill:' + paintValue(cs.fill), 'stroke:' + paintValue(cs.stroke),
+        'stroke-width:' + cs.strokeWidth, 'stroke-linecap:' + cs.strokeLinecap, 'stroke-linejoin:' + cs.strokeLinejoin,
+        'opacity:' + cs.opacity, 'fill-opacity:' + cs.fillOpacity, 'stroke-opacity:' + cs.strokeOpacity,
+    ];
+    to.setAttribute('style', style.join(';'));
+    for (let i = 0; i < from.children.length; i++) paintOf(from.children[i], to.children[i]);
+}
 async function logoSource(q) {
     const logo = logoOf(q.el);
     if (!logo) return null;
     const media = logo.matches('img, svg') ? logo : logo.querySelector('img, svg');
     if (!media) return null;
     if (media instanceof SVGElement) {
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(media));
+        const copy = media.cloneNode(true);
+        paintOf(media, copy);
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(copy));
     }
     if (media.currentSrc.startsWith('data:')) return media.currentSrc;
     try {

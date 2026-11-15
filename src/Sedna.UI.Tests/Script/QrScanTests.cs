@@ -354,6 +354,23 @@ public class QrScanTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task An_inline_svg_logo_is_written_into_the_file_with_its_colours_resolved()
+    {
+        if (NoBrowser) return;
+        const string svg = "<svg class=\"qr-logo\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"12\" style=\"fill: var(--coral-600)\"></circle><path d=\"M7 12h10M12 7v10\" style=\"fill: none; stroke: var(--white); stroke-width: 3\"></path></svg>";
+        var page = await OpenCodes(new Spec("q", Url, Inner: svg));
+
+        // The logo is a child of the code that the drawing's own rules leave alone.
+        Assert.Equal("1", await page.EvaluateAsync<string>("() => String(document.querySelectorAll('#q > svg:not(.qr-logo)').length)"));
+        var text = await page.EvaluateAsync<string>("async () => (await sednaUi.qr.get('q')).toSvg({ size: 600 })");
+        var logo = Uri.UnescapeDataString(text.Split("href=\"data:image/svg+xml;charset=utf-8,", 2)[1].Split('"')[0]);
+        Assert.DoesNotContain("var(", logo, StringComparison.Ordinal);
+        Assert.Contains("fill:#", logo, StringComparison.Ordinal);
+        Assert.Contains("stroke:#ffffff", logo, StringComparison.Ordinal);
+        Assert.Equal(Url, await QrReader.Scan(page, "q"));
+    }
+
+    [Fact]
     public async Task A_save_that_cannot_be_made_says_so_with_an_event_and_a_rejection()
     {
         if (NoBrowser) return;

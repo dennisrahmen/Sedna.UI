@@ -9838,7 +9838,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     background: var(--qr-paper);
     border-radius: var(--radius-inner);
 }
-.qr > svg {
+.qr > svg:not(.qr-logo) {
     --qr-gap: calc(100% * var(--qr-quiet) / (var(--qr-modules) + 2 * var(--qr-quiet)));
     position: absolute;
     inset-block-start: var(--qr-gap);
@@ -9848,7 +9848,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     fill: var(--qr-ink);
 }
 .qr[data-qr-contrast="fallback"] { background: var(--qr-paper-safe); }
-.qr[data-qr-contrast="fallback"] > svg { fill: var(--qr-ink-safe); }
+.qr[data-qr-contrast="fallback"] > svg:not(.qr-logo) { fill: var(--qr-ink-safe); }
 .qr--sm { --qr-size: 6rem; }
 .qr--lg { --qr-size: 15rem; }
 .qr--brand  { --qr-ink: var(--qr-brand-ink); }

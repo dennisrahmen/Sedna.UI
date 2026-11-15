@@ -946,8 +946,7 @@ if (typeof matchMedia === 'function') {
 
    A centre logo goes into the file as an image. An `<img>` is read through a canvas,
    which a page may not do to a picture from another origin; an inline `<svg>` is written
-   out as it is and should carry its own fills, since a file has no stylesheet to give it
-   any. Neither can be read from anything else, and a logo that cannot be read stops the
+   out with the colours the page resolved for each shape, since a file has no stylesheet to give it any. Neither can be read from anything else, and a logo that cannot be read stops the
    download rather than leaving a hole in the code.
 
    Nothing here waits on the reader, and nothing reaches .NET: a button the app wrote
@@ -972,6 +971,27 @@ function pixelsOf(options) {
     return v;
 }
 
+/* A paint as the file should hold it: a plain value, whatever the page's CSS wrote. */
+function paintValue(value) {
+    if (!value || value === 'none') return 'none';
+    const c = channels(value);
+    return c ? hex(c) : value;
+}
+
+/* An inline logo is coloured by the page's own CSS and tokens, which a file does not have: what the
+   browser resolved is written onto each shape as a style, element by element, over whatever var() the
+   app's markup held. */
+function paintOf(from, to) {
+    const cs = getComputedStyle(from);
+    const style = [
+        'fill:' + paintValue(cs.fill), 'stroke:' + paintValue(cs.stroke),
+        'stroke-width:' + cs.strokeWidth, 'stroke-linecap:' + cs.strokeLinecap, 'stroke-linejoin:' + cs.strokeLinejoin,
+        'opacity:' + cs.opacity, 'fill-opacity:' + cs.fillOpacity, 'stroke-opacity:' + cs.strokeOpacity,
+    ];
+    to.setAttribute('style', style.join(';'));
+    for (let i = 0; i < from.children.length; i++) paintOf(from.children[i], to.children[i]);
+}
+
 /* The logo's picture as a data URL, or null when the code has none. */
 async function logoSource(q) {
     const logo = logoOf(q.el);
@@ -979,7 +999,9 @@ async function logoSource(q) {
     const media = logo.matches('img, svg') ? logo : logo.querySelector('img, svg');
     if (!media) return null;
     if (media instanceof SVGElement) {
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(media));
+        const copy = media.cloneNode(true);
+        paintOf(media, copy);
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(copy));
     }
     if (media.currentSrc.startsWith('data:')) return media.currentSrc;
     try {
