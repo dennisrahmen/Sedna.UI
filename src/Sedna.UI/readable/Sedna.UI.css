@@ -7407,19 +7407,22 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    unchecked">` and draws the marker itself, into a `.ql-ui` span, so the browser's own
    markers are off and the counters below number an ordered list through its indents:
    1. a. i. and round again, as a document editor does. */
-/* A table the editor takes (data-editor-format="table" or a table action): the
-   document's own grid, in the table tokens, so a stored table reads as one. */
+/* A table the editor takes (data-editor-format="table" or a table action). Its look is
+   the document's own, `.prose`'s: the same grid, padding and cell trim, so a stored
+   table reads as the one the page later shows. Only what editing needs is added — it
+   fills the column, as a block of fixed columns, so every cell is a target the pointer
+   can hit and a long word wraps inside its cell, where `.prose` lets a table shrink to
+   its content and scroll. */
 .editor .ql-editor table {
-    border-collapse: collapse;
+    display: table;
     inline-size: 100%;
     margin-block: var(--space-4);
     table-layout: fixed;
 }
 .editor .ql-editor td {
-    border: 1px solid var(--border);
-    padding: var(--space-2) var(--space-4);
     vertical-align: top;
     min-inline-size: 2em;
+    overflow-wrap: anywhere;
 }
 .editor .ql-editor ol { padding-inline-start: 1.5em; }
 .editor .ql-editor li {
@@ -9126,6 +9129,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     border: 0;
 }
 .form-file-name { color: var(--muted); font-size: var(--text-3); }
+/* Its overflow rules are the file name's, in 64-files.css. */
 /* The focus ring has to be drawn on the label, because the focused element is the
    input the reader cannot see. */
 .form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--focus-ring); }
@@ -9254,7 +9258,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     font-size: var(--text-3);
 }
 .file-item > i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
-.file-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-name { flex: 1; }
 .file-item-size { color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
 /* Failed upload or a rejected type. The icon carries it too, so it is not colour
    alone. */
@@ -18336,17 +18340,29 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
 .file-icon--media  { --file-icon-ink: var(--viz-5); }
 .file-icon--doc    { --file-icon-ink: var(--viz-6); }
 
-/* ── A name cut in the middle ───────────────────────────────────────────────
+/* ── A name that never runs out of its box ──────────────────────────────────
+   Every file name is one box that holds its own overflow: `.file-name` here, and the
+   same two rules on `.file-item-name` (an upload, an attachment) and `.form-file-name`
+   (the file a picker holds). A name too long for its box ends in an ellipsis rather
+   than running out of a tile or widening a column, so a name written as plain text
+   needs nothing more. Put the whole name in `title` too, for the pointer.
+
    `text-overflow` only cuts at the end, which is where a file name keeps what tells
-   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app splits the name in two and
-   only the start is cut: the end, a few characters and the extension, never shrinks.
-   Read aloud, the two spans are the whole name. Put the name in `title` too, for the
-   pointer. A name that fits shows whole and the split is invisible. */
-.file-name {
-    display: flex;
+   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app may split the name in two,
+   and then only the start is cut: the end, a few characters and the extension, never
+   shrinks. Read aloud, the two spans are the whole name. A name that fits shows whole
+   and the split is invisible. */
+:is(.file-name, .file-item-name, .form-file-name) {
+    display: block;
     min-width: 0;
     max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+}
+:is(.file-name, .file-item-name, .form-file-name):has(> .file-name-start) {
+    display: flex;
+    overflow: visible;
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
@@ -18355,8 +18371,9 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
    with no break in it breaks anywhere rather than running out of the tile, and does
    not widen the column it sits in. The split spans, if the markup has them, simply
    run on as text. */
-.file-name--wrap {
+:is(.file-name, .file-item-name, .form-file-name).file-name--wrap {
     display: block;
+    overflow: visible;
     white-space: normal;
     overflow-wrap: anywhere;
 }

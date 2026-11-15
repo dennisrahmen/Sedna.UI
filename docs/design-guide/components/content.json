@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "4bc6ba232d671124"
+    "stamp": "52cb28a6ffa9bf55"
   },
   {
     "page": "/carousel",
@@ -51,7 +51,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "b37b5f104e7cd44f"
+    "stamp": "f827a04fb147b461"
   },
   {
     "page": "/video",
@@ -65,7 +65,7 @@
       { "text": "A still picture opened large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "play-a-video" ],
-    "stamp": "d51d5a64fcd70ce2"
+    "stamp": "b0741fdbc85f96c2"
   },
   {
     "page": "/audio",
@@ -81,7 +81,7 @@
       { "text": "A recording with pictures", "instead": "/video" }
     ],
     "goals": [ "play-a-recording" ],
-    "stamp": "5c5268bea322cd02"
+    "stamp": "72a420ad4e06c1e2"
   },
   {
     "page": "/prose",
@@ -189,7 +189,7 @@
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text", "mention-someone", "format-as-you-type", "limit-rich-text-length", "edit-tables-in-text", "write-in-full-screen" ],
-    "stamp": "1fc81f1216cc6bd6"
+    "stamp": "d2ca366082fc01e8"
   },
   {
     "page": "/chat",
@@ -208,6 +208,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "7bf0681dbcd8cdaa"
+    "stamp": "bd0b96bac09c44a7"
   }
 ]

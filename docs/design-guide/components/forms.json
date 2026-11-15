@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "56cb20620d71092c"
+    "stamp": "b482c5440d3d7e7d"
   },
   {
     "page": "/form-numeric",
