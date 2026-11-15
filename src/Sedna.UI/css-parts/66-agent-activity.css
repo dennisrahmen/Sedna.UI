@@ -149,6 +149,9 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 .context-ring--danger { --ring: var(--danger-fg); }
 .context-ring--sm { --ring-size: 14px; --ring-width: 2px; }
 .context-ring--lg { --ring-size: 56px; --ring-width: 5px; }
+/* In a button the ring and its figure stand apart by a step more than a button's gap, so the
+   figure is not set against the ring while the other side has the button's padding. */
+.btn:has(> .context-ring) { gap: var(--space-4); }
 
 /* Block flow, with no `display` of its own: on a `.popover`, a display would outrank the
    rule that keeps a closed popover hidden. */

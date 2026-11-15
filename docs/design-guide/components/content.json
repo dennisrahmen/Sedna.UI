@@ -208,6 +208,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "7bf0681dbcd8cdaa"
+    "stamp": "69dd32587fad08f5"
   }
 ]

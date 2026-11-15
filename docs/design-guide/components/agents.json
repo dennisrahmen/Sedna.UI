@@ -13,7 +13,7 @@
       { "text": "A wait with no agent behind it", "instead": "/progress#spinner" }
     ],
     "goals": [ "show-the-agent-state-at-a-glance", "show-what-an-agent-is-doing" ],
-    "stamp": "06f1b75a72333248"
+    "stamp": "e605c1b2de6359dc"
   },
   {
     "page": "/agent-status",
@@ -30,7 +30,7 @@
       { "text": "Work with a known figure of done", "instead": "/progress#determinate-and-indeterminate" }
     ],
     "goals": [ "show-what-an-agent-is-doing", "highlight-what-the-agent-is-on", "show-an-answer-being-written", "mark-ai-generated-content", "show-how-sure-the-agent-is", "show-context-usage", "mark-ai-generated-values" ],
-    "stamp": "f9b2058797e7dde2"
+    "stamp": "e1cee676cdffc146"
   },
   {
     "page": "/agent-avatar",
@@ -84,7 +84,7 @@
       { "text": "A destructive confirmation the app asks for", "instead": "/modal#destructive-confirm" }
     ],
     "goals": [ "show-the-agents-reasoning", "check-the-tools-an-agent-ran", "approve-an-agent-action", "answer-an-agents-question", "follow-an-agents-plan", "ask-an-agent" ],
-    "stamp": "2dfa15e4fdf73209"
+    "stamp": "0db43682d2ef3c36"
   },
   {
     "page": "/agent-chat",
@@ -94,7 +94,7 @@
       { "page": "/agent-steps#finished-thought", "how": "The reasoning and the steps come first in the agent's turn, above the answer." },
       { "page": "/popover", "how": "A citation opens its source in a popover, and the context ring opens a hover card." },
       { "page": "/agent-status#status-pill", "how": "A status pill under a streaming answer says what the agent is doing." },
-      { "page": "/form-combo", "how": "The model picker is an inline combo in a flush popover, grouped by where the models run." },
+      { "page": "/form-combo", "how": "The model picker is an inline combo in a flush popover, grouped by where the models run, opened by the model button in the prompt's toolbar." },
       { "page": "/voice#mic-button", "how": "The mic button sits beside send in the prompt's toolbar." }
     ],
     "notFor": [
@@ -103,7 +103,7 @@
       { "text": "A spoken conversation", "instead": "/voice" }
     ],
     "goals": [ "highlight-what-the-agent-is-on", "show-an-answer-being-written", "show-context-usage", "ask-an-agent", "cite-sources", "rate-an-answer", "write-a-prompt", "choose-a-model", "suggest-the-rest", "act-on-selected-text", "restore-a-checkpoint" ],
-    "stamp": "76b2a5cee8ff1cce"
+    "stamp": "ae7a557352df245e"
   },
   {
     "page": "/assistant-panels",
@@ -119,7 +119,7 @@
       { "text": "The conversation itself", "instead": "/agent-chat" }
     ],
     "goals": [ "dock-an-assistant", "keep-generated-work-open" ],
-    "stamp": "c956228256c5ee65"
+    "stamp": "8812dac10b6b2e74"
   },
   {
     "page": "/voice",

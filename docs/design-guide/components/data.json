@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "e13ab987bf423e30"
+    "stamp": "2c8d1633053b32e7"
   },
   {
     "page": "/workflow-run",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "fb975c9cc29f297a"
+    "stamp": "00a2071aca7535e7"
   }
 ]
