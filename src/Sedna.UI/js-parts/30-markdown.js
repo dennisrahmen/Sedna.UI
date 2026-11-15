@@ -1,14 +1,27 @@
 /* ── Markdown editor ─────────────────────────────────────────────────────────
    Toolbar + textarea + live preview inside one .md-editor root. Blazor owns the
-   value through the textarea's two-way @bind (@bind:event="oninput"); toolbar
-   edits mutate the textarea and dispatch a bubbling 'input' event so the binding
-   picks them up, which is the whole of its conversation with .NET.
+   value through the textarea's two-way @bind (@bind:event="oninput"); every edit — a
+   toolbar command, a shortcut, a pasted link — reaches the textarea as an `input` event,
+   which is the whole of its conversation with .NET.
+
+   This part is the wiring: it finds the pieces of an editor, switches its view, keeps the
+   preview and the counts current and runs full-screen. The commands, the keyboard and the
+   paste and drop of files are 32-markdown-edit.js; the renderer is 31-markdown-render.js.
 
    init() is idempotent per editor, since Blazor re-renders its host. Call it with no
    argument to wire every .md-editor in the document, with a container to wire the ones
    inside it, or with an editor to wire exactly that one — an app renders editors and
    then calls init(), and does not have to know how many there are or hold a reference
    to each. From C#: ISednaUi.InitMarkdownAsync().
+
+   The markup the app writes (all of it the app's — nothing here draws an element):
+
+     .md-editor [data-md-view="write|preview|split"]
+       toolbar     buttons with data-md-cmd="…"; radios with data-md-tab="write|preview|split"
+       textarea    [data-md-input]
+       preview     [data-md-preview]
+       [data-md-count="words|characters|lines"]   a number, filled in as the text changes
+       [data-md-file-notice]                       shown when a pasted or dropped file is not taken
 
    insert() puts the app's own text at the caret — from C#, ISednaUi.InsertMarkdownAsync().
    An image is `![description](address)`; the same syntax with the address of a video file
@@ -17,228 +30,173 @@
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
-    ui.md = {
-        /* Counter for the per-editor radio group name. Private. */
-        _seq: 0,
+    var md = ui.md = ui.md || {};
 
-        init: function (root) {
-            root = root || document;
-            // An editor initialises itself; anything else initialises the editors
-            // inside it. Each one is wired against its OWN root, so two editors on a
-            // page get separate radio groups and separate listeners — which they would
-            // not if a shared container were treated as the root.
-            var editors = root.matches && root.matches('.md-editor')
-                ? [root]
-                : root.querySelectorAll('.md-editor');
+    /* Counter for the per-editor radio group name. Private. */
+    md._seq = 0;
 
-            for (var i = 0; i < editors.length; i++) this._initOne(editors[i]);
-        },
+    md.init = function (root) {
+        root = root || document;
+        // An editor initialises itself; anything else initialises the editors
+        // inside it. Each one is wired against its OWN root, so two editors on a
+        // page get separate radio groups and separate listeners — which they would
+        // not if a shared container were treated as the root.
+        var editors = root.matches && root.matches('.md-editor')
+            ? [root]
+            : root.querySelectorAll('.md-editor');
 
-        /* One editor. Private: init() is the entry point. */
-        _initOne: function (root) {
-            if (!root || root.dataset.mdReady === '1') return;
-            root.dataset.mdReady = '1';
-            var self = this;
-            var ta = root.querySelector('[data-md-input]');
-            var preview = root.querySelector('[data-md-preview]');
-            if (!ta) return;
+        for (var i = 0; i < editors.length; i++) md._initOne(editors[i]);
+    };
 
-            var renderPreview = function () {
-                if (preview) preview.innerHTML = self.render(ta.value);
-            };
-
-            // The Write/Preview switch is a .segmented control, so it is a radio
-            // group: the checked state comes from the platform and CSS draws it with
-            // :has(input:checked). Nothing here toggles a class.
-            //
-            // The radios need a shared `name` to be one group, and it has to be unique
-            // per editor or two editors on a page fight over one selection. Assigned
-            // here rather than in the markup, because only this code knows how many
-            // roots exist.
-            var views = root.querySelectorAll('input[data-md-tab]');
-            if (views.length) {
-                var group = 'sedna-md-view-' + (++ui.md._seq);
-                views.forEach(function (r) { r.name = group; });
-            }
-
-            root.addEventListener('click', function (e) {
-                var cmdBtn = e.target.closest('[data-md-cmd]');
-                if (cmdBtn && root.contains(cmdBtn)) {
-                    e.preventDefault();
-                    self.apply(ta, cmdBtn.getAttribute('data-md-cmd'));
-                    renderPreview();
-                }
-            });
-
-            root.addEventListener('change', function (e) {
-                var radio = e.target.closest('input[data-md-tab]');
-                if (!radio || !root.contains(radio) || !radio.checked) return;
-
-                var view = radio.getAttribute('data-md-tab');
-                // Carry the height between panes (both are resize:vertical), reading
-                // the visible one before the flip. The preview then fills the same box
-                // and scrolls internally instead of ballooning its host on long text,
-                // and a manual resize in either pane sticks across the switch.
-                if (view === 'preview') {
-                    renderPreview();
-                    if (preview) preview.style.height = ta.offsetHeight + 'px';
-                } else if (preview && preview.offsetHeight) {
-                    ta.style.height = preview.offsetHeight + 'px';
-                }
-                root.setAttribute('data-md-view', view);
-            });
-
-            ta.addEventListener('input', renderPreview);
-            renderPreview();
-        },
-
-        // Apply a toolbar command to the current selection, then fire the input
-        // event so the binding captures the new value.
-        apply: function (ta, cmd) {
-            var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
-            var sel = v.slice(s, e);
-            var wrap = function (before, after, ph) {
-                var body = sel || ph;
-                ta.value = v.slice(0, s) + before + body + after + v.slice(e);
-                ta.selectionStart = s + before.length;
-                ta.selectionEnd = s + before.length + body.length;
-            };
-            var linePrefix = function (prefix) {
-                // Expand the selection to whole lines, then prefix each.
-                var ls = v.lastIndexOf('\n', s - 1) + 1;
-                var le = v.indexOf('\n', e); if (le === -1) le = v.length;
-                var block = v.slice(ls, le) || prefix.trim();
-                var prefixed = block.split('\n').map(function (line, i) {
-                    return (cmd === 'ol' ? (i + 1) + '. ' : prefix) + line;
-                }).join('\n');
-                ta.value = v.slice(0, ls) + prefixed + v.slice(le);
-                ta.selectionStart = ls;
-                ta.selectionEnd = ls + prefixed.length;
-            };
-            switch (cmd) {
-                case 'bold':   wrap('**', '**', 'bold text'); break;
-                case 'italic': wrap('_', '_', 'italic text'); break;
-                case 'code':   wrap('`', '`', 'code'); break;
-                case 'h2':     linePrefix('## '); break;
-                case 'ul':     linePrefix('- '); break;
-                case 'ol':     linePrefix('1. '); break;
-                case 'quote':  linePrefix('> '); break;
-                case 'link':   wrap('[', '](https://)', 'link text'); break;
-                case 'image':  wrap('![', '](https://)', 'image description'); break;
-                case 'video':  wrap('![', '](https://)', 'video description'); break;
-                default: return;
-            }
-            ta.dispatchEvent(new Event('input', { bubbles: true }));
-            ta.focus();
-        },
-
-        // Replace the current selection with `text` — a link from the app's own picker, a
-        // snippet, a mention — leave the caret right after it, and fire the input event so
-        // the binding captures the new value. The same edit apply() makes, without a
-        // command's wrapping.
-        //
-        // It works while focus is elsewhere, which is the usual case: the picker is a
-        // dialog opened from the toolbar, and the textarea has been blurred by the time
-        // the app has its answer. A textarea keeps selectionStart/selectionEnd across a
-        // blur, so the text lands where the caret was, and nothing is stored here to make
-        // that true. The one thing that moves the caret is assigning a DIFFERENT value
-        // while focus is away; assigning the same value, which is what a Blazor re-render
-        // after the input event does, leaves it where it was.
-        insert: function (ta, text) {
-            if (!ta || typeof ta.selectionStart !== 'number') return;
-            text = text == null ? '' : String(text);
-            var v = ta.value, s = ta.selectionStart, e = ta.selectionEnd;
-            ta.value = v.slice(0, s) + text + v.slice(e);
-            ta.selectionStart = ta.selectionEnd = s + text.length;
-            ta.dispatchEvent(new Event('input', { bubbles: true }));
-            ta.focus();
-        },
-
-        // Minimal, self-contained Markdown → HTML. HTML is escaped FIRST; only a
-        // fixed set of block/inline constructs is re-introduced, and link hrefs
-        // and image and video sources are scheme-checked. Not a spec-complete parser — enough for authored
-        // prose, and safe enough that its output can be injected.
-        //
-        // esc() escapes the double quote as well, so its output is safe in an
-        // attribute value and not only in a text node. Without it a link target of
-        // https://x"onmouseover=alert(1) closes the href and opens a handler.
-        render: function (src) {
-            if (!src) return '';
-            var esc = function (s) {
-                return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-            };
-            // Pull fenced code blocks out first so their contents are never formatted.
-            var blocks = [];
-            src = src.replace(/```([\s\S]*?)```/g, function (_, code) {
-                blocks.push('<pre><code>' + esc(code.replace(/^\n/, '').replace(/\n$/, '')) + '</code></pre>');
-                return '  B' + (blocks.length - 1) + ' ';
-            });
-            var inline = function (t) {
-                t = esc(t);
-                // A code span, then an image or a video, is held aside as a numbered placeholder
-                // between two NUL characters until the end, so nothing below formats what a code
-                // span says or reaches into an address with an underscore in it.
-                var held = [];
-                var hold = function (html) {
-                    held.push(html);
-                    return '\u0000' + (held.length - 1) + '\u0000';
-                };
-                t = t.replace(/`([^`]+)`/g, function (_, code) { return hold('<code>' + code + '</code>'); });
-                t = t.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_, alt, url) { return hold(mediaHtml(alt, url)); });
-                // A link's tags are held aside too, before bold and italic run, so an
-                // underscore in its address is never read as emphasis; its text is still
-                // formatted. The whole line went through esc() above, so `url` is already
-                // escaped — escaping it again turned every & into &amp;amp;.
-                t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, txt, url) {
-                    var safe = ui._.safeHref(url) || '#';
-                    return hold('<a href="' + safe + '" target="_blank" rel="noopener">') + txt + hold('</a>');
-                });
-                t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-                t = t.replace(/_([^_]+)_/g, '<em>$1</em>');
-                return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return held[+i] || ''; });
-            };
-            // `alt` and `url` are already escaped, as the whole line is. The source is kept only
-            // when it is http, https or relative — no scheme before its first / ? or # — and an
-            // image whose source is not kept is its description, as text.
-            var mediaHtml = function (alt, url) {
-                if (!/^(https?:|[^:\/?#]*(?:[\/?#]|$))/i.test(url)) return alt;
-                if (/\.(mp4|m4v|mov|webm|ogv)$/i.test(url.split(/[?#]/)[0])) {
-                    return '<video controls preload="metadata" src="' + url + '"' +
-                        (alt ? ' aria-label="' + alt + '"' : '') + '></video>';
-                }
-                return '<img src="' + url + '" alt="' + alt + '" loading="lazy">';
-            };
-            var out = [], list = null;
-            var closeList = function () { if (list) { out.push('</' + list + '>'); list = null; } };
-            src.split(/\r?\n/).forEach(function (line) {
-                var ph = line.match(/^  B(\d+) $/);
-                if (ph) { closeList(); out.push(blocks[+ph[1]]); return; }
-                if (!line.trim()) { closeList(); return; }
-                var m;
-                if ((m = line.match(/^(#{1,6})\s+(.*)$/))) {
-                    closeList();
-                    var n = m[1].length;
-                    out.push('<h' + n + '>' + inline(m[2]) + '</h' + n + '>');
-                    return;
-                }
-                if (/^(---|\*\*\*|___)\s*$/.test(line)) { closeList(); out.push('<hr>'); return; }
-                if ((m = line.match(/^>\s?(.*)$/))) {
-                    closeList(); out.push('<blockquote>' + inline(m[1]) + '</blockquote>'); return;
-                }
-                if ((m = line.match(/^[-*]\s+(.*)$/))) {
-                    if (list !== 'ul') { closeList(); out.push('<ul>'); list = 'ul'; }
-                    out.push('<li>' + inline(m[1]) + '</li>'); return;
-                }
-                if ((m = line.match(/^\d+\.\s+(.*)$/))) {
-                    if (list !== 'ol') { closeList(); out.push('<ol>'); list = 'ol'; }
-                    out.push('<li>' + inline(m[1]) + '</li>'); return;
-                }
-                closeList(); out.push('<p>' + inline(line) + '</p>');
-            });
-            closeList();
-            return out.join('');
+    // How many words, characters (code points) and lines a text holds.
+    function counts(text) {
+        var chars = 0, words = 0, inWord = false;
+        for (var i = 0; i < text.length; i++) {
+            var code = text.charCodeAt(i);
+            if (code >= 0xdc00 && code <= 0xdfff) continue;
+            chars++;
+            var space = code === 32 || (code >= 9 && code <= 13) || code === 0xa0 || code === 0x2028 || code === 0x2029;
+            if (space) inWord = false;
+            else if (!inWord) { inWord = true; words++; }
         }
+        return { words: words, characters: chars, lines: text ? text.split('\n').length : 0 };
+    }
+
+    /* One editor. Private: init() is the entry point. */
+    md._initOne = function (root) {
+        if (!root || root.dataset.mdReady === '1') return;
+        root.dataset.mdReady = '1';
+        var ta = root.querySelector('[data-md-input]');
+        var preview = root.querySelector('[data-md-preview]');
+        if (!ta) return;
+
+        var timer = 0;
+        var renderPreview = function () {
+            if (preview) preview.innerHTML = md.render(ta.value);
+        };
+        var update = function () {
+            // A long text is rendered once the reader pauses, so typing never waits on it.
+            if (ta.value.length > 30000) {
+                clearTimeout(timer);
+                timer = setTimeout(renderPreview, 120);
+            } else {
+                renderPreview();
+            }
+            var numbers = root.querySelectorAll('[data-md-count]');
+            if (numbers.length) {
+                var c = counts(ta.value);
+                for (var i = 0; i < numbers.length; i++) {
+                    var kind = numbers[i].getAttribute('data-md-count');
+                    if (Object.prototype.hasOwnProperty.call(c, kind)) numbers[i].textContent = String(c[kind]);
+                }
+            }
+        };
+
+        // The Write/Preview switch is a .segmented control, so it is a radio
+        // group: the checked state comes from the platform and CSS draws it with
+        // :has(input:checked). Nothing here toggles a class.
+        //
+        // The radios need a shared `name` to be one group, and it has to be unique
+        // per editor or two editors on a page fight over one selection. Assigned
+        // here rather than in the markup, because only this code knows how many
+        // roots exist.
+        var views = root.querySelectorAll('input[data-md-tab]');
+        if (views.length) {
+            var group = 'sedna-md-view-' + (++md._seq);
+            var current = root.getAttribute('data-md-view') || 'write';
+            views.forEach(function (r) {
+                r.name = group;
+                r.checked = r.getAttribute('data-md-tab') === current;
+            });
+        }
+
+        // Switches the view. The height is carried between panes (both are
+        // resize:vertical), reading the visible one before the flip. The preview then fills
+        // the same box and scrolls internally instead of ballooning its host on long text,
+        // and a manual resize in either pane sticks across the switch. Side by side, the
+        // grid gives both the height the textarea has.
+        var setView = function (view) {
+            var was = root.getAttribute('data-md-view') || 'write';
+            if (view === was) return;
+            if (view === 'preview') {
+                renderPreview();
+                if (preview && was === 'write') preview.style.height = ta.offsetHeight + 'px';
+            } else if (view === 'split') {
+                renderPreview();
+                if (preview) preview.style.height = '';
+                if (was === 'preview' && preview && preview.offsetHeight) ta.style.height = preview.offsetHeight + 'px';
+            } else {
+                if (preview && preview.offsetHeight && was === 'preview') ta.style.height = preview.offsetHeight + 'px';
+            }
+            root.setAttribute('data-md-view', view);
+        };
+
+        root.addEventListener('click', function (e) {
+            var cmdBtn = e.target.closest('[data-md-cmd]');
+            if (!cmdBtn || !root.contains(cmdBtn)) return;
+            e.preventDefault();
+            var cmd = cmdBtn.getAttribute('data-md-cmd');
+            if (cmd === 'fullscreen') md._fullscreen(root, cmdBtn);
+            else md.apply(ta, cmd);
+        });
+
+        root.addEventListener('change', function (e) {
+            var radio = e.target.closest('input[data-md-tab]');
+            if (!radio || !root.contains(radio) || !radio.checked) return;
+            setView(radio.getAttribute('data-md-tab'));
+        });
+
+        // Side by side, the preview follows the textarea: the same share of the way down.
+        ta.addEventListener('scroll', function () {
+            if (!preview || root.getAttribute('data-md-view') !== 'split') return;
+            var from = ta.scrollHeight - ta.clientHeight, to = preview.scrollHeight - preview.clientHeight;
+            if (from > 0 && to > 0) preview.scrollTop = ta.scrollTop / from * to;
+        });
+
+        ta.addEventListener('input', update);
+        update();
+        md._wire(root, ta);
+    };
+
+    // Full-screen: the editor fills the window, and the page behind it is inert, so
+    // neither the keyboard nor a screen reader reaches what the editor covers. The root
+    // keeps its place in the document; `data-md-fullscreen` is what the stylesheet draws.
+    md._fullscreen = function (root, button, on) {
+        var is = root.hasAttribute('data-md-fullscreen');
+        if (on === undefined) on = !is;
+        if (on === is) return;
+        var ta = root.querySelector('[data-md-input]');
+        var preview = root.querySelector('[data-md-preview]');
+        var held = root._mdInert || [];
+        if (on) {
+            // The panes keep the heights they were resized to; full-screen sets its own.
+            root._mdHeights = [ta && ta.style.height, preview && preview.style.height];
+            if (ta) ta.style.height = '';
+            if (preview) preview.style.height = '';
+            for (var node = root; node.parentElement; node = node.parentElement) {
+                var kids = node.parentElement.children;
+                for (var i = 0; i < kids.length; i++) {
+                    if (kids[i] !== node && !kids[i].inert && !/^(HEAD|SCRIPT|STYLE|LINK|TEMPLATE)$/.test(kids[i].tagName)) {
+                        kids[i].inert = true;
+                        held.push(kids[i]);
+                    }
+                }
+            }
+            root._mdInert = held;
+            root.setAttribute('data-md-fullscreen', '');
+        } else {
+            root.removeAttribute('data-md-fullscreen');
+            held.forEach(function (el) { el.inert = false; });
+            root._mdInert = [];
+            if (root._mdHeights) {
+                if (ta) ta.style.height = root._mdHeights[0] || '';
+                if (preview) preview.style.height = root._mdHeights[1] || '';
+            }
+        }
+        root.querySelectorAll('[data-md-cmd="fullscreen"]').forEach(function (b) {
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (ta) ta.focus();
     };
 
 })(window.sednaUi);

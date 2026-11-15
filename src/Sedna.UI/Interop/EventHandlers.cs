@@ -13,7 +13,8 @@ namespace Sedna.UI;
 /// <c>-select</c> and <c>-check</c> — a <c>&lt;time data-countdown&gt;</c> reaching zero,
 /// <c>@onsedna-countdown-end</c> — an action pressed in a selection toolbar,
 /// <c>@onsedna-selection</c> — and a shared popover asking to be filled for its trigger,
-/// <c>@onsedna-popover-fill</c>.
+/// <c>@onsedna-popover-fill</c> — and a file pasted or dropped on a Markdown editor,
+/// <c>@onsedna-md-file</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -55,6 +56,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-countdown-end", typeof(SednaCountdownEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-selection", typeof(SednaSelectionEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-popover-fill", typeof(SednaPopoverEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-md-file", typeof(SednaMarkdownFileEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
 public static class EventHandlers
 {
 }

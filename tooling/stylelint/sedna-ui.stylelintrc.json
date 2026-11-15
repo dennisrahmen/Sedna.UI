@@ -1534,6 +1534,7 @@
         "/\\.table--zebra(?![\\w-])/",
         "/\\.tabs(?![\\w-])/",
         "/\\.tabs--fill(?![\\w-])/",
+        "/\\.task-list-item(?![\\w-])/",
         "/\\.test-case(?![\\w-])/",
         "/\\.test-case--fail(?![\\w-])/",
         "/\\.test-case--pass(?![\\w-])/",
