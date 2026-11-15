@@ -40,7 +40,7 @@ public partial class CatalogueSidebar : ComponentBase, IDisposable
         CataloguePages.All.FirstOrDefault(p => Nav.IsActive(p.Route, MatchFor(p)))?.Group
         ?? CataloguePages.Groups[0];
 
-    private static string FirstRoute(string group) => CataloguePages.InGroup(group).First().Route;
+    private static string FirstRoute(string group) => CataloguePages.InPanelOrder(group).First().Route;
 
     // The root link needs NavLinkMatch.All or it is active everywhere — the same
     // trap the framework's NavLink has, and the reason this line is spelled out

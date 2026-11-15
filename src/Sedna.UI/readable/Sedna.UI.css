@@ -13373,13 +13373,27 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
    picture. Every one the library draws, so none needs a margin utility in a stat. */
 .stat > :is(.progress, .meter, .stack-bar, .tracker, .sparkline) { margin-top: var(--space-2); }
 
+/* The first and last line of a stat stand on their capitals, not on their line box.
+   A line of text has leading above and below its capitals, so a tile padded the same on
+   every side read taller than it was wide: the label stood a half-leading further from the
+   top than from the start, and the figure the same from the foot. Every line of a stat is
+   trimmed to its capitals and given its line back as padding, like every leaf component's,
+   so it is as tall as before and its ink stands in the middle of it in both engines — and
+   the first and last line then take that padding back as a negative margin, so a tile's
+   padding (a tint's, a link's hover, a card's body) is the distance the eye sees. A delta
+   is a flex row of an icon and a word, with nothing to trim, and takes the margin alone. A
+   drawing as the last child has no line to give back. */
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):first-child { margin-block-start: calc(var(--cap-gap) * -1); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):last-child  { margin-block-end:   calc(var(--cap-gap) * -1); }
+
 /* ── A stat that opens something ────────────────────────────────────────────
    For a tile that leads to the thing it counts. An <a>, so it is a real link. The
    whole tile is the target, which is why the padding and the hover are on it rather
    than on the value. */
 a.stat {
-    padding: var(--space-4) var(--space-5);
-    margin: calc(var(--space-4) * -1) calc(var(--space-5) * -1);
+    padding: var(--space-4);
+    margin: calc(var(--space-4) * -1);
     border-radius: var(--radius-surface);
     color: inherit;
     text-decoration: none;
@@ -13462,8 +13476,12 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border: 1px solid transparent;
     border-radius: var(--radius-surface);
 }
+/* In a card the plain tile already stands `--space-2` inside its track, so a tint reaches
+   only `--space-1` past it: the label stands the same distance from the tint's top as from
+   its start, and a tint is no taller than the card body can hold. */
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
-    padding-block: calc(var(--space-2) + var(--space-3) - 1px);
+    margin-block: calc(var(--space-1) * -1);
+    padding-block: calc(var(--space-2) + var(--space-1) - 1px);
 }
 
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
@@ -13505,7 +13523,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .card-body > .stat-row > .stat { position: relative; }
 .card-body > .stat-row > .stat { padding-block: var(--space-2); }
 /* A linked tile keeps its negative margin, so its padding has to give that back too. */
-.card-body > .stat-row > a.stat { padding-block: calc(var(--space-2) + var(--space-4)); }
+.card-body > .stat-row > a.stat { margin-block: calc(var(--space-2) * -1); padding-block: var(--space-4); }
 /* A border rather than a background, so forced-colors mode keeps it. */
 .stat-row--divided > .stat::before,
 .card-body > .stat-row > .stat::before {
@@ -13519,13 +13537,18 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .stat-row--divided > a.stat::before,
 .card-body > .stat-row > a.stat::before {
     inset-block: var(--space-4);
-    inset-inline-start: calc(var(--space-5) - var(--space-7));
+    inset-inline-start: calc(var(--space-4) - var(--space-7));
 }
+.card-body > .stat-row > a.stat::before { inset-block: var(--space-2); }
 /* A toned tile's box reaches past its track by its tint; the rule does not. */
 .stat-row--divided > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before,
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
+}
+/* In a card a tint reaches `--space-1` past the track, not `--space-3`. */
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
+    inset-block: calc(var(--space-1) - 1px);
 }
 }
 

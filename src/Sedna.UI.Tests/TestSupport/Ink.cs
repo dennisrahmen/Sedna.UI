@@ -101,6 +101,79 @@ internal static class Ink
     }
 
     /// <summary>
+    /// [left, top, right, bottom] of the paint of each element, inside its own box, against that
+    /// box's own background — <see cref="Of"/> on both axes, for what a reader measures an edge
+    /// against: how far the first glyph stands from the start of its tile as well as from its top.
+    /// The page must have been opened at a device scale factor of <see cref="Scale"/>.
+    /// </summary>
+    public static async Task<double[][]> Extent(IPage page, params string[] selectors) =>
+        await Extent(page, 0, selectors);
+
+    /// <summary>
+    /// <see cref="Extent(IPage, string[])"/> with each box taken in by <paramref name="inset"/> page
+    /// pixels on every side — for a box that stands against a border, whose own edge would else be
+    /// read as paint.
+    /// </summary>
+    public static async Task<double[][]> Extent(IPage page, double inset, params string[] selectors)
+    {
+        var boxes = new List<LocatorBoundingBoxResult>();
+        foreach (var selector in selectors)
+        {
+            var b = (await page.Locator(selector).First.BoundingBoxAsync())
+                ?? throw new InvalidOperationException($"{selector} has no box.");
+            boxes.Add(new() { X = (float)(b.X + inset), Y = (float)(b.Y + inset), Width = (float)(b.Width - 2 * inset), Height = (float)(b.Height - 2 * inset) });
+        }
+        var left = boxes.Min(b => b.X) - 1;
+        var top = boxes.Min(b => b.Y) - 1;
+        var right = boxes.Max(b => b.X + b.Width) + 1;
+        var bottom = boxes.Max(b => b.Y + b.Height) + 1;
+        var png = await page.ScreenshotAsync(new() { Clip = new() { X = left, Y = top, Width = right - left, Height = bottom - top } });
+        var image = Png.Decode(png);
+        return boxes.Select(b => PaintBox(image, left, top, b.X, b.Y, b.Width, b.Height)
+            ?? throw new InvalidOperationException("Nothing is painted in that element's box.")).ToArray();
+    }
+
+    /// <summary><see cref="Paint"/> on both axes: [left, top, right, bottom], null when nothing is painted.</summary>
+    public static double[]? PaintBox(Png image, double left, double top, double x, double y, double width, double height)
+    {
+        int x0 = Math.Max(0, (int)Math.Ceiling((x - left) * Scale)), x1 = Math.Min(image.Width, (int)Math.Floor((x + width - left) * Scale));
+        int y0 = Math.Max(0, (int)Math.Ceiling((y - top) * Scale)), y1 = Math.Min(image.Height, (int)Math.Floor((y + height - top) * Scale));
+        if (x1 <= x0 || y1 <= y0) return null;
+        var counts = new Dictionary<(int, int, int), int>();
+        for (var py = y0; py < y1; py++)
+            for (var px = x0; px < x1; px++)
+            {
+                var p = image.Pixel(px, py);
+                counts[p] = counts.GetValueOrDefault(p) + 1;
+            }
+        var bg = counts.MaxBy(c => c.Value).Key;
+        var rows = new double[y1 - y0];
+        var cols = new double[x1 - x0];
+        for (var py = y0; py < y1; py++)
+            for (var px = x0; px < x1; px++)
+            {
+                var p = image.Pixel(px, py);
+                double d = Math.Abs(p.R - bg.Item1) + Math.Abs(p.G - bg.Item2) + Math.Abs(p.B - bg.Item3);
+                if (d > rows[py - y0]) rows[py - y0] = d;
+                if (d > cols[px - x0]) cols[px - x0] = d;
+            }
+        var full = rows.Max();
+        if (full < 96) return null;
+        double[] Edges(double[] line, int origin, double lead)
+        {
+            var floor = full * 0.15;
+            var first = Array.FindIndex(line, d => d > floor);
+            var last = Array.FindLastIndex(line, d => d > floor);
+            var a = first + 1 - Math.Min(1, line[first] / full);
+            var b = last + Math.Min(1, line[last] / full);
+            return [lead + (origin + a) / Scale, lead + (origin + b) / Scale];
+        }
+        var v = Edges(rows, y0, top);
+        var h = Edges(cols, x0, left);
+        return [h[0], v[0], h[1], v[1]];
+    }
+
+    /// <summary>
     /// Whether two rasterised colours are the same paint: each channel within
     /// <paramref name="tolerance"/>, because engines and platforms round a blended or
     /// antialiased pixel differently by a step.
