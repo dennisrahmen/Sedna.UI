@@ -121,8 +121,14 @@ public abstract class BrowserTestBase : IAsyncLifetime
         // failed on the closed target; a live browser that will not close one is a defect.
         foreach (var context in contexts)
         {
-            try { await context.CloseAsync(); }
-            catch when (_browser is { IsConnected: false }) { }
+            try
+            {
+                await context.CloseAsync();
+            }
+            catch (PlaywrightException) when (_browser is { IsConnected: false })
+            {
+                // The browser died under the test, which has already failed on it.
+            }
         }
     }
 

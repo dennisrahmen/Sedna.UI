@@ -39,7 +39,14 @@ public class CoverageGateTests : IDisposable
 
     public void Dispose()
     {
-        try { Directory.Delete(_dir, recursive: true); } catch (IOException) { }
+        try
+        {
+            Directory.Delete(_dir, recursive: true);
+        }
+        catch (IOException)
+        {
+            // A temporary directory that will not go is left to the system's own cleanup.
+        }
     }
 
     private static string PolicyText(double changed = 80, double floor = 50, string extra = "") =>

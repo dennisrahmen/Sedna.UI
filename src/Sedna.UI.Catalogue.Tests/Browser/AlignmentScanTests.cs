@@ -62,6 +62,8 @@ public class AlignmentScanTests(CatalogueAppFixture app, ITestOutputHelper outpu
     /// <summary>How often a page moved while it was measured and was measured again, over the run.</summary>
     private static int _remeasured;
 
+    private static void CountMeasuredAgain() => Interlocked.Increment(ref _remeasured);
+
     [Theory]
     [MemberData(nameof(Pages))]
     public async Task Every_row_and_every_box_paints_on_its_centre_line(string route)
@@ -92,7 +94,7 @@ public class AlignmentScanTests(CatalogueAppFixture app, ITestOutputHelper outpu
                 {
                     if (attempt > 0)
                     {
-                        Interlocked.Increment(ref _remeasured);
+                        CountMeasuredAgain();
                         await Open(page, route);
                     }
                     clock.Restart();

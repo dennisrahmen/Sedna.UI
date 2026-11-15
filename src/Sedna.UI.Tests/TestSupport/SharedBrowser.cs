@@ -49,23 +49,27 @@ internal static class SharedBrowser
             HookExit();
             try
             {
+                _browser = await LaunchAsync();
+            }
+            catch (PlaywrightException first)
+            {
+                // The driver may be what died with the browser: the next launch starts its own.
+                DisposeDriver();
+                if (!HasLaunched())
+                {
+                    _firstLaunchFailure = first;
+                    throw new LaunchFailed(first);
+                }
+
                 try
                 {
                     _browser = await LaunchAsync();
                 }
-                catch when (_everLaunched)
+                catch (PlaywrightException second)
                 {
-                    // The driver may be what died with the browser: start with a new one.
                     DisposeDriver();
-                    _browser = await LaunchAsync();
+                    throw new LaunchFailed(second);
                 }
-            }
-            catch (Exception ex)
-            {
-                // The driver may be what died with the browser; the next attempt starts its own.
-                DisposeDriver();
-                if (!_everLaunched) _firstLaunchFailure = ex;
-                throw new LaunchFailed(ex);
             }
 
             _everLaunched = true;
@@ -84,6 +88,9 @@ internal static class SharedBrowser
     /// </summary>
     public static bool IsLaunchFailure(Exception ex) => ex is LaunchFailed { FirstLaunch: true };
 
+    /// <summary>Whether a browser has ever started in this process.</summary>
+    private static bool HasLaunched() => _everLaunched;
+
     private static async Task<IBrowser> LaunchAsync()
     {
         // A driver that is gone with its browser is replaced along with it.
@@ -93,7 +100,14 @@ internal static class SharedBrowser
 
     private static void DisposeDriver()
     {
-        try { _playwright?.Dispose(); } catch { /* it is being replaced because it was already unusable */ }
+        try
+        {
+            _playwright?.Dispose();
+        }
+        catch (PlaywrightException)
+        {
+            // It is being replaced because it was already unusable.
+        }
         _playwright = null;
         _browser = null;
     }
@@ -117,12 +131,19 @@ internal static class SharedBrowser
             if (browser is { IsConnected: true })
                 Task.Run(() => browser.CloseAsync()).Wait(CloseWithin);
         }
-        catch
+        catch (AggregateException)
         {
             // The process is ending; the driver takes its browsers with it.
         }
 
-        try { playwright?.Dispose(); } catch { }
+        try
+        {
+            playwright?.Dispose();
+        }
+        catch (PlaywrightException)
+        {
+            // The process is ending, and a driver that will not close ends with it.
+        }
     }
 
     /// <summary>

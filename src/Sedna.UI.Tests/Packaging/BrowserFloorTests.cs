@@ -138,12 +138,12 @@ public class BrowserFloorTests
         // `ready` is the one check the ruleset requires: it waits for every other job of ci.yml
         // and runs whatever they did, so a job that is added and not waited for cannot go unseen.
         var ci = WorkflowYaml.Jobs(Workflow("ci.yml"));
-        Assert.True(ci.ContainsKey("ready"), "ci.yml has no `ready` job, the one check the ruleset requires.");
-        var needs = WorkflowYaml.Needs(ci["ready"]);
+        Assert.True(ci.TryGetValue("ready", out var ready), "ci.yml has no `ready` job, the one check the ruleset requires.");
+        var needs = WorkflowYaml.Needs(ready!);
         var others = ci.Keys.Where(k => k != "ready").Order().ToList();
         Assert.True(others.SequenceEqual(needs.Order()),
             $"ci.yml's `ready` must need every other job ({string.Join(", ", others)}); it needs {string.Join(", ", needs)}.");
-        Assert.Matches(@"^    if:\s*\$\{\{\s*always\(\)\s*\}\}\s*$", string.Join("\n", ci["ready"].Split('\n').Where(l => l.StartsWith("    if:", StringComparison.Ordinal))));
+        Assert.Matches(@"^    if:\s*\$\{\{\s*always\(\)\s*\}\}\s*$", string.Join("\n", ready!.Split('\n').Where(l => l.StartsWith("    if:", StringComparison.Ordinal))));
     }
 
     /// <summary>
@@ -155,10 +155,11 @@ public class BrowserFloorTests
     public void Nothing_publishes_before_the_full_suite_is_green()
     {
         var jobs = WorkflowYaml.Jobs(Workflow("release.yml"));
-        Assert.True(jobs.ContainsKey("release") && jobs.ContainsKey("tests") && jobs.ContainsKey("preflight"),
+        Assert.True(jobs.TryGetValue("release", out var release) & jobs.TryGetValue("tests", out var tests) & jobs.ContainsKey("preflight"),
             "release.yml needs a `preflight`, a `tests` and a `release` job.");
+        Assert.NotNull(release);
+        Assert.NotNull(tests);
 
-        var release = jobs["release"];
         var needs = WorkflowYaml.Needs(release);
         Assert.True(needs.Contains("preflight") && needs.Contains("tests"),
             $"release.yml's release job must need both `preflight` and `tests`; it needs {string.Join(", ", needs)}.");
@@ -172,7 +173,6 @@ public class BrowserFloorTests
         Assert.True(Regex.Matches(condition, @"needs\.tests\.result").Count == 2,
             $"release.yml's release `if:` may name the suite's result only as succeeded, or as skipped with the commit verified: {condition}");
 
-        var tests = jobs["tests"];
         Assert.Matches(@"^    uses:\s*\./\.github/workflows/tests\.yml\s*$", string.Join("\n", tests.Split('\n').Where(l => l.StartsWith("    uses:", StringComparison.Ordinal))));
         Assert.True(WorkflowYaml.Needs(tests).Contains("preflight"), "release.yml's tests job must need `preflight`, whose `verified` output it reads.");
         Assert.Equal("needs.preflight.outputs.verified != 'true'", Regex.Replace(WorkflowYaml.If(tests), @"\s+", " ").Trim());
