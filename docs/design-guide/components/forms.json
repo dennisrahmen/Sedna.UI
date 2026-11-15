@@ -227,7 +227,7 @@
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
     "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
-    "stamp": "d526fe882edc6206"
+    "stamp": "ce481822483655af"
   },
   {
     "page": "/form-rating",

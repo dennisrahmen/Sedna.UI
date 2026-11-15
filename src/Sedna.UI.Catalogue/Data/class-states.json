@@ -3929,7 +3929,12 @@
     "md-editor": {
       "family": "md-editor",
       "attributes": [
-        "[data-md-view=\"preview\"]"
+        ":not([data-md-fullscreen])",
+        ":not([data-md-view=\"split\"])",
+        "[data-md-dragging]",
+        "[data-md-fullscreen]",
+        "[data-md-view=\"preview\"]",
+        "[data-md-view=\"split\"]"
       ]
     },
     "md-input": {
@@ -3946,6 +3951,9 @@
     },
     "md-tool": {
       "family": "md-tool",
+      "attributes": [
+        "[aria-pressed=\"true\"]"
+      ],
       "pseudoClasses": [
         ":hover"
       ]
@@ -6723,6 +6731,9 @@
     },
     "tabs--fill": {
       "family": "tabs"
+    },
+    "task-list-item": {
+      "family": "task-list-item"
     },
     "test-case": {
       "family": "test-case",

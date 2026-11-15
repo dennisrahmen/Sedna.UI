@@ -7132,8 +7132,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* ── 44-markdown.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Markdown editor ────────────────────────────────────────────────────────
-   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
-   tabs flip [data-md-view] on the root (done by the JS). */
+   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview/Split
+   switch sets [data-md-view="write|preview|split"] on the root, and the full-screen
+   button [data-md-fullscreen] — both done by the JS; the layouts are drawn here. */
 /* ── Editor chrome ──────────────────────────────────────────────────────────
    The frame, toolbar and body for a rich-text editor the APP brings — TipTap, Quill,
    ProseMirror, a plain contenteditable. Not an editor: no document model, no sanitiser,
@@ -7214,6 +7215,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     display: inline-flex; align-items: center; justify-content: center;
 }
 .md-tool:hover { background: var(--bg-hover); color: var(--fg); }
+/* A command that is on — full-screen — is `aria-pressed`, the attribute, as the rich-text
+   editor's toolbar draws it. */
+.md-tool[aria-pressed="true"] { background: var(--brand-tint); color: var(--brand-text); }
 /* The Write/Preview switch is the tier-2 .segmented control, not a private set of
    tab classes. It is exactly what a segmented control is for — two mutually
    exclusive options, applied immediately — and using it means the editor gets the
@@ -7238,6 +7242,68 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .md-editor[data-md-view="preview"] .md-input   { display: none; }
 .md-editor[data-md-view="preview"] .md-preview { display: block; }
+
+/* A file dragged over the textarea: the frame takes the focus ring a focused field has. */
+.md-editor[data-md-dragging] { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
+
+/* ── Side by side ───────────────────────────────────────────────────────────
+   Write and preview at once. The root becomes a two-column grid: the toolbar and anything
+   else the app put in the editor span both, the textarea sits left and the preview right.
+   The preview's height is the textarea's, so it scrolls inside the row instead of
+   stretching it (size containment takes its content out of the row's height), and a manual
+   resize of the textarea resizes both. Under 40rem the two stack. */
+.md-editor[data-md-view="split"],
+.md-editor[data-md-fullscreen] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+}
+.md-editor[data-md-view="split"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.md-editor[data-md-view="split"] > * { grid-column: 1 / span 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > * { grid-column: 1; }
+.md-editor[data-md-view="split"] > .md-toolbar,
+.md-editor[data-md-fullscreen] > .md-toolbar { grid-row: 1; }
+.md-editor[data-md-view="split"] > .md-input,
+.md-editor[data-md-fullscreen] > .md-input { grid-column: 1; grid-row: 2; }
+.md-editor[data-md-view="split"] > .md-preview,
+.md-editor[data-md-fullscreen] > .md-preview { grid-column: 2; grid-row: 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > .md-preview { grid-column: 1; }
+.md-editor[data-md-view="split"] > .md-preview {
+    display: block;
+    contain: size;
+    resize: none;
+    border-inline-start: 1px solid var(--border);
+}
+@media (max-width: 40rem) {
+    .md-editor[data-md-view="split"] > .md-input,
+    .md-editor[data-md-view="split"] > .md-preview { grid-column: 1 / span 2; }
+    .md-editor[data-md-view="split"] > .md-preview {
+        grid-row: 3;
+        border-inline-start-color: transparent;
+        border-block-start: 1px solid var(--border);
+    }
+    .md-editor[data-md-view="split"]:not([data-md-fullscreen]) { grid-template-rows: auto auto auto; }
+}
+
+/* ── Full screen ────────────────────────────────────────────────────────────
+   The editor fills the window, above the page and below a dialog; the script makes
+   what it covers inert and Escape leaves. The page does not scroll behind it. */
+.md-editor[data-md-fullscreen] {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    border: 0;
+    border-radius: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.md-editor[data-md-fullscreen] > .md-input,
+.md-editor[data-md-fullscreen] > .md-preview {
+    block-size: 100%;
+    min-block-size: 0;
+    max-block-size: none;
+    resize: none;
+}
+html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 
 /* Theme the scroll + resize chrome on both panes so the browser-default white
    scrollbar corner and resizer grip don't show through. */
@@ -7270,9 +7336,33 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .markdown-body h1 { font-size: 1.4em; }
 .markdown-body h2 { font-size: 1.25em; }
 .markdown-body h3 { font-size: 1.1em; }
+.markdown-body h4 { font-size: 1em; }
+.markdown-body h5 { font-size: 0.9em; }
+.markdown-body h6 { font-size: 0.9em; color: var(--muted); }
 .markdown-body p  { margin: 0.5em 0; }
 .markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-inline-start: 1.5em; }
 .markdown-body li { margin: 0.15em 0; }
+/* A nested list sits tight under its item; a loose item's paragraphs keep their space. */
+.markdown-body li > :is(ul, ol) { margin: 0.15em 0; }
+.markdown-body li > p { margin: 0.3em 0; }
+.markdown-body li > :first-child { margin-top: 0; }
+.markdown-body li > :last-child { margin-bottom: 0; }
+/* A loose item — one whose paragraphs are wrapped — is set apart from the next. */
+.markdown-body li:has(> p) { margin: 0.6em 0; }
+.markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 1.2em 0; }
+.markdown-body del { color: var(--muted); }
+/* A task list: the box stands where the bullet would, and is the item's state, not a
+   control — the preview never changes the text. The renderer makes the box and the text of
+   the item's first paragraph one <label>, which is the box's name. */
+.markdown-body .task-list-item { list-style: none; }
+.markdown-body .task-list-item input[type="checkbox"] {
+    margin-block: 0;
+    margin-inline: -1.5em 0.5em;
+    inline-size: 1em;
+    block-size: 1em;
+    vertical-align: middle;
+    accent-color: var(--control-on);
+}
 /* Underlined, not colour alone: a link inside a block of text must be
    distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same.
 
@@ -7299,6 +7389,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;
     color: var(--muted);
 }
+.markdown-body blockquote > :first-child { margin-top: 0; }
+.markdown-body blockquote > :last-child  { margin-bottom: 0; }
+/* A table is the one thing that breaks the width of the box it is in, because its own
+   content sets its minimum size: it scrolls, and the renderer gives it a tab stop so a
+   keyboard can reach the part that is off-screen. Alignment is the `align` attribute the
+   renderer writes, which is what a GitHub-flavoured table says. */
+.markdown-body table { display: block; overflow-x: auto; max-inline-size: 100%; border-collapse: collapse; margin: 0.6em 0; }
+.markdown-body th, .markdown-body td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.markdown-body th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
+.markdown-body :is(th, td)[align="center"] { text-align: center; }
+.markdown-body :is(th, td)[align="right"] { text-align: end; }
 
 
 }

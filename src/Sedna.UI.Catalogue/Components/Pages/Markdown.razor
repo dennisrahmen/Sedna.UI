@@ -4,7 +4,7 @@
 <CatHead Title="Markdown" Tier="@CatHead.Tier3">
     Two independent pieces: <code>.markdown-body</code> styles rendered Markdown wherever it
     appears, and <code>.md-editor</code> is a toolbar + textarea + live preview driven by
-    <code>sednaUi.md</code>.
+    <code>sednaUi.md</code>, which also holds the renderer, <code>sednaUi.md.render()</code>.
 </CatHead>
 
 <CatGroup Title="Rendered Markdown">
@@ -24,22 +24,64 @@
             wide table scrolls rather than widening the page.
         </p>
     </CatExample>
+
+    <CatExample TExample="Examples.Markdown.MdSyntax" Title="Everything it reads" Demo="ex-demo--block">
+        <p>
+            <strong>Live below</strong> &mdash; edit the left, read the right. <code>sednaUi.md.render()</code>
+            reads CommonMark and the GitHub extensions an author expects: headings (<code>#</code> and underlined),
+            emphasis, strong and strikethrough, code spans and fenced or indented blocks, quotes, nested, loose and
+            numbered lists, task lists, tables with alignment, rules, links with a title, autolinks and bare
+            addresses, reference links, images and videos, and hard and soft line breaks. Raw HTML is not read
+            &mdash; every <code>&lt;</code> is text &mdash; so the output is built from a fixed set of elements and
+            is safe to inject; <a href="#not-read">what is left out</a> is listed below.
+        </p>
+    </CatExample>
 </CatGroup>
 
 <CatGroup Title="Editor">
     <CatExample TExample="Examples.Markdown.MdEditor" Title="Write and preview" Demo="ex-demo--block">
         <p>
-            <strong>Live below</strong> — type in it, use the toolbar, then switch to Preview.
-            <code>.md-editor</code> is the toolbar, the textarea and the preview. The wiring is
+            <strong>Live below</strong> — type in it, use the toolbar or the keys, then switch to Preview.
+            <code>.md-editor</code> is the toolbar, the textarea and the preview. The toolbar is yours: a button is
+            any element with <code>data-md-cmd</code> (the <a href="#commands">commands</a> are listed below), and
+            you write only the ones the field needs. The wiring is
             <code>data-md-view</code> on the root, <code>data-md-input</code> on the textarea,
-            <code>data-md-preview</code> on the preview pane, <code>data-md-cmd</code> on toolbar
-            buttons and <code>data-md-tab</code> on each radio of the
-            <a href="/segmented"><code>.segmented</code></a> Write/Preview switch;
+            <code>data-md-preview</code> on the preview pane, and <code>data-md-tab</code> on each radio of the
+            <a href="/segmented"><code>.segmented</code></a> view switch;
             <strong>the markup sits inert until <code>sednaUi.md.init()</code> runs</strong> — from C#,
             <code>ISednaUi.InitMarkdownAsync()</code> in <code>OnAfterRenderAsync</code>, which wires
             every editor in the document and is idempotent per editor. In Blazor, bind the textarea with
             <code>@@bind:event="oninput"</code> and let it own the value; toolbar edits dispatch a
             bubbling <code>input</code> event so the binding picks them up.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Markdown.MdSplit" Title="Side by side" Demo="ex-demo--block">
+        <p>
+            <strong>Live below.</strong> <code>data-md-view="split"</code> shows the text and its preview at once,
+            the same height, the preview following the text as it scrolls. A third radio,
+            <code>data-md-tab="split"</code>, lets the reader choose it; an editor that is never switched sets the
+            attribute on the root and has no switch at all. Under 40rem the two stack.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Markdown.MdFullscreen" Title="Full screen" Demo="ex-demo--block">
+        <p>
+            <strong>Live below.</strong> <code>data-md-cmd="fullscreen"</code> on a button, written
+            <code>aria-pressed="false"</code>: the editor fills the window, the page behind it becomes
+            <code>inert</code> &mdash; neither the keyboard nor a screen reader reaches it &mdash; and
+            <kbd class="kbd">Esc</kbd> or the button leaves. The editor stays where it is in the document, so the text is
+            the same field and its value is not reset. Write, Preview and Split all work in it.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Markdown.MdCount" Title="Word and character counts" Demo="ex-demo--block">
+        <p>
+            <strong>Live below.</strong> An element inside the editor with <code>data-md-count="words"</code>,
+            <code>"characters"</code> or <code>"lines"</code> gets that number as its text, and keeps it current. The
+            number is all the script writes &mdash; the words around it are yours, in your language &mdash; and a
+            <code>maxlength</code> on the textarea is the platform's own limit. Characters are code points, so an
+            emoji counts once.
         </p>
     </CatExample>
 
@@ -79,13 +121,107 @@
         </p>
     </CatExample>
 
+    <CatExample TExample="Examples.Interop.MarkdownUpload" Title="Uploading pasted files" Demo="ex-demo--block">
+        <p>
+            <strong>Live below</strong> &mdash; paste a picture from the clipboard, or drop a file on the field. Nothing
+            is inserted: the editor sends <code>sedna-md-file</code>, bubbling and cancelable, with
+            <code>{ files: [{ id, name, type, size }], index }</code>, and the app takes the files by cancelling it
+            (<code>@@onsedna-md-file:preventDefault</code>). It reads each with
+            <code>ISednaUi.OpenMarkdownFileAsync(textarea, id)</code> &mdash; from script,
+            <code>sednaUi.md.file(textarea, id)</code> &mdash; uploads it, and answers with
+            <code>InsertMarkdownAsync</code> and the address it got. Files nobody takes show the editor's
+            <code>[data-md-file-notice]</code>. A paste that carries text as well is pasted as the text, and the browser
+            never opens a dropped file in the tab. The editor keeps the last twenty files, so read them when the event
+            arrives.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Reference">
+    <h3 id="commands">Commands <CatAnchor Id="commands" /></h3>
+    <p class="cat-lede">
+        A <code>data-md-cmd</code> on any element inside the editor acts on the textarea's selection; script calls
+        <code>sednaUi.md.apply(textarea, command)</code>. Every edit is typed through the browser, so one command is one
+        step of its own undo, and it reaches the textarea as one <code>input</code> event, which
+        <code>@@bind:event="oninput"</code> picks up. A read-only or disabled textarea is left alone.
+    </p>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead><tr><th>Command</th><th>Does</th></tr></thead>
+            <tbody>
+                <tr><td><code>bold</code>, <code>italic</code>, <code>strike</code>, <code>code</code></td><td>Marks the selection &mdash; with nothing selected, a word to type over &mdash; and takes the marks off a selection that has them, inside it or around it. Spaces at the ends of the selection stay outside the marks.</td></tr>
+                <tr><td><code>h1</code> &hellip; <code>h6</code></td><td>Sets the level of every line the selection touches; the same level again takes it off. A menu of headings is the same: each item carries its command.</td></tr>
+                <tr><td><code>ul</code>, <code>ol</code>, <code>task</code>, <code>quote</code></td><td>Puts the marker on every line, in place of any other list marker, and takes it off when every line has it. A numbered list counts from 1.</td></tr>
+                <tr><td><code>codeblock</code></td><td>Fences the selection on lines of its own, with a longer fence when the text holds one.</td></tr>
+                <tr><td><code>hr</code>, <code>table</code></td><td>A block after the current line, with an empty line either side &mdash; a rule under a paragraph would otherwise underline it. The table's first heading is selected.</td></tr>
+                <tr><td><code>link</code></td><td>A selection becomes the link's text with the address selected; a selected address stays, with the text selected.</td></tr>
+                <tr><td><code>image</code>, <code>video</code></td><td><code>![description](https://)</code> around the selection, as above.</td></tr>
+                <tr><td><code>indent</code>, <code>outdent</code></td><td>List items one level, as <kbd class="kbd">Tab</kbd> does.</td></tr>
+                <tr><td><code>undo</code>, <code>redo</code></td><td>The browser's own history for the field.</td></tr>
+                <tr><td><code>fullscreen</code></td><td>Full screen, as above; the button is <code>aria-pressed</code>.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 id="keys">Keys <CatAnchor Id="keys" /></h3>
+    <p class="cat-lede">
+        While the textarea has focus. <kbd class="kbd">Ctrl</kbd> is <kbd class="kbd">Cmd</kbd> on a Mac.
+        <code>data-md-keys="off"</code> on the editor turns all of this off.
+    </p>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead><tr><th>Keys</th><th>Does</th></tr></thead>
+            <tbody>
+                <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">B</kbd>, <kbd class="kbd">I</kbd>, <kbd class="kbd">E</kbd>, <kbd class="kbd">K</kbd></td><td>Bold, italic, code, link.</td></tr>
+                <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Shift</kbd> + <kbd class="kbd">X</kbd></td><td>Strikethrough.</td></tr>
+                <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Shift</kbd> + <kbd class="kbd">7</kbd>, <kbd class="kbd">8</kbd>, <kbd class="kbd">9</kbd></td><td>Numbered list, bullet list, quote.</td></tr>
+                <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Alt</kbd> + <kbd class="kbd">1</kbd> &hellip; <kbd class="kbd">6</kbd>, <kbd class="kbd">C</kbd></td><td>A heading level, a code block.</td></tr>
+                <tr><td><kbd class="kbd">Enter</kbd></td><td>At the end of a list item, task or quote line, goes on with the same marker &mdash; a numbered list counts on, a task starts unchecked. On an empty item it ends the list, one level at a time when it is nested. Inside a code block, in front of a marker, or with <kbd class="kbd">Shift</kbd>, it is a newline.</td></tr>
+                <tr><td><kbd class="kbd">Tab</kbd>, <kbd class="kbd">Shift</kbd> + <kbd class="kbd">Tab</kbd></td><td>Indent and outdent the list items under the selection, and move through the cells of a table &mdash; <kbd class="kbd">Tab</kbd> in the last cell adds a row. <strong>Only where that is possible:</strong> on the first item of a list, on an item already a level under the one above, and on any line that is not a list item or a table row, Tab leaves the field as it does from any textarea, so the keyboard is never trapped.</td></tr>
+                <tr><td>Paste an address over a selection</td><td>The selection becomes a link to it. Anything else pasted is the browser's.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 id="events-and-attributes">Events and attributes <CatAnchor Id="events-and-attributes" /></h3>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead><tr><th>Name</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>data-md-view</code></td><td><code>write</code>, <code>preview</code> or <code>split</code> on the root; the script sets it, and an app may write it to start in one.</td></tr>
+                <tr><td><code>data-md-fullscreen</code></td><td>On the root while the editor is full screen.</td></tr>
+                <tr><td><code>data-md-dragging</code></td><td>On the root while a file is dragged over the textarea &mdash; the frame takes the focus ring.</td></tr>
+                <tr><td><code>data-md-keys="off"</code></td><td>On the root: no shortcuts, no list or table keys.</td></tr>
+                <tr><td><code>data-md-count</code></td><td><code>words</code>, <code>characters</code> or <code>lines</code> on an element inside the root: it holds that number.</td></tr>
+                <tr><td><code>data-md-file-notice</code></td><td>An element inside the root, <code>hidden</code>, shown when a file is not taken.</td></tr>
+                <tr><td><code>sedna-md-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, cancelable, on a file pasted or dropped. <code>@@onsedna-md-file</code>, a <code>SednaMarkdownFileEventArgs</code>.</td></tr>
+                <tr><td>the textarea's <code>input</code></td><td>One per edit, from the toolbar, a key or a paste, as a textarea sends it.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 id="not-read">What it does not read <CatAnchor Id="not-read" /></h3>
+    <div class="sedna-scroll-x">
+        <table class="table">
+            <thead><tr><th>Left out</th><th>Why</th></tr></thead>
+            <tbody>
+                <tr><td>Raw HTML, inline and as a block, and HTML comments</td><td>The preview is a security boundary. An allow-list of tags is a sanitiser's job, done on the server; here every <code>&lt;</code> is text.</td></tr>
+                <tr><td>Footnotes, definition lists, math, emoji codes, <code>==highlight==</code>, <code>^super^</code></td><td>Not CommonMark, and each needs markup, an id or an engine the page may not have.</td></tr>
+                <tr><td>Heading ids and a table of contents</td><td>An id written into the page collides with the page's own; the app derives anchors from the text it renders.</td></tr>
+                <tr><td>Alert blocks (<code>&gt; [!NOTE]</code>), front matter</td><td>A convention of one host, not Markdown.</td></tr>
+                <tr><td>Reference definitions that span lines, and a link with <code>data:</code>, <code>javascript:</code> or any scheme beyond <code>http</code>, <code>https</code>, <code>mailto</code> and <code>tel</code></td><td>A link with another scheme is written as a dead link, and an image or video with one as its description.</td></tr>
+                <tr><td>Auto-closing brackets, Tab typing spaces in code, a button to tick a task in the preview</td><td>They change what a key does where the reader did not ask, trap the keyboard, or write to the text from a pane that only reads it.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <div class="callout callout--danger">
         <i class="ri-shield-check-line"></i>
         <div class="callout-body">
             <span class="callout-title">Sanitise server-side as well</span>
             <code>sednaUi.md.render()</code> escapes all HTML <em>first</em> and only re-introduces a fixed
             set of constructs, with link hrefs restricted to <code>http:</code>, <code>https:</code>,
-            <code>mailto:</code> and root-relative paths, and image and video sources to <code>http:</code>,
+            <code>mailto:</code>, <code>tel:</code> and relative addresses, and image and video sources to <code>http:</code>,
             <code>https:</code> and relative ones. It is not a spec-complete parser: for untrusted
             input rendered to other users, sanitise server-side as well.
         </div>

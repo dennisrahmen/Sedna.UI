@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "7a80587bc66e1732"
+    "stamp": "4787d4095e4a99e3"
   },
   {
     "page": "/stat",
