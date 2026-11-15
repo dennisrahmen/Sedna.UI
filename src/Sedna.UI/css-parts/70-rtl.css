@@ -191,3 +191,10 @@
 
 /* 31 — a corner count is centred on its point by a translate, whose inline half turns round. */
 [dir="rtl"] .count-badge { translate: -50% -50%; }
+
+/* The busy bar (69-busy.css) is a background, and a background position is physical: the
+   sweep runs from the inline start, which is the right edge, to the left. */
+[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    animation-direction: reverse;
+    background-position: 142.8572% 0;
+}

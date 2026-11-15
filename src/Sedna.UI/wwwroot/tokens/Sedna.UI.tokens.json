@@ -224,6 +224,8 @@
         "--topbar-fg": "var(--fg)",
         "--topbar-muted": "var(--muted)",
         "--topbar-hover": "var(--bg-hover)",
+        "--topbar-border": "var(--border)",
+        "--topbar-panel-gap": "var(--space-2)",
         "--topbar-height": "44px",
         "--modal-head-bg": "transparent",
         "--modal-foot-bg": "transparent",

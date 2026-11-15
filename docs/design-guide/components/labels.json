@@ -18,7 +18,7 @@
       { "text": "Whether a connection or a feed is live", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "c32eb8e5f818471e"
+    "stamp": "c1b1edbabeaf3d5a"
   },
   {
     "page": "/chip",
@@ -53,7 +53,7 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "ef674864b82272ec"
+    "stamp": "439f8a23cad93d95"
   },
   {
     "page": "/status-dot",
@@ -69,7 +69,7 @@
       { "text": "Whether a person is available", "instead": "/avatar#presence-mark" }
     ],
     "goals": [ "show-connection-state" ],
-    "stamp": "88af10fd6cdd8efe"
+    "stamp": "c542a387cc835f78"
   },
   {
     "page": "/count",
@@ -85,7 +85,7 @@
       { "text": "Whether a person is available", "instead": "/avatar#presence-mark" }
     ],
     "goals": [],
-    "stamp": "17458945e86e9a23"
+    "stamp": "76b50bed6c5e9f58"
   },
   {
     "page": "/kbd",

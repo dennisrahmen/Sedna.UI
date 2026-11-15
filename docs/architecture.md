@@ -300,6 +300,8 @@ and everything behind it is inert, so the script does nothing and does not cance
   | `--selected` | `--brand` | the mark on the one chosen: a selected row's or list row's bar, a chosen card or file tile, the transcript's current line, a pressed reaction, a pressed workflow step, the spotlight ring, the graph's selected record |
   | `--tab-indicator` | `--selected` | the line under `.tab[aria-selected]`, the current `.topbar-nav-link` and the current bottom-bar item |
   | `--topbar-bg`, `--topbar-fg`, `--topbar-muted`, `--topbar-hover` | `--bg-elevated`, `--fg`, `--muted`, `--bg-hover` | `.topbar` and what is drawn straight on it — its icon buttons, area links, version tag and the user widget's trigger and sign-out; not the panels that open from it |
+  | `--topbar-border` | `--border` | the header's dividers: its lower edge, and the line before a section, an icon button or the user widget |
+  | `--topbar-panel-gap` | `--space-2` | the gap between the header and a panel opened from it — the user menu, the app switcher — and, at the trailing end, between that panel and the window's edge |
   | `--brand-edge` | `--brand-soft` (dark), `--brand` (light) | `.btn--brand.btn--solid`'s border, so its boundary clears 3:1 on a dark card |
   | `--focus-ring` | `--brand-soft` | the 2px ring every control draws on `:focus-visible` |
   | `--control-border` | `--field-border` | the edge of a checkbox, a radio and a switch's track — held to 3:1 |
@@ -584,6 +586,8 @@ other, so adding a layer means adding it to this table first.
 so whatever z-index the engine and its plugins give their own layers stays inside it — `1` for the wait
 and the empty state that cover it, `2` for its toolbar and minimap, and `3` for the tooltip, the context
 menu and the keyboard's focus ring above everything else in the frame.
+
+**A banner under the topbar uses `3`**, so the shadow it draws for the header falls over the page's own positioned rows and a table's sticky header and stays under the header at 60.
 
 **A workflow uses them inside its own diagram**, which isolates its stacking: `1` for the wires, so a
 fork's bracket peels off a straight wire rather than notching it, and `2` for what sits on a line —

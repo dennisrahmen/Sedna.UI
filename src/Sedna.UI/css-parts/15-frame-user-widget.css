@@ -6,7 +6,7 @@
     z-index: 200;
     display: flex;
     align-items: stretch;
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 .user-trigger {
     display: flex; align-items: center; gap: var(--space-5);
@@ -36,7 +36,8 @@
 /* ── The widget's dropdown ──────────────────────────────────────────────────
    The panel itself is the tier-2 `.menu` (58-menu.css) — there is one dropdown
    style in this library, not one per place that needs one. Only the anchoring is
-   the frame's business, and it uses the same 4px gap as `.menu-anchor`. Flush
+   the frame's business, and it keeps `--topbar-panel-gap` below the header and from the
+   window's edge, the same gap the app switcher keeps. Flush
    against `top: 100%` the panel reads as welded to the topbar's bottom edge rather
    than floating below the trigger — the header's own border and the panel's top
    border land on the same line, so neither is legible as an edge.
@@ -52,8 +53,8 @@
        painted with --topbar-fg would otherwise hand white text to a white panel. */
     color: var(--fg);
     position: absolute;
-    top: calc(100% + var(--space-2));
-    inset-inline-end: 0;
+    top: calc(100% + var(--topbar-panel-gap));
+    inset-inline-end: var(--topbar-panel-gap);
     z-index: 550;
 }
 

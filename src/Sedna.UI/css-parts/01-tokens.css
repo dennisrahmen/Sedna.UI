@@ -307,6 +307,14 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
+    /* The dividers drawn in the header: its bottom edge, the line before a section, a
+       button or the user widget. A brand-coloured header sets it beside --topbar-bg, so
+       its dividers are a step off its own colour instead of the page's. */
+    --topbar-border:   var(--border);
+    /* The gap between the header and a panel that opens from it — the user menu, the app
+       switcher — and, for a panel at the trailing end, between the panel and the window's
+       edge. One value for both, so the panel floats level whatever the header's height. */
+    --topbar-panel-gap: var(--space-2);
     /* The header's height, and the sidebar's brand and area title, which line up with it. */
     --topbar-height:   44px;
 

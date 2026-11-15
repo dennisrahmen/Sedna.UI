@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "76ed7a376a414e89"
+    "stamp": "5d90f8df6071e5fc"
   },
   {
     "page": "/progress",
@@ -148,7 +148,7 @@
       { "text": "A share done with no output to show", "instead": "/progress#determinate-and-indeterminate" }
     ],
     "goals": [ "show-how-long-ago", "count-down-to-a-deadline", "list-running-jobs", "keep-working-through-an-outage", "follow-live-output", "warn-before-the-session-ends" ],
-    "stamp": "bddd833f9bb90ba2"
+    "stamp": "51dd9d6536557ab3"
   },
   {
     "page": "/logs",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "5eb73dba23cf2438"
+    "stamp": "4f991560706ca611"
   }
 ]

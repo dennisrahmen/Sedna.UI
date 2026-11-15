@@ -21,7 +21,9 @@
             <code>--topbar-bg</code>, <code>--topbar-fg</code>, <code>--topbar-muted</code> and
             <code>--topbar-hover</code> recolour the header and what sits straight on it: a
             <code>.topbar-btn</code> and a neutral <code>.btn--ghost</code> that is a child of the bar or
-            of a <code>.topbar-section</code>. <code>--topbar-height</code> sets its height and the
+            of a <code>.topbar-section</code>. <code>--topbar-border</code> recolours the dividers between
+            them and the bar's lower edge, so they stay a step off the new colour instead of the page's.
+            <code>--topbar-height</code> sets its height and the
             sidebar brand's with it. <code>.topbar--sticky</code> keeps it at the top while the document
             scrolls, for a page without the frame's own scroll container.
         </p>
@@ -49,7 +51,17 @@
             <code>.app-switcher-icon</code> and its name under it. Mark the app the reader is in with
             <code>aria-current="page"</code>. The platform opens it, closes it on an outside click and on
             <kbd>Escape</kbd>, and a popover holding a switcher opens towards whichever side of the button
-            has room, so it works from either end of the header.
+            has room, so it works from either end of the header. Opened from the header's trailing end it
+            spans towards the inline start and keeps <code>--topbar-panel-gap</code> from the bar and from
+            the window's edge &mdash; the same gap the user menu keeps, so the two stay level whatever the
+            header's height.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Topbar.AppSwitcherIcons" Title="Switcher without names" Demo="ex-demo--block ex-demo--flush">
+        <p>
+            <code>.app-switcher--icons</code> draws the marks alone. The name stays in each link, where it is
+            the accessible name; give the link a <code>data-tip</code> so a pointer reads it too.
         </p>
     </CatExample>
 
@@ -66,7 +78,8 @@
         <p>
             A choice the menu switches, such as the warehouse the reader works in, marks the one in use
             with <code>aria-current="true"</code> and the library tints and ticks it. The panel always
-            opens under the header at its trailing edge; <code>--panel-placement</code>, which places the
+            opens under the header at its trailing edge, <code>--topbar-panel-gap</code> from both;
+            <code>--panel-placement</code>, which places the
             panels anchored to a trigger, does not move it.
         </p>
     </CatExample>

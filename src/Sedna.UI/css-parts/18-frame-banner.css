@@ -58,6 +58,25 @@
     overflow-wrap: anywhere;
 }
 
+/* ── The shadow moves down ──────────────────────────────────────────────────
+   The header's shadow says "the page scrolls behind me", and with a banner under the
+   header it would fall on the banner instead of on the page. So the header gives its
+   shadow up and the banner draws it, from the same `--shadow-topbar`: the line between
+   the two stays a plain edge, and content scrolling behind the banner still reads as
+   behind. Setting `--shadow-topbar: none` removes it from both.
+
+   `z-index: 3` is local stacking: it lifts the banner over the page's own positioned
+   rows and the sticky header of a table, and stays under the header (60), which hides
+   the few pixels of the shadow that reach up. Where the banner scrolls away under a
+   sticky header — `.topbar--sticky`, and `.layout--flow` on a phone — the header keeps
+   its shadow and the banner has none; 19-frame-responsive.css puts the flow case back. */
+.topbar:not(.topbar--sticky):has(+ .page-banner) { box-shadow: none; }
+.topbar:not(.topbar--sticky) + .page-banner {
+    position: relative;
+    z-index: 3;
+    box-shadow: var(--shadow-topbar);
+}
+
 .page-banner > i {
     grid-area: lead;
     margin-inline-end: var(--space-5);
