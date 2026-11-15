@@ -8577,9 +8577,17 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .table .col-num { text-align: end; font-variant-numeric: tabular-nums; }
 .table tbody tr[aria-selected="true"] > td,
 .table tbody tr[aria-selected="true"]::after { background: var(--brand-tint); }
-.table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--selected);
+.table:not(.table--pin-start) tbody tr[aria-selected="true"] > td:first-child { position: relative; }
+.table:not(.table--stack) tbody tr[aria-selected="true"] > td:first-child::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--selected);
+    pointer-events: none;
 }
+.table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
 .table--pin-start,
 .table--pin-end { border-collapse: separate; border-spacing: 0; --pin-bg: var(--surface-here, var(--bg)); }
 .table--pin-start { --pin-edge-start: var(--shadow-edge-start); }
@@ -8768,9 +8776,6 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table tfoot tr { --pin-tint: var(--surface-soft); }
-.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
-}
 .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
@@ -8924,9 +8929,18 @@ tr[data-drag-zone] > [data-drop-edge]::before {
 tr[data-drag-zone] > [data-drop-edge="before"]::before { inset-inline-start: 0; }
 tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
 .tr-detail > td {
+    position: relative;
     padding: 0;
     background: var(--surface-soft);
-    box-shadow: inset 3px 0 0 var(--border-strong);
+}
+.tr-detail > td::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--border-strong);
+    pointer-events: none;
 }
 .table code { overflow-wrap: break-word; }
 .tr-detail-body {
