@@ -1,0 +1,28 @@
+<!-- A click on the backdrop closes a modal, a drawer or a sheet, as Escape does: nothing to
+     write. A dialog where a stray click would lose work says so with closedby="closerequest":
+     Escape still closes it, the backdrop does not. -->
+<dialog id="shortcuts" class="modal" aria-labelledby="shortcuts-title">
+    <div class="modal-header">
+        <h3 id="shortcuts-title">Keyboard shortcuts</h3>
+        <form method="dialog"><button class="modal-close" aria-label="Close"><i class="ri-close-line"></i></button></form>
+    </div>
+    <div class="modal-body">
+        <p><kbd>Ctrl</kbd> <kbd>K</kbd> opens the command palette.</p>
+    </div>
+</dialog>
+
+<dialog id="new-note" class="modal" closedby="closerequest" aria-labelledby="new-note-title">
+    <form method="dialog">
+        <div class="modal-header">
+            <h3 id="new-note-title">New note</h3>
+        </div>
+        <div class="modal-body">
+            <label class="form-label" for="note-text">Note</label>
+            <textarea class="form-input" id="note-text" rows="4"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" value="cancel">Cancel</button>
+            <button class="btn btn--brand btn--solid" value="save">Save</button>
+        </div>
+    </form>
+</dialog>

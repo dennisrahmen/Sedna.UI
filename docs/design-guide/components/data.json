@@ -35,7 +35,7 @@
       { "text": "A hierarchy of rows", "instead": "/table-large#tree-grid" }
     ],
     "goals": [ "edit-cells-in-place", "work-in-a-grid" ],
-    "stamp": "df5e09cbd17dea68"
+    "stamp": "fdaf072054798582"
   },
   {
     "page": "/table-large",
@@ -152,7 +152,7 @@
       { "text": "Entries that each need words", "instead": "/timeline" }
     ],
     "goals": [ "show-status-history", "show-activity-over-time" ],
-    "stamp": "ff97c4947b718bd8"
+    "stamp": "7d2039f6588e7f4f"
   },
   {
     "page": "/calendar",
@@ -188,7 +188,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "94e37273b6be035c"
+    "stamp": "8df54900893334e0"
   },
   {
     "page": "/pager",
