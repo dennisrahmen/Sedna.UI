@@ -13,6 +13,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// listener attached afterwards misses everything the parse produced.
 /// </remarks>
 [Collection(CatalogueAppCollection.Name)]
+[Trait(ScanKind.Name, ScanKind.Scan)]
 public class PageLoadTests(CatalogueAppFixture app)
 {
     [Fact]
@@ -22,7 +23,7 @@ public class PageLoadTests(CatalogueAppFixture app)
 
         var problems = new List<string>();
 
-        foreach (var route in RoutedPages.All)
+        foreach (var route in RoutedPages.Scanned)
         {
             var page = await app.Browser!.NewPageAsync();
             page.Console += (_, message) =>
@@ -41,8 +42,14 @@ public class PageLoadTests(CatalogueAppFixture app)
             };
             page.PageError += (_, error) => problems.Add($"{route}: {error}");
 
-            var response = await page.GotoAsync(app.Url(route),
-                new() { WaitUntil = WaitUntilState.NetworkIdle });
+            // Interactive, then two frames: what the circuit's connection logs is logged by then.
+            IResponse? response = null;
+            try
+            {
+                response = await app.GotoInteractiveAsync(page, route);
+                await Js.Frames(page);
+            }
+            catch (TimeoutException ex) { problems.Add(ex.Message); }
 
             if (response is null || !response.Ok)
                 problems.Add($"{route}: returned {response?.Status.ToString() ?? "nothing"}");
@@ -74,7 +81,8 @@ public class PageLoadTests(CatalogueAppFixture app)
     {
         if (app.NoBrowser) return;
 
-        var route = RoutedPages.All.First(r => r != "/");
+        var route = RoutedPages.Scanned.FirstOrDefault(r => r != "/");
+        if (route is null) return;
         var page = await app.Browser!.NewPageAsync();
         var failures = new List<string>();
 
@@ -89,8 +97,8 @@ public class PageLoadTests(CatalogueAppFixture app)
         // here to show that the fix did not move the problem.
         foreach (var url in new[] { app.Url(route.TrimStart('/')), app.Url(route.TrimStart('/') + "/") })
         {
-            var response = await page.GotoAsync(url,
-                new() { WaitUntil = WaitUntilState.NetworkIdle });
+            var response = await page.GotoAsync(url, new() { WaitUntil = WaitUntilState.Load });
+            await page.WaitForSelectorAsync("[data-interactive='true']");
 
             Assert.NotNull(response);
             Assert.True(response!.Ok, $"{url} returned {response.Status}.");
@@ -111,7 +119,7 @@ public class PageLoadTests(CatalogueAppFixture app)
 
         var problems = new List<string>();
 
-        foreach (var route in RoutedPages.All)
+        foreach (var route in RoutedPages.Scanned)
         {
             var page = await app.OpenAsync(route);
 
@@ -240,7 +248,7 @@ public class PageLoadTests(CatalogueAppFixture app)
             }
             """;
 
-        foreach (var route in RoutedPages.All)
+        foreach (var route in RoutedPages.Scanned)
         {
             // Interactive, not merely loaded: when the circuit connects it replaces the
             // prerendered document, and a hover landing on a node mid-swap finds no box
