@@ -112,7 +112,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "write-markdown-beside-its-preview", "upload-files-pasted-into-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "c506aae062d9eb7e"
+    "stamp": "abe2cdb82f389826"
   },
   {
     "page": "/diff",

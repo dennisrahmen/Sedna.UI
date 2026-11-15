@@ -522,17 +522,17 @@
  {
   "name": "task",
   "source": "- [ ] a\n- [x] b",
-  "html": "<ul class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> b</li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> b</li></ul>"
  },
  {
   "name": "task upper X",
   "source": "- [X] a",
-  "html": "<ul class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> a</li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> a</li></ul>"
  },
  {
   "name": "task with inline",
   "source": "- [ ] **a**",
-  "html": "<ul class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled> <strong>a</strong></li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> <strong>a</strong></li></ul>"
  },
  {
   "name": "task needs space",
@@ -542,17 +542,17 @@
  {
   "name": "task numbered",
   "source": "1. [ ] a",
-  "html": "<ol class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li></ol>"
+  "html": "<ol><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li></ol>"
  },
  {
   "name": "task mixed with plain",
   "source": "- [ ] a\n- b",
-  "html": "<ul class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li><li>b</li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li><li>b</li></ul>"
  },
  {
   "name": "task nested",
   "source": "- [ ] a\n  - [x] b",
-  "html": "<ul class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a<ul class=\"contains-task-list\"><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> b</li></ul></li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> b</li></ul></li></ul>"
  },
  {
   "name": "hr dashes",

@@ -101,11 +101,11 @@ public class MarkdownRenderTests : ScriptTestBase
                 const quiet = [];
                 const attributes = {
                     A: ['href', 'title', 'target', 'rel'], IMG: ['src', 'alt', 'title', 'loading'],
-                    VIDEO: ['controls', 'preload', 'src', 'aria-label', 'title'], OL: ['start', 'class'], UL: ['class'],
+                    VIDEO: ['controls', 'preload', 'src', 'aria-label', 'title'], OL: ['start'],
                     LI: ['class'], INPUT: ['type', 'disabled', 'checked'], TH: ['align'], TD: ['align'],
                     TABLE: ['role', 'tabindex'], CODE: ['class'],
                 };
-                const bare = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'HR', 'PRE', 'EM', 'STRONG', 'DEL',
+                const bare = ['UL', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'HR', 'PRE', 'EM', 'STRONG', 'DEL',
                     'BR', 'THEAD', 'TBODY', 'TR'];
                 const keptAddress = /^(?:https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i;
                 const found = [];
@@ -119,7 +119,7 @@ public class MarkdownRenderTests : ScriptTestBase
                             const where = `${el.tagName}[${a.name}] from ${JSON.stringify(src).slice(0, 80)}`;
                             if (!allowed.includes(a.name)) found.push(where);
                             else if ((a.name === 'href' || a.name === 'src') && !keptAddress.test(a.value.trim())) found.push(where + ' = ' + a.value);
-                            else if (a.name === 'class' && !/^(?:language-[\w#+.\-]+|contains-task-list|task-list-item)$/.test(a.value)) found.push(where + ' = ' + a.value);
+                            else if (a.name === 'class' && !/^(?:language-[\w#+.\-]+|task-list-item)$/.test(a.value)) found.push(where + ' = ' + a.value);
                         }
                         if (el.tagName === 'A' && el.getAttribute('target') !== '_blank') found.push('link without target');
                         if (el.tagName === 'A' && !/noopener/.test(el.getAttribute('rel') || '')) found.push('link without noopener');

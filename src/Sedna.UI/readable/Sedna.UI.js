@@ -12295,20 +12295,18 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function renderList(list, st) {
-        var tag = list.ordered ? 'ol' : 'ul', hasTask = false, items = '';
+        var tag = list.ordered ? 'ol' : 'ul', items = '';
         for (var i = 0; i < list.items.length; i++) {
             var it = list.items[i];
             if (it.task === null) {
                 items += '<li>' + renderBlocks(it.kids, !list.loose, st) + '</li>';
             } else {
-                hasTask = true;
                 var box = it.task ? CHECKBOX.on : CHECKBOX.off;
                 items += '<li class="task-list-item">' +
                     (it.kids.length ? renderBlocks(it.kids, !list.loose, st, box) : box) + '</li>';
             }
         }
-        var attrs = (hasTask ? ' class="contains-task-list"' : '') +
-            (list.ordered && list.start !== 1 ? ' start="' + list.start + '"' : '');
+        var attrs = list.ordered && list.start !== 1 ? ' start="' + list.start + '"' : '';
         return '<' + tag + attrs + '>' + items + '</' + tag + '>';
     }
 
