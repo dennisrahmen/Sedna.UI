@@ -4862,6 +4862,12 @@
         "[data-drop-over]"
       ]
     },
+    "panel-grid-band": {
+      "family": "panel-grid-band"
+    },
+    "panel-grid-contents": {
+      "family": "panel-grid-contents"
+    },
     "pdf-frame": {
       "family": "pdf-frame",
       "variants": [

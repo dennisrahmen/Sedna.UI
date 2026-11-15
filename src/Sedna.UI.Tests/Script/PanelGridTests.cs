@@ -71,10 +71,14 @@ public class PanelGridTests : ScriptTestBase
             const cols = parseInt(cs.getPropertyValue('--panel-cols')), tracks = cs.gridTemplateColumns.split(' ').map(parseFloat);
             const col = tracks[0], gap = (gr.width - tracks.reduce((a, b) => a + b, 0)) / (cols - 1), px = col + gap;
             const py = parseFloat(cs.gridAutoRows) + parseFloat(cs.rowGap), rtl = cs.direction === 'rtl';
-            return [...g.children].filter(e => e.dataset.dragItem && e.getAttribute('data-dragging') !== 'pointer').map(e => {
+            // The cells start below a band, when one is drawn.
+            const band = g.querySelector(':scope > .panel-grid-band');
+            const top = band && band.getClientRects().length && cs.getPropertyValue('--panel-row-offset').trim() === '1'
+              ? band.getBoundingClientRect().bottom + parseFloat(cs.rowGap) : gr.top;
+            return [...g.querySelectorAll('[data-drag-item]')].filter(e => e.getAttribute('data-dragging') !== 'pointer').map(e => {
               const r = e.getBoundingClientRect();
               const x = Math.round((rtl ? gr.right - r.right : r.left - gr.left) / px);
-              return e.id + ':' + x + ',' + Math.round((r.top - gr.top) / py) + ',' + Math.round((r.width + gap) / px) + ',' + Math.round((r.height + gap) / py);
+              return e.id + ':' + x + ',' + Math.round((r.top - top) / py) + ',' + Math.round((r.width + gap) / px) + ',' + Math.round((r.height + gap) / py);
             }).sort().join(' ');
           };
         </script>
@@ -606,6 +610,89 @@ public class PanelGridTests : ScriptTestBase
             // Half way between two columns there is none.
             Assert.False(Dot(col * pitchX + pitchX / 2, 24), $"A dot between columns {col} and {col + 1}.");
         }
+        Assert.Empty(errors);
+    }
+
+    // ── Panels in wrappers, a band above, panels that are not cards ──────────
+
+    /// <summary>A window of the app's own: no head, no body, the three handles on its edges.</summary>
+    private static string Window(string id, int x, int y, int w, int h) => $"""
+        <div class="sedna-test-window" id="{id}" data-drag-item="{id}" data-drag-label="{id}"
+             style="--panel-x: {x}; --panel-y: {y}; --panel-w: {w}; --panel-h: {h}; outline: 1px solid">
+          <button id="grip-{id}" type="button" data-drag-handle aria-label="Move {id}">::</button>
+          <div class="card-resize card-resize--inline" id="w-{id}" data-resize="--panel-w" role="separator" aria-orientation="vertical"
+               aria-label="Width of {id}" aria-valuemin="2" aria-valuenow="{w}" tabindex="0"></div>
+          <div class="card-resize" id="h-{id}" data-resize="--panel-h" role="separator" aria-orientation="horizontal"
+               aria-label="Height of {id}" aria-valuemin="2" aria-valuenow="{h}" tabindex="0"></div>
+          <div class="card-resize card-resize--corner" id="c-{id}" data-resize="--panel-w --panel-h" aria-hidden="true"></div>
+        </div>
+        """;
+
+    [Fact]
+    public async Task Panels_inside_a_contents_wrapper_are_the_grids_and_drag_as_any_panel()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Grid(
+            "<div class=\"panel-grid-contents\" id=\"top\">" + Panel("orders", 0, 0, 6, 4) + Panel("dispatch", 6, 0, 6, 4) + "</div>"
+            + Panel("returns", 0, 4, 12, 3)));
+        Assert.Equal("contents", await page.EvaluateAsync<string>("() => getComputedStyle(document.getElementById('top')).display"));
+        Assert.Equal("dispatch:6,0,6,4 orders:0,0,6,4 returns:0,4,12,3", await Cells(page));
+
+        await Drag(page, "#grip-orders", 6 * ColumnPitch, 0);
+        var drop = (await Events(page)).Single(e => e.Name == "sedna-drop");
+        Assert.Equal("dispatch:6,4,6,4 orders:6,0,6,4 returns:0,8,12,3", Panels(drop.Detail));
+        await Js.Frames(page);
+        Assert.Equal("dispatch:6,4,6,4 orders:6,0,6,4 returns:0,8,12,3", await Cells(page));
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => nodesMoved"));
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_band_above_the_panels_moves_the_cells_down_and_a_drag_still_lands_under_the_pointer()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Grid(
+            "<div class=\"panel-grid-band\" id=\"band\" style=\"height: 37px\">Test mode</div>" + Panel("orders", 0, 0, 6, 4) + Panel("dispatch", 6, 0, 6, 4) + Panel("returns", 0, 4, 12, 3)));
+        var layout = await page.EvaluateAsync<double[]>(@"() => {
+            const g = document.getElementById('grid').getBoundingClientRect(), b = document.getElementById('band').getBoundingClientRect();
+            const o = document.getElementById('orders').getBoundingClientRect();
+            return [b.top - g.top, b.width - g.width, o.top - b.bottom];
+        }");
+        Assert.Equal(0, layout[0], 1);
+        Assert.Equal(0, layout[1], 1);
+        Assert.Equal(16, layout[2], 1);
+        Assert.Equal("dispatch:6,0,6,4 orders:0,0,6,4 returns:0,4,12,3", await Cells(page));
+
+        // The cell a panel lands on is counted from below the band: the band is most of a row
+        // tall, so counted from the grid's top the panel would land a row down.
+        await Drag(page, "#grip-orders", 6 * ColumnPitch, 0);
+        var drop = (await Events(page)).Single(e => e.Name == "sedna-drop");
+        Assert.Equal(0, drop.Detail.GetProperty("y").GetInt32());
+        Assert.Equal("dispatch:6,4,6,4 orders:6,0,6,4 returns:0,8,12,3", Panels(drop.Detail));
+
+        // The band gone, the cells start at the top again.
+        await Js.Run(page, "() => document.getElementById('band').textContent = ''");
+        await Js.Frames(page);
+        Assert.Equal(0, await page.EvaluateAsync<double>("() => document.getElementById('orders').getBoundingClientRect().top - document.getElementById('grid').getBoundingClientRect().top"), 1);
+        Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task A_panel_that_is_not_a_card_takes_all_three_handles_on_its_edges()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Grid(Window("video", 0, 0, 6, 4) + Panel("dispatch", 6, 0, 6, 4)));
+        var edges = await page.EvaluateAsync<double[]>(@"() => {
+            const p = document.getElementById('video').getBoundingClientRect();
+            const b = document.getElementById('h-video').getBoundingClientRect(), i = document.getElementById('w-video').getBoundingClientRect(), c = document.getElementById('c-video').getBoundingClientRect();
+            return [b.bottom - p.bottom, b.left - p.left, b.width - p.width, i.right - p.right, i.top - p.top, i.height - p.height, c.right - p.right, c.bottom - p.bottom];
+        }");
+        Assert.All(edges, d => Assert.Equal(0, d, 1.5));
+
+        await Drag(page, "#h-video", 0, Pitch + 8);
+        var taller = (await Events(page)).Last();
+        Assert.Equal("--panel-h", taller.Detail.GetProperty("property").GetString());
+        Assert.Equal(5, taller.Detail.GetProperty("value").GetInt32());
         Assert.Empty(errors);
     }
 }

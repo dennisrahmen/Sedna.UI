@@ -10,7 +10,8 @@
        </li>
      </ul>
 
-   A zone is the element carrying data-drag-zone; its items are its DIRECT children
+   A zone is the element carrying data-drag-zone; its items are its DIRECT children — or
+   the children of a `.panel-grid-contents` wrapper in between, which is passed through
    carrying data-drag-item. Anything else inside the zone — a heading, a .drag-empty —
    is not counted. An item with a [data-drag-handle] of its own drags from the handle
    and nowhere else, so the rest of it stays selectable and clickable.
@@ -132,10 +133,31 @@
 
     function isZone(el) { return !!el && el.nodeType === 1 && el.hasAttribute('data-drag-zone'); }
 
-    function zoneOf(item) { return isZone(item.parentElement) ? item.parentElement : null; }
+    /* A `.panel-grid-contents` between a zone and its items is passed through: a wrapper
+       the app needs for another layout, `display: contents` in a panel grid. */
+    var PASS = 'panel-grid-contents';
+
+    function passes(el) { return !!el && el.nodeType === 1 && el.classList.contains(PASS); }
+
+    /* A zone's children, with every pass-through wrapper replaced by its own. */
+    function childrenOf(zone) {
+        var out = [];
+        toArray(zone.children).forEach(function (el) {
+            if (passes(el)) out.push.apply(out, childrenOf(el));
+            else out.push(el);
+        });
+        return out;
+    }
+    ui._.zoneChildren = childrenOf;
+
+    function zoneOf(item) {
+        var p = item.parentElement;
+        while (passes(p)) p = p.parentElement;
+        return isZone(p) ? p : null;
+    }
 
     function itemsOf(zone) {
-        return toArray(zone.children).filter(function (el) {
+        return childrenOf(zone).filter(function (el) {
             return el.hasAttribute('data-drag-item');
         });
     }
@@ -164,7 +186,7 @@
 
     /* A zone's items the drop is placed among: everything but what is being carried. */
     function others(zone) {
-        return toArray(zone.children).filter(function (el) {
+        return childrenOf(zone).filter(function (el) {
             return el.hasAttribute('data-drag-item') && drag.carried.indexOf(el) === -1;
         });
     }

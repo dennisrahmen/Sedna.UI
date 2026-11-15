@@ -4550,13 +4550,18 @@ a.card.card--fill { display: flex; }
     max-block-size: var(--card-max-height);
 }
 .card--resizable > .card-body { flex: 1 1 auto; min-block-size: 0; overflow: auto; }
+/* The three handles lie over the edge of whatever holds them, all placed the same way, so
+   they work on a card and on any panel of the app's own — a window with no head or body —
+   alike: the holder is positioned at no specificity, and an app's own position wins. */
+:where(:has(> .card-resize)) { position: relative; }
 .card-resize {
-    flex-shrink: 0;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
     block-size: var(--space-4);
-    margin-block-start: calc(var(--space-4) * -1);
+    margin: 0;
     cursor: ns-resize;
     touch-action: none;
-    position: relative;
 }
 .card-resize::before {
     content: "";
@@ -4579,22 +4584,17 @@ a.card.card--fill { display: flex; }
    it writes is the card's `--card-width`, never wider than what holds the card.
    `.card-resize--corner` is the corner between the two, `data-resize="--card-width
    --card-height"`: for the pointer, `aria-hidden="true"`, with the keyboard on the edges.
-   Both lie over the card's own edge, so they take no room. In a `.panel-grid` the same
-   handles write `--panel-w` and `--panel-h`. */
+   Like the bottom one, both lie over the edge of what holds them, so they take no room. In a
+   `.panel-grid` the same handles write `--panel-w` and `--panel-h`, on a card or on a panel
+   of the app's own. */
 .card--resizable {
     --card-width: auto;
     inline-size: var(--card-width);
     max-inline-size: 100%;
 }
-:where(.card:has(> .card-resize--inline, > .card-resize--corner)) { position: relative; }
-.card-resize--inline,
-.card-resize--corner {
-    position: absolute;
-    margin: 0;
-}
 .card-resize--inline {
     inset-block: 0;
-    inset-inline-end: 0;
+    inset-inline: auto 0;
     inline-size: var(--space-4);
     block-size: auto;
     cursor: ew-resize;
@@ -4607,8 +4607,8 @@ a.card.card--fill { display: flex; }
     block-size: auto;
 }
 .card-resize--corner {
-    inset-block-end: 0;
-    inset-inline-end: 0;
+    inset-block: auto 0;
+    inset-inline: auto 0;
     inline-size: var(--space-6);
     block-size: var(--space-6);
     cursor: nwse-resize;
@@ -7263,7 +7263,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    app's own values. 26-panels.js says how.
 
    Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
-   their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
+   their cells, and cannot be arranged: the arrangement is kept for a wider screen.
+
+   A panel may sit inside a `.panel-grid-contents`, a wrapper the app needs for another
+   layout of the same panels — one that flows, before there is an arrangement — and which
+   is `display: contents` in the grid, so the panels inside it are the grid's and are never
+   re-created when the screen switches. A `.panel-grid-band` — a status band, a warning
+   that comes and goes — is laid across the whole width above the first row while it is
+   drawn and not empty, and the cells, the dots and every drop start below it. */
 .panel-grid {
     --panel-cols: 24;
     --panel-row: 3rem;
@@ -7282,8 +7289,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
        nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
     --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
     column-gap: var(--panel-gap-x);
+    --panel-row-offset: 0;
 }
-:where(.panel-grid > *) {
+.panel-grid .panel-grid-contents { display: contents; }
+.panel-grid > .panel-grid-band { grid-column: 1 / -1; grid-row: 1; min-inline-size: 0; }
+.panel-grid:has(> .panel-grid-band:not([hidden], :empty)) {
+    --panel-row-offset: 1;
+    grid-template-rows: auto;
+}
+:where(.panel-grid > :not(.panel-grid-contents, .panel-grid-band), .panel-grid .panel-grid-contents > :not(.panel-grid-contents)) {
     --panel-x: 0;
     --panel-y: 0;
     --panel-w: 1;
@@ -7294,14 +7308,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     --panel-preview-h: initial;
     --panel-stacked: 0;
 }
-.panel-grid > * {
+.panel-grid > :not(.panel-grid-contents,
+.panel-grid-band),
+.panel-grid .panel-grid-contents > :not(.panel-grid-contents) {
     grid-column: calc(var(--panel-preview-x, var(--panel-x)) + 1) / span var(--panel-preview-w, var(--panel-w));
-    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1) / span var(--panel-preview-h, var(--panel-h));
+    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1 + var(--panel-row-offset)) / span var(--panel-preview-h, var(--panel-h));
     min-inline-size: 0;
     min-block-size: 0;
 }
 /* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
-.panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
+:is(.panel-grid, .panel-grid .panel-grid-contents) > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
 /* Arranging: a dot at the centre of every cell, so every place a panel can start and
    every size it can take is marked. It is drawn on a layer behind the panels as two
@@ -7316,7 +7332,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     --panel-guide-dot: var(--border-strong);
     position: relative;
 }
-:where(.panel-grid[data-arrange] > *) { z-index: 1; }
+:where(.panel-grid[data-arrange] > :not(.panel-grid-contents, .panel-grid-band), .panel-grid[data-arrange] .panel-grid-contents > :not(.panel-grid-contents)) { z-index: 1; }
 .panel-grid[data-arrange]::after {
     --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
     --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
@@ -7336,16 +7352,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
             transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
     mask-composite: intersect;
 }
+/* With a band, the dots are laid on the cells below it: an absolutely positioned child of a
+   grid takes its grid lines as its box. */
+.panel-grid[data-arrange]:has(> .panel-grid-band:not([hidden], :empty))::after { grid-row: 2 / auto; }
 /* Not arranging, a panel is content: its own handles are not there. A handle of a zone
    nested inside a panel — a list in it the reader reorders — is that zone's. */
 .panel-grid:not([data-arrange]) [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
-.panel-grid:not([data-arrange]) > * > [data-resize] { display: none; }
+.panel-grid:not([data-arrange]) > * > [data-resize],
+.panel-grid:not([data-arrange]) .panel-grid-contents > * > [data-resize] { display: none; }
 
 /* The cell a carried panel would land on. */
 .panel-grid[data-drop-over]::before {
     content: "";
     grid-column: calc(var(--panel-drop-x) + 1) / span var(--panel-drop-w);
-    grid-row: calc(var(--panel-drop-y) + 1) / span var(--panel-drop-h);
+    grid-row: calc(var(--panel-drop-y) + 1 + var(--panel-row-offset)) / span var(--panel-drop-h);
     border: 2px dashed var(--brand);
     border-radius: var(--radius-surface);
     background: var(--brand-tint);
@@ -7353,14 +7373,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 
 @container panel-grid (width < 560px) {
-    .panel-grid > * {
+    .panel-grid > :not(.panel-grid-contents,
+    .panel-grid-band),
+    .panel-grid .panel-grid-contents > :not(.panel-grid-contents) {
         --panel-stacked: 1;
         grid-column: span var(--panel-cols);
         grid-row: auto / span var(--panel-h);
         order: calc(var(--panel-y) * 1000 + var(--panel-x));
     }
     .panel-grid [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
-    .panel-grid > * > [data-resize] { display: none; }
+    :is(.panel-grid, .panel-grid .panel-grid-contents) > * > [data-resize] { display: none; }
 }
 }
 

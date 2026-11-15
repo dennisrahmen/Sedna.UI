@@ -5000,9 +5000,24 @@ window.sednaUi = window.sednaUi || {};
     var cancelledPointer = null; // a pointer drag Escape ended, whose release is still to come
     function toArray(list) { return Array.prototype.slice.call(list); }
     function isZone(el) { return !!el && el.nodeType === 1 && el.hasAttribute('data-drag-zone'); }
-    function zoneOf(item) { return isZone(item.parentElement) ? item.parentElement : null; }
+    var PASS = 'panel-grid-contents';
+    function passes(el) { return !!el && el.nodeType === 1 && el.classList.contains(PASS); }
+    function childrenOf(zone) {
+        var out = [];
+        toArray(zone.children).forEach(function (el) {
+            if (passes(el)) out.push.apply(out, childrenOf(el));
+            else out.push(el);
+        });
+        return out;
+    }
+    ui._.zoneChildren = childrenOf;
+    function zoneOf(item) {
+        var p = item.parentElement;
+        while (passes(p)) p = p.parentElement;
+        return isZone(p) ? p : null;
+    }
     function itemsOf(zone) {
-        return toArray(zone.children).filter(function (el) {
+        return childrenOf(zone).filter(function (el) {
             return el.hasAttribute('data-drag-item');
         });
     }
@@ -5022,7 +5037,7 @@ window.sednaUi = window.sednaUi || {};
         });
     }
     function others(zone) {
-        return toArray(zone.children).filter(function (el) {
+        return childrenOf(zone).filter(function (el) {
             return el.hasAttribute('data-drag-item') && drag.carried.indexOf(el) === -1;
         });
     }
@@ -5926,9 +5941,14 @@ window.sednaUi = window.sednaUi || {};
             && el.getAttribute('data-drag-axis') === 'cells';
     }
     function panelsOf(grid) {
-        return Array.prototype.filter.call(grid.children, function (el) {
+        return ui._.zoneChildren(grid).filter(function (el) {
             return el.hasAttribute('data-drag-item');
         });
+    }
+    function gridAbove(el) {
+        var p = el && el.parentElement;
+        while (p && p.classList.contains('panel-grid-contents')) p = p.parentElement;
+        return isGrid(p) ? p : null;
     }
     function stacked(grid) {
         var first = panelsOf(grid)[0];
@@ -5943,6 +5963,14 @@ window.sednaUi = window.sednaUi || {};
         });
     }
     function px(value) { var n = parseFloat(value); return isFinite(n) ? n : 0; }
+    function bandOf(grid) {
+        if (getComputedStyle(grid).getPropertyValue('--panel-row-offset').trim() !== '1') return null;
+        for (var i = 0; i < grid.children.length; i++) {
+            var el = grid.children[i];
+            if (el.classList.contains('panel-grid-band') && el.getClientRects().length) return el;
+        }
+        return null;
+    }
     function geometry(grid) {
         var cs = getComputedStyle(grid), r = grid.getBoundingClientRect();
         var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 24));
@@ -5950,6 +5978,8 @@ window.sednaUi = window.sednaUi || {};
         var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
         var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
         var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
+        var band = bandOf(grid);
+        if (band) top = band.getBoundingClientRect().bottom + gapY;
         var tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
         var col, gapX;
         if (cols > 1 && tracks.length === cols) {
@@ -5993,7 +6023,9 @@ window.sednaUi = window.sednaUi || {};
             s.observer = new MutationObserver(function (records) {
                 for (var i = 0; i < records.length; i++) {
                     var r = records[i];
-                    if (r.type === 'childList' ? r.target === grid : r.target.parentElement === grid) {
+                    if (r.type === 'childList'
+                            ? r.target === grid || gridAbove(r.target) === grid && r.target.classList.contains('panel-grid-contents')
+                            : gridAbove(r.target) === grid) {
                         clear(s);
                         return;
                     }
@@ -6065,8 +6097,8 @@ window.sednaUi = window.sednaUi || {};
         return null;
     }
     function gridOfPanel(el) {
-        var grid = el && el.parentElement;
-        return isGrid(grid) && el.hasAttribute('data-drag-item') ? grid : null;
+        var grid = gridAbove(el);
+        return grid && el.hasAttribute('data-drag-item') ? grid : null;
     }
     function ratioOf(el) {
         var raw = el.getAttribute('data-panel-ratio');

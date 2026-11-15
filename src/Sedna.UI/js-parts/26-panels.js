@@ -149,10 +149,19 @@
             && el.getAttribute('data-drag-axis') === 'cells';
     }
 
+    /* The grid's panels: its children carrying data-drag-item, looking through any
+       `.panel-grid-contents` wrapper in between (26-drag.js). */
     function panelsOf(grid) {
-        return Array.prototype.filter.call(grid.children, function (el) {
+        return ui._.zoneChildren(grid).filter(function (el) {
             return el.hasAttribute('data-drag-item');
         });
+    }
+
+    /* The grid an element sits in as a panel or a wrapper, or null. */
+    function gridAbove(el) {
+        var p = el && el.parentElement;
+        while (p && p.classList.contains('panel-grid-contents')) p = p.parentElement;
+        return isGrid(p) ? p : null;
     }
 
     /* Too narrow, the stylesheet stacks the panels in reading order, and says so. */
@@ -175,6 +184,17 @@
 
     function px(value) { var n = parseFloat(value); return isFinite(n) ? n : 0; }
 
+    /* The grid's `.panel-grid-band`, when it is drawn — the stylesheet gives it the first
+       row then (43-content-grids.css) — or null. */
+    function bandOf(grid) {
+        if (getComputedStyle(grid).getPropertyValue('--panel-row-offset').trim() !== '1') return null;
+        for (var i = 0; i < grid.children.length; i++) {
+            var el = grid.children[i];
+            if (el.classList.contains('panel-grid-band') && el.getClientRects().length) return el;
+        }
+        return null;
+    }
+
     /* The cells as they are drawn: the column count, a column's and a row's pitch, and
        where the first cell starts — from the inline-end edge in a right-to-left grid. */
     function geometry(grid) {
@@ -184,6 +204,9 @@
         var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
         var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
         var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
+        /* A band above the panels takes the first row, and the cells start below it. */
+        var band = bandOf(grid);
+        if (band) top = band.getBoundingClientRect().bottom + gapY;
         /* The column gap is capped at a share of the width, so its computed value can be a
            percentage the browser leaves unresolved. The drawn tracks are always in pixels:
            the gap is what is left of the width between them. */
@@ -238,7 +261,9 @@
             s.observer = new MutationObserver(function (records) {
                 for (var i = 0; i < records.length; i++) {
                     var r = records[i];
-                    if (r.type === 'childList' ? r.target === grid : r.target.parentElement === grid) {
+                    if (r.type === 'childList'
+                            ? r.target === grid || gridAbove(r.target) === grid && r.target.classList.contains('panel-grid-contents')
+                            : gridAbove(r.target) === grid) {
                         clear(s);
                         return;
                     }
@@ -336,8 +361,8 @@
 
     /* The grid a resized element is a panel of, when it is arranged. */
     function gridOfPanel(el) {
-        var grid = el && el.parentElement;
-        return isGrid(grid) && el.hasAttribute('data-drag-item') ? grid : null;
+        var grid = gridAbove(el);
+        return grid && el.hasAttribute('data-drag-item') ? grid : null;
     }
 
     /* "16:9", "16/9" or "1.78" as width over height, or null. */
