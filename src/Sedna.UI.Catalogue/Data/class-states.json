@@ -6873,10 +6873,16 @@
       "family": "tabs",
       "variants": [
         "tabs--fill"
+      ],
+      "combinedWith": [
+        "tabs--fill"
       ]
     },
     "tabs--fill": {
-      "family": "tabs"
+      "family": "tabs",
+      "combinedWith": [
+        "tabs"
+      ]
     },
     "task-list-item": {
       "family": "task-list-item"

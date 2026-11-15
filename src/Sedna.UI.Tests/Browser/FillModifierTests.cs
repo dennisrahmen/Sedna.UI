@@ -50,6 +50,40 @@ public class FillModifierTests : ScriptTestBase
         Assert.True(Math.Abs(r[2] - r[3]) < 0.5, $".{classes} is {r[2]:0}px wide in a {r[3]:0}px container.");
     }
 
+    public static TheoryData<string, string> RowsWithAMenu() => new()
+    {
+        { "tabs tabs--fill", "<a class=\"tab tab--active\" href=\"#\">Live</a><a class=\"tab\" href=\"#\">Ads</a><a class=\"tab\" href=\"#\">Designer</a><div class=\"menu-anchor\"><button class=\"tab\" type=\"button\" aria-haspopup=\"true\" id=\"trigger\"><span>Setup</span> <i class=\"ri-arrow-down-s-line\"></i></button><div class=\"menu\" hidden><button class=\"menu-item\" type=\"button\">Devices</button></div></div>" },
+        { "segmented segmented--fill", "<label class=\"segmented-option\"><input type=\"radio\" name=\"r\" checked> <span>Day</span></label><label class=\"segmented-option\"><input type=\"radio\" name=\"r\"> <span>Week</span></label><div class=\"menu-anchor\"><button class=\"segmented-option\" type=\"button\" aria-haspopup=\"true\" id=\"trigger\"><span>More</span></button><div class=\"menu\" hidden><button class=\"menu-item\" type=\"button\">Year</button></div></div>" },
+    };
+
+    /// <summary>
+    /// Every filling row treats an item in a <c>.menu-anchor</c> as an item: the anchor takes an
+    /// equal share and the trigger fills it. A new filling row gets a line here.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(RowsWithAMenu))]
+    public async Task An_item_that_opens_a_menu_takes_its_share_of_a_filling_row(string classes, string items)
+    {
+        if (NoBrowser) return;
+        var (page, _) = await OpenStyled($"""
+            <div style="width: 480px"><div class="{classes}" id="row">{items}</div></div>
+            """);
+
+        var r = await page.EvaluateAsync<double[]>("""
+            () => {
+                const row = document.getElementById('row');
+                const widths = [...row.children].map(c => c.getBoundingClientRect().width);
+                const t = document.getElementById('trigger').getBoundingClientRect(), a = document.getElementById('trigger').parentElement.getBoundingClientRect();
+                const sibling = row.firstElementChild.getBoundingClientRect();
+                return [Math.max(...widths) - Math.min(...widths), t.width - a.width, Math.abs(t.top - sibling.top) + Math.abs(t.bottom - sibling.bottom), row.scrollWidth - row.clientWidth];
+            }
+            """);
+        Assert.True(r[0] < 1, $"The items of .{classes} differ in width by {r[0]:0.0}px with one in a menu anchor.");
+        Assert.True(Math.Abs(r[1]) < 0.5, $"The trigger is {r[1]:0.0}px off its anchor's width.");
+        Assert.True(r[2] < 0.5, $"The trigger's top and bottom are {r[2]:0.0}px off its siblings'.");
+        Assert.True(r[3] <= 0, $".{classes} overflows by {r[3]}px.");
+    }
+
     [Fact]
     public async Task A_filling_tab_too_narrow_for_its_word_grows_rather_than_break_it()
     {

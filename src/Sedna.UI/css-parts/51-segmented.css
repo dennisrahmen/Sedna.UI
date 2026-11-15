@@ -75,14 +75,22 @@
 .segmented-option i { font-size: var(--text-5); line-height: 1; }
 
 /* A track as wide as its container, its options sharing it equally. */
-.segmented.segmented--fill { display: flex; width: 100%; }
-.segmented--fill > .segmented-option {
-    flex: 1 1 0;
-    min-width: 0;
+.segmented.segmented--fill {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    width: 100%;
+}
+.segmented--fill > .segmented-option,
+.segmented--fill > .menu-anchor > .segmented-option {
     justify-content: center;
     text-align: center;
     white-space: normal;
 }
+/* An option that opens a menu, in its `.menu-anchor`, is a column like the others, as a
+   tab's is in `.tabs--fill`. */
+.segmented--fill > .menu-anchor { align-self: stretch; }
+.segmented--fill > .menu-anchor > .segmented-option { flex: 1 1 auto; }
 .segmented-option input {
     position: absolute;
     inset: 0;

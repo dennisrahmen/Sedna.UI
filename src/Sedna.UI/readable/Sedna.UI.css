@@ -11351,14 +11351,25 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    in view without scrolling. A long label wraps onto a second line inside its tab, between
    its words: a tab is never narrower than its longest word, so "Computers" is never cut
    into "Computer" and "s". Only a word wider than the whole strip breaks inside itself. */
-.tabs--fill > .tab {
-    flex: 1 1 0;
-    min-width: min-content;
+.tabs.tabs--fill {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(min-content, 1fr);
+}
+.tabs--fill > .tab,
+.tabs--fill > .menu-anchor > .tab {
     justify-content: center;
     text-align: center;
     white-space: normal;
     overflow-wrap: break-word;
 }
+/* A tab that opens a menu sits in a `.menu-anchor`: the anchor is a column of the row like
+   any tab and the tab fills it, so a menu on one tab does not leave it narrower than the
+   rest. The shares are grid columns rather than flex items because a flex share is
+   weighted by content, and a tab's padding would then count where an anchor's does not.
+   Every filling row treats an anchored item so (FillModifierTests). */
+.tabs--fill > .menu-anchor { align-self: stretch; }
+.tabs--fill > .menu-anchor > .tab { flex: 1 1 auto; }
 
 /* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
    30-cards.css because it is that head's modifier. It drops this padding, the strip's
@@ -11689,14 +11700,22 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .segmented-option i { font-size: var(--text-5); line-height: 1; }
 
 /* A track as wide as its container, its options sharing it equally. */
-.segmented.segmented--fill { display: flex; width: 100%; }
-.segmented--fill > .segmented-option {
-    flex: 1 1 0;
-    min-width: 0;
+.segmented.segmented--fill {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    width: 100%;
+}
+.segmented--fill > .segmented-option,
+.segmented--fill > .menu-anchor > .segmented-option {
     justify-content: center;
     text-align: center;
     white-space: normal;
 }
+/* An option that opens a menu, in its `.menu-anchor`, is a column like the others, as a
+   tab's is in `.tabs--fill`. */
+.segmented--fill > .menu-anchor { align-self: stretch; }
+.segmented--fill > .menu-anchor > .segmented-option { flex: 1 1 auto; }
 .segmented-option input {
     position: absolute;
     inset: 0;
