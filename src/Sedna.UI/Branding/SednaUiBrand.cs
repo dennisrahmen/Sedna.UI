@@ -73,8 +73,16 @@ public static class SednaUiBrand
             var self = theme.Name == options.Default
                 ? ":root:is([data-theme=\"" + theme.Name + "\"],:not([data-theme]))"
                 : ":root[data-theme=\"" + theme.Name + "\"]";
-            AppendRoles(css, self + ":not([data-variant=\"light\"],[data-contrast=\"more\"])", theme.DarkRoles);
-            AppendRoles(css, self + "[data-variant=\"light\"]:not([data-contrast=\"more\"])", theme.LightRoles);
+            // Each block's selector list also names the same state on a subtree that carries its
+            // own data-variant, which redeclares the variant-sensitive tokens and would otherwise
+            // drop the theme's roles. The page's own form comes last in the list, and counts
+            // the same specificity as the scope form beside it.
+            AppendRoles(css,
+                self + ":not([data-contrast=\"more\"]) :where([data-variant]:not([data-variant=\"light\"]))," +
+                self + ":not([data-variant=\"light\"],[data-contrast=\"more\"])", theme.DarkRoles);
+            AppendRoles(css,
+                self + ":not([data-contrast=\"more\"]) [data-variant=\"light\"]," +
+                self + "[data-variant=\"light\"]:not([data-contrast=\"more\"])", theme.LightRoles);
         }
 
         return css.ToString();

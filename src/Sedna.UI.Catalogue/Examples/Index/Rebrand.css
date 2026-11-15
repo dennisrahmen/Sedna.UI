@@ -1,4 +1,5 @@
-:root {
+:root,
+:root :where([data-variant="dark"]) {
     --brand:          #d62828;
     --brand-hover:    #b81f1f;
     --brand-active:   #8f1818;
@@ -8,8 +9,10 @@
     --sidebar-active: #d62828;
 }
 
-/* The light variant needs the readable-on-white variants. */
-:root[data-variant="light"] {
+/* The light variant needs the readable-on-white variants. Each block also names a
+   subtree that carries its own data-variant, which redeclares these tokens. */
+:root[data-variant="light"],
+:root [data-variant="light"] {
     --brand-soft: #d62828;
     --brand-text: #b81f1f;
     --accent:     #b81f1f;

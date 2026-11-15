@@ -88,10 +88,10 @@ What the package ships that markup cannot express:
 | `ISednaSettings` | The applied appearance settings as state, with a `Changed` event |
 | `ISednaOverlays`, `SednaOverlay`, `SednaOverlayHost` | Presents an app component as a modal, drawer or sheet and returns the result it closed with |
 | `ISednaGraphs`, `SednaGraphData`, `SednaGraphNode`, `SednaGraphEdge`, `SednaGraphFilter`, `SednaGraphStats`, `SednaGraphTone`, `SednaGraphLayout` | Typed access to the graphs on a page by their element's id: records, filters, search, focus, layout, export — see [graph.md](graph.md) |
-| `ISednaEditors`, `SednaEditorState` | Typed access to the rich-text editors on a page by their element's id, for what a binding to the textarea cannot do: the document's state, replacing it, typing at the caret, inserting an image or a video, focus, and switching editing off |
+| `ISednaEditors`, `SednaEditorState` | Typed access to the rich-text editors on a page by their element's id, for what a binding to the textarea cannot do: the document's state, replacing it, typing at the caret, inserting an image or a video, filling the mention list, focus, and switching editing off |
 | `SednaContract` | Every class and token the stylesheet declares, with the release that first shipped it — for an app's own tests. Read from the class history embedded at build time. |
 | `AddSednaUi()` | Registers the above, scoped to the circuit |
-| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs`, `SednaGraphEventArgs`, `SednaGraphNodeEventArgs`, `SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs`, `SednaGraphEdgeEventArgs`, `SednaEditorEventArgs`, `SednaEditorMediaEventArgs`, `SednaMarkdownFileEventArgs`, `SednaFollowEventArgs`, `SednaResizeEventArgs`, `SednaTreeEventArgs`, `SednaTreeSelectEventArgs`, `SednaCountdownEventArgs`, `SednaSelectionEventArgs`, `SednaChartEventArgs`, `SednaPopoverEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart`, `@onsedna-dragend`, the `@onsedna-graph-*` and the `@onsedna-editor-*` events, `@onsedna-md-file`, `@onsedna-chart-select`, `@onsedna-follow`, `@onsedna-resize`, the `@onsedna-tree-*` events, `@onsedna-countdown-end`, `@onsedna-selection` and `@onsedna-popover-fill` bindable with their data, in every hosting model — a Blazor Web App, a standalone Server app and a standalone WebAssembly app. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
+| `EventHandlers`, `SednaDropEventArgs`, `SednaDragEventArgs`, `SednaGraphEventArgs`, `SednaGraphNodeEventArgs`, `SednaGraphContextEventArgs`, `SednaGraphConnectEventArgs`, `SednaGraphEdgeEventArgs`, `SednaEditorEventArgs`, `SednaEditorMediaEventArgs`, `SednaEditorMentionEventArgs`, `SednaMention`, `SednaMarkdownFileEventArgs`, `SednaFollowEventArgs`, `SednaResizeEventArgs`, `SednaTreeEventArgs`, `SednaTreeSelectEventArgs`, `SednaCountdownEventArgs`, `SednaSelectionEventArgs`, `SednaChartEventArgs`, `SednaPopoverEventArgs` | Makes `@onsedna-drop`, `@onsedna-dragstart`, `@onsedna-dragend`, the `@onsedna-graph-*` and the `@onsedna-editor-*` events, `@onsedna-md-file`, `@onsedna-chart-select`, `@onsedna-follow`, `@onsedna-resize`, the `@onsedna-tree-*` events, `@onsedna-countdown-end`, `@onsedna-selection` and `@onsedna-popover-fill` bindable with their data, in every hosting model — a Blazor Web App, a standalone Server app and a standalone WebAssembly app. The Razor compiler finds an event only through a class named exactly `EventHandlers`, in a namespace the component imports |
 
 `ActiveLink` drops the query string and the fragment, treats a trailing slash as insignificant, and
 requires a prefix match to end on a path segment, so `/queue` does not light up on `/queue-archive`. The
@@ -178,16 +178,21 @@ tests hold the model up: one fails if any rule escapes a layer — an unlayered 
 outrank the whole library *and* be unreachable from your stylesheet — and one fails if a layer is used
 without being in the ordering statement, since an undeclared layer sorts after every declared one.
 
-### Three things it means for your own stylesheet
+### Four things it means for your own stylesheet
 
 **A token you set at bare `:root` beats the library's `[data-variant="light"]` value for it.** Set both
-blocks, as the rebrand recipe shows.
+blocks, each with the subtree form, as the rebrand recipe shows.
 
 **An unconditional rule of yours beats a library rule at any specificity.** The case to check is
 compact density: an app carrying its own `.table th, .table td { padding: 8px 12px }` or
 `.card-body { padding: … }` wins over the padding compact density remaps, so those tables and cards
 stop tightening. Delete the copied rule. The same goes for a `:root[data-density="compact"] .card-body`
 rule written before cards compacted on their own: it still wins, and now fights the library's value.
+
+**A rule of yours outside the layers beats every library rule, button colours included.** A bare
+`a { color: inherit }` beats the white text of `a.btn.btn--solid` in the light variant, and a bare
+`a { text-decoration: underline }` underlines every `.btn` link. Write the rule for the elements it is for
+(`.prose a`) and never for a bare element.
 
 **`!important` is actively harmful here, not merely unnecessary.** Layer order *inverts* for important
 declarations, so an `!important` inside `sedna.paint` is harder for you to override than an ordinary
@@ -443,8 +448,10 @@ emits at bare `:root`. It reaches the browser twice, because the boot script run
 can: `data-theme-default` on the boot script tag, and `themeDefault` from `ISednaUi.ConfigureAsync()`.
 Both fall back to `sedna`, so an app that changes neither behaves as before.
 
-Consuming apps select on `:root[data-variant="light"]` to brand the light palette, so that selector has
-to match whenever the light palette is in use. The two used to be one attribute (`data-theme` took
+Consuming apps select on `:root[data-variant="light"], :root [data-variant="light"]` to brand the light
+palette — the page, and a subtree that names the light variant — so that selector has to match whenever
+the light palette is in use. The dark values of tokens that differ by variant go in
+`:root, :root :where([data-variant="dark"])`. The two used to be one attribute (`data-theme` took
 `dark`/`light` directly), which is why there was nowhere to put a second theme; splitting them is a
 breaking change, permitted pre-1.0 (see [releasing](releasing.md)).
 
@@ -455,6 +462,21 @@ light-theme branding would silently stop applying. `sedna.variant` in `localStor
 on read: with it stored, the variant follows a live `matchMedia('(prefers-color-scheme: light)')`
 listener, and a stored `dark`/`light` still wins outright over both the listener and the boot script
 tag's own `data-variant-default`.
+
+**`data-variant` on any element scopes the variant to that subtree.** The attribute is the library's: an element that carries it for another purpose of the app's own is a subtree now, so name that attribute something else. `<section data-variant="dark">` on a
+light page reads as a dark page inside — text, controls, badges, native form controls and scrollbars — and
+`"light"` does the same on a dark one. The token blocks that remap by variant, colour-blind palette,
+contrast or forced colours each carry a second selector for the subtree, listed with the page's own form
+(`:root :where([data-variant])`, `:root [data-variant="light"]`), at the same specificity, so the cascade
+between them is the same inside the subtree as on the page. Only the **variant-sensitive tokens** are
+redeclared there — what those blocks remap, and every token that reads one, because a derived token resolves
+where it is declared. The rest of `:root` — spacing, type, motion, a family that is the same in both
+variants — is declared once and inherited, which is why a subtree keeps the page's density and an app's own
+override of such a token. `01-tokens.css` holds the two blocks and `ScopedVariantTests` keeps every token in
+the right one. The subtree sets `color` and `color-scheme` and paints no background. A theme's own roles
+(`SednaTheme.DarkRoles`, `LightRoles`) reach the subtree through the same selector lists. An app's own
+override of a token that differs by variant names the subtree in its selector, as
+[getting started](getting-started.md#your-own-css) shows.
 
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
@@ -686,7 +708,7 @@ Two things the flat list does not say:
 | — | `29-time.js` adds no member. It keeps every `<time datetime>` with `data-relative` (time since) or `data-countdown` (time left) current from one timer, which sleeps until the soonest element changes — the next whole unit, or the next unit taking over — and not at all while the page is hidden. The words are the app's: a format per unit — `data-seconds`, `data-minutes`, `data-hours`, `data-days`, `data-weeks`, `data-months`, `data-years` — with `{n}` where the number goes, and optionally one per plural category of the nearest `lang`, `data-minutes-one` and `-two`, `-few`, `-many`, `-zero`. The script picks the unit, formats the number with `Intl.NumberFormat` and writes the result into the element's own text node; a unit with no format is counted in the next smaller one that has one, and an element with no formats is left alone. Counts are whole units rounded down; a countdown never shows zero before it is zero, and at zero dispatches a bubbling `sedna-countdown-end` with `detail.until` once per element and `datetime`. Elements a render adds, and a `datetime`, format or `lang` it changes, are picked up as they land |
 | `spotlight` | Tour geometry and the input model, not the sequence. `at(hole, target, { pad, include, scroll })` positions `.spotlight-hole` over an element, a list of them or a selector — correctly inside a CSS-zoomed frame — and returns the rectangle; `scroll: 'nearest'` or `'center'` brings the target into view first, once per step under `follow` — `null` when nothing visible is left; `tipAt(tip, rect, { placement, gap, margin, boundary })` places the bubble on any of the four sides, flips it when the side does not fit, clamps it into the viewport — or into `boundary` — and reports the side used; `follow(hole, target, opts)` keeps both attached across scroll, resize, re-render and a dialog opening or closing, returning `{ update, stop, side }`; `lock(opts)` / `unlock()` make the rest of the page inert and gate hover hints. A step whose target is inside an open modal `<dialog>` raises the hole and the bubble into the top layer after it and moves the bubble inside, and puts both back when the step leaves or the dialog closes. The steps, the copy and the order stay the app's |
 | `graph` | The graph's front door. It finds every `[data-graph]`, starts each as it comes within a screen of the viewport — importing `Sedna.UI.graph.js` and the engine, relative to itself, the first time — delegates the `data-graph-*` controls from `document`, and takes a graph down when its element leaves the document. `get(elOrId)` resolves the graph's handle, `init(root)` starts every graph in `root` at once, `invoke(id, method, args)` is the bridge `ISednaGraphs` calls, and `release()` — called by `Sedna.UI.lib.module.js` once Blazor has started — ends the wait on a prerendered page, where graphs are held so they are drawn once, in the markup the interactive render leaves. The handle, the controls and the events are in [graph.md](graph.md) |
-| `editor` | The rich-text editor's front door: `get(el or id)` resolves the editor's handle — `state()`, `html()`, `set(html)`, `insert(text)`, `insertImage(url, alt, width, height)`, `insertVideo(url, label, width, height)`, `focus()`, `enable(on)`, `quill`, `destroy()` — starting it if need be; `init(root?)` starts every editor in `root` at once; `invoke(id, method, args)` is the `ISednaEditors` bridge. See `docs/editor.md` |
+| `editor` | The rich-text editor's front door: `get(el or id)` resolves the editor's handle — `state()`, `html()`, `set(html)`, `insert(text)`, `insertImage(url, alt, width, height)`, `insertVideo(url, label, width, height)`, `mentions(list)`, `focus()`, `enable(on)`, `quill`, `destroy()` — starting it if need be; `init(root?)` starts every editor in `root` at once; `invoke(id, method, args)` is the `ISednaEditors` bridge. See `docs/editor.md` |
 | `chart` | The chart's front door. It registers `[data-chart]` with the surface loader, which imports `Sedna.UI.chart.js` the first time a page shows one, gives each chart `role="application"` and a tab stop the moment it is found, and delegates the legend's `data-chart-toggle` buttons from `document`. `get(elOrId)` resolves the chart's handle — `element`, `type`, `data`, `set(data)`, `reset()`, `toggle(name, shown)`, `redraw()` — starting it if need be; `init(root)` starts every chart in `root` at once. The markup, the keyboard and the event are in [charts.md](charts.md) |
 | — | `45-orb.js` adds no member. It is the orb's front door: it registers `[data-orb]` with the surface loader, which imports `Sedna.UI.orb.js` the first time a page shows one, and gives each orb `role="img"` the moment it is found. The app's `aria-label` names it, and its attributes drive it — see [orb.md](orb.md) |
 | — | `47-signature.js` adds no member. It is the signature pad's front door: it registers `[data-signature]` with the surface loader, which imports `Sedna.UI.signature.js` the first time a page shows one, and gives the pad's `[data-signature-pad]` `role="img"` the moment it is found. The app's field, `[data-signature-value]`, holds the value — see [signature.md](signature.md) |

@@ -1339,12 +1339,20 @@
         "card--folded",
         "card--resizable"
       ],
+      "pseudoClasses": [
+        ":focus-visible",
+        ":hover"
+      ],
       "combinedWith": [
+        "card--fill",
         "card--folded"
       ]
     },
     "card--fill": {
-      "family": "card"
+      "family": "card",
+      "combinedWith": [
+        "card"
+      ]
     },
     "card--folded": {
       "family": "card",
@@ -2421,7 +2429,8 @@
         "[data-state=\"warn\"]"
       ],
       "pseudoClasses": [
-        ":focus-within"
+        ":focus-within",
+        ":fullscreen"
       ]
     },
     "editor-body": {
@@ -2441,6 +2450,15 @@
     },
     "editor-media": {
       "family": "editor-media"
+    },
+    "editor-media-bar": {
+      "family": "editor-media-bar",
+      "attributes": [
+        "[hidden]"
+      ]
+    },
+    "editor-mention": {
+      "family": "editor-mention"
     },
     "editor-notice": {
       "family": "editor-notice"
@@ -4581,11 +4599,18 @@
     "page-head": {
       "family": "page-head",
       "variants": [
-        "page-head--collapse"
+        "page-head--collapse",
+        "page-head--hero"
       ]
     },
     "page-head--collapse": {
       "family": "page-head"
+    },
+    "page-head--hero": {
+      "family": "page-head",
+      "attributes": [
+        "[dir=\"rtl\"]"
+      ]
     },
     "page-head-actions": {
       "family": "page-head-actions",
@@ -4595,6 +4620,9 @@
     },
     "page-head-actions--fold": {
       "family": "page-head-actions"
+    },
+    "page-head-image": {
+      "family": "page-head-image"
     },
     "page-head-text": {
       "family": "page-head-text"
@@ -6131,6 +6159,7 @@
     "source-card": {
       "family": "source-card",
       "pseudoClasses": [
+        ":focus-visible",
         ":hover"
       ]
     },

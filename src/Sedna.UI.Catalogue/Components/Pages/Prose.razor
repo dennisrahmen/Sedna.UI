@@ -16,6 +16,17 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Prose.Aligned" Title="Pictures beside text" Demo="ex-demo--block ex-demo--pad">
+    <p>
+        <code>data-align</code> on an <code>&lt;img&gt;</code> is how a picture sits against its text:
+        <code>start</code> and <code>end</code> float it to that edge with the text beside it,
+        <code>center</code> makes it a centred block. The edges are logical, so a right-to-left block mirrors them,
+        and below 560px a float stacks. It is what the rich-text editor writes, so the HTML it posts reads the same
+        here; <code>ql-align-center</code>, <code>ql-align-right</code>, <code>ql-direction-rtl</code> and
+        <code>ql-indent-1</code> to <code>ql-indent-8</code> are styled for the same reason.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Prose.Foreign" Title="HTML from somewhere else" Demo="ex-demo--block">
     <p>
         <code>.prose--foreign</code> adds <strong>containment</strong> on top of

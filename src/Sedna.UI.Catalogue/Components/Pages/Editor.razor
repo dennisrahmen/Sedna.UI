@@ -98,7 +98,29 @@
             <code>aria-label</code> &mdash; and <code>[data-editor-media-save]</code> inserts. The form says which it
             is for in <code>data-editor-media-kind</code>, and shows an element marked
             <code>data-editor-media-for="image"</code> or <code>"video"</code> only for that kind. Opened on an image
-            or a video, it is filled with it, and Insert replaces it.
+            or a video, it is filled with it, and Insert replaces it. <strong>A click on an image or a video in the
+            document chooses it</strong> &mdash; an outline in the focus ring marks it, set as
+            <code>data-editor-selected</code> &mdash; so the control then changes that media instead of adding a
+            second. A video's own controls keep their clicks: click its frame, or press Shift+Arrow from the line
+            before it or after it. Typing or a click elsewhere lets it go.
+        </p>
+        <p>
+            <strong>The bar.</strong> Write <code>.editor-media-bar[data-editor-media-bar]</code> once inside the
+            editor, with <code>hidden</code>, and the editor shows it above the chosen media and hides it when it is let
+            go. Its controls are yours: <code>data-editor-media-size="240"</code> sets the width in pixels and clears the
+            height, <code>""</code> is the natural size; <code>data-editor-media-align="start"</code>, <code>"center"</code>,
+            <code>"end"</code> or <code>""</code> sets <code>data-align</code>; <code>data-editor-media-edit</code> opens the
+            media form on it and <code>data-editor-media-remove</code> deletes it. Size and align controls carry
+            <code>aria-pressed</code>; an element marked <code>data-editor-media-for="image"</code> shows for that kind
+            only. <kbd class="kbd">Alt</kbd> + <kbd class="kbd">F10</kbd> goes to the bar while a media is chosen, the
+            arrows move between its controls, and <kbd class="kbd">Esc</kbd> comes back to the document.
+        </p>
+        <p>
+            <strong>How a picture sits.</strong> <code>data-align</code> is written on the <code>&lt;img&gt;</code> or the
+            <code>&lt;video&gt;</code> and kept through paste and load; any other value is dropped. <code>start</code> and
+            <code>end</code> float a picture to that edge with the text beside it, <code>center</code> makes it a centred
+            block, and <code>.prose</code> styles all three wherever the HTML is shown &mdash; mirrored in a right-to-left
+            block, and stacked below a phone's width. It is an attribute rather than a class so the HTML stays plain.
         </p>
         <p>
             <code>[data-editor-media-width]</code> and <code>[data-editor-media-height]</code> are the size, in
@@ -147,6 +169,88 @@
             editor's handle. Each takes a width and a height in pixels after the description &mdash; in C#, an
             overload with an <code>int?</code> each &mdash; and without them keeps the size of the media it
             replaces; <code>null</code> removes it.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Writing">
+    <CatExample TExample="Examples.Editor.Shortcuts" Title="Markdown shortcuts and rules" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type <kbd class="kbd">#</kbd> and a space, <kbd class="kbd">&gt;</kbd> and a space,
+            <kbd class="kbd">---</kbd> and <kbd class="kbd">Enter</kbd>, or <code>**bold**</code>.</strong> A reader who
+            knows Markdown gets the format it names, for the formats the editor accepts and no others:
+            <code>#</code> to <code>######</code> a heading, <code>&gt;</code> a quote, <code>---</code> a horizontal
+            rule, three backticks a code block, and <code>**x**</code>, <code>*x*</code>, <code>`x`</code>,
+            <code>~~x~~</code> bold, italic, code and strike when the closing mark is typed. A list starts with
+            <code>- </code>, <code>1. </code> or <code>[ ] </code>. Each is its own step in the history:
+            <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Z</kbd> puts back what was typed. Nothing happens inside
+            code.
+        </p>
+        <p>
+            <code>data-editor-action="rule"</code> puts an <code>&lt;hr&gt;</code> at the caret, in a line of its own;
+            <code>.prose hr</code> draws it. <code>data-editor-format="direction"</code> with <code>value="rtl"</code>
+            sets a block right to left. A link is written with <code>target="_blank"</code> and
+            <code>rel="noopener noreferrer"</code>.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Editor.Mentions" Title="Naming someone" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type <kbd class="kbd">&#64;</kbd> after a space, then a name.</strong> The list is a
+            <code>.menu.editor-mention[data-editor-mention]</code> you write once inside the editor, one
+            <code>.menu-item</code> per person with <code>data-mention-value</code> and <code>data-label</code>, as the
+            textarea mention list does. What follows the <kbd class="kbd">&#64;</kbd> filters it with the palette's
+            matcher; <kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd> choose and
+            <kbd class="kbd">Enter</kbd> or <kbd class="kbd">Tab</kbd> writes it, <kbd class="kbd">Esc</kbd> closes it.
+        </p>
+        <p>
+            A mention is written as <code>&lt;data value="alex.fischer"&gt;&#64;Alex Fischer&lt;/data&gt;</code>: the value is
+            the id your server resolves, the text is what the reader sees, and <code>.prose data[value]</code> colours
+            it. <code>&lt;data&gt;</code> is the element HTML has for a machine-readable value, and nothing else in a
+            document uses it, so it cannot be taken for another format.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.EditorMentionSearch" Title="Mentions from a search" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type <kbd class="kbd">&#64;</kbd> and a letter.</strong> Each time the word changes the
+            editor sends <code>sedna-editor-mention</code> with <code>{ query }</code>. Cancel it with
+            <code>@@onsedna-editor-mention:preventDefault</code> and answer with
+            <code>ISednaEditors.SetMentionsAsync(id, mentions)</code> &mdash; or <code>mentions([...])</code> from
+            script &mdash; which clones one row per person from the
+            <code>&lt;template data-editor-mention-item&gt;</code> in the menu, filling its <code>data-label</code>,
+            <code>data-note</code> and <code>data-icon</code> slots with text. The editor then shows every row it was
+            given, in the order it was given.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Limits and layout">
+    <CatExample TExample="Examples.Interop.EditorLimit" Title="Length limit and counter" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; type past 120 characters.</strong> <code>maxlength</code> on the textarea is the limit. The
+            editor counts the document's text &mdash; what <code>state().length</code> says, not the HTML &mdash; and cuts
+            what is typed or pasted beyond it, marking the frame <code>aria-invalid</code> until the next change. A
+            document the app sets is its own. The counter is yours: <code>@@onsedna-editor-change</code> gives the text and
+            its length, and the words are counted from the text.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Editor.FullScreen" Title="Full screen" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; press the full-screen button.</strong> A <code>data-fullscreen</code> button with
+            <code>aria-controls</code> naming the editor does it, as it does for any element; inside the toolbar it is one
+            of the toolbar's stops. In full screen the document takes the height the toolbar leaves
+            (<code>.editor:fullscreen</code>), and the forms and menus, which sit inside the frame, go with it.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Editor.Tables" Title="Tables" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; insert a table, then add rows and columns.</strong> Any
+            <code>data-editor-action="table-insert"</code> or row and column action makes the editor take tables, and a
+            stored table is kept. The insert button is <code>disabled</code> inside a table, and every other table action
+            outside one. A table is drawn with the table tokens, so it reads as the one the page later shows.
         </p>
     </CatExample>
 </CatGroup>
@@ -215,6 +319,10 @@
                 <tr><td><code>data-editor-format="link"</code></td><td>Opens the link form.</td></tr>
                 <tr><td><code>data-editor-format="image"</code>, <code>"video"</code></td><td>Sends <code>sedna-editor-media</code>, then opens the media form.</td></tr>
                 <tr><td><code>data-editor-action="undo"</code>, <code>"redo"</code>, <code>"indent"</code>, <code>"outdent"</code>, <code>"clean"</code></td><td>Undo, redo, one level in or out, and removing the formatting from the selection.</td></tr>
+                <tr><td><code>data-editor-format="direction"</code> with <code>value="rtl"</code></td><td>Sets the block right to left.</td></tr>
+                <tr><td><code>data-editor-action="rule"</code></td><td>A horizontal rule at the caret.</td></tr>
+                <tr><td><code>data-editor-action="table-insert"</code> and the row and column actions</td><td>Tables; see Tables.</td></tr>
+                <tr><td><code>data-fullscreen</code> with <code>aria-controls</code> naming the editor</td><td>Full screen, as a toolbar stop.</td></tr>
                 <tr><td><code>data-editor-formats="bold italic link"</code> on the editor</td><td>The formats it accepts, instead of the ones its toolbar offers.</td></tr>
                 <tr><td><code>data-editor-eager</code> on the editor</td><td>Starts it at once, rather than when it scrolls near.</td></tr>
             </tbody>
@@ -230,6 +338,7 @@
                 <tr><td><code>sedna-editor-change</code></td><td>The same, after each change.</td></tr>
                 <tr><td><code>sedna-editor-media</code></td><td><code>{ kind, src, alt, width, height }</code>, cancelable, before the media form opens: the image or video under the caret, with its size in pixels or <code>null</code>, or empty strings and nulls.</td></tr>
                 <tr><td><code>sedna-editor-file</code></td><td><code>{ files: [{ id, name, type, size }], index }</code>, cancelable, when an image or a video file is pasted or dropped. Nothing is inserted: read each by its <code>id</code>, and cancel the event to say the app took them &mdash; otherwise the editor's <code>[data-editor-file-notice]</code> shows.</td></tr>
+                <tr><td><code>sedna-editor-mention</code></td><td><code>{ query }</code>, cancelable, while the mention list is open: the word after the &#64;. Cancel it and answer with <code>mentions([...])</code>.</td></tr>
                 <tr><td>the textarea's <code>input</code>, <code>change</code></td><td>As a textarea sends them: at each change, and when the focus leaves after one.</td></tr>
             </tbody>
         </table>

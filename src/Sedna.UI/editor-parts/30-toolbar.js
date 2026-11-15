@@ -111,6 +111,7 @@ function act(e, c) {
         case 'table-column-before': case 'table-column-after':
         case 'table-row-delete': case 'table-column-delete': case 'table-delete':
             tableAction(q, action); break;
+        case 'rule': insertRule(e); break;
         case 'clean': {
             const range = q.getSelection(true);
             if (!range) break;
@@ -135,7 +136,7 @@ function wireToolbar(e) {
         const c = ev.target.closest(CONTROL);
         if (!c || c.tagName === 'SELECT' || c.tagName === 'INPUT' || !e.controls.includes(c) || c.disabled) return;
         if (c.hasAttribute('data-editor-format')) applyFormat(e, c);
-        else act(e, c);
+        else if (c.hasAttribute('data-editor-action')) act(e, c);
     });
     on(e.el, 'change', ev => {
         const c = ev.target.closest('select[data-editor-format], input[data-editor-format]');

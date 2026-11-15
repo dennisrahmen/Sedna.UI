@@ -52,6 +52,7 @@ public class EditorInteropTests : BunitContext
         new("InsertVideoAsync", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", "A tour"), "video", """["https://example.com/a.mp4","A tour"]"""),
         new("InsertVideoAsync, with a size", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", "A tour", 640, 360), "video", """["https://example.com/a.mp4","A tour",640,360]"""),
         new("InsertVideoAsync, height only", e => e.InsertVideoAsync(Id, "https://example.com/a.mp4", null, null, 360), "video", """["https://example.com/a.mp4","",null,360]"""),
+        new("SetMentionsAsync", e => e.SetMentionsAsync(Id, [new SednaMention("alex.fischer", "Alex Fischer", "Support", null)]), "mentions", """[[{"value":"alex.fischer","label":"Alex Fischer","note":"Support","icon":null}]]"""),
         new("FocusAsync", e => e.FocusAsync(Id), "focus", "[]"),
         new("SetEnabledAsync", e => e.SetEnabledAsync(Id, false), "enable", "[false]"),
         new("OpenFileAsync", e => e.OpenFileAsync(Id, "file-3"), "file", """["file-3"]"""),
@@ -151,11 +152,14 @@ public class EditorInteropTests : BunitContext
             {
                 "sedna-editor-media" => typeof(SednaEditorMediaEventArgs),
                 "sedna-editor-file" => typeof(SednaEditorFileEventArgs),
+                "sedna-editor-mention" => typeof(SednaEditorMentionEventArgs),
                 _ => typeof(SednaEditorEventArgs),
             },
             handlers[name].EventArgsType));
-        // The media event is the one an app cancels, to open its own dialog instead of the form.
+        // The media event is the one an app cancels, to open its own dialog instead of the form;
+        // the mention event, to answer the list from a search of its own.
         Assert.True(handlers["sedna-editor-media"].EnablePreventDefault);
+        Assert.True(handlers["sedna-editor-mention"].EnablePreventDefault);
     }
 
     [Fact]
@@ -166,6 +170,25 @@ public class EditorInteropTests : BunitContext
         Assert.Equal(("image", "/a.png", "A chart"), (e.Kind, e.Src, e.Alt));
         Assert.Null(e.Width);
         Assert.Null(e.Height);
+    }
+
+    [Fact]
+    public void The_mention_events_detail_reads_as_mention_event_args()
+    {
+        var e = JsonSerializer.Deserialize<SednaEditorMentionEventArgs>("""{"query":"ale"}""", Wire)!;
+        Assert.Equal("ale", e.Query);
+    }
+
+    [Fact]
+    public void The_mention_rows_cross_the_boundary_as_plain_data_in_the_names_the_script_reads()
+    {
+        // setMentions in 65-mention.js reads value, label, note and icon.
+        var wire = JsonSerializer.SerializeToNode(new SednaMention("alex", "Alex Fischer", "Support"), Wire)!;
+        Assert.Equal("alex", (string?)wire["value"]);
+        Assert.Equal("Alex Fischer", (string?)wire["label"]);
+        Assert.Equal("Support", (string?)wire["note"]);
+        Assert.Null((string?)wire["icon"]);
+        Assert.Contains("entry.label", EditorModule, StringComparison.Ordinal);
     }
 
     [Fact]

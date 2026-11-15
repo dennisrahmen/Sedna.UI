@@ -98,3 +98,25 @@ public sealed class SednaEditorFile
     /// <summary>Its size in bytes.</summary>
     public long Size { get; set; }
 }
+
+/// <summary>
+/// The word typed after "@" in a rich-text editor changed: <c>sedna-editor-mention</c>, sent while the
+/// editor's mention list is open.
+/// </summary>
+/// <remarks>
+/// An app that answers from a server cancels the event — <c>@onsedna-editor-mention:preventDefault</c> —
+/// and fills the list with <see cref="ISednaEditors.SetMentionsAsync"/>; the editor then shows every
+/// row it was given. An app that wrote every row itself ignores the event, and the editor filters them.
+/// </remarks>
+public sealed class SednaEditorMentionEventArgs : EventArgs
+{
+    /// <summary>What was typed after the "@", or the empty string.</summary>
+    public string Query { get; set; } = string.Empty;
+}
+
+/// <summary>Someone the reader can name with "@" in a rich-text editor, as <see cref="ISednaEditors.SetMentionsAsync"/> takes them.</summary>
+/// <param name="Value">What the mention carries in the HTML — <c>&lt;data value="…"&gt;</c> — an id the app resolves.</param>
+/// <param name="Label">What is shown and written after the "@"; the value when null.</param>
+/// <param name="Note">A second line in the row — a role, an address — or null for none.</param>
+/// <param name="Icon">A class for the row's <c>[data-icon]</c>, such as <c>ri-user-line</c>, or null.</param>
+public sealed record SednaMention(string Value, string? Label = null, string? Note = null, string? Icon = null);

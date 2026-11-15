@@ -14,6 +14,7 @@
      sedna-editor-change   the same, after each change
      sedna-editor-media    { kind, src, alt, width, height }, cancelable, before the media form opens
      sedna-editor-file     { files, index }, cancelable — cancelled when the app takes them
+     sedna-editor-mention  { query }, cancelable — cancelled when the app fills the list itself
 
    and the textarea's own `input` and `change`, which is what `@bind` listens to.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -62,12 +63,12 @@ function describe(e) {
 }
 
 function start(e) {
-    const { value, body, toolbar, link, media, slash, notice } = readMarkup(e.el);
+    const { value, body, toolbar, link, media, slash, notice, bar, mention } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, media, slash, notice, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, slash, notice, bar, mention, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
     const formats = formatsOf(e.el);
@@ -84,11 +85,12 @@ function start(e) {
             table: formats.includes('table'),
             keyboard: {
                 bindings: {
-                    toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
+                    toolbar: { key: 'F10', altKey: true, handler: () => (toBar(e) ? false : toToolbar(e)) },
                     link: { key: 'k', shortKey: true, handler: () => { if (e.link) openLink(e); return !e.link; } },
                     // Tab leaves the document, as it leaves a textarea, rather than typing a tab
                     // character. In a list or a code block Quill's own indent comes first.
                     tab: { key: 'Tab', handler: () => true },
+                    ...autoformatBindings(e),
                 },
             },
         },
@@ -102,6 +104,10 @@ function start(e) {
     wireLink(e);
     wireMedia(e);
     wireSlash(e);
+    wireBar(e);
+    wireLimit(e);
+    wireMention(e);
+    wireAutoformat(e);
 
     const q = e.quill;
     q.on('text-change', (delta, old, source) => {
@@ -147,7 +153,13 @@ function makeApi(e) {
         /* Replaces the document — and the textarea's value, with its events — as a paste of
            this HTML would, cut down to the formats the editor accepts. */
         set: html => {
-            e.quill.setContents(e.quill.clipboard.convert({ html: html || '' }), 'user');
+            // A document the app sets is its own: the length limit holds what the reader types.
+            e.setting = true;
+            try {
+                e.quill.setContents(e.quill.clipboard.convert({ html: html || '' }), 'user');
+            } finally {
+                e.setting = false;
+            }
             return stateOf(e);
         },
         /* Text at the caret — or at the end, if the document has not had the focus. */
@@ -164,6 +176,9 @@ function makeApi(e) {
            not http, https or relative, or a size is not a whole number above zero. */
         insertImage: (url, alt, width, height) => insertMedia(e, 'image', url, alt, takeMediaRange(e), { width, height }),
         insertVideo: (url, label, width, height) => insertMedia(e, 'video', url, label, takeMediaRange(e), { width, height }),
+        /* The rows of the mention list, from the app's own search: `[{ value, label, note,
+           icon }]`, cloned from the list's template. How many rows were made. */
+        mentions: list => setMentions(e, list),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -186,6 +201,7 @@ function invoke(e, method, args) {
         case 'insert': return api.insert(a[0]);
         case 'image': return api.insertImage(a[0], a[1], a[2], a[3]);
         case 'video': return api.insertVideo(a[0], a[1], a[2], a[3]);
+        case 'mentions': return api.mentions(a[0]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         // A File: Blazor reads it as an IJSStreamReference.

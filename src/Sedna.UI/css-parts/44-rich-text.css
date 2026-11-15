@@ -13,7 +13,7 @@
    it. */
 .editor { position: relative; }
 @media (scripting: none) {
-    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media], [data-editor-slash]) { display: none; }
+    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media], [data-editor-media-bar], [data-editor-slash], [data-editor-mention]) { display: none; }
     .editor textarea[data-editor-value] {
         display: block;
         box-sizing: border-box;
@@ -27,6 +27,23 @@
         resize: vertical;
     }
 }
+
+/* ── Full screen ────────────────────────────────────────────────────────────
+   A `data-fullscreen` button with `aria-controls` naming the editor puts the frame on the whole
+   display. The document takes the height the toolbar leaves and scrolls inside it, and the
+   forms and menus, which sit inside the frame, go with it. */
+.editor:fullscreen {
+    --editor-max-height: none;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: 0;
+    background: var(--bg);
+}
+.editor:fullscreen .editor-body { flex: 1; min-block-size: 0; display: flex; flex-direction: column; }
+.editor:fullscreen .ql-editor { flex: 1; min-block-size: 0; }
 
 /* ── The editable area ──────────────────────────────────────────────────────
    Quill makes `.editor-body` its container and writes the document into a `.ql-editor`
@@ -220,6 +237,12 @@
     border-radius: var(--radius-inner);
     background: var(--bg-elevated);
 }
+/* The image or video a click chose, which the media form then opens on. An outline rather than a
+   shadow, so forced colours keep it. */
+.editor .ql-editor :is(img, video)[data-editor-selected] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
 .editor .ql-editor code {
     font-family: var(--font-mono);
     font-size: 0.9em;
@@ -270,6 +293,29 @@
 /* The size fields are a number of pixels: narrow, side by side after the description. */
 .editor-media :is([data-editor-media-width], [data-editor-media-height]) { flex: 0 1 7rem; }
 
+/* ── The bar on a chosen image or video ─────────────────────────────────────
+   The app's controls, `[data-editor-media-bar]`, which the script shows above the media a
+   click chose and places with a transform from the frame's top-left corner, as it places the
+   forms. On the dropdown rung; wraps rather than leaving the frame. */
+.editor-media-bar {
+    position: absolute;
+    inset-block-start: 0;
+    /* rtl-ok: the script measures its offset from the frame's left edge in either direction. */
+    left: 0;
+    z-index: 550;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    max-inline-size: calc(100% - 2 * var(--space-4));
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+}
+.editor-media-bar[hidden] { display: none; }
+
 /* ── The notice about a file ────────────────────────────────────────────────
    The app's own words, `[data-editor-file-notice]`, which the script shows when a file
    pasted or dropped into the document is not taken, and hides at the next change. A strip
@@ -285,7 +331,8 @@
    line into another block. The script places it with a transform from the frame's
    top-left corner, as it places the link form, so its origin is physical; it scrolls
    past a screenful of items. On the dropdown rung. */
-.editor-slash {
+.editor-slash,
+.editor-mention {
     position: absolute;
     inset-block-start: 0;
     /* rtl-ok: the script measures its offset from the frame's left edge in either direction. */

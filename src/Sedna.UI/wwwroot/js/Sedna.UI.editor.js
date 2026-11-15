@@ -1,9 +1,10 @@
 /*! Sedna.UI — generated, comments stripped. The commented copy ships in the package as readable/Sedna.UI.editor.js. */
 import Quill from '../lib/quill/quill.js';
 const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link', 'image', 'video',
-    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table'];
+    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table',
+    'direction', 'divider', 'mention'];
 const TABLE_PARTS = ['table-row', 'table-body', 'table-container'];
-const CONTROL = '[data-editor-format],[data-editor-action]';
+const CONTROL = '[data-editor-format],[data-editor-action],[data-fullscreen]';
 const warned = new Set();
 function warnOnce(key, message) {
     if (warned.has(key)) return;
@@ -21,7 +22,9 @@ function readMarkup(el) {
     const media = el.querySelector('[data-editor-media]');
     const slash = el.querySelector('[data-editor-slash]');
     const notice = el.querySelector('[data-editor-file-notice]');
-    return { value, body, toolbar, link, media, slash, notice };
+    const bar = el.querySelector('[data-editor-media-bar]');
+    const mention = el.querySelector('[data-editor-mention]');
+    return { value, body, toolbar, link, media, slash, notice, bar, mention };
 }
 function formatsOf(el) {
     const named = (el.getAttribute('data-editor-formats') || '').split(/\s+/).filter(Boolean);
@@ -30,6 +33,8 @@ function formatsOf(el) {
     const wanted = new Set(named.length ? named : offered);
     if (acted.includes('indent') || acted.includes('outdent') || wanted.has('list')) wanted.add('indent');
     if (acted.some(a => a && a.startsWith('table-'))) wanted.add('table');
+    if (acted.includes('rule')) wanted.add('divider');
+    if (el.querySelector('[data-editor-mention]')) wanted.add('mention');
     for (const f of wanted) {
         if (!FORMATS.includes(f)) {
             warnOnce('format:' + f, `"${f}" is not a format the editor offers; it is ignored.`);
@@ -43,8 +48,10 @@ const VALUE = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'va
 function htmlOf(quill) {
     if (quill.getLength() <= 1 && !quill.getContents().ops.some(op => typeof op.insert === 'object')) return '';
     return quill.getSemanticHTML()
+        .replace(/ data-editor-selected(?:="")?/g, '')
+        .replace(/<span class="ql-cursor">[^<]*<\/span>/g, '')
         .replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1))
-        .replace(/(<\/video>)<p><\/p>$/, '$1');
+        .replace(/(<\/video>|<hr>)<p><\/p>$/, '$1');
 }
 function stateOf(e) {
     const html = htmlOf(e.quill);
@@ -132,6 +139,31 @@ function watchRequired(e) {
     e.cleanups.push(() => {
         form.removeEventListener('submit', onSubmit, true);
         ta.required = true;
+    });
+}
+function limitOf(e) {
+    const n = parseInt(e.value.getAttribute('maxlength') ?? '', 10);
+    return n > 0 ? n : 0;
+}
+function wireLimit(e) {
+    const q = e.quill;
+    q.on('text-change', (delta, old, source) => {
+        const max = limitOf(e);
+        const length = q.getText().replace(/\n$/, '').length;
+        if (source === 'user' && !e.setting && max && length > max) {
+            const over = length - max;
+            const caret = caretAfter(delta) ?? (q.getSelection()?.index ?? length);
+            const from = Math.max(0, caret - over);
+            q.deleteText(from, over, 'silent');
+            q.setSelection(from, 0, 'silent');
+            if (!e.el.hasAttribute('aria-invalid')) {
+                e.el.setAttribute('aria-invalid', 'true');
+                e.limitMarked = true;
+            }
+        } else if (e.limitMarked && source !== 'silent') {
+            e.limitMarked = false;
+            e.el.removeAttribute('aria-invalid');
+        }
     });
 }
 function isOn(format, name, value) {
@@ -222,6 +254,7 @@ function act(e, c) {
         case 'table-column-before': case 'table-column-after':
         case 'table-row-delete': case 'table-column-delete': case 'table-delete':
             tableAction(q, action); break;
+        case 'rule': insertRule(e); break;
         case 'clean': {
             const range = q.getSelection(true);
             if (!range) break;
@@ -244,7 +277,7 @@ function wireToolbar(e) {
         const c = ev.target.closest(CONTROL);
         if (!c || c.tagName === 'SELECT' || c.tagName === 'INPUT' || !e.controls.includes(c) || c.disabled) return;
         if (c.hasAttribute('data-editor-format')) applyFormat(e, c);
-        else act(e, c);
+        else if (c.hasAttribute('data-editor-action')) act(e, c);
     });
     on(e.el, 'change', ev => {
         const c = ev.target.closest('select[data-editor-format], input[data-editor-format]');
@@ -592,11 +625,26 @@ function sizeEvent(value) {
     return n ? Number(n) : null;
 }
 const QuillImage = Quill.import('formats/image');
+const ALIGNS = ['start', 'end', 'center'];
+const IMAGE_ATTRIBUTES = ['alt', 'height', 'width', 'data-align'];
 class SednaImage extends QuillImage {
     static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+    static formats(node) {
+        return IMAGE_ATTRIBUTES.reduce((f, name) => {
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
+            return f;
+        }, {});
+    }
+    format(name, value) {
+        if (name !== 'data-align') return super.format(name, value);
+        if (ALIGNS.includes(value)) this.domNode.setAttribute(name, value);
+        else this.domNode.removeAttribute(name);
+    }
 }
 const BlockEmbed = Quill.import('blots/block/embed');
-const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label'];
+const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label', 'data-align'];
 class SednaVideo extends BlockEmbed {
     static blotName = 'video';
     static tagName = 'VIDEO';
@@ -611,13 +659,16 @@ class SednaVideo extends BlockEmbed {
     }
     static formats(node) {
         return VIDEO_ATTRIBUTES.reduce((f, name) => {
-            if (node.hasAttribute(name)) f[name] = node.getAttribute(name);
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
             return f;
         }, {});
     }
     format(name, value) {
         if (!VIDEO_ATTRIBUTES.includes(name)) return super.format(name, value);
         if (name === 'poster' && value) value = mediaUrl(value);
+        if (name === 'data-align' && !ALIGNS.includes(value)) value = null;
         if (value) this.domNode.setAttribute(name, value);
         else this.domNode.removeAttribute(name);
     }
@@ -704,6 +755,94 @@ function mediaAt(q, range) {
     const height = String(op.attributes?.height ?? '');
     return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt, width, height };
 }
+const SELECTED = 'data-editor-selected';
+function mediaKindAt(q, index) {
+    if (index < 0 || index >= q.getLength()) return null;
+    const op = q.getContents(index, 1).ops[0];
+    if (!op || typeof op.insert !== 'object') return null;
+    return MEDIA.find(k => k in op.insert) ?? null;
+}
+function markPicked(e) {
+    const q = e.quill;
+    for (const node of q.root.querySelectorAll(`[${SELECTED}]`)) node.removeAttribute(SELECTED);
+    e.pickedNode = null;
+    const picked = e.picked;
+    if (!picked) {
+        syncBar(e);
+        return;
+    }
+    let node = q.getLeaf(picked.index + 1)[0]?.domNode;
+    if (!node?.matches?.('img, video')) node = q.getLine(picked.index)[0]?.domNode;
+    if (node?.matches?.('img, video')) {
+        node.setAttribute(SELECTED, '');
+        e.pickedNode = node;
+    }
+    syncBar(e);
+}
+function unpick(e) {
+    if (!e.picked) return;
+    e.picked = null;
+    markPicked(e);
+}
+function pick(e, kind, index) {
+    const q = e.quill;
+    if (mediaKindAt(q, index) !== kind) return;
+    e.picked = { kind, index, sel: null };
+    if (kind === 'image') {
+        q.setSelection(index, 1, 'user');
+    } else {
+        const at = q.getSelection();
+        if (at) e.picked.sel = { index: at.index, length: at.length };
+    }
+    markPicked(e);
+}
+function pickedRange(e) {
+    const picked = e.picked;
+    if (!picked || mediaKindAt(e.quill, picked.index) !== picked.kind) return null;
+    return { index: picked.index, length: 1 };
+}
+function wirePick(e) {
+    const q = e.quill;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    on(q.root, 'click', ev => {
+        if (!q.isEnabled() || ev.button) return;
+        const node = ev.target.closest?.('img, video');
+        const blot = node && Quill.find(node);
+        if (!blot) return;
+        pick(e, node.tagName === 'IMG' ? 'image' : 'video', q.getIndex(blot));
+    });
+    on(q.root, 'keydown', ev => {
+        if (!ev.shiftKey || ev.altKey || ev.ctrlKey || ev.metaKey || !q.isEnabled()) return;
+        if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+        const r = q.getSelection();
+        if (!r || r.length) return;
+        const next = ev.key === 'ArrowRight';
+        let at = -1;
+        if (!next) at = mediaKindAt(q, r.index - 1) === 'video' ? r.index - 1 : -1;
+        else if (mediaKindAt(q, r.index) === 'video') at = r.index;
+        else if (q.getText(r.index, 1) === '\n' && mediaKindAt(q, r.index + 1) === 'video') at = r.index + 1;
+        if (at < 0) return;
+        ev.preventDefault();
+        pick(e, 'video', at);
+    }, true);
+    q.on('text-change', () => { if (!e.mediaing && !e.keepPick) unpick(e); });
+    q.on('selection-change', range => {
+        const p = e.picked;
+        if (!p || e.mediaing) return;
+        if (!range && e.bar && e.bar.contains(document.activeElement)) return;
+        let still;
+        if (p.kind === 'image') {
+            still = range && range.index === p.index && range.length === 1;
+        } else {
+            if (!p.sel && range) p.sel = { index: range.index, length: range.length };
+            still = range && p.sel && range.index === p.sel.index && range.length === p.sel.length;
+        }
+        if (!still) unpick(e);
+    });
+}
 function insertMedia(e, kind, url, alt, range, size = {}) {
     const q = e.quill;
     if (!q.scroll.query(kind)) {
@@ -741,10 +880,12 @@ function fieldOf(panel, name, kind) {
 }
 function openMedia(e, kind) {
     const q = e.quill;
-    const range = q.getSelection(true) || e.lastRange;
+    const picked = pickedRange(e);
+    let range = picked || q.getSelection(true) || e.lastRange;
     if (!range) return;
     const on = mediaAt(q, range);
     const existing = on && on.kind === kind ? on : null;
+    if (picked && !existing) range = { index: picked.index + 1, length: 0 };
     const asked = e.emit('sedna-editor-media', {
         kind, src: existing?.src ?? '', alt: existing?.alt ?? '',
         width: sizeEvent(existing?.width), height: sizeEvent(existing?.height),
@@ -781,6 +922,7 @@ function closeMedia(e, refocus) {
     e.media.hidden = true;
     const was = e.mediaing;
     e.mediaing = null;
+    unpick(e);
     if (refocus) {
         e.quill.focus();
         if (was) e.quill.setSelection(was.range.index + was.range.length, 0, 'silent');
@@ -810,12 +952,14 @@ function saveMedia(e) {
     }
     e.mediaing = null;
     e.media.hidden = true;
+    unpick(e);
     e.quill.focus();
     insertMedia(e, was.kind, given, alt?.value, was.range, size);
     reflect(e);
 }
 function wireMedia(e) {
     wirePaste(e);
+    wirePick(e);
     const panel = e.media;
     if (!panel) return;
     const on = (target, type, fn, opts) => {
@@ -848,6 +992,432 @@ function takeMediaRange(e) {
     if (!was) return null;
     closeMedia(e, false);
     return was.range;
+}
+const BAR_CONTROL = '[data-editor-media-size],[data-editor-media-align],[data-editor-media-edit],[data-editor-media-remove]';
+function barControls(e) {
+    if (!e.bar) return [];
+    return Array.from(e.bar.querySelectorAll(BAR_CONTROL)).filter(c => !c.hidden && !c.closest('[data-editor-media-for][hidden]'));
+}
+function syncBar(e) {
+    const bar = e.bar;
+    if (!bar || e.disposed) return;
+    const node = e.pickedNode;
+    const picked = pickedRange(e);
+    if (!node || !picked) {
+        bar.hidden = true;
+        return;
+    }
+    for (const part of bar.querySelectorAll('[data-editor-media-for]')) {
+        part.hidden = part.getAttribute('data-editor-media-for') !== e.picked.kind;
+    }
+    const width = node.getAttribute('width') || '';
+    const align = node.getAttribute('data-align') || '';
+    for (const c of bar.querySelectorAll('[data-editor-media-size]')) {
+        const size = c.getAttribute('data-editor-media-size');
+        c.setAttribute('aria-pressed', String(sizeOf(size) === (sizeOf(width) || '') && !node.hasAttribute('height')));
+    }
+    for (const c of bar.querySelectorAll('[data-editor-media-align]')) {
+        c.setAttribute('aria-pressed', String(c.getAttribute('data-editor-media-align') === align));
+    }
+    bar.hidden = false;
+    placeBar(e);
+}
+function placeBar(e) {
+    const bar = e.bar;
+    const node = e.pickedNode;
+    if (!bar || bar.hidden || !node) return;
+    const frame = e.el.getBoundingClientRect();
+    const rect = node.getBoundingClientRect();
+    bar.style.transform = 'translate(0px, 0px)';
+    const own = bar.getBoundingClientRect();
+    const rtl = getComputedStyle(e.quill.root).direction === 'rtl';
+    let x = (rtl ? rect.right - own.width : rect.left) - frame.left;
+    x = Math.max(8, Math.min(x, frame.width - own.width - 8));
+    let y = rect.top - frame.top - own.height - 6;
+    if (y < 8) y = Math.min(rect.bottom - frame.top + 6, frame.height - own.height - 8);
+    bar.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+}
+function barAct(e, c) {
+    const p = pickedRange(e);
+    if (!p) return;
+    const q = e.quill;
+    const kind = e.picked.kind;
+    if (c.hasAttribute('data-editor-media-edit')) {
+        openMedia(e, kind);
+        return;
+    }
+    e.keepPick = true;
+    try {
+        if (c.hasAttribute('data-editor-media-remove')) {
+            e.keepPick = false;
+            q.deleteText(p.index, 1, 'user');
+            q.focus();
+            return;
+        }
+        if (c.hasAttribute('data-editor-media-size')) {
+            const width = sizeOf(c.getAttribute('data-editor-media-size'));
+            if (width === null) return;
+            q.formatText(p.index, 1, 'width', width || false, 'user');
+            q.formatText(p.index, 1, 'height', false, 'user');
+        } else if (c.hasAttribute('data-editor-media-align')) {
+            q.formatText(p.index, 1, 'data-align', c.getAttribute('data-editor-media-align') || false, 'user');
+        }
+    } finally {
+        e.keepPick = false;
+    }
+    markPicked(e);
+}
+function toBar(e) {
+    const list = barControls(e);
+    if (!e.bar || e.bar.hidden || !list.length) return false;
+    const stop = list.find(c => c.tabIndex === 0) || list[0];
+    for (const c of list) c.tabIndex = c === stop ? 0 : -1;
+    stop.focus();
+    return true;
+}
+function wireBar(e) {
+    const bar = e.bar;
+    if (!bar) return;
+    bar.hidden = true;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    on(bar, 'click', ev => {
+        const c = ev.target.closest(BAR_CONTROL);
+        if (c && bar.contains(c) && !c.disabled) barAct(e, c);
+    });
+    on(bar, 'mousedown', ev => { if (ev.target.closest(BAR_CONTROL)) ev.preventDefault(); });
+    on(bar, 'keydown', ev => {
+        const list = barControls(e);
+        const i = list.indexOf(ev.target);
+        if (ev.key === 'Escape') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const p = pickedRange(e);
+            e.quill.focus();
+            if (p && e.picked.kind === 'image') e.quill.setSelection(p.index, 1, 'silent');
+            return;
+        }
+        if (i < 0) return;
+        const rtl = getComputedStyle(bar).direction === 'rtl';
+        const step = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1 }[ev.key];
+        let next = null;
+        if (step) next = list[(i + step + list.length) % list.length];
+        else if (ev.key === 'Home') next = list[0];
+        else if (ev.key === 'End') next = list[list.length - 1];
+        if (!next) return;
+        ev.preventDefault();
+        for (const c of list) c.tabIndex = c === next ? 0 : -1;
+        next.focus();
+    });
+    on(e.quill.root, 'scroll', () => placeBar(e));
+    on(window, 'resize', () => placeBar(e));
+    for (const c of bar.querySelectorAll(BAR_CONTROL)) c.tabIndex = -1;
+}
+const SednaRule = (() => {
+    const BlockEmbed = Quill.import('blots/block/embed');
+    return class SednaRule extends BlockEmbed {
+        static blotName = 'divider';
+        static tagName = 'HR';
+    };
+})();
+Quill.register({ 'formats/divider': SednaRule }, true);
+function insertRule(e, at) {
+    const q = e.quill;
+    if (!q.scroll.query('divider')) return false;
+    const range = at || q.getSelection(true) || e.lastRange;
+    if (!range) return false;
+    q.updateContents(new Delta().retain(range.index).delete(range.length).insert({ divider: true }), 'user');
+    const index = [range.index, range.index + 1].find(i => q.getContents(i, 1).ops[0]?.insert?.divider) ?? range.index;
+    q.setSelection(index + 1, 0, 'silent');
+    e.lastRange = { index: index + 1, length: 0 };
+    reflect(e);
+    return true;
+}
+const INLINE_MARKS = [
+    { format: 'bold', pattern: /\*\*([^*\s](?:[^*]*[^*\s])?)\*\*$/, mark: 2, last: '*' },
+    { format: 'strike', pattern: /~~([^~\s](?:[^~]*[^~\s])?)~~$/, mark: 2, last: '~' },
+    { format: 'code', pattern: /`([^`]+)`$/, mark: 1, last: '`' },
+    { format: 'italic', pattern: /(?<![*\w])\*([^*\s](?:[^*]*[^*\s])?)\*$/, mark: 1, last: '*' },
+];
+function autoformatBindings(e) {
+    const has = f => e.formats.includes(f);
+    const plain = { list: false, 'code-block': false };
+    const line = (range, ctx, fn) => {
+        const q = e.quill;
+        q.history.cutoff();
+        const start = range.index - ctx.prefix.length;
+        q.deleteText(start, ctx.prefix.length, 'user');
+        fn(start);
+        q.history.cutoff();
+        reflect(e);
+        return false;
+    };
+    return {
+        'sedna heading': {
+            key: ' ', collapsed: true, format: plain, prefix: /^#{1,6}$/,
+            handler(range, ctx) {
+                if (!has('header')) return true;
+                return line(range, ctx, start => e.quill.formatLine(start, 0, 'header', ctx.prefix.length, 'user'));
+            },
+        },
+        'sedna quote': {
+            key: ' ', collapsed: true, format: plain, prefix: /^>$/,
+            handler(range, ctx) {
+                if (!has('blockquote')) return true;
+                return line(range, ctx, start => e.quill.formatLine(start, 0, 'blockquote', true, 'user'));
+            },
+        },
+        'sedna rule': {
+            key: 'Enter', collapsed: true, format: plain, prefix: /^---$/, suffix: /^$/,
+            handler(range, ctx) {
+                if (!has('divider')) return true;
+                return line(range, ctx, start => insertRule(e, { index: start, length: 0 }));
+            },
+        },
+        'sedna code block': {
+            key: 'Enter', collapsed: true, format: plain, prefix: /^```$/, suffix: /^$/,
+            handler(range, ctx) {
+                if (!has('code-block')) return true;
+                return line(range, ctx, start => e.quill.formatLine(start, 0, 'code-block', true, 'user'));
+            },
+        },
+    };
+}
+function wireAutoformat(e) {
+    const q = e.quill;
+    q.on('text-change', (delta, old, source) => {
+        if (source !== 'user' || e.autoformatting || !e.formats.some(f => INLINE_MARKS.some(m => m.format === f))) return;
+        const typed = delta.ops.find(op => typeof op.insert === 'string');
+        if (!typed || typed.insert.length !== 1 || !INLINE_MARKS.some(m => m.last === typed.insert)) return;
+        const caret = caretAfter(delta);
+        if (caret == null) return;
+        const [block, offset] = q.getLine(caret);
+        if (!block) return;
+        const here = q.getFormat(caret - 1, 1);
+        if (here['code-block'] || here.code) return;
+        const before = q.getText(caret - offset, offset);
+        for (const rule of INLINE_MARKS) {
+            if (!e.formats.includes(rule.format)) continue;
+            const m = rule.pattern.exec(before);
+            if (!m) continue;
+            const start = caret - offset + m.index;
+            e.autoformatting = true;
+            try {
+                q.history.cutoff();
+                q.updateContents(new Delta().retain(start).delete(rule.mark).retain(m[1].length, { [rule.format]: true }).delete(rule.mark), 'user');
+                q.setSelection(start + m[1].length, 0, 'silent');
+                q.format(rule.format, false, 'silent');
+                q.history.cutoff();
+            } finally {
+                e.autoformatting = false;
+            }
+            break;
+        }
+    });
+}
+const MENTION = /(?:^|\s)@([^\s@]{0,40})$/;
+const SednaMention = (() => {
+    const Inline = Quill.import('blots/inline');
+    return class SednaMention extends Inline {
+        static blotName = 'mention';
+        static tagName = 'DATA';
+        static create(value) {
+            const node = super.create();
+            node.setAttribute('value', String(value).slice(0, 200));
+            return node;
+        }
+        static formats(node) { return node.getAttribute('value'); }
+        format(name, value) {
+            if (name !== this.statics.blotName || !value) super.format(name, value);
+            else this.domNode.setAttribute('value', String(value).slice(0, 200));
+        }
+    };
+})();
+Quill.register({ 'formats/mention': SednaMention }, true);
+let mentionIds = 0;
+function mentionItems(e) {
+    if (!e.mention) return [];
+    return Array.from(e.mention.querySelectorAll('.menu-item[data-mention-value]'))
+        .filter(item => item.closest('[data-editor-mention]') === e.mention && !item.disabled && item.getAttribute('aria-disabled') !== 'true');
+}
+const mentionLabel = item => String(item.getAttribute('data-label') || item.textContent || '').trim();
+function mentionAt(e, caret) {
+    const q = e.quill;
+    const range = caret == null ? q.getSelection() : { index: caret, length: 0 };
+    if (!range || range.length) return null;
+    const [line, offset] = q.getLine(range.index);
+    if (!line) return null;
+    let format = {};
+    try { format = q.getFormat(range.index, 0); } catch (x) { format = {}; }
+    if (format['code-block'] || format.code) return null;
+    const m = MENTION.exec(q.getText(range.index - offset, offset));
+    if (!m) return null;
+    return { start: range.index - m[1].length - 1, end: range.index, query: m[1] };
+}
+function setMentionActive(e, item) {
+    for (const it of mentionItems(e)) {
+        const on = it === item;
+        it.toggleAttribute('data-active', on);
+        it.setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    if (item) {
+        e.quill.root.setAttribute('aria-activedescendant', item.id);
+        item.scrollIntoView({ block: 'nearest' });
+    } else if (e.slash?.hidden !== false) {
+        e.quill.root.removeAttribute('aria-activedescendant');
+    }
+}
+const shownMentions = e => mentionItems(e).filter(item => !item.hidden);
+function closeMention(e) {
+    if (!e.mention || e.mention.hidden) return;
+    e.mention.hidden = true;
+    e.mentionOpen = null;
+    setMentionActive(e, null);
+    e.quill.root.removeAttribute('aria-controls');
+}
+function placeMention(e, index) {
+    const menu = e.mention;
+    const b = e.quill.getBounds(index, 0);
+    if (!b) return;
+    const frame = e.el.getBoundingClientRect();
+    const box = e.quill.container.getBoundingClientRect();
+    menu.style.transform = 'translate(0px, 0px)';
+    const own = menu.getBoundingClientRect();
+    const rtl = getComputedStyle(e.quill.root).direction === 'rtl';
+    let x = box.left - frame.left + (rtl ? b.right - own.width : b.left);
+    x = Math.max(0, Math.min(x, frame.width - own.width));
+    let y = box.top - frame.top + b.bottom + 4;
+    if (frame.top + y + own.height > window.innerHeight - 8) y = box.top - frame.top + b.top - own.height - 4;
+    menu.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+}
+function updateMention(e, typed, caret) {
+    if (!e.mention || e.disposed) return;
+    const at = mentionAt(e, caret);
+    if (!at || !e.formats.includes('mention')) {
+        e.mentionDismissed = null;
+        closeMention(e);
+        return;
+    }
+    if (e.mentionDismissed === at.start || (!typed && e.mention.hidden)) return;
+    const own = e.mentionQuery !== at.query || e.mention.hidden;
+    let appAnswers = e.mentionAppAnswers;
+    if (own && typed) {
+        e.mentionQuery = at.query;
+        appAnswers = !e.emit('sedna-editor-mention', { query: at.query }, true);
+        e.mentionAppAnswers = appAnswers;
+    }
+    renderMention(e, at, appAnswers);
+}
+function renderMention(e, at, appAnswers) {
+    const score = window.sednaUi?._?.score;
+    let any = false;
+    for (const item of mentionItems(e)) {
+        const match = appAnswers || !at.query || !score
+            || score(at.query, mentionLabel(item), 0) >= 0
+            || score(at.query, item.getAttribute('data-mention-value') || '', 0) >= 0;
+        item.hidden = !match;
+        if (match) any = true;
+    }
+    if (!any) {
+        closeMention(e);
+        return;
+    }
+    const wasOpen = !e.mention.hidden;
+    e.mentionOpen = at;
+    if (!wasOpen) {
+        e.mention.setAttribute('role', 'listbox');
+        if (!e.mention.id) e.mention.id = 'sedna-mention-menu-' + (++mentionIds);
+        e.mention.hidden = false;
+        e.quill.root.setAttribute('aria-controls', e.mention.id);
+    }
+    for (const item of mentionItems(e)) {
+        item.setAttribute('role', 'option');
+        if (!item.id) item.id = 'sedna-editor-mention-' + (++mentionIds);
+    }
+    const shown = shownMentions(e);
+    setMentionActive(e, shown.find(item => item.hasAttribute('data-active')) || shown[0]);
+    placeMention(e, at.start);
+}
+function applyMention(e, item) {
+    const at = e.mentionOpen;
+    if (!at || !item) return;
+    const q = e.quill;
+    const caret = (q.getSelection() || { index: at.end }).index;
+    const label = '@' + mentionLabel(item);
+    const value = item.getAttribute('data-mention-value');
+    closeMention(e);
+    q.history.cutoff();
+    q.updateContents(new Delta().retain(at.start).delete(Math.max(0, caret - at.start)).insert(label, { mention: value }).insert(' '), 'user');
+    q.setSelection(at.start + label.length + 1, 0, 'silent');
+    q.history.cutoff();
+    reflect(e);
+}
+function setMentions(e, list) {
+    const menu = e.mention;
+    const template = menu?.querySelector('template[data-editor-mention-item]');
+    if (!menu || !template) {
+        warnOnce('mentions', 'mentions() needs a [data-editor-mention] menu with a <template data-editor-mention-item> inside the editor.');
+        return 0;
+    }
+    for (const old of menu.querySelectorAll('[data-editor-mention-made]')) old.remove();
+    let made = 0;
+    for (const entry of Array.isArray(list) ? list : []) {
+        const value = String(entry?.value ?? '').trim();
+        if (!value) continue;
+        const row = window.sednaUi._.fill(template, { label: entry.label ?? value, note: entry.note, icon: entry.icon });
+        if (!row) continue;
+        row.setAttribute('data-mention-value', value);
+        row.setAttribute('data-label', String(entry.label ?? value));
+        row.setAttribute('data-editor-mention-made', '');
+        menu.append(row);
+        made++;
+    }
+    const at = mentionAt(e);
+    if (at && e.formats.includes('mention') && e.mentionDismissed !== at.start) renderMention(e, at, true);
+    return made;
+}
+function wireMention(e) {
+    if (!e.mention) return;
+    e.mention.hidden = true;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    const q = e.quill;
+    q.on('text-change', (delta, old, source) => { if (source === 'user') updateMention(e, true, caretAfter(delta)); });
+    q.on('selection-change', range => {
+        if (!range) closeMention(e);
+        else if (!e.mention.hidden) updateMention(e, false);
+    });
+    on(e.el, 'keydown', ev => {
+        if (e.mention.hidden || ev.isComposing || ev.target !== q.root) return;
+        const plain = !ev.altKey && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey;
+        const shown = shownMentions(e);
+        const move = step => {
+            const i = shown.findIndex(item => item.hasAttribute('data-active'));
+            if (shown.length) setMentionActive(e, shown[(i + step + shown.length) % shown.length]);
+        };
+        if (ev.key === 'ArrowDown' && plain) move(1);
+        else if (ev.key === 'ArrowUp' && plain) move(-1);
+        else if ((ev.key === 'Enter' || ev.key === 'Tab') && plain) applyMention(e, shown.find(item => item.hasAttribute('data-active')));
+        else if (ev.key === 'Escape') {
+            e.mentionDismissed = e.mentionOpen ? e.mentionOpen.start : null;
+            closeMention(e);
+        } else return;
+        ev.preventDefault();
+        ev.stopPropagation();
+    }, true);
+    on(e.mention, 'mousedown', ev => { if (ev.target.closest('.menu-item')) ev.preventDefault(); });
+    on(e.mention, 'click', ev => {
+        const item = ev.target.closest('.menu-item[data-mention-value]');
+        if (item && mentionItems(e).includes(item) && !item.hidden) applyMention(e, item);
+    });
+    on(e.mention, 'pointermove', ev => {
+        const item = ev.target.closest('.menu-item[data-mention-value]');
+        if (item && !item.hidden && !item.hasAttribute('data-active')) setMentionActive(e, item);
+    });
 }
 const editors = new Map();
 function describe(e) {
@@ -884,12 +1454,12 @@ function describe(e) {
     reflect(e);
 }
 function start(e) {
-    const { value, body, toolbar, link, media, slash, notice } = readMarkup(e.el);
+    const { value, body, toolbar, link, media, slash, notice, bar, mention } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, media, slash, notice, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, slash, notice, bar, mention, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
     const formats = formatsOf(e.el);
     e.formats = formats;
@@ -903,9 +1473,10 @@ function start(e) {
             table: formats.includes('table'),
             keyboard: {
                 bindings: {
-                    toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
+                    toolbar: { key: 'F10', altKey: true, handler: () => (toBar(e) ? false : toToolbar(e)) },
                     link: { key: 'k', shortKey: true, handler: () => { if (e.link) openLink(e); return !e.link; } },
                     tab: { key: 'Tab', handler: () => true },
+                    ...autoformatBindings(e),
                 },
             },
         },
@@ -918,6 +1489,10 @@ function start(e) {
     wireLink(e);
     wireMedia(e);
     wireSlash(e);
+    wireBar(e);
+    wireLimit(e);
+    wireMention(e);
+    wireAutoformat(e);
     const q = e.quill;
     q.on('text-change', (delta, old, source) => {
         written(e);
@@ -948,7 +1523,12 @@ function makeApi(e) {
         state: () => stateOf(e),
         html: () => htmlOf(e.quill),
         set: html => {
-            e.quill.setContents(e.quill.clipboard.convert({ html: html || '' }), 'user');
+            e.setting = true;
+            try {
+                e.quill.setContents(e.quill.clipboard.convert({ html: html || '' }), 'user');
+            } finally {
+                e.setting = false;
+            }
             return stateOf(e);
         },
         insert: text => {
@@ -959,6 +1539,7 @@ function makeApi(e) {
         },
         insertImage: (url, alt, width, height) => insertMedia(e, 'image', url, alt, takeMediaRange(e), { width, height }),
         insertVideo: (url, label, width, height) => insertMedia(e, 'video', url, label, takeMediaRange(e), { width, height }),
+        mentions: list => setMentions(e, list),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -978,6 +1559,7 @@ function invoke(e, method, args) {
         case 'insert': return api.insert(a[0]);
         case 'image': return api.insertImage(a[0], a[1], a[2], a[3]);
         case 'video': return api.insertVideo(a[0], a[1], a[2], a[3]);
+        case 'mentions': return api.mentions(a[0]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         case 'file': return api.file(a[0]);
