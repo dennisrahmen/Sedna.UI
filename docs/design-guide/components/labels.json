@@ -18,7 +18,7 @@
       { "text": "Whether a connection or a feed is live", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "c6a850eda709b66c"
+    "stamp": "9a80ca1b51537e09"
   },
   {
     "page": "/chip",
@@ -35,7 +35,7 @@
       { "text": "A choice between a few views or settings", "instead": "/segmented#one-choice-of-a-few" }
     ],
     "goals": [ "narrow-a-long-list", "search-a-list", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "pick-several-as-chips", "find-a-record-on-a-list-page", "approve-an-agent-action" ],
-    "stamp": "c66ce10f01b00828"
+    "stamp": "9206ab454e3ba9cf"
   },
   {
     "page": "/avatar",
@@ -53,7 +53,7 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "439f8a23cad93d95"
+    "stamp": "12b2299c5ef35575"
   },
   {
     "page": "/status-dot",
@@ -85,7 +85,7 @@
       { "text": "Whether a person is available", "instead": "/avatar#presence-mark" }
     ],
     "goals": [],
-    "stamp": "76b50bed6c5e9f58"
+    "stamp": "dbeb2b77712d0675"
   },
   {
     "page": "/kbd",
@@ -113,6 +113,6 @@
       { "text": "A condition that needs a sentence", "instead": "/alert#every-tone" }
     ],
     "goals": [],
-    "stamp": "0911dd9ee20c0c2a"
+    "stamp": "812f8d79653cbd7a"
   }
 ]

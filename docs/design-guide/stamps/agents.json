@@ -90,7 +90,7 @@
     "src/Sedna.UI/css-parts/66-agent-steps.css": "83cb04e3a4b4e707",
     "src/Sedna.UI/css-parts/66-agent-tools.css": "64ad5b3031955e7e",
     "src/Sedna.UI/css-parts/68-workflow.css": "75553558ea8c4817",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
     "src/Sedna.UI/js-parts/21-copy.js": "aea50bb40b6b5197",
     "src/Sedna.UI/js-parts/21-dependent.js": "bbaec1ea170566c5",
     "src/Sedna.UI/js-parts/21-readonly.js": "5b20258743ff7fbd",
@@ -104,6 +104,7 @@
     "src/Sedna.UI.Catalogue/Examples/AssistantPanels/DockedAssistant.razor": "1c79822fa569d625",
     "src/Sedna.UI/css-parts/10-frame-shell.css": "fdab7b2c2df6b99d",
     "src/Sedna.UI/css-parts/24-frame-bottombar.css": "a38b70eec70c5dec",
+    "src/Sedna.UI/css-parts/31-count.css": "9dd365b34a2593e3",
     "src/Sedna.UI/css-parts/33-buttons.css": "c031f84426b8e0a8",
     "src/Sedna.UI/css-parts/43-content-grids.css": "a5c5bec12e3be5d5",
     "src/Sedna.UI/css-parts/56-code-block.css": "b1598e93b88dee20",
@@ -112,7 +113,7 @@
     "src/Sedna.UI/css-parts/66-chat.css": "000306460663709b",
     "src/Sedna.UI/css-parts/67-agent-chat.css": "5531148e2c8cd1a0",
     "src/Sedna.UI/css-parts/67-artifact.css": "0de8b0f0d2a4bea2",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
     "src/Sedna.UI/js-parts/21-copy.js": "aea50bb40b6b5197",
     "src/Sedna.UI/js-parts/29-sheet.js": "35f112c70192e3b6",
     "src/Sedna.UI/js-parts/42-modal-exit.js": "af06a127707af316",
@@ -171,7 +172,7 @@
     "src/Sedna.UI/css-parts/66-chat.css": "000306460663709b",
     "src/Sedna.UI/css-parts/66-orb.css": "be43df8e3190da88",
     "src/Sedna.UI/css-parts/67-voice.css": "f89e57dd15ca5b2a",
-    "src/Sedna.UI/css-parts/69-tone.css": "82f2656489dfdfa6",
+    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
     "src/Sedna.UI/js-parts/27-workflow.js": "63763826fdc679ba"
   }
 }

@@ -18,15 +18,37 @@
    outward from it. An icon's corner is its own; a round host puts the point on its curve,
    at the 45° mark, so the dot touches the avatar instead of floating off its box; a button
    puts it inside its corner radius. A `translate` has no logical form, so 70-rtl.css turns
-   its inline half round. */
+   its inline half round.
+
+   The badge marks the corner; it does not cover the icon. Its size is --count-size, and
+   it follows the host: a small button or avatar carries the small badge, a large one the
+   large, a bare icon the small one, and any other host takes the middle one. `.count-badge--sm` and `--lg` name a
+   size outright, and an app that sets --count-size on the host gives it any other. On a
+   host under about 24px, such as an icon at its own size, send the dot, not a number.
+
+   Tones are the library's own, from the tone system in 69-tone.css: brand by default, then
+   `--go`, `--warn`, `--danger`, `--info`, `--secret`, `--cyan`, `--orange`, `--teal` and
+   `--muted`. A count is filled by nature, so the tone alone gives the fill. */
 .count-host {
     --count-inset: 2px;
+    --count-size: 14px;
+    --count-dot: 8px;
+    --count-text: var(--text-1);
     position: relative;
     display: inline-flex;
     flex-shrink: 0;
 }
 .count-host--round { --count-inset: 14.6%; }
 .btn.count-host    { --count-inset: 3px; }
+/* The size follows the host the library draws, and `--sm` and `--lg` on the badge name one
+   outright, over the host's. A dot is a little over half the number's height, and even. */
+.btn--sm.count-host,
+.count-host:not(.btn):has(> i),
+.count-host:has(> .avatar--sm),
+.count-badge--sm { --count-size: 12px; --count-dot: 6px; --count-text: var(--text-1); --count-pad: var(--space-1); }
+.btn--lg.count-host,
+.count-host:has(> .avatar--lg),
+.count-badge--lg { --count-size: 16px; --count-dot: 10px; --count-text: var(--text-2); --count-pad: var(--space-2); }
 
 .count-badge {
     position: absolute;
@@ -34,13 +56,13 @@
     inset-inline-end: var(--count-inset);
     translate: 50% -50%;
     box-sizing: border-box;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
+    min-width: var(--count-size, 14px);
+    height: var(--count-size, 14px);
+    padding: 0 var(--count-pad, var(--space-2));
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
-    font-size: var(--text-1);
+    font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;
     text-align: center;
@@ -53,12 +75,6 @@
        host's edge. */
     box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
     pointer-events: none;
+    print-color-adjust: exact;
 }
-.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
-.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
-
-.count-badge--danger { background: var(--danger-solid); }
-.count-badge--go     { background: var(--go-solid); }
-.count-badge--info   { background: var(--info-solid); }
-/* As .ribbon--muted: the muted text colour as the fill, the page's background as the number. */
-.count-badge--muted  { background: var(--muted); color: var(--bg); }
+.count-badge:empty { min-width: 0; width: var(--count-dot, 8px); height: var(--count-dot, 8px); padding: 0; }

@@ -19,7 +19,7 @@
       { "text": "A block of code or output to copy", "instead": "/code-blocks" }
     ],
     "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "open-a-page-on-a-big-picture", "read-light-text-on-a-dark-band", "see-what-a-site-offers" ],
-    "stamp": "e52a451564623caa"
+    "stamp": "cedb139f6ac3d1c1"
   },
   {
     "page": "/page-navigation",
@@ -180,7 +180,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "see-what-happened-to-a-record", "open-a-record-beside-the-list" ],
-    "stamp": "153831d94376df0e"
+    "stamp": "9f6c072bbf2ac06a"
   },
   {
     "page": "/tabs",

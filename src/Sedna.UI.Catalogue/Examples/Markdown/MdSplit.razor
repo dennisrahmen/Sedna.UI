@@ -1,0 +1,30 @@
+<div class="md-editor" data-md-view="split" id="split-md">
+    <div class="md-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic"><i class="ri-italic"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="ul" aria-label="Bullet list"><i class="ri-list-unordered"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="task" aria-label="Task list"><i class="ri-list-check-2"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="table" aria-label="Table"><i class="ri-table-line"></i></button>
+        <div class="segmented" role="group" aria-label="Editor view">
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="write" /> <span>Write</span></label>
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="preview" /> <span>Preview</span></label>
+            <label class="segmented-option">
+                <input type="radio" data-md-tab="split" checked /> <span>Split</span></label>
+        </div>
+    </div>
+    <textarea class="form-input md-input" data-md-input rows="12" aria-label="Release note">## Release 0.5.0
+
+Adds the **live-state family**. Nothing was renamed.
+
+| Class | What it is for |
+| --- | --- |
+| `.health-badge` | A connection's state |
+| `.output` | Lines of machine output |
+
+- [x] Grep your stylesheets for the names above
+- [ ] Rename yours, or delete it
+</textarea>
+    <div class="markdown-body md-preview" data-md-preview></div>
+</div>
