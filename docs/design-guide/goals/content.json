@@ -237,6 +237,19 @@
     "avoid": "A code with nothing beside it, which a reader without a camera or a screen reader cannot use at all."
   },
   {
+    "id": "download-a-qr-code",
+    "goal": "Let the user save a QR code as a picture for a sign, a label or a document",
+    "phrases": [ "download qr code", "save qr code", "qr code png", "qr code svg", "print a qr code", "qr code with logo", "wifi qr code", "vcard qr code" ],
+    "answer": [
+      { "page": "/qr#download-as-svg-or-png", "role": "primary" },
+      { "page": "/qr#wi-fi-contacts-and-places", "role": "part" },
+      { "page": "/qr#a-logo-in-the-middle", "role": "part" },
+      { "page": "/qr#contrast-that-scans", "role": "part" }
+    ],
+    "how": "A button the app wrote beside the code with data-qr-download=\"svg\" or \"png\" and a data-qr-size, which saves the code in the colours it shows. Wi-Fi, contacts, places and events come from SednaQrPayload.",
+    "avoid": "A code in a pale colour or inverted for looks: the safe colours are drawn instead, and the saved file has them."
+  },
+  {
     "id": "write-formatted-text",
     "goal": "Let the user write formatted text with headings, lists and links",
     "phrases": [ "wysiwyg", "rich text editor", "wysiwyg editor", "html editor", "formatted text field", "text formatting toolbar" ],

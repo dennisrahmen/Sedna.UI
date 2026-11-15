@@ -1,0 +1,39 @@
+<div class="sedna-row sedna-wrap sedna-gap-40">
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.WiFi("Guest network", "correct horse battery")" aria-label="QR code that joins the Guest network Wi-Fi"></span>
+        <figcaption class="qr-caption">Wi-Fi</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.Email("support@example.com", "Pairing help", "Where is dock 3?")" aria-label="QR code that starts an e-mail to support"></span>
+        <figcaption class="qr-caption">E-mail</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.Phone("+49 30 123456")" aria-label="QR code that calls the dock office"></span>
+        <figcaption class="qr-caption">Phone</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.Sms("+49 30 123456", "Where is the order?")" aria-label="QR code that texts the dock office"></span>
+        <figcaption class="qr-caption">Text message</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.MeCard("Alex", "Fischer", "+4930123456", "alex.fischer@example.com")" aria-label="QR code that adds Alex Fischer to the contacts"></span>
+        <figcaption class="qr-caption">Contact, MeCard</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.VCard("Alex", "Fischer", "Northwind Retail", "Dispatcher", "+4930123456", "alex.fischer@example.com")" aria-label="QR code that adds Alex Fischer, with an organisation, to the contacts"></span>
+        <figcaption class="qr-caption">Contact, vCard</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.Geo(52.52, 13.405)" aria-label="QR code that shows the dock in a maps app"></span>
+        <figcaption class="qr-caption">Place</figcaption>
+    </figure>
+    <figure class="qr-figure">
+        <span class="qr qr--sm" data-qr="@SednaQrPayload.Event("Dock walk", _start, _start.AddHours(1.5), "Dock 4")" aria-label="QR code that adds the dock walk to the calendar"></span>
+        <figcaption class="qr-caption">Event</figcaption>
+    </figure>
+</div>
+
+@code {
+    // The helpers only write the string and escape it; the app decides what it holds.
+    private readonly DateTimeOffset _start = new(2026, 11, 20, 9, 30, 0, TimeSpan.Zero);
+}

@@ -16,7 +16,7 @@ surface does — the markup, the levels, the sizes, the colours — is `docs/qr.
 
 The parts are concatenated into **one** module and share its top-level scope. The encoder is Sedna.UI's
 own and imports nothing, so there is no `00-` part; **only `99-exports.js` exports** — `attach` and
-`sweep`, for the front door.
+`sweep`, for the front door. Everything else the app reaches is on the element's handle (`sednaUi.qr.get`).
 
 A part is plain top-level declarations: no IIFE, no `window.sednaUi`.
 
@@ -26,20 +26,30 @@ A part is plain top-level declarations: no IIFE, no `window.sednaUi`.
 |---|---|
 | `1x` | the standard's tables, and what is computed from a version |
 | `2x` | Reed–Solomon arithmetic |
-| `3x` | text to codewords: the version, the bit stream, the blocks |
+| `3x` | text to codewords: the modes and their segments, the version, the bit stream, the blocks |
 | `4x` | the module matrix: function patterns, format and version information, placement |
-| `5x` | masking, the penalty rules, and `encode` |
-| `60` | a code on the page: the SVG, watching its attributes, disposing |
+| `5x` | masking, the penalty rules, and `encode`; `52` a centre logo's square and its limits; `54` the symbol as a path — module and eye shapes |
+| `60` | a code on the page: the SVG, watching its attributes, the handle, disposing |
+| `62` | the contrast check: resolved colours, the ratio, the verdict |
+| `70` | saving the picture: the standalone SVG and the PNG |
 | `99` | the exports |
 
 ## Rules
 
-- **ISO/IEC 18004, byte mode, as written.** Text is UTF-8 in byte mode with no ECI; the level is the
-  app's and never raised; the smallest version that holds the text is used; the mask is the one with
-  the lowest penalty, scored with its format information drawn. `QrTests` decodes what is drawn and
-  compares it with matrices from an independent encoder — a change here is checked against both.
-- **Every colour through the stylesheet.** The SVG carries geometry only; `.qr` paints it with
-  `--qr-ink` and `--qr-paper`. No literal colour, not even as a fallback. `SurfaceRegistryTests` reads
-  every part for one.
-- **The SVG is the only thing drawn**, and no word of text: the accessible name is the app's
+- **ISO/IEC 18004, as written.** Numeric, alphanumeric and byte segments — byte is UTF-8 with no ECI;
+  the level is the app's and raised only for a logo; the smallest version that holds the text is used;
+  the mask is the one with the lowest penalty, scored with its format information drawn. `QrTests`
+  decodes what is drawn and compares it with matrices from an independent encoder (segno, in its numeric,
+  alphanumeric and byte modes), and `QrScanTests` reads every payload, level, shape and logo back with
+  ZXing from the pixels of the saved picture — a change here is checked against all three.
+- **Every colour through the stylesheet.** The SVG on the page carries geometry only; `.qr` paints it with
+  `--qr-ink` and `--qr-paper`, and the safe pair is the stylesheet's too, reached by
+  `data-qr-contrast="fallback"`. No literal colour, not even as a fallback. The script reads colours back
+  from the browser, to judge them and to write them into a saved file as plain values, and never names one.
+  `SurfaceRegistryTests` reads every part for a literal.
+- **The quiet zone is the stylesheet's** (`--qr-quiet`), and the viewBox is the symbol alone. A saved
+  picture reads the token and writes the zone in.
+- **A shape never reads a module that is not drawn.** The logo's square and the finders are excluded
+  from the module path before a shape is chosen, and every shape is read back by a decoder in the tests.
+- **The SVG is the only thing drawn** (a saved file is not on the page), and no word of text: the accessible name is the app's
   `aria-label`, and the human-readable text beside a code is the app's markup.
