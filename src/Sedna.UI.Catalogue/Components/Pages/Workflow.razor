@@ -104,7 +104,9 @@
             <code>li.workflow-loop</code> holds the path that repeats &mdash; a turn of a conversation, a retry
             &mdash; and draws the way back under it. <code>.workflow-loop-count</code> on the way back says how
             many times, in your words. <code>data-state</code> on the loop colours the way back, and the steps
-            inside take their own: show the turn in progress, not every turn so far.
+            inside take their own: show the turn in progress, not every turn so far. The wire out of the
+            loop belongs to the step after it and takes that step&rsquo;s state, so a loop at work with a step
+            after it that has not run leaves on a grey wire and returns on a blue one.
         </p>
     </CatExample>
 
