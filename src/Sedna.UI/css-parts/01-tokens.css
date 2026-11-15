@@ -61,6 +61,16 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
     --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
+    /* A calendar's day nobody works (66-calendar.css): the shade of a weekend and of a
+       holiday, a step of the text colour so it follows every variant and theme and stays
+       visible where --surface-soft is not (CalendarShadeTests); and the tint and ink
+       `--day-tones` puts on a weekend's and a holiday's number or head. */
+    --cal-weekend-bg:      color-mix(in srgb, var(--fg) 7%, transparent);
+    --cal-holiday-bg:      var(--cal-weekend-bg);
+    --cal-weekend-tone-bg: var(--info-bg);
+    --cal-weekend-tone-fg: var(--info-fg);
+    --cal-holiday-tone-bg: var(--danger-bg);
+    --cal-holiday-tone-fg: var(--danger-fg);
 
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.

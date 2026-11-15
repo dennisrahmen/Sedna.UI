@@ -138,6 +138,12 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
     --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
+    --cal-weekend-bg:      color-mix(in srgb, var(--fg) 7%, transparent);
+    --cal-holiday-bg:      var(--cal-weekend-bg);
+    --cal-weekend-tone-bg: var(--info-bg);
+    --cal-weekend-tone-fg: var(--info-fg);
+    --cal-holiday-tone-bg: var(--danger-bg);
+    --cal-holiday-tone-fg: var(--danger-fg);
     --surface-app:     var(--bg);
     --surface-chrome:  var(--sidebar-bg);
     --surface-content: var(--bg);
@@ -12054,7 +12060,7 @@ a.cal-agenda-title:focus-visible { outline: none; border-radius: var(--radius-sm
     text-align: start;
 }
 .cal-day + .cal-day { border-inline-start: 1px solid var(--divider); }
-.cal-day--weekend { background: var(--surface-soft); }
+.cal-day--weekend { background: var(--cal-weekend-bg); }
 .cal-day--outside { color: var(--muted); }
 .cal-day-num {
     display: inline-flex;
@@ -12261,7 +12267,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 .cal-week--by-lanes > .cal-week-head > .cal-weekday { padding-inline: var(--space-4); border-inline-start: 1px solid transparent; }
 .cal-week--by-lanes .cal-day-col { padding-inline: var(--space-4); }
 .cal-week-head { border-bottom: 1px solid var(--border); }
-.cal-week-head .cal-weekday { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
+:is(.cal-week-head .cal-weekday, .cal-weekday.cal-weekday--date) { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
 .cal-week-head .cal-weekday[aria-current="date"] { color: var(--brand-text); }
 .cal-week-body { max-block-size: var(--cal-week-max-height); overflow-y: auto; }
 .cal-hours {
@@ -12520,8 +12526,8 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
     cursor: not-allowed;
     pointer-events: none;
 }
-.cal-day--holiday { background: var(--surface-soft); }
-.cal-month--mini .cal-day--holiday { background: var(--surface-soft); }
+.cal-day--holiday { background: var(--cal-holiday-bg); }
+.cal-month--mini .cal-day--holiday { background: var(--cal-holiday-bg); }
 :is(.cal-day, .cal-weekday):has(> .cal-holiday) {
     container: cal-cell / inline-size;
     display: flex;
@@ -12590,10 +12596,10 @@ button.cal-mark { cursor: pointer; transition: background var(--motion-fast), co
 button.cal-mark:hover { background: var(--bg-hover); color: var(--fg); }
 button.cal-mark:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: var(--brand-text); }
-.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
-.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
-:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--weekend:not([aria-current="date"]) { background: var(--info-bg); color: var(--info-fg); }
-:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--holiday:not([aria-current="date"]) { background: var(--danger-bg); color: var(--danger-fg); }
+.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--cal-weekend-tone-bg); color: var(--cal-weekend-tone-fg); }
+.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--cal-holiday-tone-bg); color: var(--cal-holiday-tone-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) :is(.cal-weekdays, .cal-week-head) > .cal-day--weekend:not([aria-current="date"]) { background: var(--cal-weekend-tone-bg); color: var(--cal-weekend-tone-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) :is(.cal-weekdays, .cal-week-head) > .cal-day--holiday:not([aria-current="date"]) { background: var(--cal-holiday-tone-bg); color: var(--cal-holiday-tone-fg); }
 .datepicker { inline-size: 288px; max-inline-size: calc(100vw - 32px); padding: var(--space-5); }
 .datepicker-head {
     display: flex;
@@ -16162,6 +16168,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
         --hero-text-bg:    Canvas;
+        --cal-weekend-bg:  Canvas;
+        --cal-holiday-bg:  Canvas;
         --on-solid:        HighlightText;
         --on-viz:          CanvasText;
         --brand:           Highlight;

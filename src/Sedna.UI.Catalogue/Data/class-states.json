@@ -982,9 +982,6 @@
       "family": "cal-day",
       "attributes": [
         ":not([aria-current=\"date\"])"
-      ],
-      "combinedWith": [
-        "cal-weekday"
       ]
     },
     "cal-day--in-range": {
@@ -1012,9 +1009,6 @@
       "family": "cal-day",
       "attributes": [
         ":not([aria-current=\"date\"])"
-      ],
-      "combinedWith": [
-        "cal-weekday"
       ]
     },
     "cal-day-col": {
@@ -1290,14 +1284,15 @@
     },
     "cal-weekday": {
       "family": "cal-weekday",
-      "attributes": [
-        ":not([aria-current=\"date\"])",
-        "[aria-current=\"date\"]"
+      "variants": [
+        "cal-weekday--date"
       ],
-      "combinedWith": [
-        "cal-day--holiday",
-        "cal-day--weekend"
+      "attributes": [
+        "[aria-current=\"date\"]"
       ]
+    },
+    "cal-weekday--date": {
+      "family": "cal-weekday"
     },
     "cal-weekdays": {
       "family": "cal-weekdays"

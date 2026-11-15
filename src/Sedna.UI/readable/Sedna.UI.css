@@ -447,6 +447,16 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
     --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
+    /* A calendar's day nobody works (66-calendar.css): the shade of a weekend and of a
+       holiday, a step of the text colour so it follows every variant and theme and stays
+       visible where --surface-soft is not (CalendarShadeTests); and the tint and ink
+       `--day-tones` puts on a weekend's and a holiday's number or head. */
+    --cal-weekend-bg:      color-mix(in srgb, var(--fg) 7%, transparent);
+    --cal-holiday-bg:      var(--cal-weekend-bg);
+    --cal-weekend-tone-bg: var(--info-bg);
+    --cal-weekend-tone-fg: var(--info-fg);
+    --cal-holiday-tone-bg: var(--danger-bg);
+    --cal-holiday-tone-fg: var(--danger-fg);
 
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
@@ -21309,7 +21319,7 @@ a.cal-agenda-title:focus-visible { outline: none; border-radius: var(--radius-sm
     text-align: start;
 }
 .cal-day + .cal-day { border-inline-start: 1px solid var(--divider); }
-.cal-day--weekend { background: var(--surface-soft); }
+.cal-day--weekend { background: var(--cal-weekend-bg); }
 /* Muted, and no further: a day number faded below --muted fails contrast, and it is
    still a date the reader may need to read. */
 .cal-day--outside { color: var(--muted); }
@@ -21620,7 +21630,10 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 .cal-week--by-lanes > .cal-week-head > .cal-weekday { padding-inline: var(--space-4); border-inline-start: 1px solid transparent; }
 .cal-week--by-lanes .cal-day-col { padding-inline: var(--space-4); }
 .cal-week-head { border-bottom: 1px solid var(--border); }
-.cal-week-head .cal-weekday { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
+/* A head that is a date rather than a weekday's name — "Sun 15", "Mon 16 Nov" — is set as
+   words, not as a label: in a week's head always, and anywhere else with `.cal-weekday--date`,
+   as in a row of next days under a month's `.cal-weekdays`. */
+:is(.cal-week-head .cal-weekday, .cal-weekday.cal-weekday--date) { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
 .cal-week-head .cal-weekday[aria-current="date"] { color: var(--brand-text); }
 .cal-week-body { max-block-size: var(--cal-week-max-height); overflow-y: auto; }
 
@@ -21988,8 +22001,8 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
    icon stays. Either way the `data-tip` takes over: the hint appears only while the
    whole name is not on screen. The label is what a screen reader hears. In a small month there is no room
    for a marker at all, so the day keeps the shade and carries the `data-tip` itself. */
-.cal-day--holiday { background: var(--surface-soft); }
-.cal-month--mini .cal-day--holiday { background: var(--surface-soft); }
+.cal-day--holiday { background: var(--cal-holiday-bg); }
+.cal-month--mini .cal-day--holiday { background: var(--cal-holiday-bg); }
 :is(.cal-day, .cal-weekday):has(> .cal-holiday) {
     container: cal-cell / inline-size;
     display: flex;
@@ -22087,11 +22100,12 @@ button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: va
    holiday, and today keeps its own mark.
 
      <div class="cal-month cal-month--day-tones">…</div> */
-.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
-.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
+.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--cal-weekend-tone-bg); color: var(--cal-weekend-tone-fg); }
+.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--cal-holiday-tone-bg); color: var(--cal-holiday-tone-fg); }
 
 /* A column's head takes the tone whole — the head of a week view's day, of a timeline's
-   day, of a row of next days: give the `.cal-weekday` the day's `.cal-day--weekend` or
+   day, of a row of next days: give the head — any child of `.cal-weekdays` or `.cal-week-head`, a `.cal-weekday` or one
+   of the app's own — the day's `.cal-day--weekend` or
    `.cal-day--holiday` under a `--day-tones` modifier, and the head is tinted while the
    column under it keeps its plain shade.
 
@@ -22099,8 +22113,8 @@ button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: va
        <div class="cal-week-head">… <span class="cal-weekday cal-day--weekend">Sat 7</span> …</div>
        …
      </div> */
-:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--weekend:not([aria-current="date"]) { background: var(--info-bg); color: var(--info-fg); }
-:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--holiday:not([aria-current="date"]) { background: var(--danger-bg); color: var(--danger-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) :is(.cal-weekdays, .cal-week-head) > .cal-day--weekend:not([aria-current="date"]) { background: var(--cal-weekend-tone-bg); color: var(--cal-weekend-tone-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) :is(.cal-weekdays, .cal-week-head) > .cal-day--holiday:not([aria-current="date"]) { background: var(--cal-holiday-tone-bg); color: var(--cal-holiday-tone-fg); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app
@@ -27708,6 +27722,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
         --hero-text-bg:    Canvas;
+        --cal-weekend-bg:  Canvas;
+        --cal-holiday-bg:  Canvas;
         --on-solid:        HighlightText;
         --on-viz:          CanvasText;
 
