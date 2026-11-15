@@ -135,6 +135,7 @@
     transition: border-color var(--motion-fast), background var(--motion-fast);
 }
 .source-card:hover { border-color: var(--border-hover); background: var(--surface-strong); text-decoration: none; }
+.source-card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .source-card-host { display: flex; align-items: center; gap: var(--space-3); color: var(--muted); min-inline-size: 0; }
 .source-card-n {
     display: grid;

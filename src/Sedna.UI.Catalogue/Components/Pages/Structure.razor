@@ -32,6 +32,28 @@
         </p>
     </CatExample>
 
+    <CatExample TExample="Examples.Structure.PageHeadHero" Title="With a picture" Demo="ex-demo--block">
+        <p>
+            The head a start page or a section opens with: the picture, an eyebrow, the title, a lead and what
+            to do. The picture is an <code>&lt;img class="page-head-image"&gt;</code> you write, with its own
+            <code>srcset</code>, <code>loading</code> and <code>alt</code>; <code>data-variant="dark"</code> on
+            the head keeps its text and buttons light on the photograph in both variants. A scrim runs from
+            the inline start, where the words are, and holds at full strength across the text column, so the
+            text clears WCAG AA over any photograph; it turns with <code>dir="rtl"</code>. The head stops at
+            <code>--page-max</code> on a very wide screen. <code>--hero-height</code>, <code>--hero-measure</code>
+            and the two ends of the scrim, <code>--hero-scrim-strong</code> and <code>--hero-scrim-soft</code>,
+            are set on the head.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Structure.PageHeadHeroSlides" Title="Over a slideshow" Demo="ex-demo--block">
+        <p>
+            A slide of the <a href="/carousel">carousel</a> is a head with a picture, so a slideshow needs
+            nothing of its own: the carousel scrolls and wires the slides, each slide writes its head. Put
+            the slides' titles one level under the page's own heading.
+        </p>
+    </CatExample>
+
     <CatExample TExample="Examples.Structure.PageHeadCollapse" Title="Folding as the page scrolls" Demo="ex-demo--block">
         <p>
             <strong>Live &mdash; scroll it.</strong> <code>.page-head--collapse</code> keeps the title row
@@ -41,6 +63,23 @@
             script; where the engine has none, and for a reader who asked for reduced motion, it is
             the ordinary head and scrolls away with the page.
         </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Bands in their own variant">
+    <CatExample TExample="Examples.Structure.DarkBand" Title="Dark band on any page" Demo="ex-demo--block">
+        <p>
+            <code>data-variant="dark"</code> on an element makes it and everything in it read as the dark
+            variant, whatever the page is set to &mdash; for text and buttons over a photograph, a footer, a call
+            to action. Switch the page to the light variant: the band stays dark, with its buttons, badge, link
+            and field reading as they do on a dark page, and the colour-blind palette and high contrast still
+            apply inside it. The attribute sets tokens, not a background, so the band paints what is behind
+            it &mdash; here the dark <code>--bg</code> it has just redeclared.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Structure.LightPanel" Title="Light panel on a dark page" Demo="ex-demo--block">
+        <p>The other direction: <code>data-variant="light"</code> for a surface that has to look like paper.</p>
     </CatExample>
 </CatGroup>
 

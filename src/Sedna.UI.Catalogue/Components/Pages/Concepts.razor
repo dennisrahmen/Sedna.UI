@@ -260,6 +260,34 @@
         </div>
     </div>
 
+    <h3 id="variant-areas">Variant of a subtree <CatAnchor Id="variant-areas" /></h3>
+
+    <p class="cat-lede">
+        <code>data-variant="dark"</code> or <code>"light"</code> on any element, not only
+        <code>&lt;html&gt;</code>, makes that element and everything in it read as that variant. It is how a
+        band that is dark on a light page &mdash; a photograph with a scrim behind it, a footer, a hero &mdash;
+        keeps its text and buttons light in both. The attribute redeclares the tokens that differ by variant,
+        so the colour-blind palette and high contrast apply inside it as they do outside, and it leaves
+        density, type and your own tokens that do not differ by variant as they are.
+    </p>
+
+    <div class="callout callout--info">
+        <i class="ri-contrast-2-line"></i>
+        <div class="callout-body">
+            <span class="callout-title">It sets the tokens, not the background</span>
+            Text and native controls inside take the variant's colours; the element paints nothing of its
+            own, because what is behind the content &mdash; a photograph, a gradient, a surface &mdash; is yours.
+            Where you override a token that differs by variant in your own stylesheet, list the attribute with
+            <code>:root</code> &mdash; <code>:root, :root :where([data-variant="dark"])</code> for the dark value
+            &mdash; or the subtree gets the library's value.
+        </div>
+    </div>
+
+    <p class="cat-lede">
+        <a href="/structure#dark-band-on-any-page">Structure</a> shows a dark band on any page and a light panel on a
+        dark one.
+    </p>
+
     <h3 id="rtl">Direction and density <CatAnchor Id="rtl" /></h3>
 
     <p class="cat-lede">
