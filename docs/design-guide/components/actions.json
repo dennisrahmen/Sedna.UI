@@ -17,7 +17,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic-tones" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "00707ab97e42a6e0"
+    "stamp": "9e865fad10629af7"
   },
   {
     "page": "/button-group",
@@ -33,7 +33,7 @@
       { "text": "Paging through a list of results", "instead": "/pager#numbered-pages" }
     ],
     "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
-    "stamp": "99a963fa71ad0536"
+    "stamp": "ada9b8c160262b5b"
   },
   {
     "page": "/toolbar",

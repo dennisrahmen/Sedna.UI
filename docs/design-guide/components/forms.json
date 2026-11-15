@@ -17,7 +17,7 @@
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
     "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
-    "stamp": "1f725d2c511b7bea"
+    "stamp": "04c6c5776012a986"
   },
   {
     "page": "/form-validation",
@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "b9d1d710e86a3b37"
+    "stamp": "c05762a65635db56"
   },
   {
     "page": "/form-saving",
@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "90c8d93d37cf4a8d"
+    "stamp": "f45b1220d64f9824"
   },
   {
     "page": "/form-code",
@@ -227,7 +227,7 @@
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
     "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
-    "stamp": "83b05a1ed7214f85"
+    "stamp": "2b1018609fe60222"
   },
   {
     "page": "/form-rating",
@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "4c462870b0cda4ff"
+    "stamp": "10864798d1066433"
   },
   {
     "page": "/form-numeric",
@@ -273,7 +273,7 @@
       { "text": "An exact amount typed with its unit", "instead": "/form-text#kinds-of-affix" }
     ],
     "goals": [ "choose-a-value-on-a-slider", "choose-a-span-of-values", "step-a-count" ],
-    "stamp": "ec677e2d0362ca87"
+    "stamp": "5574c3d7ae5f8482"
   },
   {
     "page": "/form-color",

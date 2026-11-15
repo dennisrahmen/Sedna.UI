@@ -1995,6 +1995,19 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     initial-value: 0px;
 }
 
+/* A label set inside running text — a badge after a word, a freshness note after a figure — is
+   centred on the capitals of the line it sits in. The line's capital height is a length of the
+   line's own font, so every element resolves it in its own font and hands it down; a label does
+   not declare it, and so reads the line's rather than its own. Registered, so what a label
+   inherits is the resolved length. `vertical-align` only acts on a box in a line, so the same
+   label in a flex row, where `align-items` centres it, is left as it was. */
+@property --line-cap {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+:where(*:not(.badge, .stale)) { --line-cap: 1cap; }
+
 :where(span, strong, b, em, small, time, abbr, cite, data, output, q, s, u, var):where(:not([class]), [class^="text-"], [class*=" text-"], [class^="sedna-"], [class*=" sedna-"]):not(:empty, :has(*)) {
     text-box: trim-both cap alphabetic;
     padding-block: var(--cap-gap);
@@ -4819,9 +4832,10 @@ a.card.card--fill { display: flex; }
    title without setting the line's height. That is why `.badge--lg` is 12px text and
    not a 36px pill. The chip, which is interactive, does take the control heights. */
 .badge {
+    --badge-gap: var(--space-2);
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--badge-gap);
     background: var(--badge-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
@@ -4830,7 +4844,9 @@ a.card.card--fill { display: flex; }
     color: var(--fg-soft);
     line-height: round(1.45em, 2px);
     white-space: nowrap;
-    vertical-align: middle;
+    /* In a line of text its centre is the centre of the line's capitals, not the middle of its
+       x-height as `middle` puts it: see "A label in a line" below. */
+    vertical-align: calc(var(--line-cap) / 2);
 }
 /* `line-height: 1`, or the glyph inherits the pill's 1.45 line box and its font's
    baseline offset drops it a pixel under the text on iOS. */
@@ -4866,6 +4882,25 @@ a.card.card--fill { display: flex; }
 .badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 .badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
 .badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
+
+/* ── A label in a line ─────────────────────────────────────────────────────
+   Inside a line of text the badge's centre sits on the centre of the line's capitals, which is
+   where the eye puts a word's middle. `vertical-align` raises the box's baseline above the
+   line's, so each shape of badge says where its own baseline is:
+   - a word on its own is a block holding its trimmed text, whose baseline is the text's and whose
+     centre is half its own capital height above it;
+   - a badge holding an icon, or anything else, is a flex row whose baseline would be its first
+     item's, so a zero-size item of its own, centred, makes its baseline its centre;
+   - a swatch's first item is its dot, which sits on its bottom edge. */
+.badge:not(:has(> *)) { vertical-align: calc((var(--line-cap) - 1cap) / 2); }
+.badge:has(> *):not(.badge--swatch)::before {
+    content: '';
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-inline-end: calc(var(--badge-gap) * -1);
+}
+.badge--swatch { vertical-align: calc((var(--line-cap) - var(--badge-dot)) / 2); }
 
 /* ── An identifier ─────────────────────────────────────────────────────────
    A record number, a version, a commit, an address, a key: a value the reader copies or
@@ -4913,7 +4948,7 @@ a.card.card--fill { display: flex; }
    One pill, read as "environment is production".
 
      <span class="badge badge--scoped badge--danger"><span class="badge-key">env</span>prod</span> */
-.badge--scoped { padding-inline-start: 0; gap: 0; overflow: hidden; }
+.badge--scoped { --badge-gap: 0px; padding-inline-start: 0; overflow: hidden; }
 .badge-key {
     align-self: stretch;
     display: inline-flex;
@@ -4988,12 +5023,15 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
    or the number is read twice. A count that sits in a line beside a label rather than on
    a corner is `.tab-count` or `.nav-count`.
 
-   One rule places it on every host: the badge's centre sits --count-inset in from the
-   host's top inline-end corner, so a dot and a number share that point and a number grows
-   outward from it. An icon's corner is its own; a round host puts the point on its curve,
-   at the 45° mark, so the dot touches the avatar instead of floating off its box; a button
-   puts it inside its corner radius. A `translate` has no logical form, so 70-rtl.css turns
-   its inline half round.
+   One rule places it on every host: the centre of a single digit, or of a dot, sits
+   --count-inset in from the host's top inline-end corner, and a longer number grows outward
+   from there, away from the host, so a wide number never reaches back over what it marks. An
+   icon's corner is its own: a bare icon at its own size takes a negative inset, so the badge
+   hangs off the corner and only touches the glyph there, and a large one keeps the badge on
+   the corner. A round host puts the point on its curve, at the 45° mark, so the dot touches
+   the avatar instead of floating off its box; a button puts it inside its corner radius. The
+   badge is anchored by its start edge, which flips with the direction by itself. Leave room
+   beside a bare icon that carries a number: the badge hangs past the icon's own box.
 
    The badge marks the corner; it does not cover the icon. Its size is --count-size, and
    it follows the host: a small button or avatar carries the small badge, a large one the
@@ -5015,6 +5053,12 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 }
 .count-host--round { --count-inset: 14.6%; }
 .btn.count-host    { --count-inset: 3px; }
+/* A bare icon at its own size: the corner of its glyph is where the number would cover it, so the
+   badge's centre sits outside the corner by as much as it sat inside it. */
+.count-host:not(.btn, .count-host--round):has(> i) { --count-inset: -2px; }
+/* A large icon, which takes the large badge, keeps it on the corner: against a glyph that size it is
+   a small share, and hanging it off would leave it adrift. */
+.count-host:not(.btn, .count-host--round) > .count-badge--lg { --count-inset: 2px; }
 /* The size follows the host the library draws, and `--sm` and `--lg` on the badge name one
    outright, over the host's. A dot is a little over half the number's height, and even. */
 .btn--sm.count-host,
@@ -5028,8 +5072,8 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 .count-badge {
     position: absolute;
     inset-block-start: var(--count-inset);
-    inset-inline-end: var(--count-inset);
-    translate: 50% -50%;
+    inset-inline-start: calc(100% - var(--count-inset) - var(--count-size, 14px) / 2);
+    translate: 0 -50%;
     box-sizing: border-box;
     min-width: var(--count-size, 14px);
     height: var(--count-size, 14px);
@@ -5052,7 +5096,13 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     pointer-events: none;
     print-color-adjust: exact;
 }
-.count-badge:empty { min-width: 0; width: var(--count-dot, 8px); height: var(--count-dot, 8px); padding: 0; }
+.count-badge:empty {
+    min-width: 0;
+    width: var(--count-dot, 8px);
+    height: var(--count-dot, 8px);
+    padding: 0;
+    inset-inline-start: calc(100% - var(--count-inset) - var(--count-dot, 8px) / 2);
+}
 }
 
 /* ── 31-kbd.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -19783,11 +19833,10 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
 
 .badge-ai {
-    background: var(--agent-tint);
-    border-color: var(--agent-edge);
-    color: var(--fg-soft);
+    background: var(--info-bg);
+    border-color: var(--info-border);
+    color: var(--info-fg);
 }
-.badge-ai > i { color: var(--agent-from); }
 
 /* ── The AI label ───────────────────────────────────────────────────────────
    The same mark on one value an agent filled in — a field, a table cell, a figure on a
@@ -19800,6 +19849,10 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
        <span class="visually-hidden">AI-generated — why this value</span>
      </button>
 
+   The label is one blue, the orbit's: its tint, its edge, its sparkle and its word are the
+   info tone's, so it reads as the agent's mark and never as a state. A tone modifier on it,
+   `.badge--warn`, still wins.
+
    `--icon` is the sparkle alone, a square the height of a word badge, for a field or a
    cell where a word would crowd the value. It has no words on screen, so its name is a
    `.visually-hidden` span or an `aria-label`, and says that the value was generated.
@@ -19811,12 +19864,11 @@ button.badge-ai {
     cursor: pointer;
     transition: border-color var(--motion-fast), background var(--motion-fast);
 }
-button.badge-ai:hover { border-color: var(--agent-to); }
+button.badge-ai:hover { background: var(--info-bg-hover); border-color: var(--info-fg); }
 button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .badge-ai--icon {
     --badge-ai-pad: var(--space-1);
-    display: inline-grid;
-    place-items: center;
+    justify-content: center;
     flex-shrink: 0;
     inline-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
     block-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
@@ -19824,7 +19876,9 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 }
 .badge--sm.badge-ai--icon { --badge-ai-pad: 0px; }
 .badge--lg.badge-ai--icon { --badge-ai-pad: var(--space-2); }
-.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); }
+/* A pill all round: the group squares its last child's outer corners, and this label is set inside the
+   field, not drawn as a segment of it. */
+.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); border-radius: var(--radius-pill); }
 
 .confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
 .confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
@@ -22791,6 +22845,16 @@ button.inbox-item-title {
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    /* Beside a figure it stands on the centre of the figure's capitals, as a badge does: a zero-size
+       item of its own makes its baseline its centre. See "A label in a line" in 31-badges.css. */
+    vertical-align: calc(var(--line-cap) / 2);
+}
+.stale::before {
+    content: '';
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-inline-end: calc(var(--space-2) * -1);
 }
 .stale i { font-size: var(--text-3); }
 .stale--warn { color: var(--warn-fg); }
@@ -26923,8 +26987,6 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    left, so it slopes the other way, and the translate that centres it on its point turns round. */
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 
-/* 31 — a corner count is centred on its point by a translate, whose inline half turns round. */
-[dir="rtl"] .count-badge { translate: -50% -50%; }
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */

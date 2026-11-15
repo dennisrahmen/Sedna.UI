@@ -77,11 +77,10 @@
 .agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
 
 .badge-ai {
-    background: var(--agent-tint);
-    border-color: var(--agent-edge);
-    color: var(--fg-soft);
+    background: var(--info-bg);
+    border-color: var(--info-border);
+    color: var(--info-fg);
 }
-.badge-ai > i { color: var(--agent-from); }
 
 /* ── The AI label ───────────────────────────────────────────────────────────
    The same mark on one value an agent filled in — a field, a table cell, a figure on a
@@ -94,6 +93,10 @@
        <span class="visually-hidden">AI-generated — why this value</span>
      </button>
 
+   The label is one blue, the orbit's: its tint, its edge, its sparkle and its word are the
+   info tone's, so it reads as the agent's mark and never as a state. A tone modifier on it,
+   `.badge--warn`, still wins.
+
    `--icon` is the sparkle alone, a square the height of a word badge, for a field or a
    cell where a word would crowd the value. It has no words on screen, so its name is a
    `.visually-hidden` span or an `aria-label`, and says that the value was generated.
@@ -105,12 +108,11 @@ button.badge-ai {
     cursor: pointer;
     transition: border-color var(--motion-fast), background var(--motion-fast);
 }
-button.badge-ai:hover { border-color: var(--agent-to); }
+button.badge-ai:hover { background: var(--info-bg-hover); border-color: var(--info-fg); }
 button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .badge-ai--icon {
     --badge-ai-pad: var(--space-1);
-    display: inline-grid;
-    place-items: center;
+    justify-content: center;
     flex-shrink: 0;
     inline-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
     block-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
@@ -118,7 +120,9 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 }
 .badge--sm.badge-ai--icon { --badge-ai-pad: 0px; }
 .badge--lg.badge-ai--icon { --badge-ai-pad: var(--space-2); }
-.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); }
+/* A pill all round: the group squares its last child's outer corners, and this label is set inside the
+   field, not drawn as a segment of it. */
+.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); border-radius: var(--radius-pill); }
 
 .confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
 .confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
