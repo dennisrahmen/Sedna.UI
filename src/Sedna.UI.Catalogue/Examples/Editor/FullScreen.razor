@@ -1,0 +1,15 @@
+<div class="form-field">
+    <label class="form-label" for="long-read-value">Article</label>
+    <div class="editor" data-editor id="long-read" style="--editor-max-height: 16rem">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="header" value="2" aria-label="Heading" data-tip="Heading"><i class="ri-h-2"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="list" value="bullet" aria-label="Bulleted list" data-tip="Bulleted list"><i class="ri-list-unordered"></i></button>
+            <span class="editor-sep" role="separator"></span>
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-fullscreen aria-controls="long-read" aria-pressed="false" aria-label="Full screen" data-tip="Full screen"><i class="ri-fullscreen-line"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <textarea id="long-read-value" name="long-read" data-editor-value hidden placeholder="Write the article">&lt;h2&gt;A week on the dock&lt;/h2&gt;&lt;p&gt;Nine trucks, two late, one pallet that was never ordered.&lt;/p&gt;</textarea>
+    </div>
+</div>

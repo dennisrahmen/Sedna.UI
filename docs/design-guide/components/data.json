@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "6d711c80f6a5864c"
+    "stamp": "0e84816fb020d848"
   },
   {
     "page": "/table-editing",
@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "8607425da5ec5627"
+    "stamp": "d60ba6872d5fc152"
   },
   {
     "page": "/filtering",
@@ -241,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "0b93ad4b6511776b"
+    "stamp": "a744b23a2c67aa1a"
   },
   {
     "page": "/graph-layouts",
@@ -302,7 +302,7 @@
       { "text": "A chart of figures", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
-    "stamp": "fea7331514b6462c"
+    "stamp": "da60ffb1c6c99c78"
   },
   {
     "page": "/graph-blazor",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "e97289b2bdef15f7"
+    "stamp": "4275208948d1356c"
   }
 ]

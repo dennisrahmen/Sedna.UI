@@ -92,7 +92,7 @@
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
     "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
-    "stamp": "7cb145b7d10e5382"
+    "stamp": "5929e4a441c2bf32"
   },
   {
     "page": "/empty-state",

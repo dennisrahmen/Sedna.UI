@@ -1,0 +1,27 @@
+<div class="form-field">
+    <label class="form-label" for="reply-note-value">Reply</label>
+    <div class="editor" data-editor id="reply-note">
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold" data-tip="Bold · Ctrl+B"><i class="ri-bold"></i></button>
+        <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="italic" aria-label="Italic" data-tip="Italic · Ctrl+I"><i class="ri-italic"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <div class="menu editor-mention" data-editor-mention hidden aria-label="People">
+            <button class="menu-item" type="button" tabindex="-1" data-mention-value="alex.fischer" data-label="Alex Fischer">
+                <span class="avatar avatar--sm">AF</span><span>Alex Fischer</span><span class="menu-item-note">alex.fischer</span>
+            </button>
+            <button class="menu-item" type="button" tabindex="-1" data-mention-value="priya.nair" data-label="Priya Nair">
+                <span class="avatar avatar--sm avatar--viz-2">PN</span><span>Priya Nair</span><span class="menu-item-note">priya.nair</span>
+            </button>
+            <button class="menu-item" type="button" tabindex="-1" data-mention-value="tomas.ferreira" data-label="Tomás Ferreira">
+                <span class="avatar avatar--sm avatar--viz-4">TF</span><span>Tomás Ferreira</span><span class="menu-item-note">tomas.ferreira</span>
+            </button>
+            <template data-editor-mention-item>
+                <button class="menu-item" type="button" tabindex="-1">
+                    <span class="avatar avatar--sm avatar--muted"><i data-icon class="ri-user-line"></i></span><span data-label></span><span class="menu-item-note" data-note></span>
+                </button>
+            </template>
+        </div>
+        <textarea id="reply-note-value" name="reply-note" data-editor-value hidden placeholder="Type &#64; to name someone">&lt;p&gt;The pallets for bay 4 are ready. &lt;data value="alex.fischer"&gt;&#64;Alex Fischer&lt;/data&gt; will sign them off.&lt;/p&gt;</textarea>
+    </div>
+</div>

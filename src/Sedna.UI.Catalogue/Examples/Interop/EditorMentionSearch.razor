@@ -1,0 +1,40 @@
+@inject ISednaEditors Editors
+
+@* The app answers the mention list from its own search: cancelling sedna-editor-mention says it will
+   fill the rows, and SetMentionsAsync clones one per person from the template inside the menu. The
+   editor shows every row it is given, so the ranking is the app's. *@
+<div class="form-field">
+    <label class="form-label" for="dispatch-value">Dispatch note</label>
+    <div class="editor" data-editor id="dispatch"
+         @onsedna-editor-mention="Search" @onsedna-editor-mention:preventDefault>
+        <div class="editor-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-format="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+        </div>
+        <div class="editor-body prose" data-editor-body></div>
+        <div class="menu editor-mention" data-editor-mention hidden aria-label="People">
+            <template data-editor-mention-item>
+                <button class="menu-item" type="button" tabindex="-1">
+                    <span class="avatar avatar--sm avatar--muted"><i data-icon class="ri-user-line"></i></span><span data-label></span><span class="menu-item-note" data-note></span>
+                </button>
+            </template>
+        </div>
+        <textarea id="dispatch-value" name="dispatch" data-editor-value hidden placeholder="Type &#64; and a name"></textarea>
+    </div>
+</div>
+
+@code {
+    private static readonly SednaMention[] Directory =
+    [
+        new("alex.fischer", "Alex Fischer", "Dock office"),
+        new("priya.nair", "Priya Nair", "Dispatch"),
+        new("tomas.ferreira", "Tomás Ferreira", "Receiving"),
+        new("warehouse", "Warehouse team", "Everyone on shift", "ri-team-line"),
+    ];
+
+    // A real app would ask its server; the editor sends the word as it is typed.
+    private async Task Search(SednaEditorMentionEventArgs e)
+    {
+        var found = Directory.Where(p => p.Label!.Contains(e.Query, StringComparison.OrdinalIgnoreCase)).ToArray();
+        await Editors.SetMentionsAsync("dispatch", found);
+    }
+}
