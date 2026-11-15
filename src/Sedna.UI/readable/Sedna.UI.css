@@ -15767,7 +15767,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    A selected range is `aria-selected` on each cell, written by the script. Its tint is
    laid over the cell's own background as an image, so a sticky header cell keeps its
    opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
-.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
+/* `:focus`, not `:focus-visible`: a press on a cell makes it the active cell, as in a
+   spreadsheet, and the engines do not match :focus-visible for a pointer's focus on a cell
+   that takes no text — so the active cell was ringed after a key and not after a click. */
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }

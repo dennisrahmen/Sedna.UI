@@ -1,8 +1,8 @@
 <div class="sedna-col sedna-gap-12">
-    <!-- The button only replays the arrival for this page; an app's rows arrive when it renders them. -->
+    <!-- The button only replays the arrival for this page; an app's rows arrive when it renders them. A finished animation is no longer on the table, so the class is taken off and put back. -->
     <div>
         <button class="btn btn--sm" type="button"
-                onclick="document.getElementById('stagger-orders').getAnimations({ subtree: true }).forEach(a => { a.cancel(); a.play(); })">
+                onclick="const t = document.getElementById('stagger-orders'); t.classList.remove('table--stagger'); void t.offsetWidth; t.classList.add('table--stagger')">
             <i class="ri-restart-line"></i> <span>Replay</span>
         </button>
     </div>

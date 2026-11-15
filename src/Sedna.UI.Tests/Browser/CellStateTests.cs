@@ -116,6 +116,25 @@ public class CellStateTests : ScriptTestBase
         Assert.Empty(errors);
     }
 
+    [Fact]
+    public async Task A_click_on_a_cell_makes_it_the_active_cell_and_rings_it_as_a_key_press_does()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled(Pinned(), NoTransitions);
+
+        // A pointer press, with no key before it: the cell has the focus and its ring, as in a spreadsheet.
+        await page.Locator("#c12").ClickAsync();
+        var clicked = await page.EvaluateAsync<string[]>("""
+            () => { const a = document.activeElement, s = getComputedStyle(a); return [a.id, a.getAttribute('tabindex'), s.outlineStyle, s.outlineWidth]; }
+            """);
+        Assert.Equal(["c12", "0", "solid", "2px"], clicked);
+
+        // The arrows go on from where the pointer put it.
+        await page.Keyboard.PressAsync("ArrowDown");
+        Assert.Equal("c22", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        Assert.Empty(errors);
+    }
+
     [Theory]
     [InlineData("ltr")]
     [InlineData("rtl")]
