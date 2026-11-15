@@ -219,10 +219,10 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 1.2em 0; }
 .markdown-body del { color: var(--muted); }
 /* A task list: the box stands where the bullet would, and is the item's state, not a
-   control — the preview never changes the text. */
+   control — the preview never changes the text. The renderer makes the box and the text of
+   the item's first paragraph one <label>, which is the box's name. */
 .markdown-body .task-list-item { list-style: none; }
-.markdown-body .task-list-item > input[type="checkbox"],
-.markdown-body .task-list-item > p:first-child > input[type="checkbox"] {
+.markdown-body .task-list-item input[type="checkbox"] {
     margin-block: 0;
     margin-inline: -1.5em 0.5em;
     inline-size: 1em;

@@ -522,17 +522,22 @@
  {
   "name": "task",
   "source": "- [ ] a\n- [x] b",
-  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> b</li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label></li><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled checked> b</label></li></ul>"
  },
  {
   "name": "task upper X",
   "source": "- [X] a",
-  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> a</li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled checked> a</label></li></ul>"
  },
  {
   "name": "task with inline",
   "source": "- [ ] **a**",
-  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> <strong>a</strong></li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> <strong>a</strong></label></li></ul>"
+ },
+ {
+  "name": "task with link",
+  "source": "- [ ] see [x](/y)",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> see <a href=\"/y\" target=\"_blank\" rel=\"noopener\">x</a></label></li></ul>"
  },
  {
   "name": "task needs space",
@@ -540,19 +545,39 @@
   "html": "<ul><li>[x]a</li></ul>"
  },
  {
+  "name": "task needs text",
+  "source": "- [ ]",
+  "html": "<ul><li>[ ]</li></ul>"
+ },
+ {
+  "name": "task before a block is text",
+  "source": "- [ ] # a",
+  "html": "<ul><li>[ ] # a</li></ul>"
+ },
+ {
   "name": "task numbered",
   "source": "1. [ ] a",
-  "html": "<ol><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li></ol>"
+  "html": "<ol><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label></li></ol>"
  },
  {
   "name": "task mixed with plain",
   "source": "- [ ] a\n- b",
-  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a</li><li>b</li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label></li><li>b</li></ul>"
  },
  {
   "name": "task nested",
   "source": "- [ ] a\n  - [x] b",
-  "html": "<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled> a<ul><li class=\"task-list-item\"><input type=\"checkbox\" disabled checked> b</li></ul></li></ul>"
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> a</label><ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled checked> b</label></li></ul></li></ul>"
+ },
+ {
+  "name": "task loose",
+  "source": "- [ ] a\n\n- [x] b",
+  "html": "<ul><li class=\"task-list-item\"><p><label><input type=\"checkbox\" disabled> a</label></p></li><li class=\"task-list-item\"><p><label><input type=\"checkbox\" disabled checked> b</label></p></li></ul>"
+ },
+ {
+  "name": "task html escaped",
+  "source": "- [ ] <b>",
+  "html": "<ul><li class=\"task-list-item\"><label><input type=\"checkbox\" disabled> &lt;b&gt;</label></li></ul>"
  },
  {
   "name": "hr dashes",

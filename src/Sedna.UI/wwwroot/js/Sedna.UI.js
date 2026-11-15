@@ -7835,10 +7835,15 @@ window.sednaUi = window.sednaUi || {};
                 if (!BLANK.test(prev) && !startsBlock(l, true) && !RE_SETEXT.test(l)) { item.push(trimStart(l)); i++; continue; }
                 break;
             }
-            var task = null;
-            var tm = /^\[([ xX])\](?:[ \t]+|$)/.exec(item[0]);
+            var task = null, plainFirst = item[0];
+            var tm = /^\[([ xX])\][ \t]+(?=\S)/.exec(item[0]);
             if (tm) { task = tm[1] !== ' '; item[0] = item[0].slice(tm[0].length); }
             var kids = parseBlocks(item, st, depth + 1);
+            if (task !== null && (!kids.length || kids[0].type !== 'p')) {
+                task = null;
+                item[0] = plainFirst;
+                kids = parseBlocks(item, st, depth + 1);
+            }
             var loose = false;
             for (var k = 1; k < kids.length; k++) if (kids[k].gap) loose = true;
             if (gapAfter || loose) list.loose = true;
@@ -7951,9 +7956,11 @@ window.sednaUi = window.sednaUi || {};
             var nd = nodes[i], pre = i === 0 && lead ? lead : '';
             if (pre && nd.type !== 'p') { out += pre; pre = ''; }
             switch (nd.type) {
-                case 'p':
-                    out += tight ? pre + inline(nd.raw, st) : '<p>' + pre + inline(nd.raw, st) + '</p>';
+                case 'p': {
+                    var text = pre ? '<label>' + pre + inline(nd.raw, st) + '</label>' : inline(nd.raw, st);
+                    out += tight ? text : '<p>' + text + '</p>';
                     break;
+                }
                 case 'h':
                     out += '<h' + nd.n + '>' + inline(nd.raw.trim(), st) + '</h' + nd.n + '>';
                     break;
@@ -7979,8 +7986,7 @@ window.sednaUi = window.sednaUi || {};
                 items += '<li>' + renderBlocks(it.kids, !list.loose, st) + '</li>';
             } else {
                 var box = it.task ? CHECKBOX.on : CHECKBOX.off;
-                items += '<li class="task-list-item">' +
-                    (it.kids.length ? renderBlocks(it.kids, !list.loose, st, box) : box) + '</li>';
+                items += '<li class="task-list-item">' + renderBlocks(it.kids, !list.loose, st, box) + '</li>';
             }
         }
         var attrs = list.ordered && list.start !== 1 ? ' start="' + list.start + '"' : '';

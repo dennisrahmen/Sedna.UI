@@ -105,7 +105,7 @@ public class MarkdownRenderTests : ScriptTestBase
                     LI: ['class'], INPUT: ['type', 'disabled', 'checked'], TH: ['align'], TD: ['align'],
                     TABLE: ['role', 'tabindex'], CODE: ['class'],
                 };
-                const bare = ['UL', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'HR', 'PRE', 'EM', 'STRONG', 'DEL',
+                const bare = ['UL', 'LABEL', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'HR', 'PRE', 'EM', 'STRONG', 'DEL',
                     'BR', 'THEAD', 'TBODY', 'TR'];
                 const keptAddress = /^(?:https?:|mailto:|tel:|[^:\/?#]*(?:[\/?#]|$))/i;
                 const found = [];

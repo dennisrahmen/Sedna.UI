@@ -33,7 +33,7 @@
       { "text": "Paging through a list of results", "instead": "/pager#numbered-pages" }
     ],
     "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
-    "stamp": "d48be8e4721bea35"
+    "stamp": "134f78db6faf6c1c"
   },
   {
     "page": "/toolbar",
