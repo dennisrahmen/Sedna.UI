@@ -12,7 +12,7 @@
     "src/Sedna.UI.Catalogue/Examples/Avatar/Presence.razor": "0f37b672f83fd39b",
     "src/Sedna.UI.Catalogue/Examples/Avatar/PresenceLabel.razor": "0532bf7124494b2e",
     "src/Sedna.UI.Catalogue/Examples/Avatar/Rings.razor": "8460d9aa5171084e",
-    "src/Sedna.UI/css-parts/15-frame-user-widget.css": "e1147e85b834a693",
+    "src/Sedna.UI/css-parts/15-frame-user-widget.css": "4813ed16ec96fe49",
     "src/Sedna.UI/css-parts/31-count.css": "67ea1bbe78c68227",
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
     "src/Sedna.UI/css-parts/58-menu.css": "d657030d6ba12307",
@@ -41,7 +41,7 @@
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
-    "src/Sedna.UI/css-parts/65-app-switcher.css": "4d2abd1533417256",
+    "src/Sedna.UI/css-parts/65-app-switcher.css": "287eea52b11310e9",
     "src/Sedna.UI/css-parts/65-popover.css": "efdd526f226f60f3",
     "src/Sedna.UI/css-parts/66-agent-activity.css": "f04a109f639f81bd",
     "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c",
@@ -68,7 +68,7 @@
     "src/Sedna.UI.Catalogue/Examples/Count/OnIcons.razor": "da483c5ce1598022",
     "src/Sedna.UI.Catalogue/Examples/Count/Sizes.razor": "4eefd827d3ce7b2a",
     "src/Sedna.UI.Catalogue/Examples/Count/Tones.razor": "03a83e8ede1103ec",
-    "src/Sedna.UI/css-parts/11-frame-sidebar.css": "e6341cd39ef4d76a",
+    "src/Sedna.UI/css-parts/11-frame-sidebar.css": "7ebe66fcdb786515",
     "src/Sedna.UI/css-parts/17-frame-hover-hints.css": "c76ee0ee677b0843",
     "src/Sedna.UI/css-parts/30-cards.css": "9c359c903a723b51",
     "src/Sedna.UI/css-parts/31-count.css": "67ea1bbe78c68227",
@@ -101,7 +101,7 @@
     "src/Sedna.UI.Catalogue/Examples/StatusDot/Connection.razor": "31a557514fb2c74c",
     "src/Sedna.UI.Catalogue/Examples/StatusDot/InATable.razor": "0b976b8857fe1d37",
     "src/Sedna.UI/css-parts/06-base-elements.css": "47391386aedbcdb1",
-    "src/Sedna.UI/css-parts/13-frame-topbar.css": "ad0f8b685900c38d",
+    "src/Sedna.UI/css-parts/13-frame-topbar.css": "664d1806f9984cf7",
     "src/Sedna.UI/css-parts/66-status-indicator.css": "a80c43790f471c0b"
   }
 }

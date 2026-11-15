@@ -67,7 +67,7 @@
     transition: position var(--snap) allow-discrete, width var(--snap) allow-discrete, height var(--snap) allow-discrete, overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
 .sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; transition: width var(--snap), height var(--snap); }
-.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); transition: margin var(--snap); }
+.sidebar.collapsed .nav-tools-sep { margin: var(--space-3) var(--space-7); transition: margin var(--snap); }
 /* A rail has no room to type in, so the nav filter goes with the labels. */
 .sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own

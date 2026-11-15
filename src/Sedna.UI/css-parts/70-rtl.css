@@ -186,15 +186,11 @@
    its place at the inline start or end, which already mirrors. */
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 
-/* 40, 41, 69 — what sweeps across a track runs from the inline start to the inline end, which is
+/* 40, 41 — what sweeps across a track runs from the inline start to the inline end, which is
    from the right here. The indeterminate bar is moved by a translate, which has no logical form,
-   so it reads a sign (41-progress.css); the busy bar and the skeleton's band are background
-   positions, which are physical, so each rests at its far end and runs its sweep backwards. */
+   so it reads a sign (41-progress.css); the skeleton's band is a background position, which is
+   physical, so it rests at its far end and runs its sweep backwards, as the busy bar does below. */
 [dir="rtl"] .progress--indeterminate .progress-bar { --progress-flow: -1; }
-[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
-    animation-direction: reverse;
-    background-position: 142.8572% 0;
-}
 [dir="rtl"] .skeleton {
     animation-direction: reverse;
     background-position: 200% 0;
@@ -208,3 +204,9 @@
    left, so it slopes the other way, and the translate that centres it on its point turns round. */
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 
+/* The busy bar (69-busy.css) is a background, and a background position is physical: the
+   sweep runs from the inline start, which is the right edge, to the left. */
+[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    animation-direction: reverse;
+    background-position: 142.8572% 0;
+}

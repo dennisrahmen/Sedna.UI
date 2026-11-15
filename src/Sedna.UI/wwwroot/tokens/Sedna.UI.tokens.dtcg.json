@@ -4715,6 +4715,10 @@
       "$type": "color",
       "$value": "{bg.bg-elevated}"
     },
+    "topbar-border": {
+      "$type": "color",
+      "$value": "{border.border}"
+    },
     "topbar-fg": {
       "$type": "color",
       "$value": "{fg.fg}"
@@ -4733,6 +4737,10 @@
     "topbar-muted": {
       "$type": "color",
       "$value": "{muted.muted}"
+    },
+    "topbar-panel-gap": {
+      "$type": "dimension",
+      "$value": "{space.space-2}"
     }
   },
   "touch": {

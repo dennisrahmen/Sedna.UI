@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "dd7d147f72820664"
+    "stamp": "49f304a19421fc8c"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "62fdf4c536ca8d16"
+    "stamp": "6e3e1a57c6577549"
   },
   {
     "page": "/stat",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "d422cd70245f15dd"
+    "stamp": "25ae79f4131120fc"
   },
   {
     "page": "/graph-plugins",
