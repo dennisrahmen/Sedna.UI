@@ -123,19 +123,31 @@ public class CheckboxMarkCentreTests : ScriptTestBase
         var image = Ink.Png.Decode(png);
         static int Diff((int R, int G, int B) a, (int R, int G, int B) b) => Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
 
-        var surround = image.Pixel(0, 0);
+        // The box is the connected region of its own fill — the border is the same colour once ticked —
+        // found from a point just inside its top edge. A neighbour in the clip (the next row of a list)
+        // is therefore never taken for part of it, and the box is the one that was snapped, not a guess.
+        var sx = Math.Min(image.Width - 1, (int)Math.Round((pad + r.Width / 2) * scale));
+        var sy = Math.Min(image.Height - 1, (int)Math.Round(pad * scale + 1.5 * scale));
+        var fill = image.Pixel(sx, sy);
+        var seen = new bool[image.Width, image.Height];
+        var queue = new Queue<(int X, int Y)>();
+        queue.Enqueue((sx, sy));
+        seen[sx, sy] = true;
         int bx0 = int.MaxValue, bx1 = -1, by0 = int.MaxValue, by1 = -1;
-        for (var y = 0; y < image.Height; y++)
-            for (var x = 0; x < image.Width; x++)
-                if (Diff(image.Pixel(x, y), surround) > 40)
+        while (queue.Count > 0)
+        {
+            var (x, y) = queue.Dequeue();
+            bx0 = Math.Min(bx0, x); bx1 = Math.Max(bx1, x);
+            by0 = Math.Min(by0, y); by1 = Math.Max(by1, y);
+            foreach (var (nx, ny) in new[] { (x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1) })
+                if (nx >= 0 && ny >= 0 && nx < image.Width && ny < image.Height && !seen[nx, ny] && Diff(image.Pixel(nx, ny), fill) <= 40)
                 {
-                    bx0 = Math.Min(bx0, x); bx1 = Math.Max(bx1, x);
-                    by0 = Math.Min(by0, y); by1 = Math.Max(by1, y);
+                    seen[nx, ny] = true;
+                    queue.Enqueue((nx, ny));
                 }
+        }
         Assert.True(bx1 > bx0, "The box paints nothing.");
 
-        // The fill is read inside the top edge, above where any mark reaches.
-        var fill = image.Pixel((bx0 + bx1) / 2, by0 + (int)Math.Round(scale * 1.5));
         var inset = 2 * scale;
         int x0 = int.MaxValue, x1 = -1, y0 = int.MaxValue, y1 = -1;
         for (var y = by0 + inset; y <= by1 - inset; y++)
