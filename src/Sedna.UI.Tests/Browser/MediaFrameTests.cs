@@ -21,7 +21,7 @@ public class MediaFrameTests : ScriptTestBase
     private static readonly string[] NotAFrame = ["cal-day", "form-signature-pad"];
 
     /// <summary>A picture that is the thing itself — a face, a mark, an icon — never one being checked.</summary>
-    private static readonly string[] NotAnUpload = ["avatar", "brand-logo", "file-icon", "link-preview"];
+    private static readonly string[] NotAnUpload = ["avatar", "brand-logo", "file-icon", "link-preview", "qr-logo"];
 
     [Fact]
     public void Every_fixed_ratio_reads_the_ratio_token()

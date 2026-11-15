@@ -1,0 +1,12 @@
+Wi-Fi         WIFI:T:WPA;S:Guest network;P:correct horse battery;;
+              T is WPA, WPA3's SAE, WEP or nopass; H:true marks a hidden network.
+              \ ; , : and " are escaped with a backslash.
+Web address   https://example.com/pair/7Q4K
+E-mail        mailto:support@example.com?subject=Pairing%20help&body=Where%20is%20dock%203%3F
+Phone         tel:+4930123456
+Text message  sms:+4930123456?body=Where%20is%20the%20order%3F
+Contact       MECARD:N:Fischer,Alex;TEL:+4930123456;EMAIL:alex.fischer@example.com;;
+              or a vCard 3.0, BEGIN:VCARD ... END:VCARD, which also holds an organisation and a title.
+Place         geo:52.52,13.405
+Event         BEGIN:VCALENDAR / VERSION:2.0 / BEGIN:VEVENT / SUMMARY / DTSTART / DTEND /
+              LOCATION / END:VEVENT / END:VCALENDAR, one property to a line.

@@ -2,7 +2,8 @@
 
 <CatHead Title="QR codes" Tier="@CatHead.Tier3">
     Your text or address as a QR code, for a camera to read. You write one element with the text and a
-    name, and the human-readable text beside it; the library's own encoder draws the symbol inside it.
+    name, and the human-readable text beside it; the library's own encoder draws the symbol inside it,
+    in the colours and shapes you choose, and saves it as a file when the reader asks.
 </CatHead>
 
 <div class="callout callout--info">
@@ -11,41 +12,167 @@
         <span class="callout-title">Nothing goes in the host page</span>
         <code>Sedna.UI.js</code> finds every <code>[data-qr]</code> and imports the encoder the first time one
         comes within a screen of the viewport, so a page without a code never downloads it. Every
-        attribute, level and size is in <code>docs/qr.md</code>.
+        attribute, level, token and event is in <code>docs/qr.md</code>.
     </div>
 </div>
 
-<CatExample TExample="Examples.Qr.Pairing" Title="Code with its caption" Demo="ex-demo--block ex-demo--pad">
+<CatGroup Title="What a code holds">
     <p>
-        <code>data-qr</code> on a <code>.qr</code> holds the text to encode; change it and the code is drawn
-        again. The text is UTF-8 in byte mode, and the smallest symbol that holds it is used.
-        <strong>The name is yours.</strong> The code draws no words: <code>aria-label</code> says what
-        scanning it does, and <code>role="img"</code> is added for you if it is missing.
+        A code holds text. What the text is decides what a phone does with it: a web address opens, a Wi-Fi
+        string joins, a contact string adds a contact. The library encodes any text; it also writes the
+        standard strings for you.
     </p>
-    <p>
-        <code>.qr-figure</code> stacks the code over its <code>.qr-caption</code> &mdash; the address written
-        out for the reader who cannot scan and the one who wants to see where it goes. Give a way to use it
-        without a camera as well, like the copy button here.
-    </p>
-</CatExample>
 
-<CatExample TExample="Examples.Qr.Levels" Title="Error correction" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>data-qr-level</code> picks how much of the symbol can be lost and still read: <code>L</code>,
-        <code>M</code> (the default), <code>Q</code> or <code>H</code>. A higher level makes a denser code for
-        the same text &mdash; use it for a code that is printed on a label that may be scuffed, not for one on
-        a screen. The element says how dense its code came out in <code>data-qr-version</code>, and
-        <code>data-qr-state</code> is <code>ready</code>, <code>empty</code>, or <code>overflow</code> for a
-        text too long for any symbol at that level.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Qr.Pairing" Title="Code with its caption" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>data-qr</code> on a <code>.qr</code> holds the text to encode; change it and the code is drawn
+            again. The smallest symbol that holds the text is used.
+            <strong>The name is yours.</strong> The code draws no words: <code>aria-label</code> says what
+            scanning it does, and <code>role="img"</code> is added for you if it is missing.
+        </p>
+        <p>
+            <code>.qr-figure</code> stacks the code over its <code>.qr-caption</code> &mdash; the address written
+            out for the reader who cannot scan and the one who wants to see where it goes. Give a way to use it
+            without a camera as well, like the copy button here.
+        </p>
+    </CatExample>
 
-<CatExample TExample="Examples.Qr.Sizes" Title="Sizes" Demo="ex-demo--block ex-demo--pad">
-    <p>
-        <code>.qr--sm</code> (6rem), the bare <code>.qr</code> (10rem) and <code>.qr--lg</code> (15rem);
-        <code>--qr-size</code> sets any other. The size is the whole square, the quiet zone the standard needs
-        around a symbol included. <strong>The paper stays light and the ink dark in every theme</strong>,
-        because cameras read dark on light: <code>--qr-ink</code> and <code>--qr-paper</code> re-point them,
-        and forced colours leave a code as it is, as they leave an image.
-    </p>
-</CatExample>
+    <CatExample TExample="Examples.Qr.Modes" Title="Digits, capitals and text" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Each stretch of the text is held in the mode that takes the fewest bits: numeric for digits,
+            alphanumeric for digits, capitals and <code>&nbsp;$%*+-./:</code>, and UTF-8 bytes for anything
+            else &mdash; so a number is a much smaller symbol than the same characters as text, and an address
+            that ends in a long number gets a numeric stretch of its own. You change nothing: the element says
+            what it chose in <code>data-qr-mode</code> (<code>numeric</code>, <code>alphanumeric</code>,
+            <code>byte</code> or <code>mixed</code>) and how dense the symbol came out in
+            <code>data-qr-version</code> and <code>data-qr-modules</code>.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Interop.QrPayloads" Title="Wi-Fi, contacts and places" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; every code here scans.</strong> <code>SednaQrPayload</code> writes the standard
+            strings and escapes what would end a field early &mdash; a <code>;</code> in a Wi-Fi password, a
+            comma in a contact's note. Each is a pure function that returns the text for
+            <code>data-qr</code>: <code>Url</code>, <code>WiFi</code>, <code>Email</code>, <code>Phone</code>,
+            <code>Sms</code>, <code>MeCard</code>, <code>VCard</code>, <code>Geo</code> and <code>Event</code>.
+            A value the app does not have is <code>null</code> and is left out.
+        </p>
+    </CatExample>
+
+    <CatSnippet Name="Qr/Formats.txt" Title="Formats written out">
+        <p>
+            Nothing needs the helpers: a payload is plain text, so an app may write the string itself. These
+            are the formats the helpers write. An HTML attribute turns a line break in its value into a bare
+            line feed, which phones accept for contacts and events.
+        </p>
+    </CatSnippet>
+
+    <CatExample TExample="Examples.Qr.Levels" Title="Error correction" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>data-qr-level</code> picks how much of the symbol can be lost and still read: <code>L</code>,
+            <code>M</code> (the default), <code>Q</code> or <code>H</code>. A higher level makes a denser code for
+            the same text &mdash; use it for a code that is printed on a label that may be scuffed, not for one on
+            a screen. <code>data-qr-state</code> is <code>ready</code>, <code>empty</code>, or
+            <code>overflow</code> for a text too long for any symbol at that level.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="How it looks">
+    <CatExample TExample="Examples.Qr.Sizes" Title="Sizes" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>.qr--sm</code> (6rem), the bare <code>.qr</code> (10rem) and <code>.qr--lg</code> (15rem);
+            <code>--qr-size</code> sets any other. The size is the whole square, the quiet zone the standard needs
+            around a symbol included. A denser code needs a bigger square: keep a module at two device pixels or
+            more, and prefer a short address to a large square.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Qr.Shapes" Title="Module and eye shapes" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>data-qr-shape</code> is <code>square</code> (the default), <code>rounded</code> &mdash; a
+            corner rounds where no neighbour touches it &mdash; or <code>dots</code>.
+            <code>data-qr-eye</code> is the shape of the three large finder patterns: <code>square</code>,
+            <code>rounded</code> or <code>round</code>. They combine freely, and every combination is read back
+            by a decoder in the tests. Squares are the most forgiving; prefer them for a small code or a poor camera.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Qr.QuietZone" Title="Quiet zone" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>--qr-quiet</code> is the paper round the symbol, in modules. Four is what a reader
+            expects; fewer works with many cameras and fails with some, and is the app's risk. The square keeps
+            its size, so a wider quiet zone makes the symbol smaller inside it.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Qr.Logo" Title="Logo in the middle" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            Write the logo as a child with the class <code>qr-logo</code> &mdash; an <code>&lt;img&gt;</code>, an
+            <code>&lt;svg&gt;</code>, or a box holding one. The modules under it are left out and the error
+            correction fills them in for a reader, so a logo costs strength:
+            <strong>the level is at least <code>Q</code></strong> (<code>H</code> if you ask for it), the symbol
+            is at least version 5, and the square takes only what the level can pay for, however large
+            <code>--qr-logo-size</code> (a share of the symbol's side, <code>0.22</code> by default) asks. Give
+            the logo a transparent or paper-coloured background. An inline <code>&lt;svg&gt;</code> may be coloured by the app's own CSS and tokens: its colours are resolved into plain values when the code is saved.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Colour">
+    <CatExample TExample="Examples.Qr.Tones" Title="Tones" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            A tone class re-points the ink at the deep step of its ramp, which holds against the white paper in
+            every theme. The semantic tones' own colours lighten in a dark theme, and a code does not: cameras read
+            dark modules on a light ground, so <strong>the paper stays light and the ink dark in every theme</strong>.
+            <code>.qr--brand</code> is a deep shade of the app's own brand colour.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Qr.CustomColour" Title="Your own colours" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <code>--qr-ink</code> and <code>--qr-paper</code> take any colour, on the element or in the app's
+            <code>brand.css</code>. A palette token, a brand colour or a plain value all work, as long as the
+            ink is darker than the paper by enough to scan.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Qr.Contrast" Title="Contrast that scans" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            The script measures the colours the browser resolves, again whenever the theme or the colours change.
+            A pair under <strong>4:1</strong>, a paper that is not opaque, or ink lighter than the paper is drawn
+            in the safe pair &mdash; <code>--qr-ink-safe</code> on <code>--qr-paper-safe</code>, dark ink on
+            white &mdash; and the element says <code>data-qr-contrast="fallback"</code>; the console says why.
+            <strong>An inverted code is the app's decision</strong>: <code>data-qr-invert</code> allows light
+            ink on a dark paper, and many readers cannot read one, so use it only where a person scans with a
+            reader known to cope, and never on a code that has to work for everybody.
+        </p>
+    </CatExample>
+</CatGroup>
+
+<CatGroup Title="Saving">
+    <CatExample TExample="Examples.Qr.Download" Title="Download as SVG or PNG" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            A button the app wrote with <code>data-qr-download="svg"</code> or <code>"png"</code> saves the
+            code. It is the one beside the code in the same <code>.qr-figure</code>, or the one a
+            <code>data-qr-for</code> names. <code>data-qr-size</code> is the picture's side in pixels (1024 by
+            default; a whole multiple of <code>data-qr-modules</code> plus twice the quiet zone makes every
+            module whole pixels, which reads best), and <code>data-qr-name</code> the file's name without
+            its extension. The file has the colours the code shows &mdash; plain values, so it opens anywhere
+            &mdash; the quiet zone, the shapes, and the logo, which must be an <code>&lt;img&gt;</code> from the
+            same origin or a data URL, or an inline <code>&lt;svg&gt;</code>. From script:
+            <code>sednaUi.qr.download(el, { format, size, name })</code>. The code says how it went with the
+            bubbling events <code>sedna-qr-download</code> and <code>sedna-qr-error</code>.
+        </p>
+    </CatExample>
+
+    <CatSnippet Name="Qr/SaveFromScript.txt" Title="Saving from script">
+        <p>
+            For a control of the app's own &mdash; a menu item, a keyboard shortcut &mdash; the script does what
+            the button does. In Blazor the two events bind as <code>@@onsedna-qr-download</code> and
+            <code>@@onsedna-qr-error</code>, with <code>SednaQrDownloadEventArgs</code> and
+            <code>SednaQrErrorEventArgs</code>.
+        </p>
+    </CatSnippet>
+</CatGroup>

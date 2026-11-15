@@ -25,6 +25,7 @@ const events = [
     'sedna-tree-expand', 'sedna-tree-collapse', 'sedna-tree-select', 'sedna-tree-check',
     'sedna-selection', 'sedna-popover-fill', 'sedna-listbox-select',
     'sedna-md-file',
+    'sedna-qr-download', 'sedna-qr-error',
 ];
 
 let registered = false;

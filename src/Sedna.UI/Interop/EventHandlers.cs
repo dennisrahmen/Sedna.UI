@@ -14,7 +14,8 @@ namespace Sedna.UI;
 /// <c>@onsedna-countdown-end</c> — an action pressed in a selection toolbar,
 /// <c>@onsedna-selection</c> — and a shared popover asking to be filled for its trigger,
 /// <c>@onsedna-popover-fill</c> — and a file pasted or dropped on a Markdown editor,
-/// <c>@onsedna-md-file</c>.
+/// <c>@onsedna-md-file</c> — and a QR code saved as a file, <c>@onsedna-qr-download</c>, or failing to
+/// be, <c>@onsedna-qr-error</c>.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -59,6 +60,8 @@ namespace Sedna.UI;
 [EventHandler("onsedna-listbox-select", typeof(SednaListboxEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-popover-fill", typeof(SednaPopoverEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-md-file", typeof(SednaMarkdownFileEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
+[EventHandler("onsedna-qr-download", typeof(SednaQrDownloadEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-qr-error", typeof(SednaQrErrorEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 public static class EventHandlers
 {
 }

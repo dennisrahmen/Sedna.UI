@@ -30,6 +30,11 @@
          scan cannot see at all: a missing accessible name, a broken label
          association, a contrast pair the token audit did not think to check. -->
     <PackageReference Include="Deque.AxeCore.Playwright" Version="4.10.1" />
+    <!-- Test-only: an independent QR decoder, so a styled code (dots, rounded eyes, a logo hole)
+         is proven scannable by a reader the encoder's author did not write. It reads raw
+         pixels, so it brings no imaging library, and it never reaches the library or the
+         package: Sedna.UI itself references no third-party package. Apache-2.0. -->
+    <PackageReference Include="ZXing.Net" Version="0.16.10" />
   </ItemGroup>
 
   <ItemGroup>

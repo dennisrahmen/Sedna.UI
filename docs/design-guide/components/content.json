@@ -163,15 +163,17 @@
   },
   {
     "page": "/qr",
-    "useFor": "Text or an address as a QR code a camera reads, with the text written beside it for the reader who cannot scan.",
+    "useFor": "Text or an address as a QR code a camera reads — a link, a Wi-Fi network, a contact, a place, an event — in the app's colours and shapes, with the text written beside it for the reader who cannot scan, and saved as SVG or PNG.",
     "combineWith": [
-      { "page": "/card", "how": "A pairing code sits in a card body with the step that uses it above it and a button that copies the link under it, for the reader without a camera." }
+      { "page": "/card", "how": "A pairing code sits in a card body with the step that uses it above it and a button that copies the link under it, for the reader without a camera." },
+      { "page": "/button", "how": "The save buttons beside a code are the app's own .btn with data-qr-download, so the reader can put the code on a sign or a label." }
     ],
     "notFor": [
-      { "text": "An address the reader clicks", "instead": "/media#link-preview" }
+      { "text": "An address the reader clicks", "instead": "/media#link-preview" },
+      { "text": "A code that has to scan with every reader, in a colour pair of the app's own choosing", "instead": "/qr#contrast-that-scans" }
     ],
-    "goals": [ "show-a-qr-code" ],
-    "stamp": "10b5a0ccc128deda"
+    "goals": [ "show-a-qr-code", "download-a-qr-code" ],
+    "stamp": "925e21e2fbfadb02"
   },
   {
     "page": "/editor",

@@ -82,6 +82,7 @@
         "overlay": "Canvas",
         "presence-out-of-office": "CanvasText",
         "progress-track": "Canvas",
+        "qr-brand-ink": "color-mix(in srgb, var(--brand) 45%, var(--black))",
         "rating-off": "CanvasText",
         "rating-on": "Highlight",
         "secret-active": "color-mix(in srgb, var(--secret-fg), var(--secret-bg) 25%)",

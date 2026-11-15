@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace Sedna.UI.Tests.TestSupport;
@@ -5,17 +6,18 @@ namespace Sedna.UI.Tests.TestSupport;
 /// <summary>
 /// Reads a QR code's module matrix back to its text, the way a scanner would, and checks every
 /// part of the symbol on the way: the format information and its BCH code, the version
-/// information from version 7, the Reed–Solomon code of every block, the byte-mode header, the
-/// terminator and the pad codewords, and that the mask chosen scores lowest of the eight.
+/// information from version 7, the Reed–Solomon code of every block, every segment's header
+/// (numeric, alphanumeric or byte mode), the terminator and the pad codewords, and that the mask chosen scores lowest of the eight.
 /// </summary>
 /// <remarks>
 /// Written from ISO/IEC 18004 for the tests, apart from the library's encoder, so a fault in
-/// one is not mirrored in the other. Byte mode only, which is all the encoder writes. Every
+/// one is not mirrored in the other. Numeric, alphanumeric and byte mode, which is all the encoder
+/// writes; no ECI and no kanji. Every
 /// failure throws <see cref="InvalidDataException"/> naming what was wrong.
 /// </remarks>
 internal static class QrDecoder
 {
-    internal sealed record Result(string Text, int Version, char Level, int Mask);
+    internal sealed record Result(string Text, int Version, char Level, int Mask, string Modes);
 
     /// <summary>Error correction codewords per block, by level (L, M, Q, H) and version.</summary>
     private static readonly int[][] EccPerBlock =
@@ -90,7 +92,7 @@ internal static class QrDecoder
         }
 
         var data = Deinterleave(codewords, version, level);
-        var text = ReadByteMode(data, version);
+        var (text, modes) = ReadSegments(data, version);
 
         // The mask: the lowest penalty of the eight, the first of equals.
         var unmasked = (bool[,])m.Clone();
@@ -100,7 +102,7 @@ internal static class QrDecoder
         if (best != mask)
             throw new InvalidDataException($"Mask {mask} scores {scores[mask]}; mask {best} scores {scores[best]}");
 
-        return new Result(text, version, LevelNames[level], mask);
+        return new Result(text, version, LevelNames[level], mask, modes);
     }
 
     private static (int X, int Y) FormatA(int i) => i switch
@@ -294,7 +296,13 @@ internal static class QrDecoder
         return v;
     }
 
-    private static string ReadByteMode(byte[] data, int version)
+    private const string Alphanumeric = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+
+    /// <summary>
+    /// The segments of the data stream — numeric, alphanumeric and byte mode, any of them in any order —
+    /// then the terminator, the bits up to the codeword boundary and the pad codewords, each checked.
+    /// </summary>
+    private static (string Text, string Modes) ReadSegments(byte[] data, int version)
     {
         var at = 0;
         int Take(int count)
@@ -305,11 +313,56 @@ internal static class QrDecoder
         }
 
         var capacity = data.Length * 8;
-        var mode = Take(4);
-        if (mode != 0b0100) throw new InvalidDataException($"Mode {mode} is not byte mode");
-        var length = Take(version <= 9 ? 8 : 16);
-        var bytes = new byte[length];
-        for (var i = 0; i < length; i++) bytes[i] = (byte)Take(8);
+        var range = version <= 9 ? 0 : version <= 26 ? 1 : 2;
+        var text = new StringBuilder();
+        var modes = new List<string>();
+        while (capacity - at >= 4)
+        {
+            var mode = Take(4);
+            if (mode == 0)
+            {
+                // The terminator: a zero mode indicator, whose four bits were the whole of it.
+                at -= 4;
+                break;
+            }
+
+            switch (mode)
+            {
+                case 0b0001:
+                {
+                    var count = Take(new[] { 10, 12, 14 }[range]);
+                    for (; count >= 3; count -= 3) text.Append(Take(10).ToString("D3", CultureInfo.InvariantCulture));
+                    if (count == 2) text.Append(Take(7).ToString("D2", CultureInfo.InvariantCulture));
+                    if (count == 1) text.Append(Take(4).ToString(CultureInfo.InvariantCulture));
+                    modes.Add("numeric");
+                    break;
+                }
+                case 0b0010:
+                {
+                    var count = Take(new[] { 9, 11, 13 }[range]);
+                    for (; count >= 2; count -= 2)
+                    {
+                        var pair = Take(11);
+                        text.Append(Alphanumeric[pair / 45]).Append(Alphanumeric[pair % 45]);
+                    }
+
+                    if (count == 1) text.Append(Alphanumeric[Take(6)]);
+                    modes.Add("alphanumeric");
+                    break;
+                }
+                case 0b0100:
+                {
+                    var length = Take(new[] { 8, 16, 16 }[range]);
+                    var bytes = new byte[length];
+                    for (var i = 0; i < length; i++) bytes[i] = (byte)Take(8);
+                    text.Append(new UTF8Encoding(false, true).GetString(bytes));
+                    modes.Add("byte");
+                    break;
+                }
+                default:
+                    throw new InvalidDataException($"Mode {mode} is not numeric, alphanumeric or byte mode");
+            }
+        }
 
         var terminator = Math.Min(4, capacity - at);
         if (Take(terminator) != 0) throw new InvalidDataException("The terminator is not zero");
@@ -321,7 +374,7 @@ internal static class QrDecoder
             if (got != pad) throw new InvalidDataException($"Pad codeword {got:x2} where {pad:x2} belongs");
         }
 
-        return new UTF8Encoding(false, true).GetString(bytes);
+        return (text.ToString(), string.Join('+', modes));
     }
 
     private static bool[,] Remasked(bool[,] unmasked, bool[,] function, int level, int mask)

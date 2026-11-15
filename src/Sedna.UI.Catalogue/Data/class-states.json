@@ -5072,14 +5072,65 @@
     "qr": {
       "family": "qr",
       "variants": [
+        "qr--brand",
+        "qr--coral",
+        "qr--cyan",
+        "qr--danger",
+        "qr--go",
+        "qr--info",
         "qr--lg",
-        "qr--sm"
+        "qr--navy",
+        "qr--orange",
+        "qr--orbit",
+        "qr--secret",
+        "qr--sm",
+        "qr--teal",
+        "qr--warn"
+      ],
+      "attributes": [
+        "[data-qr-contrast=\"fallback\"]"
       ]
+    },
+    "qr--brand": {
+      "family": "qr"
+    },
+    "qr--coral": {
+      "family": "qr"
+    },
+    "qr--cyan": {
+      "family": "qr"
+    },
+    "qr--danger": {
+      "family": "qr"
+    },
+    "qr--go": {
+      "family": "qr"
+    },
+    "qr--info": {
+      "family": "qr"
     },
     "qr--lg": {
       "family": "qr"
     },
+    "qr--navy": {
+      "family": "qr"
+    },
+    "qr--orange": {
+      "family": "qr"
+    },
+    "qr--orbit": {
+      "family": "qr"
+    },
+    "qr--secret": {
+      "family": "qr"
+    },
     "qr--sm": {
+      "family": "qr"
+    },
+    "qr--teal": {
+      "family": "qr"
+    },
+    "qr--warn": {
       "family": "qr"
     },
     "qr-caption": {
@@ -5087,6 +5138,9 @@
     },
     "qr-figure": {
       "family": "qr-figure"
+    },
+    "qr-logo": {
+      "family": "qr-logo"
     },
     "rating": {
       "family": "rating",

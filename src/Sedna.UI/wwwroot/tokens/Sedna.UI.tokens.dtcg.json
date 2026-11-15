@@ -3246,6 +3246,25 @@
       }
     }
   },
+  "qr": {
+    "qr-brand-ink": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3794,
+          0.1112,
+          0.0459
+        ],
+        "hex": "#611c0c"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--brand) 45%, var(--black))"
+        }
+      }
+    }
+  },
   "radius": {
     "radius-control": {
       "$type": "dimension",
