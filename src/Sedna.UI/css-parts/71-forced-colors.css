@@ -305,6 +305,8 @@
     .th-filter--active::after,
     .avatar-presence::after,
     .count-badge,
+    .ribbon,
+    .badge--swatch::before,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 

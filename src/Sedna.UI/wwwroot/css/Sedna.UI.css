@@ -2373,13 +2373,18 @@ a.topbar-version--pre:hover {
 .ribbon-host { position: relative; overflow: hidden; }
 .ribbon {
     --ribbon-inset: 30px;
+    --ribbon-pad-block: var(--space-1);
+    --ribbon-pad-inline: var(--space-3);
     --ribbon-bg: var(--brand);
     position: absolute;
     inset-block-start: var(--ribbon-inset);
     inset-inline-end: var(--ribbon-inset);
     translate: 50% -50%;
     rotate: 45deg;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-3);
+    padding: calc(var(--ribbon-pad-block) + var(--cap-gap)) var(--ribbon-pad-inline);
+    min-width: 30px;
+    box-sizing: border-box;
+    text-align: center;
     background: var(--ribbon-bg);
     box-shadow:
         -30px 0 0 var(--ribbon-bg), 30px 0 0 var(--ribbon-bg),
@@ -2394,21 +2399,23 @@ a.topbar-version--pre:hover {
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
     pointer-events: none;
+    print-color-adjust: exact;
 }
+.ribbon--sm { --ribbon-inset: 22px; --ribbon-pad-block: 0px; --ribbon-pad-inline: var(--space-2); }
+.ribbon--lg { --ribbon-inset: 40px; --ribbon-pad-block: var(--space-2); --ribbon-pad-inline: var(--space-4); font-size: var(--text-2); }
 .ribbon--tab {
+    --ribbon-pad-inline: var(--space-4);
     inset-block-start: 0;
     inset-inline-end: 0;
     translate: none;
     rotate: none;
     box-shadow: none;
-    padding-inline: var(--space-4);
+    min-width: 0;
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
-.ribbon--go     { --ribbon-bg: var(--go-solid); }
-.ribbon--info   { --ribbon-bg: var(--info-solid); }
-.ribbon--danger { --ribbon-bg: var(--danger-solid); }
-.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
+.ribbon--tab.ribbon--sm { --ribbon-pad-inline: var(--space-3); }
+.ribbon--tab.ribbon--lg { --ribbon-pad-inline: var(--space-5); }
 }
 @layer sedna.paint {
 .badge {
@@ -2485,11 +2492,12 @@ a.topbar-version--pre:hover {
 }
 .badge--sm .badge-key { margin-block: 0; padding-inline: var(--space-3) var(--space-2); margin-inline-end: var(--space-2); }
 .badge--lg .badge-key { margin-block: calc(var(--space-2) * -1); padding-inline-start: var(--space-5); }
-.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch { --label-colour: var(--muted); --badge-dot: 8px; }
+.badge--sm.badge--swatch { --badge-dot: 6px; }
 .badge--swatch::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: var(--badge-dot);
+    height: var(--badge-dot);
     flex-shrink: 0;
     border-radius: 50%;
     background: var(--label-colour);
@@ -2510,25 +2518,35 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 @layer sedna.paint {
 .count-host {
     --count-inset: 2px;
+    --count-size: 14px;
+    --count-dot: 8px;
+    --count-text: var(--text-1);
     position: relative;
     display: inline-flex;
     flex-shrink: 0;
 }
 .count-host--round { --count-inset: 14.6%; }
 .btn.count-host    { --count-inset: 3px; }
+.btn--sm.count-host,
+.count-host:not(.btn):has(> i),
+.count-host:has(> .avatar--sm),
+.count-badge--sm { --count-size: 12px; --count-dot: 6px; --count-text: var(--text-1); --count-pad: var(--space-1); }
+.btn--lg.count-host,
+.count-host:has(> .avatar--lg),
+.count-badge--lg { --count-size: 16px; --count-dot: 10px; --count-text: var(--text-2); --count-pad: var(--space-2); }
 .count-badge {
     position: absolute;
     inset-block-start: var(--count-inset);
     inset-inline-end: var(--count-inset);
     translate: 50% -50%;
     box-sizing: border-box;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
+    min-width: var(--count-size, 14px);
+    height: var(--count-size, 14px);
+    padding: 0 var(--count-pad, var(--space-2));
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
-    font-size: var(--text-1);
+    font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;
     text-align: center;
@@ -2538,13 +2556,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     align-content: center;
     box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
     pointer-events: none;
+    print-color-adjust: exact;
 }
-.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
-.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
-.count-badge--danger { background: var(--danger-solid); }
-.count-badge--go     { background: var(--go-solid); }
-.count-badge--info   { background: var(--info-solid); }
-.count-badge--muted  { background: var(--muted); color: var(--bg); }
+.count-badge:empty { min-width: 0; width: var(--count-dot, 8px); height: var(--count-dot, 8px); padding: 0; }
 }
 @layer sedna.paint {
 .kbd {
@@ -6355,8 +6369,10 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     height: 7px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: var(--border-hover);
+    background: var(--tone-solid, var(--border-hover));
 }
+.chip--sm .chip-dot { width: 6px; height: 6px; }
+.chip--lg .chip-dot { width: 8px; height: 8px; }
 .chip-dismiss {
     display: inline-flex;
     align-items: center;
@@ -15198,7 +15214,7 @@ button.inbox-item-title {
 .timeline--aside > li > .timeline-what { display: block; line-height: var(--timeline-lead); }
 }
 @layer sedna.paint {
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -15213,7 +15229,7 @@ button.inbox-item-title {
     --tone-ring-solid: initial;
     --tone-on-solid: initial;
 }
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -15228,7 +15244,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -15243,7 +15259,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--go-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -15258,7 +15274,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--warn-ring-solid);
     --tone-on-solid: var(--on-solid);
 }
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -15273,7 +15289,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--danger-ring);
     --tone-on-solid: var(--on-solid);
 }
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -15288,7 +15304,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--info-ring);
     --tone-on-solid: var(--info-on-solid);
 }
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -15303,7 +15319,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
 }
-.badge--cyan, .chip--cyan {
+.badge--cyan, .chip--cyan, .ribbon--cyan, .count-badge--cyan {
     --tone-fg: var(--badge-cyan-fg);
     --tone-bg: var(--badge-cyan-bg);
     --tone-bg-hover: var(--badge-cyan-bg-hover);
@@ -15318,7 +15334,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
 }
-.badge--orange, .chip--orange {
+.badge--orange, .chip--orange, .ribbon--orange, .count-badge--orange {
     --tone-fg: var(--badge-orange-fg);
     --tone-bg: var(--badge-orange-bg);
     --tone-bg-hover: var(--badge-orange-bg-hover);
@@ -15333,7 +15349,7 @@ button.inbox-item-title {
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
 }
-.badge--teal, .chip--teal {
+.badge--teal, .chip--teal, .ribbon--teal, .count-badge--teal {
     --tone-fg: var(--badge-teal-fg);
     --tone-bg: var(--badge-teal-bg);
     --tone-bg-hover: var(--badge-teal-bg-hover);
@@ -15344,6 +15360,21 @@ button.inbox-item-title {
     --tone-solid-hover: var(--badge-teal-hover);
     --tone-solid-active: var(--badge-teal-active);
     --tone-solid-edge: var(--badge-teal-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+.ribbon--muted, .count-badge--muted {
+    --tone-fg: var(--fg-soft);
+    --tone-bg: var(--badge-bg);
+    --tone-bg-hover: var(--bg-hover);
+    --tone-bg-active: var(--btn-active-bg);
+    --tone-border: var(--border);
+    --tone-border-strong: var(--border-hover);
+    --tone-solid: var(--muted);
+    --tone-solid-hover: var(--fg-soft);
+    --tone-solid-active: var(--fg);
+    --tone-solid-edge: var(--muted);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
@@ -15373,6 +15404,8 @@ button.inbox-item-title {
 .page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) { background: var(--tone-bg); border-block-end-color: var(--tone-border); }
 .page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+.ribbon:is(.ribbon--brand, .ribbon--go, .ribbon--warn, .ribbon--danger, .ribbon--info, .ribbon--secret, .ribbon--cyan, .ribbon--orange, .ribbon--teal, .ribbon--muted) { --ribbon-bg: var(--tone-solid); color: var(--tone-on-solid); }
+.count-badge:is(.count-badge--brand, .count-badge--go, .count-badge--warn, .count-badge--danger, .count-badge--info, .count-badge--secret, .count-badge--cyan, .count-badge--orange, .count-badge--teal, .count-badge--muted) { background: var(--tone-solid); color: var(--tone-on-solid); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
 a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover { background: var(--tone-bg-hover); }
@@ -15390,6 +15423,14 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     cursor: not-allowed;
 }
 .btn.btn--ghost:is(:disabled, [aria-disabled="true"]):is(*, :hover, :active) { background: transparent; border-color: transparent; }
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]),
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]) > i { color: inherit; }
 :is(.btn-bare, .tab, .menu-item, button.list-row, .page-link):is(:disabled, [aria-disabled="true"]),
 .segmented-option:has(input:disabled) { color: var(--disabled-fg); }
 }
@@ -15702,6 +15743,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .th-filter--active::after,
     .avatar-presence::after,
     .count-badge,
+    .ribbon,
+    .badge--swatch::before,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
     .workflow > li::before,

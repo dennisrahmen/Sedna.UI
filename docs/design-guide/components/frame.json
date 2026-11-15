@@ -90,7 +90,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "f2b5986f07c6198c"
+    "stamp": "80ddf137e50ff0fd"
   },
   {
     "page": "/search",
@@ -121,7 +121,7 @@
       { "text": "The state of one live feed on a page", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "show-connection-state" ],
-    "stamp": "4089e254248a8fdc"
+    "stamp": "eed3d1457b479db8"
   },
   {
     "page": "/banner",
@@ -138,7 +138,7 @@
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
     "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
-    "stamp": "9f1d9774f267f80b"
+    "stamp": "dee1fa34f92e6d96"
   },
   {
     "page": "/hover-hints",
@@ -196,6 +196,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/panel-grid#panels-the-reader-reorders" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on" ],
-    "stamp": "bb33205700981a88"
+    "stamp": "2cde9d982a6dd764"
   }
 ]
