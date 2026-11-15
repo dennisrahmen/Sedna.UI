@@ -72,6 +72,8 @@ project (`ui.cobertura.xml`, `catalogue.cobertura.xml`) and one for the script w
 build/coverage.sh --project ui --no-build          # one project, reuse the build
 build/coverage.sh --out artifacts/coverage --name shard-2 -- --filter "FullyQualifiedName~Menu"
 build/coverage.sh --gate-only --partial            # gate what is already there (see below)
+build/coverage.sh --project catalogue --no-build --out coverage --name slice-1 --results TestResults \
+    -- -c Release --filter "Kind=Scan" --logger "trx;LogFileName=slice-1.trx"
 python3 build/coverage-gate.py --base origin/main --skip-changed artifacts/coverage   # floor only
 ```
 
@@ -79,6 +81,9 @@ python3 build/coverage-gate.py --base origin/main --skip-changed artifacts/cover
 catalogue's browser-driven code. A run like that is partial: pass `--partial` to the gate, which then
 warns about a `require`d directory with nothing measured instead of failing. Its floor figure is not
 comparable with a full run.
+
+`--results DIR` keeps `dotnet test`'s own results (a trx logger's file) in `DIR`; without it they are
+discarded. Everything after `--` goes to `dotnet test`, and the exit status is the tests' status.
 
 To merge runs, give each its own `--name` (or `--out`) and pass every file, or the directory holding
 them, to the gate.
@@ -115,7 +120,8 @@ its line in the part. A script no test loaded counts as uncovered. A line is exe
 holds only brackets, commas and semicolons, and is covered when the first character that is not
 whitespace or a closing bracket ran; V8 reports blocks, not lines.
 
-Chromium only: WebKit offers no Profiler. The script's coverage is Chromium's, and CI collects it once.
+Chromium only: WebKit offers no Profiler. The script's coverage comes from the library's Chromium
+run (`Sedna.UI.Tests`) alone; the catalogue project does not collect it.
 `Sedna.UI.boot.js` is served as written and is not measured.
 
 ## CI

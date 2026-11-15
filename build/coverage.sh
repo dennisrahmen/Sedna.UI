@@ -7,10 +7,17 @@
 #   build/coverage.sh --project ui             one project: ui (Sedna.UI.Tests) or catalogue
 #   build/coverage.sh --out DIR --name shard-1 DIR/shard-1-<project>.cobertura.xml
 #   build/coverage.sh --no-build               reuse the built test projects
+#   build/coverage.sh --results DIR            dotnet test writes its results (a trx logger's file, ...)
+#                                              to DIR, created if missing and kept; the Cobertura file
+#                                              is still moved to --out
 #   build/coverage.sh --gate [--base REF] [--markdown FILE]
 #                                              then run build/coverage-gate.py on DIR
+#   build/coverage.sh --partial                with --gate: a run without the browser is not an error
 #   build/coverage.sh --gate-only ...          skip the tests; gate the files already in DIR
 #   build/coverage.sh -- --filter "Foo"        everything after -- goes to `dotnet test`
+#   build/coverage.sh --project ui --no-build --out coverage --name slice-1 --results TestResults \
+#       -- -c Release --filter "Kind=Scan" --logger "trx;LogFileName=slice-1.trx"
+#                                              the exit status is that of the tests
 #
 # JavaScript: where the test base calls JsCoverage (docs/coverage.md), the Sedna.UI.Tests run in
 # Chromium also writes V8 coverage, converted here to <label>-js.cobertura.xml over js-parts/.
@@ -33,6 +40,9 @@ GATE=0
 RUN_TESTS=1
 BASE=""
 MARKDOWN=""
+RESULTS=""
+PARTIAL=0
+TEST_STATUS=0
 EXTRA=()
 
 while [ $# -gt 0 ]; do
@@ -41,12 +51,14 @@ while [ $# -gt 0 ]; do
         --name) NAME="$2"; shift 2 ;;
         --project) PROJECTS="$PROJECTS $2"; shift 2 ;;
         --no-build) BUILD=0; shift ;;
+        --results) RESULTS="$2"; shift 2 ;;
         --gate) GATE=1; shift ;;
         --gate-only) GATE=1; RUN_TESTS=0; shift ;;
         --base) BASE="$2"; shift 2 ;;
         --markdown) MARKDOWN="$2"; shift 2 ;;
+        --partial) PARTIAL=1; shift ;;
         --) shift; EXTRA=("$@"); break ;;
-        -h|--help) sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        -h|--help) sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "coverage.sh: unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -68,7 +80,12 @@ if [ "$RUN_TESTS" = 1 ]; then
         dir="$(project_dir "$p")"
         label="$p"
         [ -z "$NAME" ] || label="$NAME-$p"
-        work="$(mktemp -d "${TMPDIR:-/tmp}/sedna-cov.XXXXXX")"
+        if [ -n "$RESULTS" ]; then
+            mkdir -p "$RESULTS"
+            work="$(cd "$RESULTS" && pwd)"
+        else
+            work="$(mktemp -d "${TMPDIR:-/tmp}/sedna-cov.XXXXXX")"
+        fi
         jsdir=""
         if [ "$p" = ui ] && [ "${SEDNA_UI_BROWSER_TESTS:-1}" != 0 ] && [ "${SEDNA_UI_BROWSER:-chromium}" = chromium ]; then
             jsdir="$OUT/$label-js"
@@ -90,16 +107,21 @@ if [ "$RUN_TESTS" = 1 ]; then
             fi
             rm -rf "$jsdir"
         fi
-        found="$(find "$work" -name '*.cobertura.xml' | head -n 1)"
+        # Newest first: a kept results directory can hold files from earlier slices.
+        found="$(find "$work" -name '*.cobertura.xml' -exec ls -t {} + 2>/dev/null | head -n 1)"
         if [ -z "$found" ]; then
             echo "coverage.sh: the collector wrote no Cobertura file for $dir" >&2
-            rm -rf "$work"
+            if [ -z "$RESULTS" ]; then rm -rf "$work"; fi
             exit 2
         fi
         mv -f "$found" "$OUT/$label.cobertura.xml"
-        rm -rf "$work"
+        if [ -z "$RESULTS" ]; then
+            rm -rf "$work"
+        else
+            rmdir "$(dirname "$found")" 2>/dev/null || true
+        fi
         # Failing tests still leave their coverage; the run fails after every project ran.
-        if [ "$status" != 0 ]; then FAILED_TESTS=1; fi
+        if [ "$status" != 0 ]; then TEST_STATUS="$status"; fi
     done
 fi
 
@@ -113,11 +135,12 @@ if [ "$GATE" = 1 ]; then
         gate+=(--base main)
     fi
     if [ -n "$MARKDOWN" ]; then gate+=(--markdown "$MARKDOWN"); fi
+    if [ "$PARTIAL" = 1 ]; then gate+=(--partial); fi
     gate+=("$OUT")
     "${gate[@]}"
 fi
 
-if [ "${FAILED_TESTS:-0}" = 1 ]; then
-    echo "coverage.sh: some tests failed" >&2
-    exit 1
+if [ "$TEST_STATUS" != 0 ]; then
+    echo "coverage.sh: dotnet test exited with $TEST_STATUS" >&2
+    exit "$TEST_STATUS"
 fi
