@@ -493,7 +493,6 @@ public class PanelGridTests : ScriptTestBase
         var span = (await page.Locator("#span").BoundingBoxAsync())!;
         Assert.Equal(span.Width, panel.Width, 0.5);
         // Four columns in.
-        var grid = (await page.Locator("#grid").BoundingBoxAsync())!;
         Assert.Equal(4 * Pitch24, panel.X - grid.X, 0.5);
         Assert.Empty(errors);
     }
@@ -530,7 +529,6 @@ public class PanelGridTests : ScriptTestBase
               </div>
             </div>
             """);
-        var grid = (await page.Locator("#grid").BoundingBoxAsync())!;
         var panel = (await page.Locator("#panel").BoundingBoxAsync())!;
         Assert.Equal(300, panel.Width, 0.5);
         Assert.True(await page.EvaluateAsync<bool>("() => { const g = document.getElementById('grid'); return g.scrollWidth <= g.clientWidth; }"),
