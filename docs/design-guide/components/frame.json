@@ -16,7 +16,7 @@
       { "text": "A whole page to start from", "instead": "/page-recipes" }
     ],
     "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "skip-to-the-content", "fill-the-screen-below-the-header", "show-on-a-wall-screen", "use-the-app-on-a-narrow-screen", "pick-a-workspace", "keep-a-footer-at-the-bottom", "sign-in", "explain-access-denied", "say-a-page-was-not-found", "sign-in-after-the-session-expired" ],
-    "stamp": "9625a07e609ee370"
+    "stamp": "c0e0ecac186d5076"
   },
   {
     "page": "/nav",
@@ -197,6 +197,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/panel-grid#panels-the-reader-reorders" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on", "see-what-a-site-offers" ],
-    "stamp": "82ddef677ed0cd47"
+    "stamp": "5dddc545dc8b4621"
   }
 ]

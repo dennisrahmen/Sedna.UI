@@ -13,7 +13,7 @@ namespace Sedna.UI;
 /// reader's own moves are settled:
 /// </para>
 /// <code>
-/// _panels = SednaPanels.Arrange([.. _panels, new("returns", 0, 0, 4, 3)], columns: 12);
+/// _panels = SednaPanels.Arrange([.. _panels, new("returns", 0, 0, 8, 3)], columns: 24);
 ///
 /// @foreach (var p in _panels)
 /// {
@@ -31,7 +31,7 @@ public static class SednaPanels
 {
     /// <summary>The arrangement <paramref name="panels"/> settles into.</summary>
     /// <param name="panels">Every panel, in cells. A second panel with an id already seen is left out.</param>
-    /// <param name="columns">How many columns the grid has: its <c>--panel-cols</c>. At least one.</param>
+    /// <param name="columns">How many columns the grid has: its <c>--panel-cols</c>, 24 unless the grid sets another. At least one.</param>
     /// <param name="moved">
     /// A panel put where it says first — the one the reader moved or resized, or one being added.
     /// Its id names the panel it replaces; a new id adds it. Null only settles the rest.
