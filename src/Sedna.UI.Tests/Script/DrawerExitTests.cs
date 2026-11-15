@@ -82,7 +82,12 @@ public class DrawerExitTests : ScriptTestBase
           const running = () => document.getAnimations().filter(a => a.effect?.getComputedTiming().endTime !== Infinity
             && a.effect.getComputedTiming().endTime > 0 && a.playState !== 'finished');
           // The exit is started by the close: in the next style update, or in WebKit by the close event.
-          while (running().length === 0) await new Promise(r => requestAnimationFrame(r));
+          // A frame count, not a time, and a limit: a close that starts no exit must fail the
+          // assertions below and not leave this call waiting for ever.
+          for (let frames = 0; running().length === 0; frames++) {
+            if (frames > 600) return [];
+            await new Promise(r => requestAnimationFrame(r));
+          }
           const exit = running();
           exit.forEach(a => a.pause());
           const read = at => {

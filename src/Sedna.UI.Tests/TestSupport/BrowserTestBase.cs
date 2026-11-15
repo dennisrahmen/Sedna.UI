@@ -45,10 +45,22 @@ public abstract class BrowserTestBase : IAsyncLifetime
     private const string OptOutEnvVar = "SEDNA_UI_BROWSER_TESTS";
 
     private readonly List<IBrowserContext> _contexts = new();
+    private readonly List<ICDPSession> _coverage = new();
     private IBrowser? _browser;
 
     /// <summary>The engine this run drives: <c>chromium</c> or <c>webkit</c>.</summary>
     protected static string Engine => BrowserEngine.Name;
+
+    /// <summary>
+    /// Starts V8 coverage collection on a page the test has just created, before it navigates —
+    /// a no-op unless <c>SEDNA_UI_JS_COVERAGE_DIR</c> is set. Taken when the test ends, before
+    /// its contexts close.
+    /// </summary>
+    protected async Task TrackCoverageAsync(IBrowserContext context, IPage page)
+    {
+        if (await JsCoverage.AttachAsync(context, page) is { } session)
+            lock (_contexts) _coverage.Add(session);
+    }
 
     /// <summary>
     /// A new context in the shared browser, closed when the test ends. Every context a test
@@ -94,11 +106,16 @@ public abstract class BrowserTestBase : IAsyncLifetime
     public async Task DisposeAsync()
     {
         IBrowserContext[] contexts;
+        ICDPSession[] sessions;
         lock (_contexts)
         {
             contexts = _contexts.ToArray();
+            sessions = _coverage.ToArray();
             _contexts.Clear();
+            _coverage.Clear();
         }
+
+        await JsCoverage.DrainAsync(sessions);
 
         // A context on a browser that has died cannot be closed, and its test has already
         // failed on the closed target; a live browser that will not close one is a defect.

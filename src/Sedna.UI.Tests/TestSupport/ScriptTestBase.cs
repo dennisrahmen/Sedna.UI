@@ -132,6 +132,7 @@ public abstract class ScriptTestBase : BrowserTestBase
         }
 
         var page = await context.NewPageAsync();
+        await TrackCoverageAsync(context, page);
         beforeLoad?.Invoke(page);
 
         // A path the fixture serves itself, else the shipped file of that name under
