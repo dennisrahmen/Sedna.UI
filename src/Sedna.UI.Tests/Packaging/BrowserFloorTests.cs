@@ -155,8 +155,10 @@ public class BrowserFloorTests
     public void Nothing_publishes_before_the_full_suite_is_green()
     {
         var jobs = WorkflowYaml.Jobs(Workflow("release.yml"));
-        Assert.True(jobs.TryGetValue("release", out var release) & jobs.TryGetValue("tests", out var tests) & jobs.ContainsKey("preflight"),
-            "release.yml needs a `preflight`, a `tests` and a `release` job.");
+        const string missing = "release.yml needs a `preflight`, a `tests` and a `release` job.";
+        Assert.True(jobs.ContainsKey("preflight"), missing);
+        Assert.True(jobs.TryGetValue("release", out var release), missing);
+        Assert.True(jobs.TryGetValue("tests", out var tests), missing);
         Assert.NotNull(release);
         Assert.NotNull(tests);
 
