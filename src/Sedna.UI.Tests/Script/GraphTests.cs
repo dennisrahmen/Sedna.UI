@@ -1121,14 +1121,17 @@ public class GraphTests : GraphTestBase
         if (NoBrowser) return;
         // The interactive render replaces the prerendered markup element for element: a
         // graph drawn before it would be drawn twice, and flash its wait in between.
-        var page = await OpenGraph(BlazorMarker + Graph() + "<!--Blazor:{\"prerenderId\":\"3f2a\"}-->");
+        // The page's clock is paused from before its first script, so the loader's hold of a few
+        // seconds neither expires nor is raced: it is run by the test, and what the graph does
+        // before and after is read at stated instants.
+        var page = await OpenGraph(BlazorMarker + Graph() + "<!--Blazor:{\"prerenderId\":\"3f2a\"}-->",
+            clockPausedAt: new DateTime(2030, 1, 1));
+        await page.Clock.RunForAsync(100);
 
-        // In one go, well inside the few seconds after which a held graph starts anyway:
-        // the eager graph waits; the interactive render replaces the element with an
+        // In one go: the eager graph waits; the interactive render replaces the element with an
         // identical one; Blazor's initializer says it has started.
         var held = await Eval<bool>(page, """
             async () => {
-                await new Promise(r => setTimeout(r, 300)); // page-timer: fires before the loader's own 4s hold on the same clock
                 const old = document.getElementById('g');
                 const waited = !old.hasAttribute('data-graph-state');
                 window.oldGraph = old;
@@ -1139,6 +1142,9 @@ public class GraphTests : GraphTestBase
             """);
         Assert.True(held, "An eager graph on a prerendered page started before Blazor had.");
 
+        // The loader starts it once the document has been quiet for a moment, on the page's clock.
+        await page.Clock.RunForAsync(500);
+        await page.Clock.ResumeAsync();
         await State(page, "g", "ready");
         await Heard(page, "sedna-graph-ready");
         Assert.Single(await Log(page, "sedna-graph-ready"));
@@ -1151,13 +1157,14 @@ public class GraphTests : GraphTestBase
     {
         if (NoBrowser) return;
         // A page whose circuit never starts still shows its graph, a few seconds late.
-        var page = await OpenGraph(BlazorMarker + Graph());
-        Assert.True(await Eval<bool>(page,
-            "async () => { await new Promise(r => setTimeout(r, 300)); /* page-timer: before the 4s hold */ return !document.getElementById('g').hasAttribute('data-graph-state'); }"));
+        var page = await OpenGraph(BlazorMarker + Graph(), clockPausedAt: new DateTime(2030, 1, 1));
+        await page.Clock.RunForAsync(100);
+        Assert.True(await Eval<bool>(page, "() => !document.getElementById('g').hasAttribute('data-graph-state')"));
 
-        await page.WaitForFunctionAsync(
-            "() => document.getElementById('g').getAttribute('data-graph-state') === 'ready'",
-            null, new() { Timeout = 15_000 });
+        // Past the hold, on the page's clock rather than the runner's, and then it runs as it does.
+        await page.Clock.RunForAsync(5000);
+        await page.Clock.ResumeAsync();
+        await State(page, "g", "ready");
         AssertQuiet();
     }
 

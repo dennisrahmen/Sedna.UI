@@ -531,7 +531,10 @@ public class MarkdownEditingTests : ScriptTestBase
                     return performance.now() - t; }
             """);
 
-        Assert.True(ms < 1000, $"Enter took {ms:0} ms");
+        // Time is the contract here: the backtracking this guards against takes minutes, not
+        // milliseconds. The press takes about 90 ms on a developer machine in both engines, so
+        // 10 s is over a hundred times that and still orders of magnitude under the fault.
+        Assert.True(ms < 10_000, $"Enter took {ms:0} ms");
     }
 
     [Fact]

@@ -14,38 +14,57 @@ namespace Sedna.UI.Tests.TestSupport;
 /// <remarks>
 /// <para>
 /// Off unless <c>SEDNA_UI_JS_COVERAGE_DIR</c> names a directory, and Chromium only: the Profiler
-/// is a DevTools domain, which Playwright's WebKit does not offer. A page that was closed before
-/// <see cref="DrainAsync"/> is not collected.
+/// is a DevTools domain, which Playwright's WebKit does not offer. With the variable unset
+/// nothing here opens a session or reads a file.
 /// </para>
 /// <para>
-/// A test base calls <see cref="AttachAsync"/> right after it creates a page, before the page
-/// navigates, and <see cref="DrainAsync"/> once before it disposes the browser.
+/// <see cref="BrowserTestBase"/> calls <see cref="AttachAsync"/> right after it creates a page,
+/// before the page navigates, and <see cref="DrainAsync"/> with that test's sessions before it
+/// closes the test's contexts. The browser is shared by the whole process, so a page's coverage
+/// is taken when its own test ends and not once for the browser; a page closed first is lost.
+/// The merged result is written when the process exits, and at most every few seconds before
+/// that, so a test host that is killed leaves a recent file behind.
 /// </para>
 /// </remarks>
 internal static class JsCoverage
 {
     private const string DirVariable = "SEDNA_UI_JS_COVERAGE_DIR";
+    private static readonly TimeSpan WriteEvery = TimeSpan.FromSeconds(5);
 
-    private static readonly ConcurrentQueue<ICDPSession> Sessions = new();
     private static readonly ConcurrentDictionary<string, byte[]> Covered = new(StringComparer.Ordinal);
+    // What a served script is — its text length and hash — read once per process, not per page.
+    private static readonly ConcurrentDictionary<string, (int Length, string Sha256)> Served = new(StringComparer.Ordinal);
     private static readonly object Gate = new();
+    private static DateTime _lastWrite = DateTime.MinValue;
+    private static bool _exitHooked;
 
     public static bool Enabled =>
         !BrowserEngine.IsWebKit && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(DirVariable));
 
-    public static async Task AttachAsync(IBrowserContext context, IPage page)
+    /// <summary>Starts collecting from <paramref name="page"/>; null when collection is off.</summary>
+    public static async Task<ICDPSession?> AttachAsync(IBrowserContext context, IPage page)
     {
-        if (!Enabled) return;
+        if (!Enabled) return null;
+        lock (Gate)
+        {
+            if (!_exitHooked)
+            {
+                _exitHooked = true;
+                AppDomain.CurrentDomain.ProcessExit += (_, _) => Write(force: true);
+            }
+        }
+
         var session = await context.NewCDPSessionAsync(page);
         await session.SendAsync("Profiler.enable");
         await session.SendAsync("Profiler.startPreciseCoverage", new() { ["callCount"] = false, ["detailed"] = true });
-        Sessions.Enqueue(session);
+        return session;
     }
 
-    public static async Task DrainAsync()
+    /// <summary>Takes what these sessions' pages covered and merges it in. Before their context closes.</summary>
+    public static async Task DrainAsync(IEnumerable<ICDPSession> sessions)
     {
         if (!Enabled) return;
-        while (Sessions.TryDequeue(out var session))
+        foreach (var session in sessions)
         {
             try
             {
@@ -54,11 +73,11 @@ internal static class JsCoverage
             }
             catch (PlaywrightException)
             {
-                // The page was closed by its test: its coverage went with it.
+                // The page or its browser had already gone: its coverage went with it.
             }
         }
 
-        Write();
+        Write(force: false);
     }
 
     private static void Merge(JsonElement taken)
@@ -71,7 +90,7 @@ internal static class JsCoverage
             if (!path.StartsWith("/js/Sedna.UI", StringComparison.Ordinal) || Assets.WwwrootFile(path) is not { } file)
                 continue;
 
-            var length = File.ReadAllText(file).Length;
+            var length = Described(path, file).Length;
             var ranges = new List<(int Start, int End, int Count)>();
             foreach (var function in script.GetProperty("functions").EnumerateArray())
                 foreach (var r in function.GetProperty("ranges").EnumerateArray())
@@ -90,33 +109,41 @@ internal static class JsCoverage
         }
     }
 
-    private static void Write()
-    {
-        var directory = Environment.GetEnvironmentVariable(DirVariable)!;
-        Directory.CreateDirectory(directory);
-        var scripts = new SortedDictionary<string, object>(StringComparer.Ordinal);
-        foreach (var (path, covered) in Covered)
+    private static (int Length, string Sha256) Described(string path, string file) =>
+        Served.GetOrAdd(path, _ =>
         {
-            var runs = new List<int[]>();
-            for (var i = 0; i < covered.Length; i++)
-            {
-                if (covered[i] == 0) continue;
-                var start = i;
-                while (i < covered.Length && covered[i] == 1) i++;
-                runs.Add([start, i]);
-            }
+            var text = File.ReadAllText(file);
+            return (text.Length, Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(text))).ToLowerInvariant());
+        });
 
-            var text = File.ReadAllText(Assets.WwwrootFile(path)!);
-            scripts[path] = new
-            {
-                length = text.Length,
-                sha256 = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(text))).ToLowerInvariant(),
-                covered = runs,
-            };
-        }
-
+    private static void Write(bool force)
+    {
         lock (Gate)
         {
+            if (!force && DateTime.UtcNow - _lastWrite < WriteEvery) return;
+            _lastWrite = DateTime.UtcNow;
+
+            var directory = Environment.GetEnvironmentVariable(DirVariable)!;
+            Directory.CreateDirectory(directory);
+            var scripts = new SortedDictionary<string, object>(StringComparer.Ordinal);
+            foreach (var (path, covered) in Covered)
+            {
+                var runs = new List<int[]>();
+                lock (covered)
+                {
+                    for (var i = 0; i < covered.Length; i++)
+                    {
+                        if (covered[i] == 0) continue;
+                        var start = i;
+                        while (i < covered.Length && covered[i] == 1) i++;
+                        runs.Add([start, i]);
+                    }
+                }
+
+                var served = Served[path];
+                scripts[path] = new { length = served.Length, sha256 = served.Sha256, covered = runs };
+            }
+
             var file = Path.Combine(directory, $"js-{Environment.ProcessId}.json");
             File.WriteAllText(file + ".tmp", JsonSerializer.Serialize(new { scripts }));
             File.Move(file + ".tmp", file, overwrite: true);
