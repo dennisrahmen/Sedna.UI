@@ -1,0 +1,57 @@
+@inject ISednaUi Ui
+
+@* A picture pasted or dropped on the editor is not inserted: the editor says it arrived,
+   and the app uploads it and answers with the Markdown for the address it got. Cancelling
+   the event (:preventDefault) says this page took the file; without it the editor shows its
+   [data-md-file-notice]. *@
+<div class="sedna-stack">
+    <div class="md-editor" data-md-view="write"
+         @onsedna-md-file="FilesArrived" @onsedna-md-file:preventDefault>
+        <div class="md-toolbar" role="toolbar" aria-label="Formatting">
+            <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold"><i class="ri-bold"></i></button>
+            <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link"><i class="ri-link"></i></button>
+            <div class="segmented" role="group" aria-label="Editor view">
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="write" checked /> <span>Write</span></label>
+                <label class="segmented-option">
+                    <input type="radio" data-md-tab="preview" /> <span>Preview</span></label>
+            </div>
+        </div>
+        <textarea class="form-input md-input" data-md-input rows="6" aria-label="Damage report"
+                  @ref="_report" @bind="_text" @bind:event="oninput"></textarea>
+        <div class="markdown-body md-preview" data-md-preview></div>
+        <p class="form-warning" data-md-file-notice role="alert" hidden>This field takes pictures only.</p>
+    </div>
+    <p class="form-hint">@_status</p>
+</div>
+
+@code {
+    private ElementReference _report;
+    private string _text = "Pallet 14 arrived with the corner crushed. Paste or drop a photo here.";
+    private string _status = "Nothing uploaded yet.";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Ui.InitMarkdownAsync();
+    }
+
+    private async Task FilesArrived(SednaMarkdownFileEventArgs e)
+    {
+        foreach (var file in e.Files.Where(f => f.Type.StartsWith("image/", StringComparison.Ordinal)))
+        {
+            var reference = await Ui.OpenMarkdownFileAsync(_report, file.Id);
+            if (reference is null) continue;
+            await using (reference)
+            {
+                await using var bytes = await reference.OpenReadStreamAsync(maxAllowedSize: 10_000_000);
+                using var copy = new MemoryStream();
+                await bytes.CopyToAsync(copy);
+                _status = $"Uploaded {(file.Name == "" ? "a pasted picture" : file.Name)}, {copy.Length:N0} bytes.";
+            }
+
+            // The address the store answered with — here, a picture the catalogue already has.
+            // It lands where the caret was, and the bound value follows.
+            await Ui.InsertMarkdownAsync(_report, "\n\n![" + (file.Name == "" ? "Pasted picture" : file.Name) + "](/logo.png)\n\n");
+        }
+    }
+}
