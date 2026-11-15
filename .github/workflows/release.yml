@@ -65,7 +65,8 @@ jobs:
           fi
 
       # main.yml on branch main, for exactly this commit, is the full suite with the site
-      # tests included. The newest run decides, so a re-run replaces the run it repeats.
+      # tests included. Its conclusion is that of the whole run, the coverage floor too: a
+      # commit that fails it is not verified here. This workflow's own suite collects no coverage. The newest run decides, so a re-run replaces the run it repeats.
       #   success                       verified: the release skips the suite
       #   queued or in progress         wait for it, then decide by its conclusion
       #   none, failed, cancelled, ...  not verified: the release runs the suite itself

@@ -139,12 +139,42 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       site: true
+      coverage: true
+
+  # The changed-lines gate, the whole-code floor and the remainder report
+  # (docs/coverage.md), over the coverage the suite's Chromium slices collected. It reads
+  # only a green suite: a red test shows as the suite failing, not as a coverage failure.
+  coverage:
+    needs: tests
+    if: needs.tests.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      # On a pull request the checkout is the merge of the branch into its base, so the
+      # gate's `base...HEAD` diff is exactly the lines the pull request changes.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Download the coverage
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+          path: coverage
+
+      - name: Coverage gate
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: python3 build/coverage-gate.py --base "origin/$BASE_REF" --markdown "$GITHUB_STEP_SUMMARY" coverage
 
   # The one name the ruleset requires. It runs whatever happened before it and
-  # succeeds only when the quick pass succeeded and the suite either succeeded or had
-  # nothing to test (a change of prose alone).
+  # succeeds only when the quick pass succeeded and the suite and the coverage gate each
+  # either succeeded or had nothing to run (a change of prose alone).
   ready:
-    needs: [changes, build, tests]
+    needs: [changes, build, tests, coverage]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -155,8 +185,10 @@ jobs:
           CHANGES: ${{ needs.changes.result }}
           BUILD: ${{ needs.build.result }}
           TESTS: ${{ needs.tests.result }}
+          COVERAGE: ${{ needs.coverage.result }}
           CODE: ${{ needs.changes.outputs.code }}
         run: |
-          echo "changes=$CHANGES build=$BUILD tests=$TESTS code=$CODE"
+          echo "changes=$CHANGES build=$BUILD tests=$TESTS coverage=$COVERAGE code=$CODE"
           [[ "$CHANGES" == 'success' && "$BUILD" == 'success' ]] || exit 1
           [[ "$TESTS" == 'success' || ( "$TESTS" == 'skipped' && "$CODE" == 'false' ) ]] || exit 1
+          [[ "$COVERAGE" == 'success' || ( "$COVERAGE" == 'skipped' && "$CODE" == 'false' ) ]] || exit 1

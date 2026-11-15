@@ -3,6 +3,8 @@ name: Full suite on main
 # The full suite on every commit that lands on main, the website's own tests included.
 # A release tag on one of these commits skips its own run of the suite when this run
 # succeeded (release.yml), so the run is per commit and is never cancelled by a later push.
+# The run's conclusion covers every job in this file, the coverage floor included: a commit
+# whose coverage job fails is not verified, and its release runs the suite itself.
 on:
   push:
     branches: [main]
@@ -22,3 +24,25 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       site: true
+      coverage: true
+
+  # The whole-code floor and the remainder report (docs/coverage.md); there is no
+  # pull request here, so the changed-lines check does not apply.
+  coverage:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download the coverage
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+          path: coverage
+
+      - name: Coverage floor
+        run: python3 build/coverage-gate.py --skip-changed --markdown "$GITHUB_STEP_SUMMARY" coverage

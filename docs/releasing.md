@@ -47,10 +47,12 @@ message on the run's summary page, and the TRX results are attached to the run.
 
 | Trigger | Runs |
 |---|---|
-| Pull request | `ci.yml`: `build` (generated files, build, tests that need no browser, package, catalogue image) and `tests` (the full suite, website tests included). `ready` succeeds only when both did. |
+| Pull request | `ci.yml`: `build` (generated files, build, tests that need no browser, package, catalogue image), `tests` (the full suite, website tests included) and `coverage` (the coverage gate over what the Chromium slices collected). `ready` succeeds only when all three did. |
 | Pull request that changes prose alone | `build` and `ready`. `tests` is skipped. Prose is a Markdown file outside `docs/design-guide/`, `LICENSE` and `.github/ISSUE_TEMPLATE/**`. |
-| Push to `main` | `main.yml`: the full suite, website tests included, per commit. |
+| Push to `main` | `main.yml`: the full suite, website tests included, and the whole-code coverage floor, per commit. A commit whose coverage job fails is not verified for a release. |
 | Tag `v*` | `release.yml`: preflight, then the suite unless `main.yml` already passed it on this commit, then publish. |
+
+The coverage checks are described in [coverage.md](coverage.md); a release's own run of the suite collects none.
 
 A tag publishes only a commit that is on `main`. The preflight looks at the newest `main.yml` run on
 branch `main` for exactly the tagged commit:
