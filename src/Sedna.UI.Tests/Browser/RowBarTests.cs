@@ -69,13 +69,9 @@ public class RowBarTests : ScriptTestBase
         var info = await page.EvaluateAsync<double[]>("""
             () => { const r = document.getElementById('t').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; }
             """);
-        var colours = await page.EvaluateAsync<string[]>("""
-            () => { const td = document.querySelector('#row > td'); const t = getComputedStyle(td, '::before');
-                    return [t.backgroundColor, getComputedStyle(td).borderBottomColor, getComputedStyle(td).backgroundColor]; }
-            """);
+        var barPaint = await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('#row > td'), '::before').backgroundColor");
         var shot = Ink.Png.Decode(await page.ScreenshotAsync(new() { Clip = new() { X = (float)info[0], Y = (float)info[1], Width = (float)info[2], Height = (float)info[3] } }));
-        var barColour = Rgb(colours[0]);
-        var line = Rgb(colours[1]);
+        var barColour = Rgb(barPaint);
 
         // The bar: the run of its own colour down the middle of its 3px.
         var barRun = Run(shot, (int)(1.5 * scale), barColour);
@@ -83,9 +79,7 @@ public class RowBarTests : ScriptTestBase
 
         // The lines either side of the row, read a few pixels in from the bar: the run of the line's
         // colour that sits against the row's own background above and below it.
-        var inner = (int)(8 * scale);
-        var bg = await page.EvaluateAsync<string>("() => getComputedStyle(document.querySelector('#row > td')).backgroundColor");
-        var rowBg = Rgb(bg);
+        var inner = 8 * scale;
         // A selected row's tint is translucent over the page: read the colour that is there.
         var mid = (barRun!.Value.First + barRun.Value.End) / 2;
         var rowColour = shot.Pixel(inner, mid);
