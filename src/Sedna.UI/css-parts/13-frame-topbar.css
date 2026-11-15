@@ -10,7 +10,7 @@
     --muted-here: var(--topbar-muted);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--topbar-border);
     flex-shrink: 0;
     position: relative;
     z-index: 60;
@@ -22,7 +22,7 @@
     align-items: center;
     gap: var(--space-3);
     padding: 0 var(--space-8);
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 
 /* Square icon button living in the topbar. --start carries its divider on the
@@ -30,12 +30,12 @@
 .topbar-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: var(--topbar-height); flex-shrink: 0;
-    background: none; border: none; border-inline-start: 1px solid var(--border);
+    background: none; border: none; border-inline-start: 1px solid var(--topbar-border);
     color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
 .topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
-.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
+.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--topbar-border); }
 
 
 /* A header that stays at the top while the document scrolls under it — for a page

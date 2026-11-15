@@ -22,6 +22,7 @@
      22-anchored.js
      22-grid.js
      22-group.js
+     22-listbox.js
      22-menu.js
      22-popover.js
      22-scroll-edge.js
@@ -1247,6 +1248,13 @@ window.sednaUi = window.sednaUi || {};
    attribute, is given its input's value as text. Leave the attribute off where the
    app writes the text itself — a binding and this would fight over the same node.
 
+   A lone range has no box, and its readout is an `output` beside it — `.form-range-value`,
+   its `for` naming the range, `data-range-value` on it or on the element inside it that holds the number.
+   It is written the same way, so a unit around the number stays the app's:
+
+     <input class="form-range" id="conf" type="range" min="0" max="100" value="85">
+     <output class="form-range-value" for="conf"><span data-range-value>85</span>%</output>
+
    It follows every `input` and `reset`, and a render that adds or swaps markup. A
    value set from code without either — a binding writing `value` — is picked up at
    the next of those; dispatch an `input` event on the range after setting one.
@@ -1305,9 +1313,23 @@ window.sednaUi = window.sednaUi || {};
         }
     }
 
+    // The readout of a range that has no box: any `output` outside one whose `for` names a range.
+    function syncReadouts() {
+        var outs = document.querySelectorAll('output[for]');
+        for (var i = 0; i < outs.length; i++) {
+            var out = outs[i];
+            if (out.parentElement && out.parentElement.matches(BOX)) continue;
+            var slot = out.hasAttribute('data-range-value') ? out : out.querySelector('[data-range-value]');
+            if (!slot) continue;
+            var input = document.getElementById((out.getAttribute('for') || '').split(/\s+/)[0]);
+            if (input && input.tagName === 'INPUT' && input.type === 'range' && slot.textContent !== input.value) slot.textContent = input.value;
+        }
+    }
+
     function syncAll() {
         var boxes = document.querySelectorAll(BOX);
         for (var i = 0; i < boxes.length; i++) sync(boxes[i]);
+        syncReadouts();
     }
 
     var queued = false;
@@ -1322,6 +1344,7 @@ window.sednaUi = window.sednaUi || {};
         if (!(t instanceof HTMLInputElement) || t.type !== 'range') return;
         var box = t.parentElement;
         if (box && box.matches(BOX)) sync(box, t);
+        else syncReadouts();
     }
 
     function init() {
@@ -1481,17 +1504,39 @@ window.sednaUi = window.sednaUi || {};
    an ordinary `multiple` select, so a form posts it with no help from here, and
    what the reader has chosen is what that select contains.
 
+   The lists may be `<select multiple>` or `.listbox`es (22-listbox.js): a row of a listbox is
+   moved the same way, chosen is its `aria-selected`, and the destination list is
+   told with the `change` and `sedna-listbox-select` events a click would have sent.
+   A listbox posts nothing, so the app reads the right-hand list's `values`.
+
    Nothing about the CSS depends on this. With scripting blocked the two lists are
    still two list boxes, still labelled, still postable — the buttons simply do
    nothing, which is why they are buttons and not the only way to choose.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
+    function isBox(list) { return list.classList.contains('listbox'); }
+
+    /* A select's options, or a listbox's rows — a real array either way, taken before anything
+       moves, because a live HTMLCollection would shorten underneath the loop that appends. */
+    function rowsOf(list) {
+        return isBox(list)
+            ? Array.prototype.filter.call(list.querySelectorAll('[role="option"]'), function (o) { return o.closest('.listbox') === list; })
+            : Array.prototype.slice.call(list.options);
+    }
+    function textOf(row) { return (row.text !== undefined ? row.text : row.textContent || '').trim(); }
+
     function selectedIn(list) {
-        // A live HTMLCollection would shorten underneath the loop that appends from
-        // it, so this is a real array taken before anything moves.
-        return Array.prototype.filter.call(
-            list.options, function (o) { return o.selected && !o.disabled; });
+        return rowsOf(list).filter(function (o) {
+            return isBox(list)
+                ? o.getAttribute('aria-selected') === 'true' && o.getAttribute('aria-disabled') !== 'true'
+                : o.selected && !o.disabled;
+        });
+    }
+
+    function unselect(list, row) {
+        if (isBox(list)) { row.setAttribute('aria-selected', 'false'); row.removeAttribute('data-active'); }
+        else row.selected = false;
     }
 
     /* Alphabetical, and only where the list was already in order. Re-sorting a list
@@ -1499,27 +1544,28 @@ window.sednaUi = window.sednaUi || {};
        it, so the check is whether the destination is sorted before the move, not a
        setting somebody has to know about. */
     function sorted(list) {
-        for (var i = 1; i < list.options.length; i++) {
-            if (list.options[i - 1].text.localeCompare(list.options[i].text) > 0) return false;
+        var rows = rowsOf(list);
+        for (var i = 1; i < rows.length; i++) {
+            if (textOf(rows[i - 1]).localeCompare(textOf(rows[i])) > 0) return false;
         }
         return true;
     }
 
-    function place(list, option) {
-        var at = null;
-        for (var i = 0; i < list.options.length; i++) {
-            if (list.options[i].text.localeCompare(option.text) > 0) { at = list.options[i]; break; }
+    function place(list, row) {
+        var rows = rowsOf(list), at = null;
+        for (var i = 0; i < rows.length; i++) {
+            if (textOf(rows[i]).localeCompare(textOf(row)) > 0) { at = rows[i]; break; }
         }
-        list.insertBefore(option, at);
+        (at ? at.parentNode : list).insertBefore(row, at);
     }
 
-    function move(from, to, options) {
-        if (!from || !to || !options.length) return 0;
+    function move(from, to, rows) {
+        if (!from || !to || !rows.length) return 0;
 
         var inOrder = sorted(to);
-        for (var i = 0; i < options.length; i++) {
-            options[i].selected = false;
-            if (inOrder) place(to, options[i]); else to.appendChild(options[i]);
+        for (var i = 0; i < rows.length; i++) {
+            unselect(from, rows[i]);
+            if (inOrder) place(to, rows[i]); else to.appendChild(rows[i]);
         }
 
         /* Nothing arrives selected, and the destination's own selection is cleared.
@@ -1530,18 +1576,25 @@ window.sednaUi = window.sednaUi || {};
            and cannot remember making, and it made the next Remove act on all of
            them. The first row moved is scrolled into view instead, which is the part
            that was actually worth having. */
-        to.selectedIndex = -1;
-        if (options.length && options[0].scrollIntoView) {
-            options[0].scrollIntoView({ block: 'nearest' });
-        }
+        if (isBox(to)) {
+            rowsOf(to).forEach(function (o) { unselect(to, o); });
+            to.removeAttribute('aria-activedescendant');
+        } else to.selectedIndex = -1;
+        if (rows[0].scrollIntoView) rows[0].scrollIntoView({ block: 'nearest' });
 
         notify(from);
         notify(to);
-        return options.length;
+        return rows.length;
     }
 
     function notify(list) {
         list.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        if (isBox(list)) {
+            list.dispatchEvent(new CustomEvent('sedna-listbox-select', {
+                bubbles: true, composed: true,
+                detail: { values: ui.listbox ? ui.listbox.values(list) : [] }
+            }));
+        }
     }
 
     function lists(host) {
@@ -1582,10 +1635,10 @@ window.sednaUi = window.sednaUi || {};
        one row, and taking the selection with it would move rows the reader had
        chosen minutes ago and forgotten about. */
     document.addEventListener('dblclick', function (e) {
-        var option = e.target.closest('[data-transfer] option');
-        if (!option || option.disabled) return;
+        var option = e.target.closest('[data-transfer] option, [data-transfer] [role="option"]');
+        if (!option || option.disabled || option.getAttribute('aria-disabled') === 'true') return;
 
-        var list = option.closest('select');
+        var list = option.closest('select, .listbox');
         var host = option.closest('[data-transfer]');
         if (!list || !host) return;
 
@@ -1678,7 +1731,7 @@ window.sednaUi = window.sednaUi || {};
        opened by a popovertarget button follows the button, as a popover does. */
     function closePointMenus(scroller) {
         var open;
-        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        try { open = document.querySelectorAll('.menu[popover]:not([data-menu-raised]):popover-open'); }
         catch (err) { return; }
 
         for (var i = 0; i < open.length; i++) {
@@ -2612,6 +2665,236 @@ window.sednaUi = window.sednaUi || {};
 
 })(window.sednaUi);
 
+/* ── 22-listbox.js ──────────────────────────────────────────────── */
+/* ── Listbox, delegated ──────────────────────────────────────────────────────
+   The keyboard and the selection behind a `.listbox`: an ARIA listbox the app writes as
+   a box of `role="option"` rows, flat or in `role="group"`s.
+
+     <div class="listbox" role="listbox" aria-multiselectable="true" aria-label="Notify groups" tabindex="0">
+       <div role="option" aria-selected="true" data-value="fulfilment">Fulfilment</div>
+       <div role="option" aria-selected="false" data-value="network">Network</div>
+       <div role="option" aria-selected="false" aria-disabled="true">Finance</div>
+     </div>
+
+   `aria-selected` is chosen, `aria-disabled="true"` is passed over, `aria-multiselectable`
+   allows several. `data-value` is what an event names a row by, else its text;
+   `data-label` overrides the text typeahead reads.
+
+   ONE TAB STOP, as a combo field has: the listbox takes the focus and the row the keyboard
+   is on is named by `aria-activedescendant`. The script gives a row without an id one, marks
+   the active row `data-active` for the paint, and starts on the first chosen row.
+
+     ↓ ↑              next and previous row; in a listbox that takes one answer, it chooses it
+     Home End         first and last row
+     a letter         typeahead: the next row whose label starts with it
+     Space            toggles the row in a multiselectable listbox
+     Shift+↓ ↑        extends the choice from where it began
+     Ctrl+A (⌘A)      chooses every row in a multiselectable listbox
+
+   A click chooses the row and drops the others; Ctrl or ⌘ toggles it, Shift chooses from the
+   row the last click or key began on. That is what a native list box does and what a staging
+   choice wants.
+
+   THE SCRIPT HOLDS THE STATE, AND SAYS SO. It writes `aria-selected`, `aria-activedescendant`
+   and `data-active` on the app's elements — attributes a render leaves alone while the app's
+   own value for them does not change — and after each change dispatches on the listbox, both
+   bubbling:
+
+     change                      a plain Event, so an app's `@onchange` sees it
+     sedna-listbox-select        { values }           every value chosen, in document order (the target is the listbox)
+
+   A listbox is not a form control: it posts nothing. An app that submits a choice reads
+   `values` or the rows' `aria-selected`, or uses a `<select multiple>`, which a form posts.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var typed = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var anchors = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var counter = 0;
+
+    function toArray(list) { return Array.prototype.slice.call(list); }
+    /* Only a `.listbox`: a combo field's list is also `role="listbox"`, and the combo's script owns it. */
+    function listboxOf(el) { return el && el.closest ? el.closest('.listbox[role="listbox"]') : null; }
+    function multi(box) { return box.getAttribute('aria-multiselectable') === 'true'; }
+    function disabled(box) { return box.getAttribute('aria-disabled') === 'true'; }
+
+    function optionsOf(box) {
+        return toArray(box.querySelectorAll('[role="option"]')).filter(function (o) { return listboxOf(o) === box; });
+    }
+    function reachable(box) {
+        return optionsOf(box).filter(function (o) { return o.getAttribute('aria-disabled') !== 'true'; });
+    }
+    function isOn(o) { return o.getAttribute('aria-selected') === 'true'; }
+    function valueOf(o) {
+        var v = o.getAttribute('data-value');
+        return v !== null ? v : (o.textContent || '').trim();
+    }
+    function labelOf(o) {
+        var l = o.getAttribute('data-label');
+        return (l !== null ? l : o.textContent || '').trim().toLowerCase();
+    }
+
+    function setOn(o, on) {
+        var was = isOn(o);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        return was !== on;
+    }
+
+    function activeOf(box) {
+        var id = box.getAttribute('aria-activedescendant');
+        if (!id) return null;
+        var el = document.getElementById(id);
+        return el && listboxOf(el) === box ? el : null;
+    }
+
+    function activate(box, o) {
+        var all = optionsOf(box);
+        for (var i = 0; i < all.length; i++) if (all[i] !== o) all[i].removeAttribute('data-active');
+        if (!o) { box.removeAttribute('aria-activedescendant'); return; }
+        if (!o.id) o.id = 'sedna-listbox-option-' + (++counter);
+        o.setAttribute('data-active', '');
+        box.setAttribute('aria-activedescendant', o.id);
+        if (o.scrollIntoView) o.scrollIntoView({ block: 'nearest' });
+    }
+
+    function announce(box) {
+        var values = optionsOf(box).filter(isOn).map(valueOf);
+        box.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        box.dispatchEvent(new CustomEvent('sedna-listbox-select', { bubbles: true, composed: true, detail: { values: values } }));
+    }
+
+    /* Chooses exactly `chosen` (an array of rows) and says so if that changed anything. */
+    function choose(box, chosen) {
+        var changed = false;
+        optionsOf(box).forEach(function (o) {
+            var on = chosen.indexOf(o) >= 0 && o.getAttribute('aria-disabled') !== 'true';
+            if (setOn(o, on)) changed = true;
+        });
+        if (changed) announce(box);
+    }
+
+    function rangeBetween(box, a, b) {
+        var all = reachable(box);
+        var i = all.indexOf(a), j = all.indexOf(b);
+        if (i < 0 || j < 0) return b ? [b] : [];
+        return all.slice(Math.min(i, j), Math.max(i, j) + 1);
+    }
+
+    function anchorOf(box) { return (anchors && anchors.get(box)) || activeOf(box); }
+    function setAnchor(box, o) { if (anchors) anchors.set(box, o); }
+
+    /* A move of the keyboard to `target`: in a single-answer listbox it chooses it; with Shift in a
+       multiselectable one it extends from the anchor; otherwise it only moves. */
+    function moveTo(box, target, extend) {
+        if (!target) return;
+        activate(box, target);
+        if (!multi(box)) { setAnchor(box, target); choose(box, [target]); }
+        else if (extend) choose(box, rangeBetween(box, anchorOf(box), target));
+        else setAnchor(box, target);
+    }
+
+    function step(box, from, by) {
+        var all = reachable(box);
+        if (!all.length) return null;
+        var i = all.indexOf(from);
+        if (i < 0) return by > 0 ? all[0] : all[all.length - 1];
+        return all[Math.min(all.length - 1, Math.max(0, i + by))];
+    }
+
+    function startOf(box) {
+        var all = reachable(box);
+        for (var i = 0; i < all.length; i++) if (isOn(all[i])) return all[i];
+        return all[0] || null;
+    }
+
+    function typeahead(box, key) {
+        var now = Date.now();
+        var st = (typed && typed.get(box)) || { text: '', at: 0 };
+        st.text = (now - st.at > 700 ? '' : st.text) + key.toLowerCase();
+        st.at = now;
+        if (typed) typed.set(box, st);
+        var all = reachable(box);
+        var from = all.indexOf(activeOf(box));
+        var same = st.text.length > 1 && st.text.split('').every(function (c) { return c === st.text[0]; });
+        var needle = same ? st.text[0] : st.text;
+        for (var n = 1; n <= all.length; n++) {
+            var o = all[(from + n + all.length) % all.length];
+            if (o && labelOf(o).indexOf(needle) === 0) return o;
+        }
+        return null;
+    }
+
+    document.addEventListener('focusin', function (e) {
+        var box = e.target && e.target.matches && e.target.matches('.listbox[role="listbox"]') ? e.target : null;
+        if (!box || disabled(box) || activeOf(box)) return;
+        var o = startOf(box);
+        if (o) { activate(box, o); setAnchor(box, o); }
+    });
+
+    document.addEventListener('mousedown', function (e) {
+        var o = e.target.closest ? e.target.closest('[role="option"]') : null;
+        var box = listboxOf(o);
+        if (!o || !box || disabled(box)) return;
+        // Focus is the listbox's own, and a drag across rows must not select text.
+        if (box.getAttribute('tabindex') !== null && document.activeElement !== box) box.focus({ preventScroll: true });
+        if (e.shiftKey) e.preventDefault();
+    });
+
+    document.addEventListener('click', function (e) {
+        var o = e.target.closest ? e.target.closest('[role="option"]') : null;
+        var box = listboxOf(o);
+        if (!o || !box || disabled(box) || o.getAttribute('aria-disabled') === 'true') return;
+
+        activate(box, o);
+        if (multi(box) && (e.ctrlKey || e.metaKey)) {
+            setOn(o, !isOn(o));
+            setAnchor(box, o);
+            announce(box);
+        } else if (multi(box) && e.shiftKey) {
+            choose(box, rangeBetween(box, anchorOf(box), o));
+        } else {
+            setAnchor(box, o);
+            choose(box, [o]);
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var box = e.target && e.target.matches && e.target.matches('.listbox[role="listbox"]') ? e.target : null;
+        if (!box || disabled(box) || e.altKey) return;
+
+        var from = activeOf(box) || startOf(box);
+        var key = e.key;
+        var handled = true;
+
+        if (key === 'ArrowDown') moveTo(box, step(box, from, 1), e.shiftKey);
+        else if (key === 'ArrowUp') moveTo(box, step(box, from, -1), e.shiftKey);
+        else if (key === 'Home') moveTo(box, reachable(box)[0], e.shiftKey);
+        else if (key === 'End') { var all = reachable(box); moveTo(box, all[all.length - 1], e.shiftKey); }
+        else if ((key === ' ' || key === 'Enter') && from) {
+            if (multi(box)) { setOn(from, !isOn(from)); setAnchor(box, from); announce(box); }
+            else choose(box, [from]);
+        }
+        else if ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'A') && multi(box)) choose(box, reachable(box));
+        else if (key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            var hit = typeahead(box, key);
+            if (hit) moveTo(box, hit, false);
+            else handled = false;
+        }
+        else handled = false;
+
+        if (handled) e.preventDefault();
+    });
+
+    ui.listbox = {
+        /* The values chosen in a listbox, in document order — what `sedna-listbox-select` carries,
+           for a caller that was not listening. */
+        values: function (box) {
+            return box ? optionsOf(box).filter(isOn).map(valueOf) : [];
+        }
+    };
+
+})(window.sednaUi);
+
 /* ── 22-menu.js ──────────────────────────────────────────────── */
 /* ── Menus, delegated ────────────────────────────────────────────────────────
    Opt-in wiring for the .menu panel, so a plain HTML page (or a Razor page that
@@ -2629,6 +2912,10 @@ window.sednaUi = window.sednaUi || {};
    Delegated from document, so a menu rendered by a later Blazor render works with
    nothing re-bound. The frame's own user menu does NOT use this: it holds its state
    in C#, because the frame has to work with scripting blocked.
+
+   An open panel is raised into the top layer, so a panel it sits in — a popover, a drawer,
+   a card that scrolls — cannot clip it or move it, whatever that panel's overflow,
+   transform or containment. See `raise` below.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -2637,14 +2924,54 @@ window.sednaUi = window.sednaUi || {};
         return anchor ? anchor.querySelector('.menu') : null;
     }
 
+    /* ── The top layer ─────────────────────────────────────────────────────
+       A dropdown and a submenu are `position: fixed` and placed against their trigger, which
+       an ancestor can still defeat: a `transform`, `filter` or `contain` makes it the
+       containing block of everything fixed inside it, and its `overflow` then clips the
+       panel — an inbox's submenu was cut at the inbox's edge. Nothing in the top layer can
+       be clipped by what it sits in, so an open panel is put there: the script gives it
+       `popover="manual"` and shows it, and the panel keeps the place CSS gave it, because
+       the platform's own popover styles are undone for it (58-menu.css, `data-menu-raised`).
+       `manual` leaves dismissing to this part, as before: a click outside, Escape and Tab
+       close it here, and the platform's light dismiss never runs.
+
+       A panel that is drawn in the flow — the sheet on a phone — is left where it is: the
+       top layer would take it out of the flow it is drawn in. Where the browser has no
+       popover the panel stays as it was. */
+    function raise(panel, open) {
+        if (!panel || typeof panel.showPopover !== 'function') return;
+        try {
+            if (!open) {
+                if (panel.hasAttribute('data-menu-raised') && panel.matches(':popover-open')) panel.hidePopover();
+                return;
+            }
+            if (panel.hasAttribute('popover') && !panel.hasAttribute('data-menu-raised')) return;   // a menu at the pointer
+            if (!panel.hasAttribute('data-menu-raised')) {
+                if (getComputedStyle(panel).position === 'static') return;
+                panel.setAttribute('data-menu-raised', '');
+                panel.setAttribute('popover', 'manual');
+            }
+            if (getComputedStyle(panel).position === 'static') return;
+            if (!panel.matches(':popover-open')) panel.showPopover();
+        } catch (err) { /* the panel stays where it is */ }
+    }
+
+    function lower(panel) {
+        var subs = panel.querySelectorAll('.menu-sub[data-menu-raised]');
+        for (var i = 0; i < subs.length; i++) raise(subs[i], false);
+        raise(panel, false);
+    }
+
     function setOpen(toggle, panel, open) {
+        if (!open) lower(panel);
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open && !toggle.closest('.fab-dial')) raise(panel, true);
         if (open) startFilter(panel);
         // A render that removes the toggle of an open menu leaves the panel pointing at
         // nothing; it closes, as a hint does when its trigger goes.
         if (open && ui._.layer) {
-            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
+            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) { lower(panel); panel.hidden = true; } });
         }
     }
 
@@ -2724,7 +3051,7 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function closeMenu(menu) {
-        if (menu.hasAttribute('popover')) {
+        if (menu.hasAttribute('popover') && !menu.hasAttribute('data-menu-raised')) {
             try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
             return;
         }
@@ -2760,11 +3087,22 @@ window.sednaUi = window.sednaUi || {};
         return anchor ? anchor.querySelector(':scope > .menu-sub') : null;
     }
 
+    /* A submenu is open while the pointer or the focus is in its anchor, or the keyboard
+       opened it: CSS shows it, and this puts what is shown in the top layer. */
+    function syncSub(anchor) {
+        var sub = anchor.querySelector(':scope > .menu-sub');
+        if (!sub) return;
+        var open = anchor.hasAttribute('data-open');
+        try { open = open || anchor.matches(':hover, :focus-within'); } catch (err) { /* no :hover here */ }
+        raise(sub, open);
+    }
+
     function setSub(item, open) {
         var anchor = item.closest('.menu-sub-anchor');
         if (!anchor) return;
         if (open) anchor.setAttribute('data-open', ''); else anchor.removeAttribute('data-open');
         item.setAttribute('aria-expanded', String(open));
+        syncSub(anchor);
     }
 
     document.addEventListener('keydown', function (e) {
@@ -2878,20 +3216,31 @@ window.sednaUi = window.sednaUi || {};
     });
 
     /* A submenu says it is open while the pointer or the focus is in it. The CSS opens it
-       on :hover and :focus-within; this keeps aria-expanded true to what is shown. */
+       on :hover and :focus-within; this keeps aria-expanded true to what is shown, and
+       raises what is shown (above). */
     document.addEventListener('focusout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
         if (!anchor || anchor.contains(e.relatedTarget)) return;
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) setSub(opener, false);
     });
+    document.addEventListener('focusin', function (e) {
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (anchor) syncSub(anchor);
+    });
     document.addEventListener('pointerover', function (e) {
-        var opener = e.target instanceof Element ? e.target.closest('[data-menu-sub]') : null;
-        if (opener) opener.setAttribute('aria-expanded', 'true');
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (!anchor) return;
+        var opener = anchor.querySelector(':scope > [data-menu-sub]');
+        if (opener && opener.contains(e.target)) opener.setAttribute('aria-expanded', 'true');
+        syncSub(anchor);
     });
     document.addEventListener('pointerout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
-        if (!anchor || anchor.contains(e.relatedTarget) || anchor.hasAttribute('data-open')) return;
+        if (!anchor || anchor.contains(e.relatedTarget)) return;
+        // :hover has caught up with the pointer by the next task.
+        setTimeout(function () { syncSub(anchor); }, 0);
+        if (anchor.hasAttribute('data-open')) return;
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) opener.setAttribute('aria-expanded', 'false');
     });
@@ -3003,7 +3352,7 @@ window.sednaUi = window.sednaUi || {};
 
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
-        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
+        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]:not([data-menu-raised])')) return;
         var on = origins.get(panel);
         origins.delete(panel);
         if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
@@ -3013,7 +3362,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('click', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         if (!item || item.hasAttribute('data-menu-sub')) return;
-        var panel = item.closest('.menu[popover]');
+        var panel = item.closest('.menu[popover]:not([data-menu-raised])');
         try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
     });
 
@@ -8973,12 +9322,23 @@ window.sednaUi = window.sednaUi || {};
        where the first cell starts — from the inline-end edge in a right-to-left grid. */
     function geometry(grid) {
         var cs = getComputedStyle(grid), r = grid.getBoundingClientRect();
-        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 12));
-        var gapX = px(cs.columnGap), gapY = px(cs.rowGap);
+        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 24));
+        var gapY = px(cs.rowGap);
         var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
         var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
         var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
-        var col = (right - left - gapX * (cols - 1)) / cols;
+        /* The column gap is capped at a share of the width, so its computed value can be a
+           percentage the browser leaves unresolved. The drawn tracks are always in pixels:
+           the gap is what is left of the width between them. */
+        var tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
+        var col, gapX;
+        if (cols > 1 && tracks.length === cols) {
+            col = tracks[0];
+            gapX = Math.max(0, (right - left - tracks.reduce(function (a, b) { return a + b; }, 0)) / (cols - 1));
+        } else {
+            gapX = px(cs.columnGap);
+            col = (right - left - gapX * (cols - 1)) / cols;
+        }
         var row = px(cs.gridAutoRows) || 48;
         return {
             cols: cols, col: col, row: row, gapX: gapX, gapY: gapY,
@@ -10759,6 +11119,8 @@ window.sednaUi = window.sednaUi || {};
        before closing (`data-close-guard` in 42-modal.js) stays open, and with the
        transform already cleared that is the spring back. */
     function slideOut(sheet) {
+        // An engine that cannot keep a closed dialog displayed slides it out from here.
+        if (ui._.slideFrom) ui._.slideFrom(sheet, sheet.style.transform);
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
         if (typeof sheet.requestClose === 'function') sheet.requestClose();
@@ -13687,15 +14049,21 @@ window.sednaUi = window.sednaUi || {};
 /* ── A closing drawer slides out in every engine ────────────────────────────
    `dialog.drawer` — a drawer or a sheet — slides in and out with a CSS transition
    that keeps the closing dialog displayed through `display` and `overlay`, both
-   `allow-discrete`. Safari has no `overlay` property and takes the dialog away the
-   moment it closes, so the panel vanishes instead of leaving.
+   `allow-discrete`, and its backdrop fades with it (63-drawer.css). Safari has no
+   `overlay` property and takes the dialog away the moment it closes, with its
+   backdrop, so the panel vanishes instead of leaving.
 
-   Where the engine lacks `overlay`, this plays the same slide after the fact: the
-   closed dialog is held displayed and visible for the length of its own transform
-   transition, animated from where an open panel sits to where the stylesheet puts a
-   closed one, and then let go. Nothing is added to the page and nothing is decided
-   here — the duration, the easing and both ends are read from the stylesheet, so a
-   theme, a variant and reduced motion (a zero duration) apply as they do elsewhere.
+   Where the engine lacks `overlay`, this plays the same exit after the fact: the
+   closed dialog is held displayed for the length of its own transform transition and
+   slid from where an open panel sits to where the stylesheet puts a closed one, and
+   then let go. Where it sat is its open transform — none, or the height a snapping
+   sheet rests at (`--sheet-rest`) — or, for a sheet dragged shut, where the finger let
+   go, which 29-sheet.js hands over. The backdrop is not there to fade, so a held
+   modal dialog dims the page itself in 63-drawer.css, with a spread shadow that fades
+   over the same duration: the script writes that duration, and the easing, from the
+   transform's own. Nothing is added to the page and nothing is decided here — the
+   duration, the easing and both ends are read from the stylesheet, so a theme, a
+   variant and reduced motion (a zero duration) apply as they do elsewhere.
    `modal.idle` waits for it like any other animation on the dialog.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
@@ -13707,17 +14075,25 @@ window.sednaUi = window.sednaUi || {};
     var HELD = 'data-sedna-closing';
 
     // Dialogs seen open since they last slid out, so a later idle() on a dialog closed
-    // long ago never replays the slide.
+    // long ago never replays the slide; the ones among them that were modal, which are
+    // the ones with a backdrop to fade; and where a dragged sheet was let go.
     var opened = new WeakSet();
+    var modal = new WeakSet();
+    var dropped = new WeakMap();
+    function seen(d) {
+        opened.add(d);
+        dropped.delete(d);
+        if (d.matches(':modal')) modal.add(d); else modal.delete(d);
+    }
     function watch(record) {
         var d = record.target;
-        if (d.tagName === 'DIALOG' && d.open) opened.add(d);
+        if (d.tagName === 'DIALOG' && d.open) seen(d);
     }
     if (typeof MutationObserver === 'function') {
         new MutationObserver(function (records) { records.forEach(watch); })
             .observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
     }
-    document.querySelectorAll('dialog[open]').forEach(function (d) { opened.add(d); });
+    document.querySelectorAll('dialog[open]').forEach(seen);
 
     function seconds(value) {
         var n = parseFloat(value);
@@ -13740,25 +14116,47 @@ window.sednaUi = window.sednaUi || {};
         if (!d.hasAttribute(HELD)) return;
         d.removeAttribute(HELD);
         d.style.removeProperty('display');
+        d.style.removeProperty('--sedna-exit-duration');
+        d.style.removeProperty('--sedna-exit-easing');
     }
 
-    // Starts the slide for a dialog that has just closed, once: from the `close` event,
+    /* Where an open panel sits: where a sheet was let go, else the transform the open
+       rules give it — none, but for a snapping sheet the height it rests at. */
+    function openTransform(d, style) {
+        var drop = dropped.get(d);
+        dropped.delete(d);
+        // Only a drop that is this close: a sheet dragged shut that asked first may be
+        // closed later by its button, from the rest.
+        if (drop && performance.now() - drop.time < 250) return drop.transform;
+        if (d.hasAttribute('data-sheet-snap')) {
+            var rest = style.getPropertyValue('--sheet-rest').trim();
+            if (rest) return 'translateY(' + rest + ')';
+        }
+        return 'none';
+    }
+
+    // Starts the exit for a dialog that has just closed, once: from the `close` event,
     // or sooner from modal.idle(), which is called straight after close() and has to
     // see the animation it is about to wait for — the event comes a task later.
     function slideOut(d) {
         if (!d || d.tagName !== 'DIALOG' || d.open || !opened.has(d)) return;
         opened.delete(d);
         if (d.hasAttribute(HELD) || !d.matches('.drawer')) return;
-        var closed = getComputedStyle(d);
-        var t = timing(closed);
+        var t = timing(getComputedStyle(d));
         if (!t) return;
-        var to = closed.transform;
-        d.setAttribute(HELD, '');
+        // A closed dialog has no box, and a percentage translation has no matrix
+        // without one: displayed, it computes to where the stylesheet puts it closed.
+        d.setAttribute(HELD, modal.has(d) ? 'modal' : '');
         d.style.setProperty('display', 'flex');
+        d.style.setProperty('--sedna-exit-duration', t.duration + 'ms');
+        d.style.setProperty('--sedna-exit-easing', t.easing);
+        var style = getComputedStyle(d);
+        var to = style.transform;
+        var from = openTransform(d, style);
         var run;
         try {
             run = d.animate(
-                [{ transform: 'none', visibility: 'visible' }, { transform: to, visibility: 'visible' }],
+                [{ transform: from, visibility: 'visible' }, { transform: to, visibility: 'visible' }],
                 { duration: t.duration, easing: t.easing });
         } catch (err) {
             release(d);
@@ -13770,6 +14168,8 @@ window.sednaUi = window.sednaUi || {};
     }
 
     ui._.slideOut = slideOut;
+    // 29-sheet.js: the transform a dragged sheet is let go at, as it closes.
+    ui._.slideFrom = function (d, transform) { if (transform) dropped.set(d, { transform: transform, time: performance.now() }); };
 
     document.addEventListener('close', function (e) { slideOut(e.target); }, true);
 
@@ -13851,11 +14251,23 @@ window.sednaUi = window.sednaUi || {};
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
 
-   CLOSED BY A CLICK BESIDE IT — closedby="any". The platform's own light dismiss, on any
-   of these dialogs: a click whose press and release both land on the backdrop is a close
-   request, so on a guarded dialog it raises `cancel` like Escape and the app decides. A
-   drag from a field out to the backdrop is not one. A `.lightbox` has no backdrop to click
-   — it fills the screen — so here a click on its stage beside the picture stands in.
+   CLOSED BY A CLICK ON THE BACKDROP — the default. A press and a release that both land on
+   the backdrop of a modal `.modal`, `.drawer` or `.sheet` is a close request, as Escape is:
+   it closes the dialog with no returnValue, so show() resolves null for both, and on a
+   guarded dialog it raises `cancel` and the app decides. A press that starts inside the
+   dialog and ends on the backdrop — a text selection dragged too far — closes nothing. A
+   dialog where a stray click would lose work opts out with the platform's own attribute:
+
+     <dialog class="modal" closedby="closerequest">    Escape closes it, the backdrop does not
+     <dialog class="modal" closedby="none">             neither does
+
+   It is done here, not left to the platform, so the default is the same in every engine and
+   a dialog that says nothing is dismissed by its backdrop. Where the engine implements
+   `closedby` and the dialog says `closedby="any"`, the platform's own light dismiss does it
+   and this stands aside. A dialog opened without a modal (`data-modeless`) has no backdrop
+   and is not closed by a click on the page beside it unless it says `closedby="any"`. A
+   `.lightbox` fills the screen, so there is no backdrop to click: with `closedby="any"` a
+   click on its stage beside the picture stands in.
 
    ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
    element, that carries both holds work that is not saved, and closing the tab,
@@ -14022,24 +14434,38 @@ window.sednaUi = window.sednaUi || {};
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 
-    /* A lightbox fills the screen, so a press beside its picture lands inside its box and
-       `closedby="any"` never sees it. On a `.lightbox` that carries it, a click on the stage
-       around the picture — or the dialog's own ground — is the same close request a click on
-       the backdrop is for every other dialog: both ends of the press have to land there, so a
-       drag that starts on the picture or a control closes nothing, and data-close-guard asks
-       first. */
+    /* The dialog this press would close, or null.
+
+       The backdrop belongs to the dialog: a click on it is dispatched to the <dialog>
+       itself, so a press whose target is the dialog and whose point lies outside its box
+       is on the backdrop; one inside its box — its padding — is not. A lightbox fills the
+       screen, so its stage and its own ground stand in, and only with `closedby="any"`. */
+    function dismissible(d) {
+        var by = (d.getAttribute('closedby') || '').toLowerCase();
+        if (d.classList.contains('lightbox')) return by === 'any';
+        if (!d.matches('.modal, .drawer') || !d.matches(':modal')) return false;
+        if (by === 'closerequest' || by === 'none') return false;
+        return !(by === 'any' && 'closedBy' in d);   // the platform does this one
+    }
+
     var besideDown = null;
     function beside(e) {
         var t = e.target instanceof Element ? e.target : null;
-        var d = t ? t.closest('dialog.lightbox[open]') : null;
-        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
-        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        if (!t) return null;
+        var d = t.closest('dialog[open]');
+        if (!d || !dismissible(d)) return null;
+        if (d.classList.contains('lightbox')) {
+            return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        }
+        if (t !== d) return null;
+        var r = d.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom ? d : null;
     }
     document.addEventListener('pointerdown', function (e) {
         besideDown = e.button === 0 ? beside(e) : null;
     }, true);
-    // A press and a release on two elements click their common ancestor — the stage, for a
-    // release on the picture — so the release is checked where it lands.
+    // A press and a release on two elements click their common ancestor — the dialog, for a
+    // press inside it and a release on its backdrop — so the release is checked where it lands.
     document.addEventListener('pointerup', function (e) {
         if (besideDown && beside(e) !== besideDown) besideDown = null;
     }, true);

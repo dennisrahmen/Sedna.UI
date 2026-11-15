@@ -19,7 +19,7 @@
       { "text": "A block of code or output to copy", "instead": "/code-blocks" }
     ],
     "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "open-a-page-on-a-big-picture", "read-light-text-on-a-dark-band", "see-what-a-site-offers" ],
-    "stamp": "1866da039705420c"
+    "stamp": "4043ce0c17025131"
   },
   {
     "page": "/page-navigation",
@@ -34,7 +34,7 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "9a2f7e6475d7a5d7"
+    "stamp": "6d225ba6acc3d29f"
   },
   {
     "page": "/breadcrumbs",
@@ -71,7 +71,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
-    "stamp": "ee1f58ccf50de38e"
+    "stamp": "36f53e3f85b84f9f"
   },
   {
     "page": "/grid",
@@ -90,7 +90,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "8fc3468a3bddec98"
+    "stamp": "849a52ddf7e01136"
   },
   {
     "page": "/panel-grid",
@@ -98,7 +98,7 @@
     "combineWith": [
       { "page": "/card#width-height-or-both", "how": "Every panel is a .card--resizable whose handles count in cells." },
       { "page": "/drag-drop#keyboard", "how": "The grid is a drag zone with data-drag-axis=\"cells\", picked up and moved with the same keys and announced in the same live region." },
-      { "page": "/grid#two-independent-columns", "how": "Panels the app places itself, beside or above the ones the reader arranges, stay on the 24-column grid." },
+      { "page": "/grid#two-independent-columns", "how": "Panels the app places itself, beside or above the ones the reader arranges, are on the same 24 columns." },
       { "page": "/toolbar", "how": "A toolbar button puts the grid into arrange mode with data-arrange and takes it out again." }
     ],
     "notFor": [
@@ -106,7 +106,7 @@
       { "text": "Reordering a list", "instead": "/drag-drop" }
     ],
     "goals": [ "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "e7484a3e56a8a157"
+    "stamp": "932f2b7c1448d2d2"
   },
   {
     "page": "/list",
@@ -126,7 +126,7 @@
       { "text": "A list of files", "instead": "/files#file-list" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "3a98a1e76d03f43a"
+    "stamp": "eefaf87fbeadf072"
   },
   {
     "page": "/collections",
@@ -161,7 +161,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "655e5b9a6f82f553"
+    "stamp": "1631bfec15bd1955"
   },
   {
     "page": "/timeline",
@@ -198,6 +198,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "829add221ba1a5e3"
+    "stamp": "10b4df4c1290209e"
   }
 ]

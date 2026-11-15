@@ -76,7 +76,7 @@
        opened by a popovertarget button follows the button, as a popover does. */
     function closePointMenus(scroller) {
         var open;
-        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        try { open = document.querySelectorAll('.menu[popover]:not([data-menu-raised]):popover-open'); }
         catch (err) { return; }
 
         for (var i = 0; i < open.length; i++) {

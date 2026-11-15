@@ -38,12 +38,18 @@
 .progress-bar--sev-5 { background: var(--sev-5-solid); }
 
 .progress--indeterminate .progress-bar {
+    --progress-flow: 1;
     width: 35%;
     animation: sedna-progress var(--progress-duration) ease-in-out infinite;
 }
+/* A percentage `translate` is measured against the bar's own width, which is 35% of the track: -110%
+   puts its far edge 3.5% of the track outside the near edge, and 340% puts its near edge 19% outside
+   the far one. Both ends are wholly outside, so the track clips the bar and it never appears or
+   vanishes on the way. `--progress-flow` is 1 from the inline start to the inline end and -1 in a
+   right-to-left page (70-rtl.css), because a translate has no logical form. */
 @keyframes sedna-progress {
-    from { transform: translateX(-110%); }
-    to   { transform: translateX(340%); }
+    from { translate: calc(var(--progress-flow) * -110%) 0; }
+    to   { translate: calc(var(--progress-flow) * 340%) 0; }
 }
 
 /* ── Route progress ─────────────────────────────────────────────────────────

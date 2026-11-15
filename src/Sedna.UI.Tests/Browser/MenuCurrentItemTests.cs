@@ -35,7 +35,7 @@ public class MenuCurrentItemTests : ScriptTestBase
               const end = id => rtl ? -rect(id).left : rect(id).right;
               const tick = id => {
                 const after = s(id, '::after');
-                return after.content === 'none' ? 'none' : after.borderBottomWidth;
+                return after.content === 'none' ? 'none' : (after.maskImage !== 'none' ? 'mask' : 'plain');
               };
               return {
                 navBg: s('nav').backgroundColor, navInk: s('nav').color,
@@ -55,8 +55,8 @@ public class MenuCurrentItemTests : ScriptTestBase
         Assert.Equal(r["navBg"], r["wordBg"]);
         Assert.NotEqual(r["navBg"], r["plainBg"]);
         Assert.NotEqual(r["navBg"], r["notBg"]);
-        Assert.Equal("2px", r["tickCurrent"]);
-        Assert.Equal("2px", r["tickWord"]);
+        Assert.Equal("mask", r["tickCurrent"]);
+        Assert.Equal("mask", r["tickWord"]);
         Assert.Equal("none", r["tickPlain"]);
         Assert.Equal("none", r["tickNot"]);
         Assert.Equal("True", r["notesAligned"], ignoreCase: true);

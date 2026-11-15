@@ -239,6 +239,12 @@
       "family": "alert"
     },
     "app-switcher": {
+      "family": "app-switcher",
+      "variants": [
+        "app-switcher--icons"
+      ]
+    },
+    "app-switcher--icons": {
       "family": "app-switcher"
     },
     "app-switcher-icon": {
@@ -2382,6 +2388,7 @@
       ],
       "attributes": [
         ":not([open])",
+        "[data-sedna-closing=\"modal\"]",
         "[open]"
       ],
       "combinedWith": [
@@ -3954,6 +3961,19 @@
     "list-title": {
       "family": "list-title"
     },
+    "listbox": {
+      "family": "listbox",
+      "attributes": [
+        "[aria-disabled=\"true\"]"
+      ],
+      "pseudoClasses": [
+        ":focus",
+        ":focus-visible"
+      ]
+    },
+    "listbox-heading": {
+      "family": "listbox-heading"
+    },
     "markdown-body": {
       "family": "markdown-body"
     },
@@ -4068,7 +4088,9 @@
         "menu--start"
       ],
       "attributes": [
+        ":not([data-menu-raised])",
         "[data-menu-empty]",
+        "[data-menu-raised]",
         "[popover]"
       ]
     },
@@ -5148,6 +5170,9 @@
     },
     "rating-star--on": {
       "family": "rating-star"
+    },
+    "rating-value": {
+      "family": "rating-value"
     },
     "reasoning": {
       "family": "reasoning",

@@ -10,8 +10,10 @@
     <p>
         Panels each placed on cells: <code>--panel-x</code> and <code>--panel-y</code> are the column and
         the row it starts on, from 0, and <code>--panel-w</code> and <code>--panel-h</code> how many it
-        covers, written inline from the arrangement you store. <code>--panel-cols</code> (12) columns
-        share the width and a row is <code>--panel-row</code> (3rem) tall. A panel stays where it is put,
+        covers, written inline from the arrangement you store. <code>--panel-cols</code> (24) columns
+        share the width &mdash; the same 24 as the <a href="/grid">grid</a>, so <code>--panel-w: 8</code>
+        is a third of the row, as <code>.sedna-span-8</code> is &mdash; and a row is
+        <code>--panel-row</code> (3rem) tall. A panel stays where it is put,
         so a narrow one can sit beside a tall one under a wide one &mdash; and nothing stops two
         overlapping but the arrangement, which <code>SednaPanels.Arrange</code> settles.
     </p>

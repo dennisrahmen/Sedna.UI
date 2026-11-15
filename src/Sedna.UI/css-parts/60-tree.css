@@ -38,6 +38,12 @@
     border-inline-start: 1px solid var(--divider);
 }
 .tree [role="treeitem"] { font-size: var(--text-4); outline: none; }
+/* The gap a `.menu` and a `.list-row` keep between rows, so a picked row and the one the
+   pointer is on never touch: one step between sibling items and between a branch's row and
+   its children. A margin, because the item holds its whole subtree and a `gap` would need
+   the item to be a flex container. */
+.tree [role="treeitem"] + [role="treeitem"],
+.tree [role="treeitem"] > [role="group"] { margin-block-start: var(--space-1); }
 /* A collapsed branch keeps its children in the markup, so a branch that opens shows
    them at once; the attribute alone hides them. */
 .tree [aria-expanded="false"] > [role="group"] { display: none; }
@@ -162,11 +168,28 @@
     padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
     white-space: nowrap;
 }
-/* The caret's box is an em square on the text's baseline; lowered to centre it on the
-   capitals of the label beside it. */
+/* The toggle is a slot of its own: wide enough for the caret and for the spinner that takes its
+   place — the spinner's own size — so a row that is loading is as wide as one that is not and
+   the label does not move, and as tall as the label's capitals, standing on the same baseline,
+   so whatever is drawn in it is centred on them. The tree cell is trimmed to its capitals like
+   a cell of words, which is what makes the first line's capitals the cell's own height. */
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
 .table[role="treegrid"] .tree-toggle {
-    margin-inline-end: var(--space-2);
-    vertical-align: -0.15em;
+    display: inline-block;
+    position: relative;
+    width: round(0.75em + 3px, 2px);
+    height: 1cap;
+    margin-inline-end: var(--space-3);
+    vertical-align: baseline;
+}
+.table[role="treegrid"] tr > * > .tree-toggle::before {
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    translate: -50% -50%;
 }
 .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 
@@ -186,17 +209,7 @@
     background: var(--brand);
     border-color: var(--brand);
 }
-.tree [aria-checked="true"] > .tree-row > .tree-check::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 4px;
-    top: 1px;
-    width: 4px;
-    height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: rotate(45deg);
-}
+/* The tick is drawn with the one in 34-forms.css, over the box's padding box. */
 .tree [aria-checked="mixed"] > .tree-row > .tree-check::after {
     content: '';
     position: absolute;

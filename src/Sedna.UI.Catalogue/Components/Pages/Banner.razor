@@ -17,7 +17,10 @@
             buttons, and <code>.page-banner-dismiss</code>. Name it as a landmark with
             <code>role="region"</code> and an <code>aria-label</code>. Under <code>.topbar--sticky</code>, or
             <code>.layout--flow</code> on a phone, it scrolls away under the header; below 560px the
-            actions move under the words.
+            actions move under the words. The header gives up its shadow to a banner that follows it and the
+            banner draws that shadow instead, so the page scrolling behind the banner still reads as behind;
+            where the banner scrolls away the header keeps it, and <code>--shadow-topbar: none</code> removes
+            it everywhere.
         </p>
     </CatExample>
 
@@ -38,7 +41,9 @@
             A <code>.page-banner-title</code> first in the body makes the banner a block of text, and every
             slot then stands on its first line instead of on the middle of the block. Point
             <code>aria-labelledby</code> at the title. A link in a toned banner's words takes the banner's
-            ink and an underline.
+            ink and an underline. Buttons that belong to the message sit in a
+            <code>.page-banner-actions</code> inside the body, as a row under the words; one beside the body is
+            for a single trailing action.
         </p>
     </CatExample>
 

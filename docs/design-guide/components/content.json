@@ -16,7 +16,7 @@
       { "text": "A video with its title and transcript", "instead": "/video" }
     ],
     "goals": [ "look-through-pictures", "view-a-picture-large", "frame-an-image-of-any-size", "preview-a-link", "read-a-pdf" ],
-    "stamp": "c062bc3cb52c7edf"
+    "stamp": "6a82859ac7a2cd22"
   },
   {
     "page": "/carousel",
@@ -51,7 +51,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "4e835029e25e8560"
+    "stamp": "ac91683e5e5ccd97"
   },
   {
     "page": "/video",
@@ -65,7 +65,7 @@
       { "text": "A still picture opened large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "play-a-video" ],
-    "stamp": "ffd217a7b4242978"
+    "stamp": "b0741fdbc85f96c2"
   },
   {
     "page": "/audio",
@@ -81,7 +81,7 @@
       { "text": "A recording with pictures", "instead": "/video" }
     ],
     "goals": [ "play-a-recording" ],
-    "stamp": "6e26a02f64a67e7d"
+    "stamp": "72a420ad4e06c1e2"
   },
   {
     "page": "/prose",
@@ -96,7 +96,7 @@
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "6bcae010452852d7"
+    "stamp": "c8f75ccf818fd288"
   },
   {
     "page": "/markdown",
@@ -113,7 +113,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "write-markdown-beside-its-preview", "upload-files-pasted-into-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "2f9ee0588a34be16"
+    "stamp": "f5382e1e397b4800"
   },
   {
     "page": "/diff",
@@ -192,7 +192,7 @@
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text", "mention-someone", "format-as-you-type", "limit-rich-text-length", "edit-tables-in-text", "write-in-full-screen" ],
-    "stamp": "656590867f3f73d0"
+    "stamp": "7a8bc6db43ebd262"
   },
   {
     "page": "/chat",
@@ -211,6 +211,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "3a42581c9986cdd3"
+    "stamp": "4a3678571e8d2212"
   }
 ]

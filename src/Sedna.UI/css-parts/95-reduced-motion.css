@@ -63,6 +63,7 @@
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    .listbox          { transition: none; }   /* 60 */
     .editor           { transition: none; }   /* 44 */
     .form-color       { transition: none; }   /* 45 */
     .form-signature-pad { transition: none; } /* 47 */
@@ -95,6 +96,7 @@
     .spinner          { animation: none; }    /* 39 */
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
+    [dir="rtl"] .skeleton { animation: none; background-image: none; }   /* 70 — the mirrored sweep */
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
@@ -142,6 +144,8 @@
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    dialog.drawer::backdrop { transition: none; }
+    .drawer[data-sedna-closing="modal"] { animation: none; }   /* the dim of a held, closing one */
     button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 
@@ -310,6 +314,12 @@
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
     :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
+    /* 70-rtl — the mirrored sweep stands still as well. */
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
         animation: none;
         background-size: 100% 2px;
         background-position: 0 0;

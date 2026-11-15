@@ -1,0 +1,24 @@
+<div class="sedna-grid sedna-grid--sm sedna-grid--fit" style="max-width:620px">
+    <div class="form-field">
+        <span class="form-label" id="lbx-groups-label">Notify groups</span>
+        <div class="listbox" role="listbox" id="lbx-groups" aria-labelledby="lbx-groups-label" aria-multiselectable="true" tabindex="0" style="--listbox-rows:4">
+            <div role="option" aria-selected="true" data-value="fulfilment">Fulfilment</div>
+            <div role="option" aria-selected="false" data-value="network">Network</div>
+            <div role="option" aria-selected="true" data-value="on-call">On call</div>
+            <div role="option" aria-selected="false" data-value="warehouse">Warehouse</div>
+            <div role="option" aria-selected="false" data-value="finance">Finance</div>
+        </div>
+        <p class="form-hint">Several answers: a click chooses one row, <kbd>Ctrl</kbd> or <kbd>Shift</kbd> extends.</p>
+    </div>
+    <div class="form-field">
+        <span class="form-label" id="lbx-region-label">Region</span>
+        <div class="listbox" role="listbox" id="lbx-region" aria-labelledby="lbx-region-label" tabindex="0" style="--listbox-rows:4">
+            <div role="option" aria-selected="false" data-value="eu-central-1">eu-central-1</div>
+            <div role="option" aria-selected="true" data-value="eu-west-1">eu-west-1</div>
+            <div role="option" aria-selected="false" data-value="us-east-1">us-east-1</div>
+            <div role="option" aria-selected="false" aria-disabled="true" data-value="ap-south-1">ap-south-1</div>
+            <div role="option" aria-selected="false" data-value="ap-northeast-1">ap-northeast-1</div>
+        </div>
+        <p class="form-hint">One answer, which the arrow keys choose as they go. A disabled row is passed over.</p>
+    </div>
+</div>

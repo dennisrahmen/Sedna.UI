@@ -35,6 +35,7 @@ public class FieldStateTests : ScriptTestBase
         ("input-group", """<div class="input-group input-group--sm" data-edge><span class="input-affix"><i class="ri-search-line"></i></span><input class="form-input" data-control aria-label="Filter"></div>"""),
         ("input-group", """<div class="input-group input-group--lg" data-edge><input class="form-input" data-control aria-label="Price" value="1200"><span class="input-affix">EUR</span></div>"""),
         ("input-group", """<div class="input-group" data-edge><select class="form-select" data-control aria-label="Unit"><option>days</option></select><span class="input-affix">per year</span></div>"""),
+        ("listbox", """<div class="listbox" role="listbox" tabindex="0" data-control data-edge aria-label="Groups"><div role="option" aria-selected="true">Fulfilment</div><div role="option">Network</div></div>"""),
         ("form-combo-box", """<div class="form-combo-box" data-edge><input class="form-combo-input" data-control aria-label="Recipients"></div>"""),
         ("form-color", """<input type="color" class="form-color" data-control data-edge aria-label="Accent" value="#3aa8e2">"""),
         ("form-color", """<input type="color" class="form-color form-input--sm" data-control data-edge aria-label="Accent" value="#3aa8e2">"""),

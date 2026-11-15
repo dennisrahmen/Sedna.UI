@@ -6,13 +6,25 @@
     keyboard, the form post and the Blazor binding are the radios&rsquo; own.
 </CatHead>
 
+<div class="callout callout--info">
+    <i class="ri-palette-line"></i>
+    <div class="callout-body">
+        <span class="callout-title">Colour</span>
+        A lit star is <code>--rating-on</code> and an empty one an outline in <code>--rating-off</code>,
+        both held at 3:1 in every theme. Lit and empty differ in shape as well as colour, so forced
+        colours and a printed page still tell them apart.
+    </div>
+</div>
+
+<CatGroup Title="Showing and taking">
 <CatExample TExample="Examples.FormRating.Shown" Title="Showing a score" Demo="ex-demo--block">
     <p>
         Each star says how full it is &mdash; <code>.rating-star--on</code>,
         <code>.rating-star--half</code>, or neither &mdash; and the row says the score in words with
         <code>role="img"</code> and an <code>aria-label</code>, because five drawings are not a number
-        to a screen reader. A number printed beside the stars is for the eye, so it carries
-        <code>aria-hidden="true"</code>.
+        to a screen reader. A number printed with the stars is for the eye, so it is a
+        <code>.rating-value</code> inside the row, with <code>aria-hidden="true"</code>: it takes the
+        row's size and sits on the star's weight rather than its box.
     </p>
 </CatExample>
 
@@ -34,6 +46,9 @@
     </p>
 </CatExample>
 
+</CatGroup>
+
+<CatGroup Title="Sizes and states">
 <CatExample TExample="Examples.FormRating.Sizes" Title="Three sizes" Demo="ex-demo--block">
     <p>
         <code>.rating--sm</code> and <code>.rating--lg</code> change the star, and an editable row takes
@@ -51,13 +66,4 @@
         <code>aria-describedby</code>.
     </p>
 </CatExample>
-
-<div class="callout callout--info">
-    <i class="ri-palette-line"></i>
-    <div class="callout-body">
-        <span class="callout-title">Colour</span>
-        A lit star is <code>--rating-on</code> and an empty one an outline in <code>--rating-off</code>,
-        both held at 3:1 in every theme. Lit and empty differ in shape as well as colour, so forced
-        colours and a printed page still tell them apart.
-    </div>
-</div>
+</CatGroup>

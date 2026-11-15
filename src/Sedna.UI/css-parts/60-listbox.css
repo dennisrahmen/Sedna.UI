@@ -1,0 +1,114 @@
+/* ── Listbox ────────────────────────────────────────────────────────────────
+   A list of options all in view, one or several chosen — the library's own, drawn the
+   same in every browser. It exists because a native `<select multiple>` is a platform
+   control: Chromium lets `.form-select` theme its rows (49-form-select-base.css),
+   WebKit paints a native list box whose selection colour, row height and spacing no
+   CSS reaches. A listbox is app markup and a class, so what it looks like does not
+   depend on the browser.
+
+     <div class="listbox" role="listbox" aria-multiselectable="true" aria-label="Notify groups"
+          tabindex="0" style="--listbox-rows: 4">
+       <div role="option" aria-selected="true"  data-value="fulfilment">Fulfilment</div>
+       <div role="option" aria-selected="false" data-value="network">Network</div>
+       <div role="group" aria-labelledby="lb-teams">
+         <div class="listbox-heading" id="lb-teams" role="presentation">Teams</div>
+         <div role="option" aria-selected="false" aria-disabled="true">Finance</div>
+       </div>
+     </div>
+
+   THE STATE IS ARIA: chosen is `aria-selected`, unavailable `aria-disabled`, and the row
+   the keyboard is on is `data-active` — the script writes that and
+   `aria-activedescendant`, as a combo field does, so the list holds one tab stop. 22-listbox.js
+   is the keyboard and the selection; this part is the paint, and works with no script.
+
+   A chosen row is the brand tint and brand text with a tick at the trailing edge, the
+   look a `.form-select` option and a `.menu-item[aria-current]` carry, so a set of chosen
+   rows reads as a set and not by colour alone. Rows are separated by the same step the
+   menu keeps, so a chosen row and the one the pointer is on never touch.
+
+   `--listbox-rows` is how many one-line rows the box shows before it scrolls. A row
+   with a second line is taller, so set it to roughly half of what should be on screen,
+   as for a list box's `size`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.listbox {
+    --listbox-rows: 4;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+    block-size: calc(var(--listbox-rows) * 2.4em + var(--space-1) * (var(--listbox-rows) - 1) + var(--space-2) * 2 + 2px);
+    padding: var(--space-2);
+    overflow: auto;
+    background: var(--bg);
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-size: var(--text-4);
+    line-height: round(1.4em, 2px);
+    --surface-here: var(--bg);
+    --muted-here: var(--muted);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.listbox:focus {
+    border-color: var(--field-border-focus);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+.listbox[aria-disabled="true"] { background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); cursor: not-allowed; }
+
+.listbox [role="option"] {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-4);
+    box-sizing: border-box;
+    min-block-size: 2.4em;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.listbox [role="option"] > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-7); line-height: 1; }
+.listbox [role="group"] { display: flex; flex-direction: column; gap: var(--space-1); }
+.listbox-heading {
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.listbox [role="option"]:hover,
+.listbox [role="option"][data-active] { background: var(--bg-hover); }
+.listbox:focus-visible [role="option"][data-active] { box-shadow: inset 0 0 0 2px var(--focus-ring); }
+
+.listbox [role="option"][aria-selected="true"] {
+    padding-inline-end: calc(var(--space-5) * 2 + var(--space-4));
+    background: var(--brand-tint);
+    color: var(--brand-text);
+}
+.listbox [role="option"][aria-selected="true"] > i { color: var(--brand-text); }
+.listbox [role="option"][aria-selected="true"]:is(:hover, [data-active]) { background: var(--brand-tint-strong); }
+.listbox [role="option"][aria-disabled="true"] { color: var(--muted); cursor: not-allowed; }
+.listbox [role="option"][aria-disabled="true"]:hover { background: none; }
+.listbox [role="option"][aria-disabled="true"][aria-selected="true"] { background: var(--brand-tint); }
+
+/* The tick is the one `.form-check` draws (34-forms.css), at the trailing edge. */
+.listbox [role="option"][aria-selected="true"]::after {
+    inset: auto;
+    inset-inline-end: var(--space-4);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
+}
+
+/* Two lines: a label and a quiet line under it. */
+.listbox .option-text { display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+.listbox .option-hint { color: var(--muted); font-size: var(--text-3); }
+.listbox [role="option"][aria-selected="true"] .option-hint { color: var(--brand-text); opacity: 0.8; }
+.listbox [role="option"]:has(.option-text) { padding-block: var(--space-3); }

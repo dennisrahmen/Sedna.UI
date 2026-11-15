@@ -597,6 +597,15 @@ internal static class CataloguePages
     public static IEnumerable<CataloguePage> InGroup(string group) =>
         All.Where(p => p.Group == group);
 
+    /// <summary>
+    /// The pages of one group in the order its panel lists them: the pages with no
+    /// section first, then each section's in first-seen order. A group's rail link
+    /// opens the first of these, so the link opens the page the panel shows on top.
+    /// </summary>
+    public static IEnumerable<CataloguePage> InPanelOrder(string group) =>
+        InGroup(group).Where(p => p.Section is null)
+            .Concat(SectionsOf(group).SelectMany(s => InGroup(group).Where(p => p.Section == s)));
+
     /// <summary>The section names one group's panel carries, in first-seen order.</summary>
     public static IEnumerable<string> SectionsOf(string group) =>
         InGroup(group).Select(p => p.Section).OfType<string>().Distinct(StringComparer.Ordinal);

@@ -167,6 +167,8 @@
     .form-combo-box > .chip[data-armed],
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
+    .segmented-option:has(input:checked:focus-visible),
+    .listbox:focus-visible [role="option"][data-active],
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
@@ -208,8 +210,8 @@
     button.cal-more:focus-visible,
     a.cal-agenda-title:focus-visible,
     :is(a, button).toast-body:focus-visible,
-    :is(.form-input, .form-select)[data-state="warn"]:focus,
-    :is(.form-input, .form-select)[aria-invalid="true"]:focus,
+    :is(.form-input, .form-select, .listbox)[data-state="warn"]:focus,
+    :is(.form-input, .form-select, .listbox)[aria-invalid="true"]:focus,
     .form-color[data-state="warn"]:focus-visible,
     .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
     .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
@@ -253,6 +255,7 @@
     .file-tile:has(.file-tile-check :checked),
     .media-transcript li[aria-current="true"],
     .segmented-option:has(input:checked),
+    .listbox [role="option"][aria-selected="true"],
     .th-filter--active,
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
@@ -272,7 +275,7 @@
     .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
     .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
-    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus,
     .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* A chat bubble is nothing but a background; without a line around it a
@@ -312,7 +315,7 @@
     .count-badge,
     .ribbon,
     .badge--swatch::before,
-    .inbox-item--unread::before,
+    .inbox-item--unread .inbox-item-time::before,
     .timeline > li::before { forced-color-adjust: none; }
 
     /* A workflow's wires are the diagram: each is a painted box, and forced colours
@@ -348,7 +351,16 @@
     .gauge::before,
     /* A star is a clipped background too, and it is the score itself. */
     .rating-star::before,
-    .rating-star::after { forced-color-adjust: none; }
+    .rating-star::after,
+    /* A tick is a masked background: Canvas on a Canvas box shows nothing. The box and the
+       mark opt out together, and read the user's palette through the tokens above —
+       --control-on to Highlight, --on-solid to HighlightText. */
+    .form-check input[type="checkbox"],
+    .tree-check,
+    .form-combo-option::before,
+    .form-combo-option::after,
+    .listbox [role="option"]::after,
+    .menu-item[aria-current]:not([aria-current="false"])::after { forced-color-adjust: none; }
 
     /* A chart's marks are its data, and each series is told from the next by its colour
        and its shape: forced colours would paint every mark CanvasText through

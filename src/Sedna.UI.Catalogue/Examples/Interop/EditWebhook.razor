@@ -1,7 +1,7 @@
 @* The app's own modal component. Everything on screen is written here, and
    ISednaOverlays only presents it; SednaOverlayHost sits once in the layout. *@
 
-<dialog id="@Overlay.Id" class="modal" aria-labelledby="@($"{Overlay.Id}-title")">
+<dialog id="@Overlay.Id" class="modal" closedby="closerequest" aria-labelledby="@($"{Overlay.Id}-title")">
     <form @onsubmit="Save">
         <div class="modal-header">
             <h3 id="@($"{Overlay.Id}-title")">Edit webhook</h3>

@@ -98,10 +98,22 @@
 .segmented-option:hover:not(:has(input:disabled)) { color: var(--fg); }
 .segmented-option input:disabled { cursor: not-allowed; }
 
-/* Flat, not raised: a shadow inside a 2px track reads as a rendering artefact at
-   this size. The elevated surface against the inset track is enough. */
-.segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
+/* Flat, not raised: a shadow cast outside a 2px track reads as a rendering artefact at
+   this size. The chosen option is the elevated surface, and it is drawn with the controls'
+   own edge: a fill alone is a step of a few percent from the track — in a neutral theme
+   barely a step at all, which left the text colour as the only thing that said "chosen".
+   A state has to be visible by more than a colour (WCAG 1.4.11), so the edge is the 3:1
+   part and the fill and the brighter text come with it. The edge is inside the option, so
+   it adds no size. */
+.segmented-option:has(input:checked) {
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: inset 0 0 0 1px var(--control-border);
+}
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.segmented-option:has(input:checked:focus-visible) {
+    box-shadow: inset 0 0 0 1px var(--control-border), 0 0 0 2px var(--focus-ring);
+}
 .segmented-option:has(input:disabled) { cursor: not-allowed; }
 
 /* The same three tiers as the button and the text input, off the same tokens, so a

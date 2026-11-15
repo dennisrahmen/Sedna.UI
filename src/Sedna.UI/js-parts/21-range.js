@@ -16,6 +16,13 @@
    attribute, is given its input's value as text. Leave the attribute off where the
    app writes the text itself — a binding and this would fight over the same node.
 
+   A lone range has no box, and its readout is an `output` beside it — `.form-range-value`,
+   its `for` naming the range, `data-range-value` on it or on the element inside it that holds the number.
+   It is written the same way, so a unit around the number stays the app's:
+
+     <input class="form-range" id="conf" type="range" min="0" max="100" value="85">
+     <output class="form-range-value" for="conf"><span data-range-value>85</span>%</output>
+
    It follows every `input` and `reset`, and a render that adds or swaps markup. A
    value set from code without either — a binding writing `value` — is picked up at
    the next of those; dispatch an `input` event on the range after setting one.
@@ -74,9 +81,23 @@
         }
     }
 
+    // The readout of a range that has no box: any `output` outside one whose `for` names a range.
+    function syncReadouts() {
+        var outs = document.querySelectorAll('output[for]');
+        for (var i = 0; i < outs.length; i++) {
+            var out = outs[i];
+            if (out.parentElement && out.parentElement.matches(BOX)) continue;
+            var slot = out.hasAttribute('data-range-value') ? out : out.querySelector('[data-range-value]');
+            if (!slot) continue;
+            var input = document.getElementById((out.getAttribute('for') || '').split(/\s+/)[0]);
+            if (input && input.tagName === 'INPUT' && input.type === 'range' && slot.textContent !== input.value) slot.textContent = input.value;
+        }
+    }
+
     function syncAll() {
         var boxes = document.querySelectorAll(BOX);
         for (var i = 0; i < boxes.length; i++) sync(boxes[i]);
+        syncReadouts();
     }
 
     var queued = false;
@@ -91,6 +112,7 @@
         if (!(t instanceof HTMLInputElement) || t.type !== 'range') return;
         var box = t.parentElement;
         if (box && box.matches(BOX)) sync(box, t);
+        else syncReadouts();
     }
 
     function init() {

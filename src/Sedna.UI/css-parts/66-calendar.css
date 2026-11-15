@@ -163,6 +163,10 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     --cal-fill: var(--brand-tint);
     --cal-accent: var(--brand);
     --cal-solid: var(--brand-text);
+    /* A tint is lighter or darker than the cell behind it, and the rounding of its corners shows
+       the cell as a wedge in the colour the fill is not. Two pixels keeps the pill and leaves a
+       wedge under a pixel. */
+    --cal-event-radius: 2px;
 }
 .cal-event {
     display: flex;
@@ -173,7 +177,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     overflow: hidden;
     background: var(--cal-fill);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -457,7 +461,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
        laying a second tint along its foot. */
     background: linear-gradient(var(--cal-fill), var(--cal-fill)), var(--card-bg);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;

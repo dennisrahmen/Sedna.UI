@@ -80,6 +80,7 @@
      57-navigation-aids.css
      58-menu.css
      59-table-extensions.css
+     60-listbox.css
      60-lists.css
      60-tree.css
      61-buttons-extra.css
@@ -696,6 +697,10 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
+    /* The dividers drawn in the header: its bottom edge, the line before a section, a
+       button or the user widget. A brand-coloured header sets it beside --topbar-bg, so
+       its dividers are a step off its own colour instead of the page's. */
+    --topbar-border:   var(--border);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -965,6 +970,10 @@
        .nav-section-label read it, and every surface resets it to --muted. */
     /* The header's height, and the sidebar's brand and area title, which line up with it. */
     --topbar-height:   44px;
+    /* The gap between the header and a panel that opens from it — the user menu, the app
+       switcher — and, for a panel at the trailing end, between the panel and the window's
+       edge. One value for both, so the panel floats level whatever the header's height. */
+    --topbar-panel-gap: var(--space-2);
 
     /* ── Panel bars ─────────────────────────────────────────────────────────
        A modal's header and footer and a card's head sit on the panel's own surface; an
@@ -2217,7 +2226,9 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-link-tool i { opacity: 0.75; }
 .nav-link-tool:hover { color: var(--sidebar-fg); }
 .nav-link-tool:hover i { opacity: 1; }
-.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-5) var(--space-8) var(--space-2); }
+/* Level between the two groups it divides: the same space above and below, so a link either side
+   of it stands the same distance from the line. */
+.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-3) var(--space-8); }
 
 /* Sidebar status card (a monitored dependency: API reachable, DB connected, …).
    The --ok / --fail modifiers are commonly composed dynamically in the nav. */
@@ -2333,7 +2344,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     transition: position var(--snap) allow-discrete, width var(--snap) allow-discrete, height var(--snap) allow-discrete, overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
 .sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; transition: width var(--snap), height var(--snap); }
-.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); transition: margin var(--snap); }
+.sidebar.collapsed .nav-tools-sep { margin: var(--space-3) var(--space-7); transition: margin var(--snap); }
 /* A rail has no room to type in, so the nav filter goes with the labels. */
 .sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own
@@ -2389,7 +2400,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     --muted-here: var(--topbar-muted);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--topbar-border);
     flex-shrink: 0;
     position: relative;
     z-index: 60;
@@ -2401,7 +2412,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: center;
     gap: var(--space-3);
     padding: 0 var(--space-8);
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 
 /* Square icon button living in the topbar. --start carries its divider on the
@@ -2409,12 +2420,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .topbar-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: var(--topbar-height); flex-shrink: 0;
-    background: none; border: none; border-inline-start: 1px solid var(--border);
+    background: none; border: none; border-inline-start: 1px solid var(--topbar-border);
     color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
 .topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
-.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
+.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--topbar-border); }
 
 
 /* A header that stays at the top while the document scrolls under it — for a page
@@ -2593,7 +2604,7 @@ a.topbar-version--pre:hover {
     z-index: 200;
     display: flex;
     align-items: stretch;
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 .user-trigger {
     display: flex; align-items: center; gap: var(--space-5);
@@ -2623,7 +2634,8 @@ a.topbar-version--pre:hover {
 /* ── The widget's dropdown ──────────────────────────────────────────────────
    The panel itself is the tier-2 `.menu` (58-menu.css) — there is one dropdown
    style in this library, not one per place that needs one. Only the anchoring is
-   the frame's business, and it uses the same 4px gap as `.menu-anchor`. Flush
+   the frame's business, and it keeps `--topbar-panel-gap` below the header and from the
+   window's edge, the same gap the app switcher keeps. Flush
    against `top: 100%` the panel reads as welded to the topbar's bottom edge rather
    than floating below the trigger — the header's own border and the panel's top
    border land on the same line, so neither is legible as an edge.
@@ -2640,8 +2652,8 @@ a.topbar-version--pre:hover {
     color: var(--fg);
     min-width: 220px;
     position: absolute;
-    top: calc(100% + var(--space-2));
-    inset-inline-end: 0;
+    top: calc(100% + var(--topbar-panel-gap));
+    inset-inline-end: var(--topbar-panel-gap);
     z-index: 550;
 }
 
@@ -2766,9 +2778,11 @@ a.topbar-version--pre:hover {
 
 /* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
    hard. The two solid cover gradients (background-attachment: local) ride the
-   content and hide the shadow at the very top/bottom; the two radial shadows
+   content and hide the shadow at the very top/bottom; the two edge shadows
    (attachment: scroll) are pinned to the box and only show when there IS more
-   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   content that way. They run the full width of the box and fade out across their
+   height: a radial one was a smudge in the middle of the edge, which on a narrow
+   panel read as a shadow cast by something inside it. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band.
 
    It reads --surface-here, which every surface the library paints declares once
@@ -2781,8 +2795,8 @@ a.topbar-version--pre:hover {
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
-        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
-        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+        linear-gradient(to bottom, var(--scroll-shade), transparent) center top,
+        linear-gradient(to top, var(--scroll-shade), transparent) center bottom;
     background-repeat: no-repeat;
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
@@ -2900,6 +2914,25 @@ a.topbar-version--pre:hover {
     font-size: var(--text-4);
     /* A long address or token in the message wraps instead of widening the frame. */
     overflow-wrap: anywhere;
+}
+
+/* ── The shadow moves down ──────────────────────────────────────────────────
+   The header's shadow says "the page scrolls behind me", and with a banner under the
+   header it would fall on the banner instead of on the page. So the header gives its
+   shadow up and the banner draws it, from the same `--shadow-topbar`: the line between
+   the two stays a plain edge, and content scrolling behind the banner still reads as
+   behind. Setting `--shadow-topbar: none` removes it from both.
+
+   `z-index: 3` is local stacking: it lifts the banner over the page's own positioned
+   rows and the sticky header of a table, and stays under the header (60), which hides
+   the few pixels of the shadow that reach up. Where the banner scrolls away under a
+   sticky header — `.topbar--sticky`, and `.layout--flow` on a phone — the header keeps
+   its shadow and the banner has none; 19-frame-responsive.css puts the flow case back. */
+.topbar:not(.topbar--sticky):has(+ .page-banner) { box-shadow: none; }
+.topbar:not(.topbar--sticky) + .page-banner {
+    position: relative;
+    z-index: 3;
+    box-shadow: var(--shadow-topbar);
 }
 
 .page-banner > i {
@@ -3309,7 +3342,7 @@ a.topbar-version--pre:hover {
         clip-path: inset(50%);
     }
     .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
-    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-3) var(--space-7); }
     .layout--responsive .sidebar .nav-filter { display: none; }
     .layout--responsive .sidebar.sidebar--areas > .nav { display: none; }
     .layout--responsive .sidebar.sidebar--areas .nav-areas { border-inline-end: none; }
@@ -3397,6 +3430,10 @@ a.topbar-version--pre:hover {
         position: sticky;
         top: var(--safe-block-start);
     }
+    /* The banner scrolls away under the sticky header, which keeps the shadow: see
+       18-frame-banner.css. */
+    .layout--flow .topbar:has(+ .page-banner) { box-shadow: var(--shadow-topbar); }
+    .layout--flow .topbar + .page-banner { position: static; box-shadow: none; }
     .layout--flow > .sidebar {
         position: sticky;
         top: 0;
@@ -4416,7 +4453,18 @@ a.card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* `a.card` outweighs `.card--fill`, so a fill card that is a link says its column again. */
 a.card.card--fill { display: flex; }
 
+/* A head is as tall as one holding a small control — an icon button, a menu button, a
+   drag grip — whatever it holds. Entering a panel grid's arrange mode adds grips, and
+   a head that grew with them would move every panel under it; a head holding only a
+   title is the same height as one holding an icon button. `--card-head-control` is the
+   height of the control a head is sized for: the small tier. A button in a head takes
+   that height and no more — `.btn--lg` aside, which is the app choosing a taller head —
+   with its block padding given up to the height, because a small button's padding and
+   label add up to more than the tier at compact density. The grip is that tall already.
+   The 1px is the border under the head. */
 .card-head {
+    --card-head-control: var(--control-height-sm);
+    min-block-size: calc(2 * var(--card-pad-block) + var(--card-head-control) + 1px);
     display: flex;
     /* A trailing action too wide to share the line goes under the title, rather than
        squeezing the title to a word a line. */
@@ -4427,6 +4475,10 @@ a.card.card--fill { display: flex; }
     padding: var(--card-pad-block) var(--card-pad-inline);
     border-bottom: 1px solid var(--border);
     background: var(--card-head-bg);
+}
+.card-head .btn:not(.btn--lg) {
+    min-block-size: var(--card-head-control);
+    padding-block: 0;
 }
 /* The same three declarations `.modal-header h3` and `.drawer-header h3` make, for the
    same reason: a bare <h3> in a head otherwise keeps the UA stylesheet's 1em block
@@ -4570,6 +4622,7 @@ a.card.card--fill { display: flex; }
 .card-head--tabs {
     align-items: stretch;
     padding: 0;
+    min-block-size: 0;       /* the tab is the head's height */
 }
 .card-head--tabs .tabs {
     flex: 1;
@@ -5052,7 +5105,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     display: inline-flex;
     flex-shrink: 0;
 }
-.count-host--round { --count-inset: 14.6%; }
+.count-host--round { --count-inset: round(14.6%, 1px); }
 .btn.count-host    { --count-inset: 3px; }
 /* A bare icon at its own size: the corner of its glyph is where the number would cover it, so the
    badge's centre sits outside the corner by as much as it sat inside it. */
@@ -5082,6 +5135,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
+    /* The system stack, not the host's: a `<button>` does not inherit its parent's font, so a
+       count on a bare button was set in the browser's own button font. */
+    font-family: var(--font-sans);
     font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;
@@ -5455,15 +5511,46 @@ textarea.form-input::-webkit-resizer {
     background: var(--control-on);
     border-color: var(--control-on);
 }
-.form-check input[type="checkbox"]:checked::after {
+/* ── The tick ───────────────────────────────────────────────────────────────
+   Drawn once, here, for every box in the library that draws its own: `.form-check`,
+   a tree's `.tree-check` and a multiselect's option — and for the tick a chosen listbox
+   row and a menu's current item carry at their end.
+
+   It is a MASK on a box that fills the padding box, and not a rotated border. A
+   transformed element is not pixel-snapped in Chromium: the box (and its border) snap
+   to the device pixel and the transformed tick does not, so the tick sat up to a pixel
+   higher or lower in its box depending only on the fraction of a pixel the box landed
+   on — 0.25 either way is all it takes a label's line to centre a 15px box. A mask is
+   painted into the snapped box, so the tick is where it is in every position.
+
+   The shape is two perpendicular 2px strokes, the short one 6px and the long one 10px
+   with square ends, as the rotated border drew it — a stroke is the intersection of a
+   band and the limits of its length. Two bands, added, and the two limits, intersected:
+   neither limit cuts the other stroke, so the four layers are the whole tick. Every
+   stop is measured from the box's centre, which is also the tick's (its bounding box,
+   not its weight, is what sits on the middle). One pixel ramps are the antialiasing.
+
+   The mask is alpha only, so the colour is the element's `background`. */
+.form-check input[type="checkbox"]:checked::after,
+.tree [aria-checked="true"] > .tree-row > .tree-check::after,
+.form-combo-option[aria-selected="true"]::after,
+.listbox [role="option"][aria-selected="true"]::after,
+.menu-item[aria-current]:not([aria-current="false"])::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
-    width: 4px; height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: translate(-50%, -60%) rotate(45deg);
+    inset: 0;
+    background: var(--on-solid);
+    mask-image:
+        linear-gradient(45deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% + 5.5px), transparent calc(50% + 6.5px)),
+        linear-gradient(135deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% + 1.5px), transparent calc(50% + 2.5px)),
+        linear-gradient(45deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% - 2.5px), transparent calc(50% - 1.5px)),
+        linear-gradient(135deg, transparent calc(50% - 0.5px), currentColor calc(50% + 0.5px),
+            currentColor calc(50% + 1.5px), transparent calc(50% + 2.5px));
+    mask-composite: intersect, intersect, add;
+    mask-repeat: no-repeat;
 }
 /* ── Half ticked ────────────────────────────────────────────────────────────
    A "select all" over a list some of whose rows are ticked: filled like a ticked box,
@@ -5477,16 +5564,18 @@ textarea.form-input::-webkit-resizer {
 
    It wins over `checked`, as the platform's own box does: a box that is both shows the
    dash. Every control in the library that draws its own checkbox draws this state too;
-   CheckboxMixedTests finds each one. */
+   CheckboxMixedTests finds each one. The dash is a mask as well, and for the same
+   reason as the tick. */
 .form-check input[type="checkbox"]:is(:indeterminate, [aria-checked="mixed"])::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
-    width: 7px; height: 2px;
-    border: 0;
+    inset: 0;
     background: var(--on-solid);
-    transform: translate(-50%, -50%);
+    mask-image: linear-gradient(currentColor, currentColor);
+    mask-size: 7px 2px;
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-composite: add;
 }
 .form-check input[type="checkbox"]:focus-visible {
     outline: none;
@@ -6210,13 +6299,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     /* A block whatever the element: a <span> in a table cell or a list row is the
        natural markup, and an inline box ignores the height that is the whole point. */
     display: block;
-    background: var(--skeleton-bg);
-    background-image: linear-gradient(
-        90deg,
-        var(--skeleton-bg) 0%,
-        var(--skeleton-sheen) 50%,
-        var(--skeleton-bg) 100%);
-    background-size: 200% 100%;
+    /* The placeholder, and over it a band of light that crosses it. The band is half the
+       placeholder wide and drawn once, not tiled: it starts wholly outside the inline start,
+       clipped by the box, and leaves wholly outside the inline end, so it never appears or
+       vanishes on the way. `--skeleton-band` is the band itself, for a variant to recolour. */
+    --skeleton-band: linear-gradient(90deg, transparent 0%, var(--skeleton-sheen) 50%, transparent 100%);
+    background-color: var(--skeleton-bg);
+    background-image: var(--skeleton-band);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    background-position: -100% 0;
     border-radius: var(--radius-inner);
     animation: sedna-skeleton var(--skeleton-duration) ease-in-out infinite;
 }
@@ -6313,11 +6405,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-inner) var(--radius-inner) 0 0;
 }
 
+/* A percentage `background-position` is measured against the box less the band: for a band half
+   the box wide, -100% puts its far edge on the box's near edge and 200% puts its near edge on
+   the box's far edge, so both ends are wholly outside and the box clips the band.
+   `background-position` is physical, so 70-rtl.css runs the sweep the other way. */
 @keyframes sedna-skeleton {
-    from { background-position: 200% 0; }
-    to   { background-position: -200% 0; }
+    from { background-position: -100% 0; }
+    to   { background-position: 200% 0; }
 }
-
 }
 
 /* ── 41-progress.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -6362,12 +6457,18 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .progress-bar--sev-5 { background: var(--sev-5-solid); }
 
 .progress--indeterminate .progress-bar {
+    --progress-flow: 1;
     width: 35%;
     animation: sedna-progress var(--progress-duration) ease-in-out infinite;
 }
+/* A percentage `translate` is measured against the bar's own width, which is 35% of the track: -110%
+   puts its far edge 3.5% of the track outside the near edge, and 340% puts its near edge 19% outside
+   the far one. Both ends are wholly outside, so the track clips the bar and it never appears or
+   vanishes on the way. `--progress-flow` is 1 from the inline start to the inline end and -1 in a
+   right-to-left page (70-rtl.css), because a translate has no logical form. */
 @keyframes sedna-progress {
-    from { transform: translateX(-110%); }
-    to   { transform: translateX(340%); }
+    from { translate: calc(var(--progress-flow) * -110%) 0; }
+    to   { translate: calc(var(--progress-flow) * 340%) 0; }
 }
 
 /* ── Route progress ─────────────────────────────────────────────────────────
@@ -7110,7 +7211,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    A dashboard whose panels each have a place of their own: a column, a row, a width
    and a height in cells, set inline from the arrangement the app stores —
    `style="--panel-x: 0; --panel-y: 0; --panel-w: 8; --panel-h: 4"`, counted from 0 at the
-   inline start and the top. `--panel-cols` (12) columns share the width; a row is
+   inline start and the top. `--panel-cols` (24) columns share the width — the same 24 as
+   `.sedna-grid-24`, so a panel's span means what `.sedna-span-N` means — a row is
    `--panel-row` (3rem) tall, and `--grid-gap` lies between them both ways. Nothing
    flows: a panel stays where it is put, so the app keeps them from overlapping —
    `sednaUi.panels.arrange` and `SednaPanels.Arrange` settle any arrangement into one
@@ -7118,7 +7220,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 
    As a drag zone with `data-drag-axis="cells"`, the reader arranges it while it carries
    `data-arrange`: a panel moves by its `[data-drag-handle]` and resizes by its
-   `.card-resize` handles, which show only then, over cells drawn faintly on the grid.
+   `.card-resize` handles, which show only then, over a dot at the centre of every cell.
    While a panel is carried the grid marks the cell it would land on, from the
    `--panel-drop-*` the script writes; the other panels make room through
    `--panel-preview-*`, which the script writes and clears and which are read before the
@@ -7127,7 +7229,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
    their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
 .panel-grid {
-    --panel-cols: 12;
+    --panel-cols: 24;
     --panel-row: 3rem;
     --grid-gap: var(--space-7);
     --panel-drop-x: 0;
@@ -7139,6 +7241,11 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     grid-template-columns: repeat(var(--panel-cols), minmax(0, 1fr));
     grid-auto-rows: var(--panel-row);
     gap: var(--grid-gap);
+    /* The column gap is capped at a share of the width, as `.sedna-grid-24`'s is: 23 gaps
+       of 16px come to 368px, and a grid narrower than that would push its tracks to
+       nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
+    --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
+    column-gap: var(--panel-gap-x);
 }
 :where(.panel-grid > *) {
     --panel-x: 0;
@@ -7160,14 +7267,38 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
 .panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
-/* Arranging: the cells, a tint each with the gap left clear — one tile per cell, tinted in
-   the quarter of a conic gradient that lies above and before the gap's corner. */
+/* Arranging: a dot at the centre of every cell, so every place a panel can start and
+   every size it can take is marked. It is drawn on a layer behind the panels as two
+   stripe patterns that a mask intersects — a stripe a cell wide, the column gap as drawn
+   (`--panel-gap-x`) apart, across, and a stripe a row high, `--grid-gap` apart, down —
+   rather than as a tiled background: WebKit rounds a tile to whole pixels, and over 24
+   columns the dots drift out of their cells. Where the gap is capped the cell is as wide
+   as nothing and the dot sits at the start of its column. The layer is at 0 and the panels
+   at 1, at no specificity, so a panel being carried (3) still wins. `--panel-guide-dot` is its
+   colour. */
 .panel-grid[data-arrange] {
-    background-image: conic-gradient(
-        at calc(100% - var(--grid-gap)) calc(100% - var(--grid-gap)),
-        transparent 75%, var(--surface-soft) 0);
-    background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
-    border-radius: var(--radius-surface);
+    --panel-guide-dot: var(--border-strong);
+    position: relative;
+}
+:where(.panel-grid[data-arrange] > *) { z-index: 1; }
+.panel-grid[data-arrange]::after {
+    --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
+    --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
+    --panel-dot-y: calc(var(--panel-row) / 2 - 1px);
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--panel-guide-dot);
+    mask:
+        repeating-linear-gradient(90deg, transparent 0 var(--panel-dot-x),
+            currentColor var(--panel-dot-x) calc(var(--panel-dot-x) + 2px),
+            transparent calc(var(--panel-dot-x) + 2px) var(--panel-pitch-x)),
+        repeating-linear-gradient(180deg, transparent 0 var(--panel-dot-y),
+            currentColor var(--panel-dot-y) calc(var(--panel-dot-y) + 2px),
+            transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
+    mask-composite: intersect;
 }
 /* Not arranging, a panel is content: its own handles are not there. A handle of a zone
    nested inside a panel — a list in it the reader reorders — is that zone's. */
@@ -7578,19 +7709,22 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
    unchecked">` and draws the marker itself, into a `.ql-ui` span, so the browser's own
    markers are off and the counters below number an ordered list through its indents:
    1. a. i. and round again, as a document editor does. */
-/* A table the editor takes (data-editor-format="table" or a table action): the
-   document's own grid, in the table tokens, so a stored table reads as one. */
+/* A table the editor takes (data-editor-format="table" or a table action). Its look is
+   the document's own, `.prose`'s: the same grid, padding and cell trim, so a stored
+   table reads as the one the page later shows. Only what editing needs is added — it
+   fills the column, as a block of fixed columns, so every cell is a target the pointer
+   can hit and a long word wraps inside its cell, where `.prose` lets a table shrink to
+   its content and scroll. */
 .editor .ql-editor table {
-    border-collapse: collapse;
+    display: table;
     inline-size: 100%;
     margin-block: var(--space-4);
     table-layout: fixed;
 }
 .editor .ql-editor td {
-    border: 1px solid var(--border);
-    padding: var(--space-2) var(--space-4);
     vertical-align: top;
     min-inline-size: 2em;
+    overflow-wrap: anywhere;
 }
 .editor .ql-editor ol { padding-inline-start: 1.5em; }
 .editor .ql-editor li {
@@ -8490,14 +8624,14 @@ fieldset.form-field > legend {
    in the shared shape rule: a select carrying `.form-select` alone is a complete,
    correct class list, and the one control a form most often rejects — an empty
    required dropdown — would otherwise report nothing. */
-:is(.form-input, .form-select, .form-color)[data-state="warn"],
+:is(.form-input, .form-select, .form-color, .listbox)[data-state="warn"],
 .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
 .form-combo-box:has(> .form-combo-input[data-state="warn"]),
 .editor[data-state="warn"],
 .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
 .md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
 
-:is(.form-input, .form-select)[data-state="warn"]:focus,
+:is(.form-input, .form-select, .listbox)[data-state="warn"]:focus,
 .form-color[data-state="warn"]:focus-visible,
 .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
 .form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
@@ -8507,14 +8641,14 @@ fieldset.form-field > legend {
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
-:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+:is(.form-input, .form-select, .form-color, .listbox)[aria-invalid="true"],
 .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
 .editor[aria-invalid="true"],
 .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
 .md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
 
-:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+:is(.form-input, .form-select, .listbox)[aria-invalid="true"]:focus,
 .form-color[aria-invalid="true"]:focus-visible,
 .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,
@@ -9297,6 +9431,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     border: 0;
 }
 .form-file-name { color: var(--muted); font-size: var(--text-3); }
+/* Its overflow rules are the file name's, in 64-files.css. */
 /* The focus ring has to be drawn on the label, because the focused element is the
    input the reader cannot see. */
 .form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--focus-ring); }
@@ -9425,7 +9560,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     font-size: var(--text-3);
 }
 .file-item > i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
-.file-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-name { flex: 1; }
 .file-item-size { color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
 /* Failed upload or a rejected type. The icon carries it too, so it is not colour
    alone. */
@@ -10007,7 +10142,12 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 }
 .stepper .form-input::-webkit-outer-spin-button,
 .stepper .form-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.stepper .btn { border-radius: 0; }
+/* The buttons take the input's edge. A `.btn` draws `--border`, the quiet edge of a
+   button on its own, and the input draws `--field-border`, the controls' 3:1 edge: side by
+   side the one shared line between them was the button's, and the field ran into the
+   plus with almost no outline at all. All three parts are one control, so one colour. */
+.stepper .btn { border-radius: 0; border-color: var(--field-border); }
+.stepper .btn:hover { border-color: var(--border-hover); }
 .stepper > :first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
 .stepper > :last-child  { border-start-end-radius: var(--radius-control);   border-end-end-radius: var(--radius-control); }
 /* One shared border between neighbours rather than two adjacent ones. */
@@ -10472,19 +10612,15 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     width: 15px;
     height: 15px;
 }
-.form-combo-option[aria-selected="true"]::after,
-[aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
-    content: "";
-    position: absolute;
-    /* The tick sits over the ::before slot. Offset from the inline start, so it
-       follows the slot in RTL. */
-    inset-inline-start: calc(var(--space-4) + 5px);
-    top: 50%;
-    width: 5px;
-    height: 9px;
-    border-inline-end: 2px solid var(--brand-text);
-    border-bottom: 2px solid var(--brand-text);
-    transform: translateY(-60%) rotate(45deg);
+/* The tick is the one `.form-check` draws (34-forms.css), 13px square over the slot's
+   padding box: placed from the inline start and centred on the option's own line. */
+.form-combo-option[aria-selected="true"]::after {
+    inset: auto;
+    inset-inline-start: calc(var(--space-4) + 1px);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
 }
 /* The same box `.form-check` draws, so a multiselect reads as a list of checkboxes. */
 [aria-multiselectable="true"] > .form-combo-option::before {
@@ -10497,9 +10633,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-color: var(--brand);
 }
 [aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
-    width: 4px;
-    height: 8px;
-    border-color: var(--on-solid);
+    background: var(--on-solid);
 }
 
 .form-combo-option-text { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
@@ -10975,14 +11109,24 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .form-select option:has(> .option-hint)::checkmark { margin-inline-start: var(--space-5); }
 
 /* ── Groups and separators ──────────────────────────────────────────────────
-   Use a `<legend>` for a group heading, not the `label` attribute on its own. The
-   attribute's heading is drawn by the browser outside this document and cannot be
-   themed — the two lines below would do nothing to it. Keep the attribute as well:
-   it is what a browser without base appearance shows.
+   A group is an `<optgroup>` with a `<legend>` for its heading, and the label attribute
+   as well:
 
        <optgroup label="Regions"><legend>Regions</legend> … </optgroup>
 
-   `<hr>` between groups is a separator the picker renders like any other box. */
+   The attribute's heading is drawn by the browser outside this document and cannot be
+   themed — the rules below would do nothing to it — so it is what a browser without base
+   appearance shows, and the `<legend>` is what this one does. Keep both.
+
+   One line divides two groups, and the CSS draws it: the second group takes a hairline
+   and a step of space above it, so there is nothing to write between groups. An `<hr>`
+   between them was the habit, and it drew a second line beside this one, and beside the
+   platform's own in a browser that separates its groups itself — so an `<hr>` that
+   directly precedes a group is the divider and the group draws none. `<hr>` is for the
+   place a group is not: between loose options.
+
+   A list box is not divided: its headings are what separate groups, and a line would
+   come out of the `size` budget below. */
 .form-select optgroup > legend {
     padding: var(--space-4) var(--space-5) var(--space-2);
     font-size: var(--text-1);
@@ -10991,10 +11135,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     letter-spacing: 0.08em;
     color: var(--muted);
 }
+.form-select:not([multiple], [size]:not([size="1"])) :is(optgroup, option) + optgroup {
+    margin-block-start: var(--space-2);
+    border-block-start: 1px solid var(--divider);
+}
 .form-select hr {
     margin: var(--space-2) 0;
     border: 0;
     border-block-start: 1px solid var(--divider);
+}
+.form-select:not([multiple], [size]:not([size="1"])) hr + optgroup {
+    margin-block-start: 0;
+    border-block-start: 0;
 }
 
 /* ── The list box ───────────────────────────────────────────────────────────
@@ -11132,15 +11284,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     transition: color var(--motion-fast), border-color var(--motion-fast), background var(--motion-fast);
 }
 .tab i { font-size: var(--text-6); }
-.tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
+/* Hover recolours the label and draws a hairline where the indicator will be: no fill, so a
+   strip inside a panel or a card head is not a row of grey boxes against its edge. */
+.tab:hover { color: var(--fg); border-bottom-color: var(--control-border); text-decoration: none; }
 .tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .tab:disabled,
 .tab[aria-disabled="true"] { cursor: not-allowed; }
+.tab:where(:disabled, [aria-disabled="true"]):hover { color: var(--muted); border-bottom-color: transparent; }
 
 .tab--active,
 .tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--tab-indicator); }
 .tab--active:hover,
-.tab[aria-selected="true"]:hover { color: var(--brand-text); background: none; }
+.tab[aria-selected="true"]:hover { color: var(--brand-text); }
 
 /* A count beside the label — how many rows the tab's panel holds. */
 .tab-count {
@@ -11330,6 +11485,23 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     width: fit-content;
     vertical-align: middle;
 }
+/* The number printed beside the stars, inside the row so it takes the row's size. It is
+   set at seven tenths of the star and centred on the star's weight, not on its box: a
+   five-pointed star is a point on top and two on the bottom, so its mass sits at 55% of
+   its height, and a figure centred on the box looks a pixel high next to it. The offset
+   is a layout inset rounded to a whole pixel — a transform would put the digits between
+   pixels. */
+.rating-value {
+    position: relative;
+    inset-block-start: round(calc(var(--rating-size) * 0.05), 1px);
+    margin-inline-start: var(--space-2);
+    color: var(--fg-soft);
+    font-size: calc(var(--rating-size) * 0.7);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
 .rating--sm { --rating-size: 16px; }
 .rating--lg { --rating-size: 28px; }
 .rating:has(input) { min-height: var(--control-height); }
@@ -11504,10 +11676,22 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .segmented-option:hover:not(:has(input:disabled)) { color: var(--fg); }
 .segmented-option input:disabled { cursor: not-allowed; }
 
-/* Flat, not raised: a shadow inside a 2px track reads as a rendering artefact at
-   this size. The elevated surface against the inset track is enough. */
-.segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
+/* Flat, not raised: a shadow cast outside a 2px track reads as a rendering artefact at
+   this size. The chosen option is the elevated surface, and it is drawn with the controls'
+   own edge: a fill alone is a step of a few percent from the track — in a neutral theme
+   barely a step at all, which left the text colour as the only thing that said "chosen".
+   A state has to be visible by more than a colour (WCAG 1.4.11), so the edge is the 3:1
+   part and the fill and the brighter text come with it. The edge is inside the option, so
+   it adds no size. */
+.segmented-option:has(input:checked) {
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: inset 0 0 0 1px var(--control-border);
+}
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.segmented-option:has(input:checked:focus-visible) {
+    box-shadow: inset 0 0 0 1px var(--control-border), 0 0 0 2px var(--focus-ring);
+}
 .segmented-option:has(input:disabled) { cursor: not-allowed; }
 
 /* The same three tiers as the button and the text input, off the same tokens, so a
@@ -13578,13 +13762,27 @@ button.chart-key[aria-pressed="false"] .chart-swatch { opacity: 0.35; }
    picture. Every one the library draws, so none needs a margin utility in a stat. */
 .stat > :is(.progress, .meter, .stack-bar, .tracker, .sparkline) { margin-top: var(--space-2); }
 
+/* The first and last line of a stat stand on their capitals, not on their line box.
+   A line of text has leading above and below its capitals, so a tile padded the same on
+   every side read taller than it was wide: the label stood a half-leading further from the
+   top than from the start, and the figure the same from the foot. Every line of a stat is
+   trimmed to its capitals and given its line back as padding, like every leaf component's,
+   so it is as tall as before and its ink stands in the middle of it in both engines — and
+   the first and last line then take that padding back as a negative margin, so a tile's
+   padding (a tint's, a link's hover, a card's body) is the distance the eye sees. A delta
+   is a flex row of an icon and a word, with nothing to trim, and takes the margin alone. A
+   drawing as the last child has no line to give back. */
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target) { text-box: trim-both cap alphabetic; padding-block: var(--cap-gap); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):first-child { margin-block-start: calc(var(--cap-gap) * -1); }
+.stat > :is(.stat-label, .stat-value, .stat-note, .stat-target, .stat-delta):last-child  { margin-block-end:   calc(var(--cap-gap) * -1); }
+
 /* ── A stat that opens something ────────────────────────────────────────────
    For a tile that leads to the thing it counts. An <a>, so it is a real link. The
    whole tile is the target, which is why the padding and the hover are on it rather
    than on the value. */
 a.stat {
-    padding: var(--space-4) var(--space-5);
-    margin: calc(var(--space-4) * -1) calc(var(--space-5) * -1);
+    padding: var(--space-4);
+    margin: calc(var(--space-4) * -1);
     border-radius: var(--radius-surface);
     color: inherit;
     text-decoration: none;
@@ -13667,8 +13865,12 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     border: 1px solid transparent;
     border-radius: var(--radius-surface);
 }
+/* In a card the plain tile already stands `--space-2` inside its track, so a tint reaches
+   only `--space-1` past it: the label stands the same distance from the tint's top as from
+   its start, and a tint is no taller than the card body can hold. */
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) {
-    padding-block: calc(var(--space-2) + var(--space-3) - 1px);
+    margin-block: calc(var(--space-1) * -1);
+    padding-block: calc(var(--space-2) + var(--space-1) - 1px);
 }
 
 /* A row of tiles. Breakpoint-free, like the other grids: it responds to the space
@@ -13710,7 +13912,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .card-body > .stat-row > .stat { position: relative; }
 .card-body > .stat-row > .stat { padding-block: var(--space-2); }
 /* A linked tile keeps its negative margin, so its padding has to give that back too. */
-.card-body > .stat-row > a.stat { padding-block: calc(var(--space-2) + var(--space-4)); }
+.card-body > .stat-row > a.stat { margin-block: calc(var(--space-2) * -1); padding-block: var(--space-4); }
 /* A border rather than a background, so forced-colors mode keeps it. */
 .stat-row--divided > .stat::before,
 .card-body > .stat-row > .stat::before {
@@ -13724,13 +13926,18 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .stat-row--divided > a.stat::before,
 .card-body > .stat-row > a.stat::before {
     inset-block: var(--space-4);
-    inset-inline-start: calc(var(--space-5) - var(--space-7));
+    inset-inline-start: calc(var(--space-4) - var(--space-7));
 }
+.card-body > .stat-row > a.stat::before { inset-block: var(--space-2); }
 /* A toned tile's box reaches past its track by its tint; the rule does not. */
 .stat-row--divided > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before,
 .card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
     inset-block: calc(var(--space-3) - 1px);
     inset-inline-start: calc(var(--space-3) - 1px - var(--space-7));
+}
+/* In a card a tint reaches `--space-1` past the track, not `--space-3`. */
+.card-body > .stat-row > .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret)::before {
+    inset-block: calc(var(--space-1) - 1px);
 }
 }
 
@@ -14775,6 +14982,17 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     box-shadow: var(--shadow-dropdown);
 }
 
+/* A panel the script has put in the top layer (22-menu.js, `raise`) keeps the place and the look
+   it had: a popover's own styles — an inset on every side, auto margins, scrolling, the
+   canvas colours — are undone, and what the panel is placed by is its own below. It comes first,
+   so the panel's own margins, later, outrank the reset. */
+.menu[data-menu-raised] {
+    inset: auto;
+    margin: 0;
+    overflow: visible;
+    color: inherit;
+}
+
 /* Wrap trigger + panel in this to anchor the panel under the trigger.
    ─── Why this is anchor positioning and no longer `position: absolute` ─────
    An absolutely positioned panel is laid out INSIDE the nearest scroll container
@@ -14965,7 +15183,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     pointer-events: none;
     anchor-name: --sedna-menu-point;
 }
-.menu[popover] {
+.menu[popover]:not([data-menu-raised]) {
     inset: auto;
     margin: 0;
     position: fixed;
@@ -15090,8 +15308,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 
    It is the tint and the brand ink `.nav-link.active` and a `.form-select`'s chosen
    option carry, so the three read alike, and a tick at the trailing edge, where the
-   select draws its own, so it does not depend on colour. The tick is drawn as the
-   combo field's is, and stands in a column of its own: a menu holding a current item
+   select draws its own, so it does not depend on colour. The tick is the shared
+   mask of `34-forms.css`, placed as the combo field's is, and stands in a column of its own: a menu holding a current item
    keeps that room at the end of every row, so a `.menu-item-note` stays lined up down
    the panel and never sits under the tick. */
 .menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
@@ -15102,15 +15320,12 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }
 .menu-item[aria-current]:not([aria-current="false"]):is(:hover, [data-active]) { background: var(--brand-tint-strong); }
 .menu-item[aria-current]:not([aria-current="false"])::after {
-    content: "";
-    position: absolute;
-    inset-inline-end: calc(var(--space-5) + 1px);
-    top: 50%;
-    width: 5px;
-    height: 9px;
-    border-inline-end: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-60%) rotate(45deg);
+    inset: auto;
+    inset-inline-end: var(--space-5);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
 }
 
 /* A group's heading. Its line is trimmed to its capitals and given back in the padding,
@@ -15271,7 +15486,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    reason, a field's results under it, keeps its place under its anchor. */
 @media (max-width: 767px) {
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu,
-    .menu[popover] {
+    .menu[popover]:not([data-menu-raised]) {
         position: fixed;
         inset: auto 0 0;
         position-area: none;
@@ -15301,7 +15516,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     /* Above the catcher, which is the panel's first box: the rows are what a press on
        the panel reaches. */
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu > * { position: relative; z-index: 1; }
-    .menu[popover]::backdrop { background: var(--backdrop); }
+    .menu[popover]:not([data-menu-raised])::backdrop { background: var(--backdrop); }
 
     :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item { padding-block: var(--space-5); }
     :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item:not(:has(> *)) {
@@ -15503,9 +15718,32 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    per box, so `> td` gave each cell its own 3px rule and the row read as a set of
    vertical dividers rather than one leading edge. It cannot go on the <tr>: a
    row's box is not painted when the table's borders are collapsed. */
-.table tbody tr[aria-selected="true"] > td:first-child {
-    box-shadow: inset 3px 0 0 var(--selected);
+.table:not(.table--pin-start) tbody tr[aria-selected="true"] > td:first-child { position: relative; }
+/* Drawn over the lines above and below the row, as the detail row's rule is, so the bar
+   fills the row from line to line and two selected rows read as one bar. An inset shadow
+   stopped at the cell's padding box, a border short at each end. The stacked layout keeps the
+   shadow: its cells carry their label in the ::before this one would be. */
+.table:not(.table--stack) tbody tr[aria-selected="true"] > td:first-child::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--selected);
+    pointer-events: none;
 }
+.table--stack tbody tr[aria-selected="true"] > td:first-child { box-shadow: inset 3px 0 0 var(--selected); }
+
+/* A cell that holds only a checkbox and its label. An inline-flex box sits on the line's
+   baseline with the strut's descent under it, so the box stood a few pixels above the middle
+   of its row beside text that is centred. As a block of its own its cell centres it, as it
+   does the text beside it; it keeps the width of its content, and the cell's alignment. */
+.table :is(td, th) > .form-check:only-child {
+    display: flex;
+    inline-size: max-content;
+}
+.table :is(td, th):is(.col-num, .text-end) > .form-check:only-child { margin-inline-start: auto; }
+.table :is(td, th):is(.text-center) > .form-check:only-child { margin-inline: auto; }
 
 /* ── Pinned columns ─────────────────────────────────────────────────────────
    `.table--sticky` pins the header for a reader scrolling DOWN. This is the same
@@ -15931,11 +16169,6 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table--zebra .tr-clickable:hover { --pin-tint: var(--bg-hover); }
 .table tfoot tr { --pin-tint: var(--surface-soft); }
-/* The selection marker is an inset shadow, and the pinned cell's box-shadow would
-   replace it — on the very column where it is most visible. Both, in one list. */
-.table--pin-start tbody tr[aria-selected="true"] > td:first-child:not([colspan]) {
-    box-shadow: inset 3px 0 0 var(--selected), var(--pin-shadow);
-}
 
 /* ── A keyboard grid ────────────────────────────────────────────────────────
    `role="grid"` on a `.table` makes it one tab stop with arrow-key movement between
@@ -15946,7 +16179,10 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    A selected range is `aria-selected` on each cell, written by the script. Its tint is
    laid over the cell's own background as an image, so a sticky header cell keeps its
    opaque surface under it, and it is handed to a pinned cell through `--pin-tint`. */
-.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible {
+/* `:focus`, not `:focus-visible`: a press on a cell makes it the active cell, as in a
+   spreadsheet, and the engines do not match :focus-visible for a pointer's focus on a cell
+   that takes no text — so the active cell was ringed after a key and not after a click. */
+.table:is([role="grid"], [role="treegrid"]) :is(td, th):focus {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
 }
@@ -16225,9 +16461,23 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
    The inset rule on the left is the only thing saying it belongs to the row above;
    a plain indent reads as an unrelated row that happens to start further in. */
 .tr-detail > td {
+    position: relative;
     padding: 0;
     background: var(--surface-soft);
-    box-shadow: inset 3px 0 0 var(--border-strong);
+}
+/* The rule is drawn over the lines around the cell, not inside them. An inset shadow stops at
+   the padding box, which is up to a border short of the rows around it: the rule began under
+   the line it hangs from and ended a pixel before the next row. Reaching a border past the
+   cell at each end fills exactly the region from the line above to the line below, in a
+   collapsed table and a separate one, whatever the engine rounds the row's edges to. */
+.tr-detail > td::before {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--border-strong);
+    pointer-events: none;
 }
 /* An inline <code> breaks anywhere elsewhere, which in a squeezed column put one
    character on each line. In a table it keeps its word, the column keeps its width, and
@@ -16311,6 +16561,124 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
     .card > .table--stack > :is(tbody, tfoot) { display: block; }
     .card > .table--stack > :is(tbody, tfoot):last-child > tr:last-child { margin-bottom: 0; }
 }
+}
+
+/* ── 60-listbox.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Listbox ────────────────────────────────────────────────────────────────
+   A list of options all in view, one or several chosen — the library's own, drawn the
+   same in every browser. It exists because a native `<select multiple>` is a platform
+   control: Chromium lets `.form-select` theme its rows (49-form-select-base.css),
+   WebKit paints a native list box whose selection colour, row height and spacing no
+   CSS reaches. A listbox is app markup and a class, so what it looks like does not
+   depend on the browser.
+
+     <div class="listbox" role="listbox" aria-multiselectable="true" aria-label="Notify groups"
+          tabindex="0" style="--listbox-rows: 4">
+       <div role="option" aria-selected="true"  data-value="fulfilment">Fulfilment</div>
+       <div role="option" aria-selected="false" data-value="network">Network</div>
+       <div role="group" aria-labelledby="lb-teams">
+         <div class="listbox-heading" id="lb-teams" role="presentation">Teams</div>
+         <div role="option" aria-selected="false" aria-disabled="true">Finance</div>
+       </div>
+     </div>
+
+   THE STATE IS ARIA: chosen is `aria-selected`, unavailable `aria-disabled`, and the row
+   the keyboard is on is `data-active` — the script writes that and
+   `aria-activedescendant`, as a combo field does, so the list holds one tab stop. 22-listbox.js
+   is the keyboard and the selection; this part is the paint, and works with no script.
+
+   A chosen row is the brand tint and brand text with a tick at the trailing edge, the
+   look a `.form-select` option and a `.menu-item[aria-current]` carry, so a set of chosen
+   rows reads as a set and not by colour alone. Rows are separated by the same step the
+   menu keeps, so a chosen row and the one the pointer is on never touch.
+
+   `--listbox-rows` is how many one-line rows the box shows before it scrolls. A row
+   with a second line is taller, so set it to roughly half of what should be on screen,
+   as for a list box's `size`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.listbox {
+    --listbox-rows: 4;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+    block-size: calc(var(--listbox-rows) * 2.4em + var(--space-1) * (var(--listbox-rows) - 1) + var(--space-2) * 2 + 2px);
+    padding: var(--space-2);
+    overflow: auto;
+    background: var(--bg);
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-size: var(--text-4);
+    line-height: round(1.4em, 2px);
+    --surface-here: var(--bg);
+    --muted-here: var(--muted);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.listbox:focus {
+    border-color: var(--field-border-focus);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+.listbox[aria-disabled="true"] { background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); cursor: not-allowed; }
+
+.listbox [role="option"] {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-4);
+    box-sizing: border-box;
+    min-block-size: 2.4em;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.listbox [role="option"] > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-7); line-height: 1; }
+.listbox [role="group"] { display: flex; flex-direction: column; gap: var(--space-1); }
+.listbox-heading {
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.listbox [role="option"]:hover,
+.listbox [role="option"][data-active] { background: var(--bg-hover); }
+.listbox:focus-visible [role="option"][data-active] { box-shadow: inset 0 0 0 2px var(--focus-ring); }
+
+.listbox [role="option"][aria-selected="true"] {
+    padding-inline-end: calc(var(--space-5) * 2 + var(--space-4));
+    background: var(--brand-tint);
+    color: var(--brand-text);
+}
+.listbox [role="option"][aria-selected="true"] > i { color: var(--brand-text); }
+.listbox [role="option"][aria-selected="true"]:is(:hover, [data-active]) { background: var(--brand-tint-strong); }
+.listbox [role="option"][aria-disabled="true"] { color: var(--muted); cursor: not-allowed; }
+.listbox [role="option"][aria-disabled="true"]:hover { background: none; }
+.listbox [role="option"][aria-disabled="true"][aria-selected="true"] { background: var(--brand-tint); }
+
+/* The tick is the one `.form-check` draws (34-forms.css), at the trailing edge. */
+.listbox [role="option"][aria-selected="true"]::after {
+    inset: auto;
+    inset-inline-end: var(--space-4);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
+}
+
+/* Two lines: a label and a quiet line under it. */
+.listbox .option-text { display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+.listbox .option-hint { color: var(--muted); font-size: var(--text-3); }
+.listbox [role="option"][aria-selected="true"] .option-hint { color: var(--brand-text); opacity: 0.8; }
+.listbox [role="option"]:has(.option-text) { padding-block: var(--space-3); }
 }
 
 /* ── 60-lists.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -16827,6 +17195,12 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border-inline-start: 1px solid var(--divider);
 }
 .tree [role="treeitem"] { font-size: var(--text-4); outline: none; }
+/* The gap a `.menu` and a `.list-row` keep between rows, so a picked row and the one the
+   pointer is on never touch: one step between sibling items and between a branch's row and
+   its children. A margin, because the item holds its whole subtree and a `gap` would need
+   the item to be a flex container. */
+.tree [role="treeitem"] + [role="treeitem"],
+.tree [role="treeitem"] > [role="group"] { margin-block-start: var(--space-1); }
 /* A collapsed branch keeps its children in the markup, so a branch that opens shows
    them at once; the attribute alone hides them. */
 .tree [aria-expanded="false"] > [role="group"] { display: none; }
@@ -16951,11 +17325,28 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     padding-inline-start: calc(var(--cell-pad-x) + var(--tree-depth, 0) * var(--treegrid-indent));
     white-space: nowrap;
 }
-/* The caret's box is an em square on the text's baseline; lowered to centre it on the
-   capitals of the label beside it. */
+/* The toggle is a slot of its own: wide enough for the caret and for the spinner that takes its
+   place — the spinner's own size — so a row that is loading is as wide as one that is not and
+   the label does not move, and as tall as the label's capitals, standing on the same baseline,
+   so whatever is drawn in it is centred on them. The tree cell is trimmed to its capitals like
+   a cell of words, which is what makes the first line's capitals the cell's own height. */
+.table[role="treegrid"] tr > :has(> .tree-toggle) {
+    text-box: trim-both cap alphabetic;
+    padding-block: calc(var(--cell-pad-y) + var(--cap-gap));
+}
 .table[role="treegrid"] .tree-toggle {
-    margin-inline-end: var(--space-2);
-    vertical-align: -0.15em;
+    display: inline-block;
+    position: relative;
+    width: round(0.75em + 3px, 2px);
+    height: 1cap;
+    margin-inline-end: var(--space-3);
+    vertical-align: baseline;
+}
+.table[role="treegrid"] tr > * > .tree-toggle::before {
+    position: absolute;
+    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
+    left: 50%; top: 50%;
+    translate: -50% -50%;
 }
 .table[role="treegrid"] tr[aria-expanded] > * > .tree-toggle { cursor: pointer; }
 
@@ -16975,17 +17366,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     background: var(--brand);
     border-color: var(--brand);
 }
-.tree [aria-checked="true"] > .tree-row > .tree-check::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 4px;
-    top: 1px;
-    width: 4px;
-    height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: rotate(45deg);
-}
+/* The tick is drawn with the one in 34-forms.css, over the box's padding box. */
 .tree [aria-checked="mixed"] > .tree-row > .tree-check::after {
     content: '';
     position: absolute;
@@ -18338,7 +18719,38 @@ dialog.sheet {
     border: 1px solid var(--border);
     border-bottom: none;
 }
-dialog.drawer::backdrop { background: var(--dialog-backdrop); }
+/* The backdrop fades in with the panel and out with it, over the same duration, so the
+   page is never dimmed with nothing on top of it nor left bare while the panel is still
+   leaving. `display` and `overlay` keep it in the top layer for the fade out, as they do
+   the panel. An engine without `overlay` takes the backdrop away with the dialog; the
+   held state below stands in for it. */
+dialog.drawer::backdrop {
+    background-color: transparent;
+    transition: background-color var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+dialog.drawer[open]::backdrop { background-color: var(--dialog-backdrop); }
+/* A drawer opened without a modal has no backdrop to draw. */
+@starting-style {
+    dialog.drawer[open]::backdrop { background-color: transparent; }
+}
+
+/* ── Closing, where the engine cannot keep a closed dialog displayed ─────────
+   42-modal-exit.js holds the dialog displayed and slides it out (`data-sedna-closing`),
+   and for a modal one the page's dimming is this: a shadow spread over the viewport
+   that fades to nothing over the slide's own duration and easing, which the script
+   writes as `--sedna-exit-duration` and `--sedna-exit-easing`. The shadow travels with
+   the panel, and its spread is wider than any distance the panel has to go. */
+.drawer {
+    --sedna-exit-duration: var(--motion-mid);
+    --sedna-exit-easing: ease;
+}
+.drawer[data-sedna-closing="modal"] {
+    box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--dialog-backdrop);
+    animation: sedna-dim-out var(--sedna-exit-duration) var(--sedna-exit-easing) forwards;
+}
+@keyframes sedna-dim-out {
+    to { box-shadow: var(--shadow-modal), 0 0 0 100vmax transparent; }
+}
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
    is what makes it visible and the visibility rule must not fight it. */
 dialog.drawer[open] { visibility: visible; transform: none; }
@@ -18580,36 +18992,40 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
 .file-icon--media  { --file-icon-ink: var(--viz-5); }
 .file-icon--doc    { --file-icon-ink: var(--viz-6); }
 
-/* ── A name cut in the middle ───────────────────────────────────────────────
+/* ── A name that never runs out of its box ──────────────────────────────────
+   Every file name is one box that holds its own overflow: `.file-name` here, and the
+   same two rules on `.file-item-name` (an upload, an attachment) and `.form-file-name`
+   (the file a picker holds). A name too long for its box ends in an ellipsis rather
+   than running out of a tile or widening a column, so a name written as plain text
+   needs nothing more. Put the whole name in `title` too, for the pointer.
+
    `text-overflow` only cuts at the end, which is where a file name keeps what tells
-   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app splits the name in two and
-   only the start is cut: the end, a few characters and the extension, never shrinks.
-   Read aloud, the two spans are the whole name. Put the name in `title` too, for the
-   pointer. A name that fits shows whole and the split is invisible. */
-.file-name {
-    display: flex;
+   two files apart — `-signed.pdf`, `-v2.xlsx`. So the app may split the name in two,
+   and then only the start is cut: the end, a few characters and the extension, never
+   shrinks. Read aloud, the two spans are the whole name. A name that fits shows whole
+   and the split is invisible. */
+:is(.file-name, .file-item-name, .form-file-name) {
+    display: block;
     min-width: 0;
     max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+}
+:is(.file-name, .file-item-name, .form-file-name):has(> .file-name-start) {
+    display: flex;
+    overflow: visible;
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
-/* A name the app did not split is one run of text, and a flex container leaves a bare
-   text run as an anonymous item that never shrinks — so a long name, joined by dashes
-   and with no place to break, ran out of its tile. Without the split spans the name is
-   a block cut at its end, which is all `text-overflow` can do to it. */
-.file-name:not(.file-name--wrap, :has(> .file-name-start)) {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 /* The whole name over as many lines as it takes, for a reader who has to see every
    character of a name they did not choose — an upload straight off a phone. A token
    with no break in it breaks anywhere rather than running out of the tile, and does
    not widen the column it sits in. The split spans, if the markup has them, simply
    run on as text. */
-.file-name--wrap {
+:is(.file-name, .file-item-name, .form-file-name).file-name--wrap {
     display: block;
+    overflow: visible;
     white-space: normal;
     overflow-wrap: anywhere;
 }
@@ -19560,9 +19976,14 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    `aria-current="page"`. The popover is the platform's, so opening, light dismiss and
    Escape need no script.
 
-   A topbar button sits at either end of the header, and a popover spans towards the
-   inline end by default — from the last button in the header that is off the screen.
-   A popover holding a switcher tries the other side first. */
+   A topbar button sits at the trailing end of the header more often than the leading one,
+   so a popover holding a switcher spans towards the inline start from the button's
+   trailing edge, and flips to the other side where that has no room — from a button at
+   the header's leading end. In the header it keeps `--topbar-panel-gap` below the bar
+   and from the window's edge, the same gap the user menu keeps.
+
+   `.app-switcher--icons` shows the marks alone. Each name stays in the markup, which
+   is the link's accessible name; it is only not drawn. */
 .app-switcher {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -19572,9 +19993,42 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin: 0;
     padding: 0;
 }
-.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+.popover:has(> .app-switcher) {
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    margin-block-start: var(--topbar-panel-gap);
+    margin-inline-end: var(--topbar-panel-gap);
+}
+/* `--panel-placement` still places it, as it does every panel anchored to a trigger
+   (65-popover.css): the same three placements, with the gap the header keeps. */
+@container style(--panel-placement: block-start) {
+    .popover:has(> .app-switcher) {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--topbar-panel-gap);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--topbar-panel-gap) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--topbar-panel-gap);
+    }
+}
 
 .app-switcher-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19583,7 +20037,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     padding: var(--space-5) var(--space-2);
     border-radius: var(--radius-control);
     color: var(--fg-soft);
-    font-size: var(--text-3);
+    font-size: var(--text-5);
     line-height: round(1.4em, 2px);
     text-align: center;
     text-decoration: none;
@@ -19592,6 +20046,29 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The name is trimmed to its capitals, as a label in a row is, and given its line back on
+   the side that faces the mark only: the tile's edge is as far from the icon above as from
+   the last line of the name below. A name is any child that is not the mark. */
+.app-switcher-item > :not(.app-switcher-icon) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap) 0;
+}
+
+/* The marks alone: a tile is the icon, and the name is read by a screen reader and
+   shown by the hover hint the app puts on the link. */
+.app-switcher--icons { grid-template-columns: repeat(3, max-content); inline-size: auto; }
+.app-switcher--icons .app-switcher-item { padding: var(--space-3); }
+.app-switcher--icons .app-switcher-item > :not(.app-switcher-icon) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
 
 /* The app's mark: an icon on a tile of its own. */
 .app-switcher-icon {
@@ -19997,11 +20474,11 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 .context-usage-foot > strong { font-variant-numeric: tabular-nums; }
 
 .skeleton--agent {
-    background-image: linear-gradient(90deg,
-        var(--skeleton-bg) 0%,
+    --skeleton-band: linear-gradient(90deg,
+        transparent 0%,
         var(--agent-skeleton-cool) 40%,
         var(--agent-skeleton-warm) 60%,
-        var(--skeleton-bg) 100%);
+        transparent 100%);
 }
 }
 
@@ -20832,6 +21309,10 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     --cal-fill: var(--brand-tint);
     --cal-accent: var(--brand);
     --cal-solid: var(--brand-text);
+    /* A tint is lighter or darker than the cell behind it, and the rounding of its corners shows
+       the cell as a wedge in the colour the fill is not. Two pixels keeps the pill and leaves a
+       wedge under a pixel. */
+    --cal-event-radius: 2px;
 }
 .cal-event {
     display: flex;
@@ -20842,7 +21323,7 @@ button.cal-weeknum:focus-visible { outline: none; box-shadow: inset 0 0 0 2px va
     overflow: hidden;
     background: var(--cal-fill);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -21126,7 +21607,7 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
        laying a second tint along its foot. */
     background: linear-gradient(var(--cal-fill), var(--cal-fill)), var(--card-bg);
     border-inline-start: 3px solid var(--cal-accent);
-    border-radius: var(--radius-inner);
+    border-radius: var(--cal-event-radius);
     color: var(--fg);
     font-size: var(--text-2);
     font-weight: 500;
@@ -22628,7 +23109,13 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
 /* Opened from a bell at the end of a header, there is no room toward the inline end:
    the panel turns to line up with the bell's end edge instead. On a phone it takes the
    width of the screen, less a margin, under the bell. */
-.popover.inbox { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+/* A percentage here is the width of the area `position-area` leaves beside the bell, so a bell near
+   the end of a window gave the panel a few pixels of width — and, fitting, it never turned. The
+   screen is the limit instead, and a panel too wide for its side turns to the other. */
+.popover.inbox {
+    max-width: calc(100vw - var(--space-8) * 2);
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+}
 @media (max-width: 560px) {
     .popover.inbox {
         position-area: block-end span-all;
@@ -22680,7 +23167,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     align-items: start;
     column-gap: var(--space-5);
     padding-block: var(--space-5);
-    padding-inline: var(--space-7) var(--space-4);
+    padding-inline: var(--space-6) var(--space-4);
 }
 .inbox-item:hover { background: var(--bg-hover); }
 .inbox-item:has(.inbox-item-title:focus-visible) { box-shadow: inset 0 0 0 2px var(--focus-ring); }
@@ -22732,19 +23219,20 @@ button.inbox-item-title {
 }
 .inbox-item-menu { position: relative; z-index: 1; }
 
-/* Unread: the title in the ink of the page, and a dot in the gutter beside the first
-   line. The dot is a picture of the state, so say it in words too — "Unread" in a
-   `.visually-hidden` span in the title. */
+/* Unread: the title in the ink of the page, and a dot in front of the time, with the other
+   things said about the notification. The dot is a picture of the state, so say it in words
+   too — "Unread" in a `.visually-hidden` span in the title. It stands on the capitals' centre
+   of the time beside it, as every mark beside a line of text does. */
 .inbox-item--unread .inbox-item-title { color: var(--fg); font-weight: 600; }
-.inbox-item--unread::before {
+.inbox-item--unread .inbox-item-time::before {
     content: "";
-    position: absolute;
-    inset-inline-start: var(--space-3);
-    inset-block-start: calc(var(--space-5) + 0.5lh - 3px);
+    display: inline-block;
     width: 6px;
     height: 6px;
+    margin-inline-end: var(--space-3);
     border-radius: 50%;
     background: var(--brand);
+    vertical-align: calc((1cap - 6px) / 2);
 }
 
 /* Each tab's empty state: one line of what is not here, in the list's place. */
@@ -23025,7 +23513,10 @@ button.inbox-item-title {
 .chat-feedback > .btn:hover { color: var(--fg); }
 .chat-feedback > .btn[aria-pressed="true"] { color: var(--brand-text); }
 .chat-feedback-sep { inline-size: 1px; block-size: 16px; margin-inline: var(--space-4); background: var(--border); }
-.chat-versions { display: inline-flex; align-items: center; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+.chat-versions { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+/* The two arrows are a step under the small control, so the hover fill and the focus ring
+   stand off the label with the gap between them instead of touching it. */
+.chat-versions > .btn { width: calc(var(--control-height-sm) - var(--space-2)); min-height: calc(var(--control-height-sm) - var(--space-2)); padding: 0; border-radius: var(--radius-small); }
 
 .citation {
     display: inline-grid;
@@ -23098,9 +23589,26 @@ button.inbox-item-title {
     box-shadow: none;
     font-size: var(--text-6);
 }
+/* In a docked or side panel the composer is a frame inside the panel, not the panel's
+   own edge: it takes the thread's inset on every side, and its rounded corners meet the
+   panel's straight lines nowhere. `.chat-pane > .chat-composer` pads the composer in 66-chat.css;
+   a bordered one is set in from the pane, or the flyover, instead. */
+.chat-pane > .chat-composer--prompt,
+.chat-flyover > .chat-composer--prompt { margin: 0 var(--space-5) var(--space-5); padding: var(--space-4); }
+
+/* What is attached sits inside the frame, above the text, on the text's own left edge. */
+.chat-composer--prompt > .chat-composer-files { padding-inline: var(--space-4); padding-block-start: var(--space-2); }
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+/* A `.menu-anchor` sets itself at the start of its row (58-menu.css) so a menu opens under its
+   trigger; in the toolbar its trigger stands on the row's line like every other control. */
+.chat-composer-tools > .menu-anchor { align-self: center; }
+/* A hint in the toolbar's row starts where the text above it does: the field's own inset, 
+   which a button's padding gives the glyphs beside it. */
+.chat-composer-tools > .form-hint { padding-inline: var(--space-4); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
-.chat-composer-send > .btn { border-radius: 50%; }
+/* Round, and only the icon buttons: a labelled button here (the model) keeps the control radius,
+   so its focus ring follows its corners instead of an oval of 50% of a wide box. */
+.chat-composer-send > .btn--icon { border-radius: 50%; }
 .chat-composer-send [data-when] { display: none; }
 .chat-composer-send:not([data-state]) [data-when~="idle"],
 .chat-composer-send[data-state="idle"] [data-when~="idle"],
@@ -25588,7 +26096,11 @@ button.inbox-item-title {
     inset-inline-end: calc(100% - var(--workflow-gap) / 2);
     inline-size: calc(var(--workflow-gap) * 1.5);
 }
-.workflow-loop + .workflow-step[data-state="running"]::before { inline-size: calc(var(--workflow-gap) * 1.5); }
+/* The wire out of a loop is the wire into the step after it, in one piece, whatever that step's
+   state: the loop's own wire to its edge — painted in the loop's colour, where the way back leaves —
+   is covered by it, so a loop at work with a step after it that has not run reads as one grey wire
+   and one blue way back, not a wire that starts blue and turns grey. */
+.workflow-loop + .workflow-step::before { inline-size: calc(var(--workflow-gap) * 1.5); }
 
 :is(.workflow, .workflow-path) > .workflow-step[data-state="running"]:not(.workflow-branch > .workflow-path > :first-child, .workflow-loop > .workflow-path > :first-child, .workflow-fork + *)::before,
 .workflow-step[data-state="running"] > .workflow-label::after,
@@ -25898,7 +26410,7 @@ button.inbox-item-title {
 
     /* The wire into a loop, and out of one, is the rail; it runs on over nothing. */
     .workflow-loop:has(> .workflow-path > :first-child[data-state="running"])::before,
-    .workflow-loop + .workflow-step[data-state="running"]::before {
+    .workflow-loop + .workflow-step::before {
         inset-inline-end: auto;
         inline-size: var(--workflow-wire);
     }
@@ -26116,15 +26628,23 @@ button.inbox-item-title {
     background-image: linear-gradient(var(--brand-soft), var(--brand-soft));
     background-size: 30% 2px;
     background-repeat: no-repeat;
-    background-position: -30% 0;
+    background-position: -42.8572% 0;
     animation: sedna-busy-bar var(--progress-duration) ease-in-out infinite;
 }
 :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] > * {
     opacity: 0.55;
     pointer-events: none;
 }
+/* A percentage `background-position` is measured against the track less the bar, so the
+   bar's own width decides where "outside" is: for a bar 30% wide, -30 / 70 puts its far
+   edge on the track's near edge, and 100 / 70 puts its near edge on the track's far edge.
+   Both ends are therefore fully outside the track, which clips the bar, so it slides in
+   from the inline start and out past the inline end without appearing or vanishing. The
+   rest position above is the first frame, so a delayed or paused animation shows no bar.
+   `background-position` is physical: 70-rtl.css runs the same sweep the other way. */
 @keyframes sedna-busy-bar {
-    to { background-position: 130% 0; }
+    from { background-position: -42.8572% 0; }
+    to   { background-position: 142.8572% 0; }
 }
 
 :is(.form-select, .form-combo-box, .form-color)[aria-readonly="true"],
@@ -27040,6 +27560,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    its place at the inline start or end, which already mirrors. */
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 
+/* 40, 41 — what sweeps across a track runs from the inline start to the inline end, which is
+   from the right here. The indeterminate bar is moved by a translate, which has no logical form,
+   so it reads a sign (41-progress.css); the skeleton's band is a background position, which is
+   physical, so it rests at its far end and runs its sweep backwards, as the busy bar does below. */
+[dir="rtl"] .progress--indeterminate .progress-bar { --progress-flow: -1; }
+[dir="rtl"] .skeleton {
+    animation-direction: reverse;
+    background-position: 200% 0;
+}
+
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
    `direction: ltr`); a fold row holds the app's own words, which follow the page. */
 [dir="rtl"] .diff-fold > td { direction: rtl; }
@@ -27048,6 +27578,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    left, so it slopes the other way, and the translate that centres it on its point turns round. */
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 
+/* The busy bar (69-busy.css) is a background, and a background position is physical: the
+   sweep runs from the inline start, which is the right edge, to the left. */
+[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    animation-direction: reverse;
+    background-position: 142.8572% 0;
+}
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -27221,6 +27757,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-combo-box > .chip[data-armed],
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
+    .segmented-option:has(input:checked:focus-visible),
+    .listbox:focus-visible [role="option"][data-active],
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
@@ -27262,8 +27800,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     button.cal-more:focus-visible,
     a.cal-agenda-title:focus-visible,
     :is(a, button).toast-body:focus-visible,
-    :is(.form-input, .form-select)[data-state="warn"]:focus,
-    :is(.form-input, .form-select)[aria-invalid="true"]:focus,
+    :is(.form-input, .form-select, .listbox)[data-state="warn"]:focus,
+    :is(.form-input, .form-select, .listbox)[aria-invalid="true"]:focus,
     .form-color[data-state="warn"]:focus-visible,
     .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
     .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
@@ -27307,6 +27845,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .file-tile:has(.file-tile-check :checked),
     .media-transcript li[aria-current="true"],
     .segmented-option:has(input:checked),
+    .listbox [role="option"][aria-selected="true"],
     .th-filter--active,
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
@@ -27326,7 +27865,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .table:is([role="grid"], [role="treegrid"]) :is(td, th)[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
     .table :is(td, th)[data-editing] > .cell-editor,
     .table tr[data-editing] > :is(td, th) > .cell-editor { outline: 1px solid CanvasText; outline-offset: -1px; }
-    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus-visible,
+    .table:is([role="grid"], [role="treegrid"]) :is(td, th):focus,
     .table .cell-editor:focus { outline: 2px solid CanvasText; outline-offset: -2px; }
 
     /* A chat bubble is nothing but a background; without a line around it a
@@ -27366,7 +27905,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .count-badge,
     .ribbon,
     .badge--swatch::before,
-    .inbox-item--unread::before,
+    .inbox-item--unread .inbox-item-time::before,
     .timeline > li::before { forced-color-adjust: none; }
 
     /* A workflow's wires are the diagram: each is a painted box, and forced colours
@@ -27402,7 +27941,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .gauge::before,
     /* A star is a clipped background too, and it is the score itself. */
     .rating-star::before,
-    .rating-star::after { forced-color-adjust: none; }
+    .rating-star::after,
+    /* A tick is a masked background: Canvas on a Canvas box shows nothing. The box and the
+       mark opt out together, and read the user's palette through the tokens above —
+       --control-on to Highlight, --on-solid to HighlightText. */
+    .form-check input[type="checkbox"],
+    .tree-check,
+    .form-combo-option::before,
+    .form-combo-option::after,
+    .listbox [role="option"]::after,
+    .menu-item[aria-current]:not([aria-current="false"])::after { forced-color-adjust: none; }
 
     /* A chart's marks are its data, and each series is told from the next by its colour
        and its shape: forced colours would paint every mark CanvasText through
@@ -28064,6 +28612,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    .listbox          { transition: none; }   /* 60 */
     .editor           { transition: none; }   /* 44 */
     .form-color       { transition: none; }   /* 45 */
     .form-signature-pad { transition: none; } /* 47 */
@@ -28096,6 +28645,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .spinner          { animation: none; }    /* 39 */
     .btn[aria-busy="true"]::after { animation: none; }   /* 33 — the open ring still reads as busy */
     .skeleton         { animation: none; background-image: none; }   /* 40 */
+    [dir="rtl"] .skeleton { animation: none; background-image: none; }   /* 70 — the mirrored sweep */
     .progress-bar     { transition: none; }   /* 41 */
     .progress-ring    { transition: none; }   /* 41 — the arc lands on its value */
     .progress--indeterminate .progress-bar { animation: none; width: 100%; }
@@ -28143,6 +28693,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    dialog.drawer::backdrop { transition: none; }
+    .drawer[data-sedna-closing="modal"] { animation: none; }   /* the dim of a held, closing one */
     button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 
@@ -28311,6 +28863,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
     :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
+    /* 70-rtl — the mirrored sweep stands still as well. */
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
         animation: none;
         background-size: 100% 2px;
         background-position: 0 0;

@@ -71,7 +71,7 @@ public class TreeLayoutTests : ScriptTestBase
                 mixedBg: getComputedStyle(check('mixed')).backgroundColor,
                 untickedBg: getComputedStyle(check('unticked')).backgroundColor,
                 mixedMark: getComputedStyle(check('mixed'), '::after').height,
-                tickedMark: getComputedStyle(check('ticked'), '::after').transform,
+                tickedMark: getComputedStyle(check('ticked'), '::after').content,
                 untickedMark: getComputedStyle(check('unticked'), '::after').content,
                 lineHeight: getComputedStyle(row('leaf')).lineHeight
             };

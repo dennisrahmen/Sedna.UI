@@ -696,9 +696,21 @@ window.sednaUi = window.sednaUi || {};
             if (slot && slot.textContent !== input.value) slot.textContent = input.value;
         }
     }
+    function syncReadouts() {
+        var outs = document.querySelectorAll('output[for]');
+        for (var i = 0; i < outs.length; i++) {
+            var out = outs[i];
+            if (out.parentElement && out.parentElement.matches(BOX)) continue;
+            var slot = out.hasAttribute('data-range-value') ? out : out.querySelector('[data-range-value]');
+            if (!slot) continue;
+            var input = document.getElementById((out.getAttribute('for') || '').split(/\s+/)[0]);
+            if (input && input.tagName === 'INPUT' && input.type === 'range' && slot.textContent !== input.value) slot.textContent = input.value;
+        }
+    }
     function syncAll() {
         var boxes = document.querySelectorAll(BOX);
         for (var i = 0; i < boxes.length; i++) sync(boxes[i]);
+        syncReadouts();
     }
     var queued = false;
     function soon() {
@@ -711,6 +723,7 @@ window.sednaUi = window.sednaUi || {};
         if (!(t instanceof HTMLInputElement) || t.type !== 'range') return;
         var box = t.parentElement;
         if (box && box.matches(BOX)) sync(box, t);
+        else syncReadouts();
     }
     function init() {
         syncAll();
@@ -783,40 +796,62 @@ window.sednaUi = window.sednaUi || {};
     });
 })();
 (function (ui) {
+    function isBox(list) { return list.classList.contains('listbox'); }
+    function rowsOf(list) {
+        return isBox(list)
+            ? Array.prototype.filter.call(list.querySelectorAll('[role="option"]'), function (o) { return o.closest('.listbox') === list; })
+            : Array.prototype.slice.call(list.options);
+    }
+    function textOf(row) { return (row.text !== undefined ? row.text : row.textContent || '').trim(); }
     function selectedIn(list) {
-        return Array.prototype.filter.call(
-            list.options, function (o) { return o.selected && !o.disabled; });
+        return rowsOf(list).filter(function (o) {
+            return isBox(list)
+                ? o.getAttribute('aria-selected') === 'true' && o.getAttribute('aria-disabled') !== 'true'
+                : o.selected && !o.disabled;
+        });
+    }
+    function unselect(list, row) {
+        if (isBox(list)) { row.setAttribute('aria-selected', 'false'); row.removeAttribute('data-active'); }
+        else row.selected = false;
     }
     function sorted(list) {
-        for (var i = 1; i < list.options.length; i++) {
-            if (list.options[i - 1].text.localeCompare(list.options[i].text) > 0) return false;
+        var rows = rowsOf(list);
+        for (var i = 1; i < rows.length; i++) {
+            if (textOf(rows[i - 1]).localeCompare(textOf(rows[i])) > 0) return false;
         }
         return true;
     }
-    function place(list, option) {
-        var at = null;
-        for (var i = 0; i < list.options.length; i++) {
-            if (list.options[i].text.localeCompare(option.text) > 0) { at = list.options[i]; break; }
+    function place(list, row) {
+        var rows = rowsOf(list), at = null;
+        for (var i = 0; i < rows.length; i++) {
+            if (textOf(rows[i]).localeCompare(textOf(row)) > 0) { at = rows[i]; break; }
         }
-        list.insertBefore(option, at);
+        (at ? at.parentNode : list).insertBefore(row, at);
     }
-    function move(from, to, options) {
-        if (!from || !to || !options.length) return 0;
+    function move(from, to, rows) {
+        if (!from || !to || !rows.length) return 0;
         var inOrder = sorted(to);
-        for (var i = 0; i < options.length; i++) {
-            options[i].selected = false;
-            if (inOrder) place(to, options[i]); else to.appendChild(options[i]);
+        for (var i = 0; i < rows.length; i++) {
+            unselect(from, rows[i]);
+            if (inOrder) place(to, rows[i]); else to.appendChild(rows[i]);
         }
-        to.selectedIndex = -1;
-        if (options.length && options[0].scrollIntoView) {
-            options[0].scrollIntoView({ block: 'nearest' });
-        }
+        if (isBox(to)) {
+            rowsOf(to).forEach(function (o) { unselect(to, o); });
+            to.removeAttribute('aria-activedescendant');
+        } else to.selectedIndex = -1;
+        if (rows[0].scrollIntoView) rows[0].scrollIntoView({ block: 'nearest' });
         notify(from);
         notify(to);
-        return options.length;
+        return rows.length;
     }
     function notify(list) {
         list.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        if (isBox(list)) {
+            list.dispatchEvent(new CustomEvent('sedna-listbox-select', {
+                bubbles: true, composed: true,
+                detail: { values: ui.listbox ? ui.listbox.values(list) : [] }
+            }));
+        }
     }
     function lists(host) {
         return {
@@ -846,9 +881,9 @@ window.sednaUi = window.sednaUi || {};
         else ui.transfer.remove(btn);
     });
     document.addEventListener('dblclick', function (e) {
-        var option = e.target.closest('[data-transfer] option');
-        if (!option || option.disabled) return;
-        var list = option.closest('select');
+        var option = e.target.closest('[data-transfer] option, [data-transfer] [role="option"]');
+        if (!option || option.disabled || option.getAttribute('aria-disabled') === 'true') return;
+        var list = option.closest('select, .listbox');
         var host = option.closest('[data-transfer]');
         if (!list || !host) return;
         var pair = lists(host);
@@ -890,7 +925,7 @@ window.sednaUi = window.sednaUi || {};
     }
     function closePointMenus(scroller) {
         var open;
-        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        try { open = document.querySelectorAll('.menu[popover]:not([data-menu-raised]):popover-open'); }
         catch (err) { return; }
         for (var i = 0; i < open.length; i++) {
             var panel = open[i];
@@ -1563,16 +1598,197 @@ window.sednaUi = window.sednaUi || {};
     else watch();
 })(window.sednaUi);
 (function (ui) {
+    var typed = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var anchors = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var counter = 0;
+    function toArray(list) { return Array.prototype.slice.call(list); }
+    function listboxOf(el) { return el && el.closest ? el.closest('.listbox[role="listbox"]') : null; }
+    function multi(box) { return box.getAttribute('aria-multiselectable') === 'true'; }
+    function disabled(box) { return box.getAttribute('aria-disabled') === 'true'; }
+    function optionsOf(box) {
+        return toArray(box.querySelectorAll('[role="option"]')).filter(function (o) { return listboxOf(o) === box; });
+    }
+    function reachable(box) {
+        return optionsOf(box).filter(function (o) { return o.getAttribute('aria-disabled') !== 'true'; });
+    }
+    function isOn(o) { return o.getAttribute('aria-selected') === 'true'; }
+    function valueOf(o) {
+        var v = o.getAttribute('data-value');
+        return v !== null ? v : (o.textContent || '').trim();
+    }
+    function labelOf(o) {
+        var l = o.getAttribute('data-label');
+        return (l !== null ? l : o.textContent || '').trim().toLowerCase();
+    }
+    function setOn(o, on) {
+        var was = isOn(o);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        return was !== on;
+    }
+    function activeOf(box) {
+        var id = box.getAttribute('aria-activedescendant');
+        if (!id) return null;
+        var el = document.getElementById(id);
+        return el && listboxOf(el) === box ? el : null;
+    }
+    function activate(box, o) {
+        var all = optionsOf(box);
+        for (var i = 0; i < all.length; i++) if (all[i] !== o) all[i].removeAttribute('data-active');
+        if (!o) { box.removeAttribute('aria-activedescendant'); return; }
+        if (!o.id) o.id = 'sedna-listbox-option-' + (++counter);
+        o.setAttribute('data-active', '');
+        box.setAttribute('aria-activedescendant', o.id);
+        if (o.scrollIntoView) o.scrollIntoView({ block: 'nearest' });
+    }
+    function announce(box) {
+        var values = optionsOf(box).filter(isOn).map(valueOf);
+        box.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        box.dispatchEvent(new CustomEvent('sedna-listbox-select', { bubbles: true, composed: true, detail: { values: values } }));
+    }
+    function choose(box, chosen) {
+        var changed = false;
+        optionsOf(box).forEach(function (o) {
+            var on = chosen.indexOf(o) >= 0 && o.getAttribute('aria-disabled') !== 'true';
+            if (setOn(o, on)) changed = true;
+        });
+        if (changed) announce(box);
+    }
+    function rangeBetween(box, a, b) {
+        var all = reachable(box);
+        var i = all.indexOf(a), j = all.indexOf(b);
+        if (i < 0 || j < 0) return b ? [b] : [];
+        return all.slice(Math.min(i, j), Math.max(i, j) + 1);
+    }
+    function anchorOf(box) { return (anchors && anchors.get(box)) || activeOf(box); }
+    function setAnchor(box, o) { if (anchors) anchors.set(box, o); }
+    function moveTo(box, target, extend) {
+        if (!target) return;
+        activate(box, target);
+        if (!multi(box)) { setAnchor(box, target); choose(box, [target]); }
+        else if (extend) choose(box, rangeBetween(box, anchorOf(box), target));
+        else setAnchor(box, target);
+    }
+    function step(box, from, by) {
+        var all = reachable(box);
+        if (!all.length) return null;
+        var i = all.indexOf(from);
+        if (i < 0) return by > 0 ? all[0] : all[all.length - 1];
+        return all[Math.min(all.length - 1, Math.max(0, i + by))];
+    }
+    function startOf(box) {
+        var all = reachable(box);
+        for (var i = 0; i < all.length; i++) if (isOn(all[i])) return all[i];
+        return all[0] || null;
+    }
+    function typeahead(box, key) {
+        var now = Date.now();
+        var st = (typed && typed.get(box)) || { text: '', at: 0 };
+        st.text = (now - st.at > 700 ? '' : st.text) + key.toLowerCase();
+        st.at = now;
+        if (typed) typed.set(box, st);
+        var all = reachable(box);
+        var from = all.indexOf(activeOf(box));
+        var same = st.text.length > 1 && st.text.split('').every(function (c) { return c === st.text[0]; });
+        var needle = same ? st.text[0] : st.text;
+        for (var n = 1; n <= all.length; n++) {
+            var o = all[(from + n + all.length) % all.length];
+            if (o && labelOf(o).indexOf(needle) === 0) return o;
+        }
+        return null;
+    }
+    document.addEventListener('focusin', function (e) {
+        var box = e.target && e.target.matches && e.target.matches('.listbox[role="listbox"]') ? e.target : null;
+        if (!box || disabled(box) || activeOf(box)) return;
+        var o = startOf(box);
+        if (o) { activate(box, o); setAnchor(box, o); }
+    });
+    document.addEventListener('mousedown', function (e) {
+        var o = e.target.closest ? e.target.closest('[role="option"]') : null;
+        var box = listboxOf(o);
+        if (!o || !box || disabled(box)) return;
+        if (box.getAttribute('tabindex') !== null && document.activeElement !== box) box.focus({ preventScroll: true });
+        if (e.shiftKey) e.preventDefault();
+    });
+    document.addEventListener('click', function (e) {
+        var o = e.target.closest ? e.target.closest('[role="option"]') : null;
+        var box = listboxOf(o);
+        if (!o || !box || disabled(box) || o.getAttribute('aria-disabled') === 'true') return;
+        activate(box, o);
+        if (multi(box) && (e.ctrlKey || e.metaKey)) {
+            setOn(o, !isOn(o));
+            setAnchor(box, o);
+            announce(box);
+        } else if (multi(box) && e.shiftKey) {
+            choose(box, rangeBetween(box, anchorOf(box), o));
+        } else {
+            setAnchor(box, o);
+            choose(box, [o]);
+        }
+    });
+    document.addEventListener('keydown', function (e) {
+        var box = e.target && e.target.matches && e.target.matches('.listbox[role="listbox"]') ? e.target : null;
+        if (!box || disabled(box) || e.altKey) return;
+        var from = activeOf(box) || startOf(box);
+        var key = e.key;
+        var handled = true;
+        if (key === 'ArrowDown') moveTo(box, step(box, from, 1), e.shiftKey);
+        else if (key === 'ArrowUp') moveTo(box, step(box, from, -1), e.shiftKey);
+        else if (key === 'Home') moveTo(box, reachable(box)[0], e.shiftKey);
+        else if (key === 'End') { var all = reachable(box); moveTo(box, all[all.length - 1], e.shiftKey); }
+        else if ((key === ' ' || key === 'Enter') && from) {
+            if (multi(box)) { setOn(from, !isOn(from)); setAnchor(box, from); announce(box); }
+            else choose(box, [from]);
+        }
+        else if ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'A') && multi(box)) choose(box, reachable(box));
+        else if (key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            var hit = typeahead(box, key);
+            if (hit) moveTo(box, hit, false);
+            else handled = false;
+        }
+        else handled = false;
+        if (handled) e.preventDefault();
+    });
+    ui.listbox = {
+        values: function (box) {
+            return box ? optionsOf(box).filter(isOn).map(valueOf) : [];
+        }
+    };
+})(window.sednaUi);
+(function (ui) {
     function panelOf(toggle) {
         var anchor = toggle.closest('.menu-anchor');
         return anchor ? anchor.querySelector('.menu') : null;
     }
+    function raise(panel, open) {
+        if (!panel || typeof panel.showPopover !== 'function') return;
+        try {
+            if (!open) {
+                if (panel.hasAttribute('data-menu-raised') && panel.matches(':popover-open')) panel.hidePopover();
+                return;
+            }
+            if (panel.hasAttribute('popover') && !panel.hasAttribute('data-menu-raised')) return;   // a menu at the pointer
+            if (!panel.hasAttribute('data-menu-raised')) {
+                if (getComputedStyle(panel).position === 'static') return;
+                panel.setAttribute('data-menu-raised', '');
+                panel.setAttribute('popover', 'manual');
+            }
+            if (getComputedStyle(panel).position === 'static') return;
+            if (!panel.matches(':popover-open')) panel.showPopover();
+        } catch (err) { /* the panel stays where it is */ }
+    }
+    function lower(panel) {
+        var subs = panel.querySelectorAll('.menu-sub[data-menu-raised]');
+        for (var i = 0; i < subs.length; i++) raise(subs[i], false);
+        raise(panel, false);
+    }
     function setOpen(toggle, panel, open) {
+        if (!open) lower(panel);
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open && !toggle.closest('.fab-dial')) raise(panel, true);
         if (open) startFilter(panel);
         if (open && ui._.layer) {
-            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
+            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) { lower(panel); panel.hidden = true; } });
         }
     }
     function closeAll(except) {
@@ -1623,7 +1839,7 @@ window.sednaUi = window.sednaUi || {};
         return menu;
     }
     function closeMenu(menu) {
-        if (menu.hasAttribute('popover')) {
+        if (menu.hasAttribute('popover') && !menu.hasAttribute('data-menu-raised')) {
             try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
             return;
         }
@@ -1649,11 +1865,19 @@ window.sednaUi = window.sednaUi || {};
         var anchor = item.closest('.menu-sub-anchor');
         return anchor ? anchor.querySelector(':scope > .menu-sub') : null;
     }
+    function syncSub(anchor) {
+        var sub = anchor.querySelector(':scope > .menu-sub');
+        if (!sub) return;
+        var open = anchor.hasAttribute('data-open');
+        try { open = open || anchor.matches(':hover, :focus-within'); } catch (err) { /* no :hover here */ }
+        raise(sub, open);
+    }
     function setSub(item, open) {
         var anchor = item.closest('.menu-sub-anchor');
         if (!anchor) return;
         if (open) anchor.setAttribute('data-open', ''); else anchor.removeAttribute('data-open');
         item.setAttribute('aria-expanded', String(open));
+        syncSub(anchor);
     }
     document.addEventListener('keydown', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
@@ -1748,13 +1972,22 @@ window.sednaUi = window.sednaUi || {};
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) setSub(opener, false);
     });
+    document.addEventListener('focusin', function (e) {
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (anchor) syncSub(anchor);
+    });
     document.addEventListener('pointerover', function (e) {
-        var opener = e.target instanceof Element ? e.target.closest('[data-menu-sub]') : null;
-        if (opener) opener.setAttribute('aria-expanded', 'true');
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (!anchor) return;
+        var opener = anchor.querySelector(':scope > [data-menu-sub]');
+        if (opener && opener.contains(e.target)) opener.setAttribute('aria-expanded', 'true');
+        syncSub(anchor);
     });
     document.addEventListener('pointerout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
-        if (!anchor || anchor.contains(e.relatedTarget) || anchor.hasAttribute('data-open')) return;
+        if (!anchor || anchor.contains(e.relatedTarget)) return;
+        setTimeout(function () { syncSub(anchor); }, 0);
+        if (anchor.hasAttribute('data-open')) return;
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) opener.setAttribute('aria-expanded', 'false');
     });
@@ -1830,7 +2063,7 @@ window.sednaUi = window.sednaUi || {};
     });
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
-        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
+        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]:not([data-menu-raised])')) return;
         var on = origins.get(panel);
         origins.delete(panel);
         if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
@@ -1838,7 +2071,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('click', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         if (!item || item.hasAttribute('data-menu-sub')) return;
-        var panel = item.closest('.menu[popover]');
+        var panel = item.closest('.menu[popover]:not([data-menu-raised])');
         try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
     });
 })(window.sednaUi);
@@ -5712,12 +5945,20 @@ window.sednaUi = window.sednaUi || {};
     function px(value) { var n = parseFloat(value); return isFinite(n) ? n : 0; }
     function geometry(grid) {
         var cs = getComputedStyle(grid), r = grid.getBoundingClientRect();
-        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 12));
-        var gapX = px(cs.columnGap), gapY = px(cs.rowGap);
+        var cols = Math.max(1, whole(parseFloat(cs.getPropertyValue('--panel-cols')), 24));
+        var gapY = px(cs.rowGap);
         var left = r.left + px(cs.borderLeftWidth) + px(cs.paddingLeft);
         var right = r.right - px(cs.borderRightWidth) - px(cs.paddingRight);
         var top = r.top + px(cs.borderTopWidth) + px(cs.paddingTop);
-        var col = (right - left - gapX * (cols - 1)) / cols;
+        var tracks = cs.gridTemplateColumns.split(' ').map(parseFloat).filter(isFinite);
+        var col, gapX;
+        if (cols > 1 && tracks.length === cols) {
+            col = tracks[0];
+            gapX = Math.max(0, (right - left - tracks.reduce(function (a, b) { return a + b; }, 0)) / (cols - 1));
+        } else {
+            gapX = px(cs.columnGap);
+            col = (right - left - gapX * (cols - 1)) / cols;
+        }
         var row = px(cs.gridAutoRows) || 48;
         return {
             cols: cols, col: col, row: row, gapX: gapX, gapY: gapY,
@@ -6837,6 +7078,7 @@ window.sednaUi = window.sednaUi || {};
         return sheet && sheet.hasAttribute('open') && grip.parentElement === sheet ? sheet : null;
     }
     function slideOut(sheet) {
+        if (ui._.slideFrom) ui._.slideFrom(sheet, sheet.style.transform);
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
         if (typeof sheet.requestClose === 'function') sheet.requestClose();
@@ -8842,15 +9084,22 @@ window.sednaUi = window.sednaUi || {};
     if (supported) return;
     var HELD = 'data-sedna-closing';
     var opened = new WeakSet();
+    var modal = new WeakSet();
+    var dropped = new WeakMap();
+    function seen(d) {
+        opened.add(d);
+        dropped.delete(d);
+        if (d.matches(':modal')) modal.add(d); else modal.delete(d);
+    }
     function watch(record) {
         var d = record.target;
-        if (d.tagName === 'DIALOG' && d.open) opened.add(d);
+        if (d.tagName === 'DIALOG' && d.open) seen(d);
     }
     if (typeof MutationObserver === 'function') {
         new MutationObserver(function (records) { records.forEach(watch); })
             .observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
     }
-    document.querySelectorAll('dialog[open]').forEach(function (d) { opened.add(d); });
+    document.querySelectorAll('dialog[open]').forEach(seen);
     function seconds(value) {
         var n = parseFloat(value);
         if (!isFinite(n)) return 0;
@@ -8869,21 +9118,36 @@ window.sednaUi = window.sednaUi || {};
         if (!d.hasAttribute(HELD)) return;
         d.removeAttribute(HELD);
         d.style.removeProperty('display');
+        d.style.removeProperty('--sedna-exit-duration');
+        d.style.removeProperty('--sedna-exit-easing');
+    }
+    function openTransform(d, style) {
+        var drop = dropped.get(d);
+        dropped.delete(d);
+        if (drop && performance.now() - drop.time < 250) return drop.transform;
+        if (d.hasAttribute('data-sheet-snap')) {
+            var rest = style.getPropertyValue('--sheet-rest').trim();
+            if (rest) return 'translateY(' + rest + ')';
+        }
+        return 'none';
     }
     function slideOut(d) {
         if (!d || d.tagName !== 'DIALOG' || d.open || !opened.has(d)) return;
         opened.delete(d);
         if (d.hasAttribute(HELD) || !d.matches('.drawer')) return;
-        var closed = getComputedStyle(d);
-        var t = timing(closed);
+        var t = timing(getComputedStyle(d));
         if (!t) return;
-        var to = closed.transform;
-        d.setAttribute(HELD, '');
+        d.setAttribute(HELD, modal.has(d) ? 'modal' : '');
         d.style.setProperty('display', 'flex');
+        d.style.setProperty('--sedna-exit-duration', t.duration + 'ms');
+        d.style.setProperty('--sedna-exit-easing', t.easing);
+        var style = getComputedStyle(d);
+        var to = style.transform;
+        var from = openTransform(d, style);
         var run;
         try {
             run = d.animate(
-                [{ transform: 'none', visibility: 'visible' }, { transform: to, visibility: 'visible' }],
+                [{ transform: from, visibility: 'visible' }, { transform: to, visibility: 'visible' }],
                 { duration: t.duration, easing: t.easing });
         } catch (err) {
             release(d);
@@ -8894,6 +9158,7 @@ window.sednaUi = window.sednaUi || {};
         run.oncancel = done;
     }
     ui._.slideOut = slideOut;
+    ui._.slideFrom = function (d, transform) { if (transform) dropped.set(d, { transform: transform, time: performance.now() }); };
     document.addEventListener('close', function (e) { slideOut(e.target); }, true);
     document.addEventListener('toggle', function (e) {
         var d = e.target;
@@ -9003,12 +9268,25 @@ window.sednaUi = window.sednaUi || {};
         e.preventDefault();
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
+    function dismissible(d) {
+        var by = (d.getAttribute('closedby') || '').toLowerCase();
+        if (d.classList.contains('lightbox')) return by === 'any';
+        if (!d.matches('.modal, .drawer') || !d.matches(':modal')) return false;
+        if (by === 'closerequest' || by === 'none') return false;
+        return !(by === 'any' && 'closedBy' in d);   // the platform does this one
+    }
     var besideDown = null;
     function beside(e) {
         var t = e.target instanceof Element ? e.target : null;
-        var d = t ? t.closest('dialog.lightbox[open]') : null;
-        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
-        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        if (!t) return null;
+        var d = t.closest('dialog[open]');
+        if (!d || !dismissible(d)) return null;
+        if (d.classList.contains('lightbox')) {
+            return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        }
+        if (t !== d) return null;
+        var r = d.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom ? d : null;
     }
     document.addEventListener('pointerdown', function (e) {
         besideDown = e.button === 0 ? beside(e) : null;

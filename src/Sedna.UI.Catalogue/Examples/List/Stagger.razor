@@ -1,8 +1,9 @@
 <div class="sedna-col sedna-gap-12">
-    <!-- The button only replays the arrival for this page; an app's rows arrive when it renders them. -->
+    <!-- The button only replays the arrival for this page; an app's rows arrive when it renders them.
+         A list that is hidden and shown again starts its animations over. -->
     <div>
         <button class="btn btn--sm" type="button"
-                onclick="document.getElementById('stagger-list').getAnimations({ subtree: true }).forEach(a => { a.cancel(); a.play(); })">
+                onclick="const list = document.getElementById('stagger-list'); list.hidden = true; void list.offsetWidth; list.hidden = false">
             <i class="ri-restart-line"></i> <span>Replay</span>
         </button>
     </div>
