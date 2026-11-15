@@ -33,6 +33,8 @@
         holding the state in C# leaves the attribute off and renders <code>hidden</code> itself. The
         panel lines up with the anchor's <em>trailing</em> edge and sizes to its widest row, and is never
         narrower than its trigger — add <code>.menu--start</code> to the panel for a trigger near the leading edge.
+        While it is open the script lifts the panel, and any submenu it opens, into the top layer, so a
+        popover, a drawer or a card that scrolls cannot clip it; the markup stays as you wrote it.
         A menu is for actions: a list of <em>values</em> is a <code>&lt;select&gt;</code> or a
         <a href="/segmented">segmented control</a>, a list of <em>places</em> is the sidebar.
     </p>

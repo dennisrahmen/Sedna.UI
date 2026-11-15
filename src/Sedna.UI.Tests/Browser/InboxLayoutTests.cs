@@ -36,7 +36,7 @@ public class InboxLayoutTests : ScriptTestBase
                     <div class="inbox-item-main">
                       <a class="inbox-item-title" id="title-{i}" href="#open-{i}">Alex Fischer assigned ORD-{4180 + i} to you</a>
                       <span class="inbox-item-text">Northwind Retail · 3 items, leaves the dock at 14:30, after the cold-chain check.</span>
-                      <time class="inbox-item-time">5 minutes ago</time>
+                      <time class="inbox-item-time" id="time-{i}">5 minutes ago</time>
                       <div class="inbox-item-actions"><button class="btn btn--sm" id="accept-{i}" type="button">Accept</button></div>
                     </div>
                     <div class="menu-anchor inbox-item-menu">
@@ -108,7 +108,7 @@ public class InboxLayoutTests : ScriptTestBase
     [Theory]
     [InlineData("ltr")]
     [InlineData("rtl")]
-    public async Task The_count_sits_on_the_bells_end_corner_and_the_dot_in_the_start_gutter(string dir)
+    public async Task The_count_sits_on_the_bells_end_corner_and_the_dot_before_the_time(string dir)
     {
         if (NoBrowser) return;
         var page = await OpenInbox(dir);
@@ -119,17 +119,20 @@ public class InboxLayoutTests : ScriptTestBase
             () => {
                 const r = id => document.getElementById(id).getBoundingClientRect();
                 const glyph = r('glyph'), count = r('count'), item = r('item-1'), avatar = r('avatar-1'), title = r('title-1');
-                const dot = getComputedStyle(document.getElementById('item-1'), '::before');
-                const read = getComputedStyle(document.getElementById('item-2'), '::before');
+                const dot = getComputedStyle(document.getElementById('time-1'), '::before');
+                const read = getComputedStyle(document.getElementById('time-2'), '::before');
+                const gutter = getComputedStyle(document.getElementById('item-1'), '::before');
+                const time = r('time-1');
                 return {
                     countEnd: document.dir === 'rtl' ? glyph.left - count.left : count.right - glyph.right,
                     countAbove: glyph.top - count.top,
                     countOverIcon: document.dir === 'rtl' ? count.right > glyph.left : count.left < glyph.right,
                     dotWidth: parseFloat(dot.width),
-                    dotStart: parseFloat(dot.insetInlineStart),
-                    dotLeft: parseFloat(dot.left), dotRight: parseFloat(dot.right),
+                    dotGap: parseFloat(dot.marginInlineEnd),
                     readDot: read.content,
+                    gutterDot: gutter.content,
                     avatarFromStart: document.dir === 'rtl' ? item.right - avatar.right : avatar.left - item.left,
+                    timeFromAvatar: document.dir === 'rtl' ? avatar.left - time.right : time.left - avatar.right,
                     titleTop: title.top - item.top,
                 };
             }
@@ -140,13 +143,13 @@ public class InboxLayoutTests : ScriptTestBase
         Assert.True(probe.GetProperty("countAbove").GetDouble() > 0, "The count does not sit above the bell's top.");
         Assert.True(probe.GetProperty("countOverIcon").GetBoolean(), "The count does not overlap the bell.");
 
-        // The dot is in the gutter before the avatar, on the inline-start side, and only on an unread item.
+        // The dot is in front of the time, in the text column beside the avatar, and only on an unread
+        // item; nothing floats in the gutter before the avatar.
         Assert.Equal(6, probe.GetProperty("dotWidth").GetDouble());
+        Assert.True(probe.GetProperty("dotGap").GetDouble() > 0, "The dot touches the time.");
         Assert.Equal("none", probe.GetProperty("readDot").GetString());
-        var gutter = probe.GetProperty("avatarFromStart").GetDouble();
-        Assert.True(gutter > probe.GetProperty("dotStart").GetDouble() + 6, $"The dot does not fit the {gutter}px gutter before the avatar.");
-        var physical = dir == "rtl" ? probe.GetProperty("dotRight").GetDouble() : probe.GetProperty("dotLeft").GetDouble();
-        Assert.Equal(probe.GetProperty("dotStart").GetDouble(), physical);
+        Assert.Equal("none", probe.GetProperty("gutterDot").GetString());
+        Assert.True(probe.GetProperty("timeFromAvatar").GetDouble() > 0, "The time starts under the avatar, not beside it.");
     }
 
     [Fact]

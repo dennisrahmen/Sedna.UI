@@ -37,7 +37,7 @@
       { "text": "An assistant docked beside the page", "instead": "/assistant-panels#assistant-beside-the-page" }
     ],
     "goals": [ "open-a-record-beside-the-list", "pull-up-a-bottom-sheet", "choose-from-an-action-sheet", "narrow-a-long-list", "navigate-on-a-phone", "dock-an-assistant" ],
-    "stamp": "c1b322228eb96f7f"
+    "stamp": "50cd27ef16419d41"
   },
   {
     "page": "/palette",

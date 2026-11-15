@@ -1731,7 +1731,7 @@ window.sednaUi = window.sednaUi || {};
        opened by a popovertarget button follows the button, as a popover does. */
     function closePointMenus(scroller) {
         var open;
-        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        try { open = document.querySelectorAll('.menu[popover]:not([data-menu-raised]):popover-open'); }
         catch (err) { return; }
 
         for (var i = 0; i < open.length; i++) {
@@ -2912,6 +2912,10 @@ window.sednaUi = window.sednaUi || {};
    Delegated from document, so a menu rendered by a later Blazor render works with
    nothing re-bound. The frame's own user menu does NOT use this: it holds its state
    in C#, because the frame has to work with scripting blocked.
+
+   An open panel is raised into the top layer, so a panel it sits in — a popover, a drawer,
+   a card that scrolls — cannot clip it or move it, whatever that panel's overflow,
+   transform or containment. See `raise` below.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
@@ -2920,14 +2924,54 @@ window.sednaUi = window.sednaUi || {};
         return anchor ? anchor.querySelector('.menu') : null;
     }
 
+    /* ── The top layer ─────────────────────────────────────────────────────
+       A dropdown and a submenu are `position: fixed` and placed against their trigger, which
+       an ancestor can still defeat: a `transform`, `filter` or `contain` makes it the
+       containing block of everything fixed inside it, and its `overflow` then clips the
+       panel — an inbox's submenu was cut at the inbox's edge. Nothing in the top layer can
+       be clipped by what it sits in, so an open panel is put there: the script gives it
+       `popover="manual"` and shows it, and the panel keeps the place CSS gave it, because
+       the platform's own popover styles are undone for it (58-menu.css, `data-menu-raised`).
+       `manual` leaves dismissing to this part, as before: a click outside, Escape and Tab
+       close it here, and the platform's light dismiss never runs.
+
+       A panel that is drawn in the flow — the sheet on a phone — is left where it is: the
+       top layer would take it out of the flow it is drawn in. Where the browser has no
+       popover the panel stays as it was. */
+    function raise(panel, open) {
+        if (!panel || typeof panel.showPopover !== 'function') return;
+        try {
+            if (!open) {
+                if (panel.hasAttribute('data-menu-raised') && panel.matches(':popover-open')) panel.hidePopover();
+                return;
+            }
+            if (panel.hasAttribute('popover') && !panel.hasAttribute('data-menu-raised')) return;   // a menu at the pointer
+            if (!panel.hasAttribute('data-menu-raised')) {
+                if (getComputedStyle(panel).position === 'static') return;
+                panel.setAttribute('data-menu-raised', '');
+                panel.setAttribute('popover', 'manual');
+            }
+            if (getComputedStyle(panel).position === 'static') return;
+            if (!panel.matches(':popover-open')) panel.showPopover();
+        } catch (err) { /* the panel stays where it is */ }
+    }
+
+    function lower(panel) {
+        var subs = panel.querySelectorAll('.menu-sub[data-menu-raised]');
+        for (var i = 0; i < subs.length; i++) raise(subs[i], false);
+        raise(panel, false);
+    }
+
     function setOpen(toggle, panel, open) {
+        if (!open) lower(panel);
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open && !toggle.closest('.fab-dial')) raise(panel, true);
         if (open) startFilter(panel);
         // A render that removes the toggle of an open menu leaves the panel pointing at
         // nothing; it closes, as a hint does when its trigger goes.
         if (open && ui._.layer) {
-            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
+            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) { lower(panel); panel.hidden = true; } });
         }
     }
 
@@ -3007,7 +3051,7 @@ window.sednaUi = window.sednaUi || {};
     }
 
     function closeMenu(menu) {
-        if (menu.hasAttribute('popover')) {
+        if (menu.hasAttribute('popover') && !menu.hasAttribute('data-menu-raised')) {
             try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
             return;
         }
@@ -3043,11 +3087,22 @@ window.sednaUi = window.sednaUi || {};
         return anchor ? anchor.querySelector(':scope > .menu-sub') : null;
     }
 
+    /* A submenu is open while the pointer or the focus is in its anchor, or the keyboard
+       opened it: CSS shows it, and this puts what is shown in the top layer. */
+    function syncSub(anchor) {
+        var sub = anchor.querySelector(':scope > .menu-sub');
+        if (!sub) return;
+        var open = anchor.hasAttribute('data-open');
+        try { open = open || anchor.matches(':hover, :focus-within'); } catch (err) { /* no :hover here */ }
+        raise(sub, open);
+    }
+
     function setSub(item, open) {
         var anchor = item.closest('.menu-sub-anchor');
         if (!anchor) return;
         if (open) anchor.setAttribute('data-open', ''); else anchor.removeAttribute('data-open');
         item.setAttribute('aria-expanded', String(open));
+        syncSub(anchor);
     }
 
     document.addEventListener('keydown', function (e) {
@@ -3161,20 +3216,31 @@ window.sednaUi = window.sednaUi || {};
     });
 
     /* A submenu says it is open while the pointer or the focus is in it. The CSS opens it
-       on :hover and :focus-within; this keeps aria-expanded true to what is shown. */
+       on :hover and :focus-within; this keeps aria-expanded true to what is shown, and
+       raises what is shown (above). */
     document.addEventListener('focusout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
         if (!anchor || anchor.contains(e.relatedTarget)) return;
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) setSub(opener, false);
     });
+    document.addEventListener('focusin', function (e) {
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (anchor) syncSub(anchor);
+    });
     document.addEventListener('pointerover', function (e) {
-        var opener = e.target instanceof Element ? e.target.closest('[data-menu-sub]') : null;
-        if (opener) opener.setAttribute('aria-expanded', 'true');
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (!anchor) return;
+        var opener = anchor.querySelector(':scope > [data-menu-sub]');
+        if (opener && opener.contains(e.target)) opener.setAttribute('aria-expanded', 'true');
+        syncSub(anchor);
     });
     document.addEventListener('pointerout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
-        if (!anchor || anchor.contains(e.relatedTarget) || anchor.hasAttribute('data-open')) return;
+        if (!anchor || anchor.contains(e.relatedTarget)) return;
+        // :hover has caught up with the pointer by the next task.
+        setTimeout(function () { syncSub(anchor); }, 0);
+        if (anchor.hasAttribute('data-open')) return;
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) opener.setAttribute('aria-expanded', 'false');
     });
@@ -3286,7 +3352,7 @@ window.sednaUi = window.sednaUi || {};
 
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
-        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
+        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]:not([data-menu-raised])')) return;
         var on = origins.get(panel);
         origins.delete(panel);
         if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
@@ -3296,7 +3362,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('click', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         if (!item || item.hasAttribute('data-menu-sub')) return;
-        var panel = item.closest('.menu[popover]');
+        var panel = item.closest('.menu[popover]:not([data-menu-raised])');
         try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
     });
 

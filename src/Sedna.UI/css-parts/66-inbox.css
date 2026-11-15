@@ -64,7 +64,13 @@
 /* Opened from a bell at the end of a header, there is no room toward the inline end:
    the panel turns to line up with the bell's end edge instead. On a phone it takes the
    width of the screen, less a margin, under the bell. */
-.popover.inbox { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+/* A percentage here is the width of the area `position-area` leaves beside the bell, so a bell near
+   the end of a window gave the panel a few pixels of width — and, fitting, it never turned. The
+   screen is the limit instead, and a panel too wide for its side turns to the other. */
+.popover.inbox {
+    max-width: calc(100vw - var(--space-8) * 2);
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+}
 @media (max-width: 560px) {
     .popover.inbox {
         position-area: block-end span-all;
@@ -116,7 +122,7 @@
     align-items: start;
     column-gap: var(--space-5);
     padding-block: var(--space-5);
-    padding-inline: var(--space-7) var(--space-4);
+    padding-inline: var(--space-6) var(--space-4);
 }
 .inbox-item:hover { background: var(--bg-hover); }
 .inbox-item:has(.inbox-item-title:focus-visible) { box-shadow: inset 0 0 0 2px var(--focus-ring); }
@@ -168,19 +174,20 @@ button.inbox-item-title {
 }
 .inbox-item-menu { position: relative; z-index: 1; }
 
-/* Unread: the title in the ink of the page, and a dot in the gutter beside the first
-   line. The dot is a picture of the state, so say it in words too — "Unread" in a
-   `.visually-hidden` span in the title. */
+/* Unread: the title in the ink of the page, and a dot in front of the time, with the other
+   things said about the notification. The dot is a picture of the state, so say it in words
+   too — "Unread" in a `.visually-hidden` span in the title. It stands on the capitals' centre
+   of the time beside it, as every mark beside a line of text does. */
 .inbox-item--unread .inbox-item-title { color: var(--fg); font-weight: 600; }
-.inbox-item--unread::before {
+.inbox-item--unread .inbox-item-time::before {
     content: "";
-    position: absolute;
-    inset-inline-start: var(--space-3);
-    inset-block-start: calc(var(--space-5) + 0.5lh - 3px);
+    display: inline-block;
     width: 6px;
     height: 6px;
+    margin-inline-end: var(--space-3);
     border-radius: 50%;
     background: var(--brand);
+    vertical-align: calc((1cap - 6px) / 2);
 }
 
 /* Each tab's empty state: one line of what is not here, in the list's place. */
