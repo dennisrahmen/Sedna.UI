@@ -109,16 +109,18 @@ function chooseMask(s, level) {
     return best;
 }
 
-/* The symbol for `text` at a level — 'L', 'M', 'Q' or 'H' — or null when it does not fit. */
-function encode(text, levelName) {
+/* The symbol for `text` at a level — 'L', 'M', 'Q' or 'H' — or null when it does not fit.
+   `floor` is the smallest version it may be: a centre logo needs a symbol with room behind it. */
+function encode(text, levelName, floor) {
     const level = LEVELS[levelName] || LEVELS.M;
-    const bytes = encoder.encode(text);
-    const version = versionFor(bytes, level);
-    if (!version) return null;
+    const planned = plan(text, level, floor);
+    if (!planned) return null;
+    const version = planned.version;
     const s = blankSymbol(version);
     drawFunctionPatterns(s, level);
-    placeCodewords(s, interleave(dataStream(bytes, version, level), version, level));
+    placeCodewords(s, interleave(dataStream(planned.segments, version, level), version, level));
     s.mask = chooseMask(s, level);
     s.level = levelName in LEVELS ? levelName : 'M';
+    s.segments = planned.segments;
     return s;
 }
