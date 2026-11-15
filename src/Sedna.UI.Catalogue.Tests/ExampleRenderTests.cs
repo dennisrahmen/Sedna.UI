@@ -46,37 +46,27 @@ public class ExampleRenderTests(CatalogueAppFixture app)
         new("""<div class="ex-demo[^"]*">(?<body>.*?)</div>\s*<div class="code-block">""",
             RegexOptions.Compiled | RegexOptions.Singleline);
 
-    // The routes the app serves, not the registry — NavigationTests is what asserts
-    // those two agree, and this test should say something true while they do not.
-    public static TheoryData<string> Routes() => RoutedPages.AsTheoryData();
-
-    [Theory]
-    [MemberData(nameof(Routes))]
-    public async Task Every_code_block_on_the_page_has_a_body(string route)
+    [Fact]
+    public async Task Every_code_block_has_a_body_and_every_live_example_rendered_something()
     {
-        var html = await Get(route);
-
-        var blocks = CodeBlock.Matches(html);
-        foreach (var block in blocks.Cast<Match>())
+        // One page, one request, both rules, and every offending route in one message. The
+        // routes are the ones the app serves, not the registry — NavigationTests is what
+        // asserts those two agree, and this test should say something true while they do not.
+        var problems = new List<string>();
+        foreach (var route in RoutedPages.All)
         {
-            Assert.False(string.IsNullOrWhiteSpace(block.Groups["body"].Value),
-                $"{route} rendered an empty code block. Either an example's embedded source is "
-                + "missing — check the EmbeddedResource glob and the folder names under "
-                + "Examples/ — or a CatSnippet Name does not match a file.");
-        }
-    }
+            var html = await Get(route);
 
-    [Theory]
-    [MemberData(nameof(Routes))]
-    public async Task Every_live_example_rendered_something(string route)
-    {
-        var html = await Get(route);
+            if (CodeBlock.Matches(html).Any(block => string.IsNullOrWhiteSpace(block.Groups["body"].Value)))
+                problems.Add($"{route} rendered an empty code block. Either an example's embedded source is "
+                    + "missing — check the EmbeddedResource glob and the folder names under "
+                    + "Examples/ — or a CatSnippet Name does not match a file.");
 
-        foreach (var demo in Demo.Matches(html).Cast<Match>())
-        {
-            Assert.False(string.IsNullOrWhiteSpace(demo.Groups["body"].Value),
-                $"{route} rendered an empty demo. The example component produced no markup.");
+            if (Demo.Matches(html).Any(demo => string.IsNullOrWhiteSpace(demo.Groups["body"].Value)))
+                problems.Add($"{route} rendered an empty demo. The example component produced no markup.");
         }
+
+        Assert.True(problems.Count == 0, string.Join("\n", problems));
     }
 
     [Fact]

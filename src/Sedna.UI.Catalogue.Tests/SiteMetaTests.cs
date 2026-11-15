@@ -21,27 +21,37 @@ namespace Sedna.UI.Catalogue.Tests;
 [Collection(CatalogueAppCollection.Name)]
 public class SiteMetaTests(CatalogueAppFixture app)
 {
-    public static TheoryData<string> Routes() => RoutedPages.AsTheoryData();
-
-    [Theory]
-    [MemberData(nameof(Routes))]
-    public async Task Every_page_carries_its_description_canonical_and_preview(string route)
+    [Fact]
+    public async Task Every_page_carries_its_description_canonical_and_preview()
     {
-        var page = Assert.Single(CataloguePages.All, p => p.Route == route);
-        var html = await app.Client.GetStringAsync(new Uri(route, UriKind.Relative));
-        var canonical = SiteMeta.Canonical(route);
+        var problems = new List<string>();
+        foreach (var route in RoutedPages.All)
+        {
+            try
+            {
+                var page = Assert.Single(CataloguePages.All, p => p.Route == route);
+                var html = await app.Client.GetStringAsync(new Uri(route, UriKind.Relative));
+                var canonical = SiteMeta.Canonical(route);
 
-        Assert.Equal([canonical], Links(html, "canonical"));
-        Assert.Equal([SiteMeta.Description(page)], Metas(html, "name", "description"));
-        Assert.Equal([canonical], Metas(html, "property", "og:url"));
-        Assert.Equal([SiteMeta.Image], Metas(html, "property", "og:image"));
-        Assert.Equal(["summary_large_image"], Metas(html, "name", "twitter:card"));
-        Assert.Empty(Metas(html, "name", "robots"));
+                Assert.Equal([canonical], Links(html, "canonical"));
+                Assert.Equal([SiteMeta.Description(page)], Metas(html, "name", "description"));
+                Assert.Equal([canonical], Metas(html, "property", "og:url"));
+                Assert.Equal([SiteMeta.Image], Metas(html, "property", "og:image"));
+                Assert.Equal(["summary_large_image"], Metas(html, "name", "twitter:card"));
+                Assert.Empty(Metas(html, "name", "robots"));
 
-        // One block, and valid JSON: a parse error drops the page's rich result silently.
-        var ld = Assert.Single(JsonLd.Matches(html)).Groups["json"].Value;
-        using var doc = JsonDocument.Parse(ld);
-        Assert.Equal("https://schema.org", doc.RootElement.GetProperty("@context").GetString());
+                // One block, and valid JSON: a parse error drops the page's rich result silently.
+                var ld = Assert.Single(JsonLd.Matches(html)).Groups["json"].Value;
+                using var doc = JsonDocument.Parse(ld);
+                Assert.Equal("https://schema.org", doc.RootElement.GetProperty("@context").GetString());
+            }
+            catch (Exception e) when (e is Xunit.Sdk.XunitException or JsonException or HttpRequestException)
+            {
+                problems.Add($"{route}: {e.Message}");
+            }
+        }
+
+        Assert.True(problems.Count == 0, string.Join("\n\n", problems));
     }
 
     [Fact]

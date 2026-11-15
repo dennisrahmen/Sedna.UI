@@ -87,7 +87,7 @@ public abstract class ScriptTestBase : BrowserTestBase
         DateTime? clockPausedAt = null,
         float? deviceScaleFactor = null)
     {
-        var context = await Browser!.NewContextAsync(new()
+        var context = await NewContextAsync(new()
         {
             DeviceScaleFactor = deviceScaleFactor,
             ColorScheme = colorScheme,
@@ -132,6 +132,7 @@ public abstract class ScriptTestBase : BrowserTestBase
         }
 
         var page = await context.NewPageAsync();
+        await TrackCoverageAsync(context, page);
         beforeLoad?.Invoke(page);
 
         // A path the fixture serves itself, else the shipped file of that name under

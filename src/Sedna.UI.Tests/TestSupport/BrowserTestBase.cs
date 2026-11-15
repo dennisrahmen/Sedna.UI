@@ -24,23 +24,54 @@ namespace Sedna.UI.Tests.TestSupport;
 /// which is the point: the quiet path is the honest one.
 /// </para>
 /// <para>
-/// One browser per test class, because xUnit creates one instance of the class per test
-/// method and <see cref="IAsyncLifetime"/> runs around each of them. Launching Chromium
-/// costs far less than the page work, and sharing one across classes would need a
-/// collection fixture and give the tests a shared mutable dependency.
+/// One browser per test process. xUnit creates one instance of the class per test method
+/// and per theory row, and <see cref="IAsyncLifetime"/> runs around each of them, so a
+/// browser launched there was launched and torn down once per test. The Playwright driver
+/// and the browser are instead started by the first test that asks, under a lock, and
+/// shared by every class running in parallel. What a test must not share is state, so each
+/// test gets its own <see cref="IBrowserContext"/> from <see cref="NewContextAsync"/> —
+/// its own cookies, storage, permissions and pages — which is closed when the test ends.
+/// Nothing may call <c>NewContextAsync</c> on the browser itself: a context made there is
+/// not closed until the process exits and is the leak this arrangement exists to prevent.
+/// </para>
+/// <para>
+/// A browser that dies mid-run — WebKit can crash — fails the tests that were on it, with
+/// Playwright's own closed-target error, and the next test to start gets a fresh one. The
+/// browser and the driver are closed when the process exits.
 /// </para>
 /// </remarks>
 public abstract class BrowserTestBase : IAsyncLifetime
 {
     private const string OptOutEnvVar = "SEDNA_UI_BROWSER_TESTS";
 
-    private IPlaywright? _playwright;
+    private readonly List<IBrowserContext> _contexts = new();
+    private readonly List<ICDPSession> _coverage = new();
+    private IBrowser? _browser;
 
     /// <summary>The engine this run drives: <c>chromium</c> or <c>webkit</c>.</summary>
     protected static string Engine => BrowserEngine.Name;
 
-    /// <summary>The launched browser, or null when none could be started.</summary>
-    protected IBrowser? Browser { get; private set; }
+    /// <summary>
+    /// Starts V8 coverage collection on a page the test has just created, before it navigates —
+    /// a no-op unless <c>SEDNA_UI_JS_COVERAGE_DIR</c> is set. Taken when the test ends, before
+    /// its contexts close.
+    /// </summary>
+    protected async Task TrackCoverageAsync(IBrowserContext context, IPage page)
+    {
+        if (await JsCoverage.AttachAsync(context, page) is { } session)
+            lock (_contexts) _coverage.Add(session);
+    }
+
+    /// <summary>
+    /// A new context in the shared browser, closed when the test ends. Every context a test
+    /// opens comes from here, with whatever options it needs.
+    /// </summary>
+    protected async Task<IBrowserContext> NewContextAsync(BrowserNewContextOptions? options = null)
+    {
+        var context = await _browser!.NewContextAsync(options);
+        lock (_contexts) _contexts.Add(context);
+        return context;
+    }
 
     /// <summary>Playwright's first line of complaint, or null when the launch worked.</summary>
     protected string? Unavailable { get; private set; }
@@ -62,10 +93,9 @@ public abstract class BrowserTestBase : IAsyncLifetime
 
         try
         {
-            _playwright = await Playwright.CreateAsync();
-            Browser = await BrowserEngine.Of(_playwright).LaunchAsync(new() { Headless = true });
+            _browser = await SharedBrowser.GetAsync();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (SharedBrowser.IsLaunchFailure(ex))
         {
             // Almost always "Executable doesn't exist" — the binaries were never
             // downloaded. Recorded rather than thrown so the rest of the suite runs.
@@ -75,8 +105,31 @@ public abstract class BrowserTestBase : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        if (Browser is not null) await Browser.DisposeAsync();
-        _playwright?.Dispose();
+        IBrowserContext[] contexts;
+        ICDPSession[] sessions;
+        lock (_contexts)
+        {
+            contexts = _contexts.ToArray();
+            sessions = _coverage.ToArray();
+            _contexts.Clear();
+            _coverage.Clear();
+        }
+
+        await JsCoverage.DrainAsync(sessions);
+
+        // A context on a browser that has died cannot be closed, and its test has already
+        // failed on the closed target; a live browser that will not close one is a defect.
+        foreach (var context in contexts)
+        {
+            try
+            {
+                await context.CloseAsync();
+            }
+            catch (PlaywrightException) when (_browser is { IsConnected: false })
+            {
+                // The browser died under the test, which has already failed on it.
+            }
+        }
     }
 
     /// <summary>

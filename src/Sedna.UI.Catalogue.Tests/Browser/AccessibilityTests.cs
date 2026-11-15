@@ -24,6 +24,7 @@ namespace Sedna.UI.Catalogue.Tests;
 /// </para>
 /// </remarks>
 [Collection(CatalogueAppCollection.Name)]
+[Trait(ScanKind.Name, ScanKind.Scan)]
 public class AccessibilityTests(CatalogueAppFixture app)
 {
     private static List<string> Tags => ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
@@ -59,7 +60,7 @@ public class AccessibilityTests(CatalogueAppFixture app)
 
         var problems = new List<string>();
 
-        foreach (var route in RoutedPages.All)
+        foreach (var route in RoutedPages.Scanned)
         {
             var page = await app.OpenInteractiveAsync(route);
 

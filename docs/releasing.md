@@ -38,14 +38,35 @@ Release notes come from the annotated tag message. There is no `CHANGELOG.md` �
    leaves the site's own copy in charge, which under-reports and never over-reports. Locally, run the
    script after cloning and after fetching a new tag; it needs bash 4 or later.
 
-`release.yml` runs the full suite first — every test project in every engine, as parallel jobs, without
-the catalogue's tests of the website alone (`Scope=Site`), which `catalogue.yml` runs on every push to
-`main` — and
-only then builds, packs, verifies the package contents, publishes to nuget.org, and creates the
-GitHub release. A pull request runs a smoke pass without a browser, so the tag is where a browser
-regression is caught.
+Every change reaches `main` through a pull request, and every commit on `main` and every release runs
+the same suite from one workflow, `.github/workflows/tests.yml`: every test project in every engine
+(Chromium and WebKit) on Linux, in Microsoft's Playwright image. The catalogue's page scans (tests
+marked `Kind=Scan`) are split into shards, and the shard count is the one `SHARDS` value in the
+workflow's `plan` job. A slice that fails never stops another; each failed test is listed with its
+message on the run's summary page, and the TRX results are attached to the run.
 
-**If the tag's test run is red**, nothing has been published and the version is still free. Delete
+| Trigger | Runs |
+|---|---|
+| Pull request | `ci.yml`: `build` (generated files, build, tests that need no browser, package, catalogue image), `tests` (the full suite, website tests included) and `coverage` (the coverage gate over what the Chromium slices collected). `ready` succeeds only when all three did. |
+| Pull request that changes prose alone | `build` and `ready`. `tests` is skipped. Prose is a Markdown file outside `docs/design-guide/`, `LICENSE` and `.github/ISSUE_TEMPLATE/**`. |
+| Push to `main` | `main.yml`: the full suite, website tests included, and the whole-code coverage floor, per commit. A commit whose coverage job fails is not verified for a release. |
+| Tag `v*` | `release.yml`: preflight, then the suite unless `main.yml` already passed it on this commit, then publish. |
+
+The coverage checks are described in [coverage.md](coverage.md); a release's own run of the suite collects none.
+
+A tag publishes only a commit that is on `main`. The preflight looks at the newest `main.yml` run on
+branch `main` for exactly the tagged commit:
+
+| That run | The release |
+|---|---|
+| succeeded | skips the suite and publishes |
+| queued or in progress | waits for it, then follows its conclusion |
+| absent, failed or cancelled | runs the suite itself, without the website tests (`Scope=Site`), and publishes only when every slice is green |
+
+A tag may be pushed as soon as the merge lands: the release waits for `main`'s run instead of repeating
+it. A run on another branch, or of another workflow, never verifies a release.
+
+**If the tag's run is red**, nothing has been published and the version is still free. Delete
 the tag, merge the fix, and tag the same version again:
 
 ```bash
