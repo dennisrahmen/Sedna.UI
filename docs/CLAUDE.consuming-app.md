@@ -180,6 +180,12 @@ layout. The component takes `[CascadingParameter] SednaOverlay Overlay`, puts `i
 `<dialog>`, renders that dialog on its first render, and closes with `Overlay.CloseAsync(result)` or
 `Overlay.CancelAsync()`.
 
+A click on the backdrop closes a modal, drawer or sheet, as Escape does, and `ShowModalAsync` completes
+with `null` for both. Write nothing for it. A dialog where a stray click would lose work — a form with
+something typed into it — says `closedby="closerequest"` on its `<dialog>`: Escape still closes it and the
+backdrop does not. A drawer opened without a modal (`data-modeless`) has no backdrop and stays open when
+the page beside it is clicked.
+
 A dialog holding unsaved work **asks before it closes**: put `data-close-guard @oncancel="Dismiss"` on
 the `<dialog>`, point its close buttons at the same `Dismiss`, and have it ask and then call
 `Overlay.CancelAsync()`. Escape then never closes the dialog by itself. Do not write

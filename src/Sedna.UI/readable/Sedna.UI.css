@@ -2765,9 +2765,11 @@ a.topbar-version--pre:hover {
 
 /* Soft top/bottom scroll shadows so the scroll edge fades instead of cutting
    hard. The two solid cover gradients (background-attachment: local) ride the
-   content and hide the shadow at the very top/bottom; the two radial shadows
+   content and hide the shadow at the very top/bottom; the two edge shadows
    (attachment: scroll) are pinned to the box and only show when there IS more
-   content that way. --scroll-bg MUST match the surface the scroller sits on, or
+   content that way. They run the full width of the box and fade out across their
+   height: a radial one was a smudge in the middle of the edge, which on a narrow
+   panel read as a shadow cast by something inside it. --scroll-bg MUST match the surface the scroller sits on, or
    the cover itself reads as a permanent dark band.
 
    It reads --surface-here, which every surface the library paints declares once
@@ -2780,8 +2782,8 @@ a.topbar-version--pre:hover {
     background:
         linear-gradient(var(--scroll-bg) 30%, transparent) center top,
         linear-gradient(transparent, var(--scroll-bg) 70%) center bottom,
-        radial-gradient(farthest-side at 50% 0, var(--scroll-shade), transparent) center top,
-        radial-gradient(farthest-side at 50% 100%, var(--scroll-shade), transparent) center bottom;
+        linear-gradient(to bottom, var(--scroll-shade), transparent) center top,
+        linear-gradient(to top, var(--scroll-shade), transparent) center bottom;
     background-repeat: no-repeat;
     background-size: 100% 26px, 100% 26px, 100% 10px, 100% 10px;
     background-attachment: local, local, scroll, scroll;
@@ -18323,7 +18325,38 @@ dialog.sheet {
     border: 1px solid var(--border);
     border-bottom: none;
 }
-dialog.drawer::backdrop { background: var(--dialog-backdrop); }
+/* The backdrop fades in with the panel and out with it, over the same duration, so the
+   page is never dimmed with nothing on top of it nor left bare while the panel is still
+   leaving. `display` and `overlay` keep it in the top layer for the fade out, as they do
+   the panel. An engine without `overlay` takes the backdrop away with the dialog; the
+   held state below stands in for it. */
+dialog.drawer::backdrop {
+    background-color: transparent;
+    transition: background-color var(--motion-mid) ease, display var(--motion-mid) allow-discrete, overlay var(--motion-mid) allow-discrete;
+}
+dialog.drawer[open]::backdrop { background-color: var(--dialog-backdrop); }
+/* A drawer opened without a modal has no backdrop to draw. */
+@starting-style {
+    dialog.drawer[open]::backdrop { background-color: transparent; }
+}
+
+/* ── Closing, where the engine cannot keep a closed dialog displayed ─────────
+   42-modal-exit.js holds the dialog displayed and slides it out (`data-sedna-closing`),
+   and for a modal one the page's dimming is this: a shadow spread over the viewport
+   that fades to nothing over the slide's own duration and easing, which the script
+   writes as `--sedna-exit-duration` and `--sedna-exit-easing`. The shadow travels with
+   the panel, and its spread is wider than any distance the panel has to go. */
+.drawer {
+    --sedna-exit-duration: var(--motion-mid);
+    --sedna-exit-easing: ease;
+}
+.drawer[data-sedna-closing="modal"] {
+    box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--dialog-backdrop);
+    animation: sedna-dim-out var(--sedna-exit-duration) var(--sedna-exit-easing) forwards;
+}
+@keyframes sedna-dim-out {
+    to { box-shadow: var(--shadow-modal), 0 0 0 100vmax transparent; }
+}
 /* The div form hides itself when closed; a dialog is already display:none, so `open`
    is what makes it visible and the visibility rule must not fight it. */
 dialog.drawer[open] { visibility: visible; transform: none; }
@@ -23010,7 +23043,10 @@ button.inbox-item-title {
 .chat-feedback > .btn:hover { color: var(--fg); }
 .chat-feedback > .btn[aria-pressed="true"] { color: var(--brand-text); }
 .chat-feedback-sep { inline-size: 1px; block-size: 16px; margin-inline: var(--space-4); background: var(--border); }
-.chat-versions { display: inline-flex; align-items: center; color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+.chat-versions { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--muted); font-size: var(--text-3); font-variant-numeric: tabular-nums; }
+/* The two arrows are a step under the small control, so the hover fill and the focus ring
+   stand off the label with the gap between them instead of touching it. */
+.chat-versions > .btn { width: calc(var(--control-height-sm) - var(--space-2)); min-height: calc(var(--control-height-sm) - var(--space-2)); padding: 0; border-radius: var(--radius-small); }
 
 .citation {
     display: inline-grid;
@@ -23083,9 +23119,26 @@ button.inbox-item-title {
     box-shadow: none;
     font-size: var(--text-6);
 }
+/* In a docked or side panel the composer is a frame inside the panel, not the panel's
+   own edge: it takes the thread's inset on every side, and its rounded corners meet the
+   panel's straight lines nowhere. `.chat-pane > .chat-composer` pads the composer in 66-chat.css;
+   a bordered one is set in from the pane, or the flyover, instead. */
+.chat-pane > .chat-composer--prompt,
+.chat-flyover > .chat-composer--prompt { margin: 0 var(--space-5) var(--space-5); padding: var(--space-4); }
+
+/* What is attached sits inside the frame, above the text, on the text's own left edge. */
+.chat-composer--prompt > .chat-composer-files { padding-inline: var(--space-4); padding-block-start: var(--space-2); }
 .chat-composer-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+/* A `.menu-anchor` sets itself at the start of its row (58-menu.css) so a menu opens under its
+   trigger; in the toolbar its trigger stands on the row's line like every other control. */
+.chat-composer-tools > .menu-anchor { align-self: center; }
+/* A hint in the toolbar's row starts where the text above it does: the field's own inset, 
+   which a button's padding gives the glyphs beside it. */
+.chat-composer-tools > .form-hint { padding-inline: var(--space-4); }
 .chat-composer-send { display: flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
-.chat-composer-send > .btn { border-radius: 50%; }
+/* Round, and only the icon buttons: a labelled button here (the model) keeps the control radius,
+   so its focus ring follows its corners instead of an oval of 50% of a wide box. */
+.chat-composer-send > .btn--icon { border-radius: 50%; }
 .chat-composer-send [data-when] { display: none; }
 .chat-composer-send:not([data-state]) [data-when~="idle"],
 .chat-composer-send[data-state="idle"] [data-when~="idle"],
@@ -28128,6 +28181,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .drawer-scrim     { transition: none; }
     .drawer           { transition: none; }
     dialog.drawer     { transition: none; }
+    dialog.drawer::backdrop { transition: none; }
+    .drawer[data-sedna-closing="modal"] { animation: none; }   /* the dim of a held, closing one */
     button.badge-ai   { transition: none; }   /* 66 — the AI label's hover edge */
     .fab-dial > .fab i { transition: none; }   /* 61 — the speed dial's icon turns at once */
 

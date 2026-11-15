@@ -90,7 +90,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "f9970f5f7c657a77"
+    "stamp": "52f7afee46d566c2"
   },
   {
     "page": "/panel-grid",
