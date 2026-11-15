@@ -7876,10 +7876,13 @@ window.sednaUi = window.sednaUi || {};
             if (text) { nodes.push({ t: 'text', v: text }); text = ''; }
         }
         function html(h, p) { flush(); nodes.push({ t: 'html', v: h, p: p || '' }); }
-        function trailingSpaces() {
-            var k = text.length;
-            while (k > 0 && text.charAt(k - 1) === ' ') k--;
-            return text.length - k;
+        function trailingSpaces(at) {
+            var k = at;
+            while (k > 0 && src.charAt(k - 1) === ' ') k--;
+            return Math.min(at - k, text.length);
+        }
+        function dropTrailing(spaces) {
+            if (spaces > 0) text = text.slice(0, text.length - spaces);
         }
         while (i < n) {
             plain.lastIndex = i;
@@ -7887,13 +7890,13 @@ window.sednaUi = window.sednaUi || {};
             var c = src.charAt(i);
             if (c === '\\') {
                 var nx = src.charAt(i + 1);
-                if (nx === '\n') { text = text.slice(0, text.length - trailingSpaces()); html('<br>', '\n'); i += 2; continue; }
+                if (nx === '\n') { dropTrailing(trailingSpaces(i)); html('<br>', '\n'); i += 2; continue; }
                 if (nx && ESCAPABLE.test(nx)) { text += nx; i += 2; continue; }
                 text += c; i++; continue;
             }
             if (c === '\n') {
-                var spaces = trailingSpaces(), hard = spaces >= 2;
-                text = text.slice(0, text.length - spaces);
+                var spaces = trailingSpaces(i), hard = spaces >= 2;
+                dropTrailing(spaces);
                 if (hard) html('<br>', '\n'); else text += '\n';
                 i++; continue;
             }

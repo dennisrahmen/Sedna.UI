@@ -58,6 +58,12 @@ internal static class BrowserEngine
     /// WebKit on macOS does not perform that default action for a synthesised key.</summary>
     public static bool ScrollsWithArrowKeys => !(IsWebKit && OperatingSystem.IsMacOS());
 
+    /// <summary>A number in a right-to-left page is set where its box centres it. Playwright's
+    /// WebKit on Linux, a build no reader uses, sets the digits about a pixel towards the inline
+    /// start in every box, whatever the box's own direction or position; Safari on macOS and iOS
+    /// and Chromium centre them.</summary>
+    public static bool CentresRightToLeftDigits => !(IsWebKit && OperatingSystem.IsLinux());
+
     public static IBrowserType Of(IPlaywright playwright) =>
         Name == "webkit" ? playwright.Webkit : playwright.Chromium;
 }
