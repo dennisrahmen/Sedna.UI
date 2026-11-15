@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Collector settings for build/coverage.sh. Coverage is measured for the two assemblies the
+  library ships code in; the test assemblies and every package they load are not part of the
+  figure, and instrumenting them only costs time. What is excluded inside those two assemblies
+  is decided in the code ([ExcludeFromCodeCoverage(Justification = "...")]) or in
+  build/coverage-policy.txt, never here.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <CodeCoverage>
+            <ModulePaths>
+              <Include>
+                <ModulePath>.*[/\\]Sedna\.UI\.dll$</ModulePath>
+                <ModulePath>.*[/\\]Sedna\.UI\.Catalogue\.dll$</ModulePath>
+              </Include>
+            </ModulePaths>
+            <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
+            <EnableStaticNativeInstrumentation>False</EnableStaticNativeInstrumentation>
+            <EnableDynamicNativeInstrumentation>False</EnableDynamicNativeInstrumentation>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

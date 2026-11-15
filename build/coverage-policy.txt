@@ -1,0 +1,21 @@
+# Coverage policy, read by build/coverage-gate.py. Rules: docs/coverage.md.
+#
+# THE RULE FOR BOTH NUMBERS: neither is ever raised because the suite exceeds it. Neither is a target.
+# changed_lines_min is the share of the executable lines a pull request adds or changes that the
+# suite must cover: it is how a change comes with tests. whole_floor is a fixed tripwire, set a
+# little under what was measured, there to catch tests being deleted or a harness silently
+# measuring less. A change that wants either number moved says why in its description, and the
+# reviewer decides.
+#
+# Percentages, 0-100.
+changed_lines_min = 80
+whole_floor = 50
+
+# What is measured: tracked files under a scope directory with one of its extensions.
+scope = src/Sedna.UI/ .cs
+scope = src/Sedna.UI.Catalogue/ .cs .razor
+
+# What is not measured, file by file, each with its reason. A line is `exclude = <path or glob> | <reason>`;
+# the reason is required and a pattern matching no tracked file is an error. Inside a file,
+# [ExcludeFromCodeCoverage(Justification = "...")] does the same for a type or a member, and the
+# gate fails on one without a justification.
