@@ -128,15 +128,46 @@ textarea.form-input::-webkit-resizer {
     background: var(--control-on);
     border-color: var(--control-on);
 }
-.form-check input[type="checkbox"]:checked::after {
+/* ── The tick ───────────────────────────────────────────────────────────────
+   Drawn once, here, for every box in the library that draws its own: `.form-check`,
+   a tree's `.tree-check` and a multiselect's option — and for the tick a chosen listbox
+   row and a menu's current item carry at their end.
+
+   It is a MASK on a box that fills the padding box, and not a rotated border. A
+   transformed element is not pixel-snapped in Chromium: the box (and its border) snap
+   to the device pixel and the transformed tick does not, so the tick sat up to a pixel
+   higher or lower in its box depending only on the fraction of a pixel the box landed
+   on — 0.25 either way is all it takes a label's line to centre a 15px box. A mask is
+   painted into the snapped box, so the tick is where it is in every position.
+
+   The shape is two perpendicular 2px strokes, the short one 6px and the long one 10px
+   with square ends, as the rotated border drew it — a stroke is the intersection of a
+   band and the limits of its length. Two bands, added, and the two limits, intersected:
+   neither limit cuts the other stroke, so the four layers are the whole tick. Every
+   stop is measured from the box's centre, which is also the tick's (its bounding box,
+   not its weight, is what sits on the middle). One pixel ramps are the antialiasing.
+
+   The mask is alpha only, so the colour is the element's `background`. */
+.form-check input[type="checkbox"]:checked::after,
+.tree [aria-checked="true"] > .tree-row > .tree-check::after,
+.form-combo-option[aria-selected="true"]::after,
+.listbox [role="option"][aria-selected="true"]::after,
+.menu-item[aria-current]:not([aria-current="false"])::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
-    width: 4px; height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: translate(-50%, -60%) rotate(45deg);
+    inset: 0;
+    background: var(--on-solid);
+    mask-image:
+        linear-gradient(45deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% + 5.5px), transparent calc(50% + 6.5px)),
+        linear-gradient(135deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% + 1.5px), transparent calc(50% + 2.5px)),
+        linear-gradient(45deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% - 2.5px), transparent calc(50% - 1.5px)),
+        linear-gradient(135deg, transparent calc(50% - 0.5px), currentColor calc(50% + 0.5px),
+            currentColor calc(50% + 1.5px), transparent calc(50% + 2.5px));
+    mask-composite: intersect, intersect, add;
+    mask-repeat: no-repeat;
 }
 /* ── Half ticked ────────────────────────────────────────────────────────────
    A "select all" over a list some of whose rows are ticked: filled like a ticked box,
@@ -150,16 +181,18 @@ textarea.form-input::-webkit-resizer {
 
    It wins over `checked`, as the platform's own box does: a box that is both shows the
    dash. Every control in the library that draws its own checkbox draws this state too;
-   CheckboxMixedTests finds each one. */
+   CheckboxMixedTests finds each one. The dash is a mask as well, and for the same
+   reason as the tick. */
 .form-check input[type="checkbox"]:is(:indeterminate, [aria-checked="mixed"])::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
-    width: 7px; height: 2px;
-    border: 0;
+    inset: 0;
     background: var(--on-solid);
-    transform: translate(-50%, -50%);
+    mask-image: linear-gradient(currentColor, currentColor);
+    mask-size: 7px 2px;
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-composite: add;
 }
 .form-check input[type="checkbox"]:focus-visible {
     outline: none;

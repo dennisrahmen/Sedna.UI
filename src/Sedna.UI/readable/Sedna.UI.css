@@ -80,6 +80,7 @@
      57-navigation-aids.css
      58-menu.css
      59-table-extensions.css
+     60-listbox.css
      60-lists.css
      60-tree.css
      61-buttons-extra.css
@@ -5509,15 +5510,46 @@ textarea.form-input::-webkit-resizer {
     background: var(--control-on);
     border-color: var(--control-on);
 }
-.form-check input[type="checkbox"]:checked::after {
+/* ── The tick ───────────────────────────────────────────────────────────────
+   Drawn once, here, for every box in the library that draws its own: `.form-check`,
+   a tree's `.tree-check` and a multiselect's option — and for the tick a chosen listbox
+   row and a menu's current item carry at their end.
+
+   It is a MASK on a box that fills the padding box, and not a rotated border. A
+   transformed element is not pixel-snapped in Chromium: the box (and its border) snap
+   to the device pixel and the transformed tick does not, so the tick sat up to a pixel
+   higher or lower in its box depending only on the fraction of a pixel the box landed
+   on — 0.25 either way is all it takes a label's line to centre a 15px box. A mask is
+   painted into the snapped box, so the tick is where it is in every position.
+
+   The shape is two perpendicular 2px strokes, the short one 6px and the long one 10px
+   with square ends, as the rotated border drew it — a stroke is the intersection of a
+   band and the limits of its length. Two bands, added, and the two limits, intersected:
+   neither limit cuts the other stroke, so the four layers are the whole tick. Every
+   stop is measured from the box's centre, which is also the tick's (its bounding box,
+   not its weight, is what sits on the middle). One pixel ramps are the antialiasing.
+
+   The mask is alpha only, so the colour is the element's `background`. */
+.form-check input[type="checkbox"]:checked::after,
+.tree [aria-checked="true"] > .tree-row > .tree-check::after,
+.form-combo-option[aria-selected="true"]::after,
+.listbox [role="option"][aria-selected="true"]::after,
+.menu-item[aria-current]:not([aria-current="false"])::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
-    width: 4px; height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: translate(-50%, -60%) rotate(45deg);
+    inset: 0;
+    background: var(--on-solid);
+    mask-image:
+        linear-gradient(45deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% + 5.5px), transparent calc(50% + 6.5px)),
+        linear-gradient(135deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% + 1.5px), transparent calc(50% + 2.5px)),
+        linear-gradient(45deg, transparent calc(50% - 4.5px), currentColor calc(50% - 3.5px),
+            currentColor calc(50% - 2.5px), transparent calc(50% - 1.5px)),
+        linear-gradient(135deg, transparent calc(50% - 0.5px), currentColor calc(50% + 0.5px),
+            currentColor calc(50% + 1.5px), transparent calc(50% + 2.5px));
+    mask-composite: intersect, intersect, add;
+    mask-repeat: no-repeat;
 }
 /* ── Half ticked ────────────────────────────────────────────────────────────
    A "select all" over a list some of whose rows are ticked: filled like a ticked box,
@@ -5531,16 +5563,18 @@ textarea.form-input::-webkit-resizer {
 
    It wins over `checked`, as the platform's own box does: a box that is both shows the
    dash. Every control in the library that draws its own checkbox draws this state too;
-   CheckboxMixedTests finds each one. */
+   CheckboxMixedTests finds each one. The dash is a mask as well, and for the same
+   reason as the tick. */
 .form-check input[type="checkbox"]:is(:indeterminate, [aria-checked="mixed"])::after {
     content: '';
     position: absolute;
-    /* rtl-ok: centring, with translate doing the offset — direction-neutral. */
-    left: 50%; top: 50%;
-    width: 7px; height: 2px;
-    border: 0;
+    inset: 0;
     background: var(--on-solid);
-    transform: translate(-50%, -50%);
+    mask-image: linear-gradient(currentColor, currentColor);
+    mask-size: 7px 2px;
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-composite: add;
 }
 .form-check input[type="checkbox"]:focus-visible {
     outline: none;
@@ -8589,14 +8623,14 @@ fieldset.form-field > legend {
    in the shared shape rule: a select carrying `.form-select` alone is a complete,
    correct class list, and the one control a form most often rejects — an empty
    required dropdown — would otherwise report nothing. */
-:is(.form-input, .form-select, .form-color)[data-state="warn"],
+:is(.form-input, .form-select, .form-color, .listbox)[data-state="warn"],
 .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
 .form-combo-box:has(> .form-combo-input[data-state="warn"]),
 .editor[data-state="warn"],
 .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
 .md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
 
-:is(.form-input, .form-select)[data-state="warn"]:focus,
+:is(.form-input, .form-select, .listbox)[data-state="warn"]:focus,
 .form-color[data-state="warn"]:focus-visible,
 .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
 .form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
@@ -8606,14 +8640,14 @@ fieldset.form-field > legend {
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
-:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+:is(.form-input, .form-select, .form-color, .listbox)[aria-invalid="true"],
 .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
 .editor[aria-invalid="true"],
 .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
 .md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
 
-:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+:is(.form-input, .form-select, .listbox)[aria-invalid="true"]:focus,
 .form-color[aria-invalid="true"]:focus-visible,
 .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,
@@ -10107,7 +10141,12 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 }
 .stepper .form-input::-webkit-outer-spin-button,
 .stepper .form-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.stepper .btn { border-radius: 0; }
+/* The buttons take the input's edge. A `.btn` draws `--border`, the quiet edge of a
+   button on its own, and the input draws `--field-border`, the controls' 3:1 edge: side by
+   side the one shared line between them was the button's, and the field ran into the
+   plus with almost no outline at all. All three parts are one control, so one colour. */
+.stepper .btn { border-radius: 0; border-color: var(--field-border); }
+.stepper .btn:hover { border-color: var(--border-hover); }
 .stepper > :first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
 .stepper > :last-child  { border-start-end-radius: var(--radius-control);   border-end-end-radius: var(--radius-control); }
 /* One shared border between neighbours rather than two adjacent ones. */
@@ -10572,19 +10611,15 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     width: 15px;
     height: 15px;
 }
-.form-combo-option[aria-selected="true"]::after,
-[aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
-    content: "";
-    position: absolute;
-    /* The tick sits over the ::before slot. Offset from the inline start, so it
-       follows the slot in RTL. */
-    inset-inline-start: calc(var(--space-4) + 5px);
-    top: 50%;
-    width: 5px;
-    height: 9px;
-    border-inline-end: 2px solid var(--brand-text);
-    border-bottom: 2px solid var(--brand-text);
-    transform: translateY(-60%) rotate(45deg);
+/* The tick is the one `.form-check` draws (34-forms.css), 13px square over the slot's
+   padding box: placed from the inline start and centred on the option's own line. */
+.form-combo-option[aria-selected="true"]::after {
+    inset: auto;
+    inset-inline-start: calc(var(--space-4) + 1px);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
 }
 /* The same box `.form-check` draws, so a multiselect reads as a list of checkboxes. */
 [aria-multiselectable="true"] > .form-combo-option::before {
@@ -10597,9 +10632,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     border-color: var(--brand);
 }
 [aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
-    width: 4px;
-    height: 8px;
-    border-color: var(--on-solid);
+    background: var(--on-solid);
 }
 
 .form-combo-option-text { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
@@ -11075,14 +11108,24 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .form-select option:has(> .option-hint)::checkmark { margin-inline-start: var(--space-5); }
 
 /* ── Groups and separators ──────────────────────────────────────────────────
-   Use a `<legend>` for a group heading, not the `label` attribute on its own. The
-   attribute's heading is drawn by the browser outside this document and cannot be
-   themed — the two lines below would do nothing to it. Keep the attribute as well:
-   it is what a browser without base appearance shows.
+   A group is an `<optgroup>` with a `<legend>` for its heading, and the label attribute
+   as well:
 
        <optgroup label="Regions"><legend>Regions</legend> … </optgroup>
 
-   `<hr>` between groups is a separator the picker renders like any other box. */
+   The attribute's heading is drawn by the browser outside this document and cannot be
+   themed — the rules below would do nothing to it — so it is what a browser without base
+   appearance shows, and the `<legend>` is what this one does. Keep both.
+
+   One line divides two groups, and the CSS draws it: the second group takes a hairline
+   and a step of space above it, so there is nothing to write between groups. An `<hr>`
+   between them was the habit, and it drew a second line beside this one, and beside the
+   platform's own in a browser that separates its groups itself — so an `<hr>` that
+   directly precedes a group is the divider and the group draws none. `<hr>` is for the
+   place a group is not: between loose options.
+
+   A list box is not divided: its headings are what separate groups, and a line would
+   come out of the `size` budget below. */
 .form-select optgroup > legend {
     padding: var(--space-4) var(--space-5) var(--space-2);
     font-size: var(--text-1);
@@ -11091,10 +11134,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     letter-spacing: 0.08em;
     color: var(--muted);
 }
+.form-select:not([multiple], [size]:not([size="1"])) :is(optgroup, option) + optgroup {
+    margin-block-start: var(--space-2);
+    border-block-start: 1px solid var(--divider);
+}
 .form-select hr {
     margin: var(--space-2) 0;
     border: 0;
     border-block-start: 1px solid var(--divider);
+}
+.form-select:not([multiple], [size]:not([size="1"])) hr + optgroup {
+    margin-block-start: 0;
+    border-block-start: 0;
 }
 
 /* ── The list box ───────────────────────────────────────────────────────────
@@ -11433,6 +11484,23 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     width: fit-content;
     vertical-align: middle;
 }
+/* The number printed beside the stars, inside the row so it takes the row's size. It is
+   set at seven tenths of the star and centred on the star's weight, not on its box: a
+   five-pointed star is a point on top and two on the bottom, so its mass sits at 55% of
+   its height, and a figure centred on the box looks a pixel high next to it. The offset
+   is a layout inset rounded to a whole pixel — a transform would put the digits between
+   pixels. */
+.rating-value {
+    position: relative;
+    inset-block-start: round(calc(var(--rating-size) * 0.05), 1px);
+    margin-inline-start: var(--space-2);
+    color: var(--fg-soft);
+    font-size: calc(var(--rating-size) * 0.7);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
 .rating--sm { --rating-size: 16px; }
 .rating--lg { --rating-size: 28px; }
 .rating:has(input) { min-height: var(--control-height); }
@@ -11607,10 +11675,22 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .segmented-option:hover:not(:has(input:disabled)) { color: var(--fg); }
 .segmented-option input:disabled { cursor: not-allowed; }
 
-/* Flat, not raised: a shadow inside a 2px track reads as a rendering artefact at
-   this size. The elevated surface against the inset track is enough. */
-.segmented-option:has(input:checked) { background: var(--bg-elevated); color: var(--fg); }
+/* Flat, not raised: a shadow cast outside a 2px track reads as a rendering artefact at
+   this size. The chosen option is the elevated surface, and it is drawn with the controls'
+   own edge: a fill alone is a step of a few percent from the track — in a neutral theme
+   barely a step at all, which left the text colour as the only thing that said "chosen".
+   A state has to be visible by more than a colour (WCAG 1.4.11), so the edge is the 3:1
+   part and the fill and the brighter text come with it. The edge is inside the option, so
+   it adds no size. */
+.segmented-option:has(input:checked) {
+    background: var(--bg-elevated);
+    color: var(--fg);
+    box-shadow: inset 0 0 0 1px var(--control-border);
+}
 .segmented-option:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--focus-ring); }
+.segmented-option:has(input:checked:focus-visible) {
+    box-shadow: inset 0 0 0 1px var(--control-border), 0 0 0 2px var(--focus-ring);
+}
 .segmented-option:has(input:disabled) { cursor: not-allowed; }
 
 /* The same three tiers as the button and the text input, off the same tokens, so a
@@ -15204,8 +15284,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 
    It is the tint and the brand ink `.nav-link.active` and a `.form-select`'s chosen
    option carry, so the three read alike, and a tick at the trailing edge, where the
-   select draws its own, so it does not depend on colour. The tick is drawn as the
-   combo field's is, and stands in a column of its own: a menu holding a current item
+   select draws its own, so it does not depend on colour. The tick is the shared
+   mask of `34-forms.css`, placed as the combo field's is, and stands in a column of its own: a menu holding a current item
    keeps that room at the end of every row, so a `.menu-item-note` stays lined up down
    the panel and never sits under the tick. */
 .menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
@@ -15216,15 +15296,12 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }
 .menu-item[aria-current]:not([aria-current="false"]):is(:hover, [data-active]) { background: var(--brand-tint-strong); }
 .menu-item[aria-current]:not([aria-current="false"])::after {
-    content: "";
-    position: absolute;
-    inset-inline-end: calc(var(--space-5) + 1px);
-    top: 50%;
-    width: 5px;
-    height: 9px;
-    border-inline-end: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-60%) rotate(45deg);
+    inset: auto;
+    inset-inline-end: var(--space-5);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
 }
 
 /* A group's heading. Its line is trimmed to its capitals and given back in the padding,
@@ -16427,6 +16504,124 @@ tr[data-drag-zone] > [data-drop-edge="after"]::before { inset-inline-end: 0; }
 }
 }
 
+/* ── 60-listbox.css → @layer sedna.paint ──────────────────────────────────────────────── */
+@layer sedna.paint {
+/* ── Listbox ────────────────────────────────────────────────────────────────
+   A list of options all in view, one or several chosen — the library's own, drawn the
+   same in every browser. It exists because a native `<select multiple>` is a platform
+   control: Chromium lets `.form-select` theme its rows (49-form-select-base.css),
+   WebKit paints a native list box whose selection colour, row height and spacing no
+   CSS reaches. A listbox is app markup and a class, so what it looks like does not
+   depend on the browser.
+
+     <div class="listbox" role="listbox" aria-multiselectable="true" aria-label="Notify groups"
+          tabindex="0" style="--listbox-rows: 4">
+       <div role="option" aria-selected="true"  data-value="fulfilment">Fulfilment</div>
+       <div role="option" aria-selected="false" data-value="network">Network</div>
+       <div role="group" aria-labelledby="lb-teams">
+         <div class="listbox-heading" id="lb-teams" role="presentation">Teams</div>
+         <div role="option" aria-selected="false" aria-disabled="true">Finance</div>
+       </div>
+     </div>
+
+   THE STATE IS ARIA: chosen is `aria-selected`, unavailable `aria-disabled`, and the row
+   the keyboard is on is `data-active` — the script writes that and
+   `aria-activedescendant`, as a combo field does, so the list holds one tab stop. 22-listbox.js
+   is the keyboard and the selection; this part is the paint, and works with no script.
+
+   A chosen row is the brand tint and brand text with a tick at the trailing edge, the
+   look a `.form-select` option and a `.menu-item[aria-current]` carry, so a set of chosen
+   rows reads as a set and not by colour alone. Rows are separated by the same step the
+   menu keeps, so a chosen row and the one the pointer is on never touch.
+
+   `--listbox-rows` is how many one-line rows the box shows before it scrolls. A row
+   with a second line is taller, so set it to roughly half of what should be on screen,
+   as for a list box's `size`.
+   ─────────────────────────────────────────────────────────────────────────── */
+.listbox {
+    --listbox-rows: 4;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+    block-size: calc(var(--listbox-rows) * 2.4em + var(--space-1) * (var(--listbox-rows) - 1) + var(--space-2) * 2 + 2px);
+    padding: var(--space-2);
+    overflow: auto;
+    background: var(--bg);
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-control);
+    color: var(--fg);
+    font-size: var(--text-4);
+    line-height: round(1.4em, 2px);
+    --surface-here: var(--bg);
+    --muted-here: var(--muted);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.listbox:focus {
+    border-color: var(--field-border-focus);
+    box-shadow: 0 0 0 2px var(--brand-glow);
+}
+.listbox[aria-disabled="true"] { background: var(--disabled-bg); border-color: var(--disabled-border); color: var(--disabled-fg); cursor: not-allowed; }
+
+.listbox [role="option"] {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-4);
+    box-sizing: border-box;
+    min-block-size: 2.4em;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-inner);
+    color: var(--fg);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.listbox [role="option"] > i { flex-shrink: 0; color: var(--muted); font-size: var(--text-7); line-height: 1; }
+.listbox [role="group"] { display: flex; flex-direction: column; gap: var(--space-1); }
+.listbox-heading {
+    padding: var(--space-4) var(--space-5) var(--space-2);
+    color: var(--muted);
+    font-size: var(--text-1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.listbox [role="option"]:hover,
+.listbox [role="option"][data-active] { background: var(--bg-hover); }
+.listbox:focus-visible [role="option"][data-active] { box-shadow: inset 0 0 0 2px var(--focus-ring); }
+
+.listbox [role="option"][aria-selected="true"] {
+    padding-inline-end: calc(var(--space-5) * 2 + var(--space-4));
+    background: var(--brand-tint);
+    color: var(--brand-text);
+}
+.listbox [role="option"][aria-selected="true"] > i { color: var(--brand-text); }
+.listbox [role="option"][aria-selected="true"]:is(:hover, [data-active]) { background: var(--brand-tint-strong); }
+.listbox [role="option"][aria-disabled="true"] { color: var(--muted); cursor: not-allowed; }
+.listbox [role="option"][aria-disabled="true"]:hover { background: none; }
+.listbox [role="option"][aria-disabled="true"][aria-selected="true"] { background: var(--brand-tint); }
+
+/* The tick is the one `.form-check` draws (34-forms.css), at the trailing edge. */
+.listbox [role="option"][aria-selected="true"]::after {
+    inset: auto;
+    inset-inline-end: var(--space-4);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
+}
+
+/* Two lines: a label and a quiet line under it. */
+.listbox .option-text { display: flex; flex-direction: column; gap: var(--space-1); min-inline-size: 0; }
+.listbox .option-hint { color: var(--muted); font-size: var(--text-3); }
+.listbox [role="option"][aria-selected="true"] .option-hint { color: var(--brand-text); opacity: 0.8; }
+.listbox [role="option"]:has(.option-text) { padding-block: var(--space-3); }
+}
+
 /* ── 60-lists.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── List ───────────────────────────────────────────────────────────────────
@@ -16941,6 +17136,12 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border-inline-start: 1px solid var(--divider);
 }
 .tree [role="treeitem"] { font-size: var(--text-4); outline: none; }
+/* The gap a `.menu` and a `.list-row` keep between rows, so a picked row and the one the
+   pointer is on never touch: one step between sibling items and between a branch's row and
+   its children. A margin, because the item holds its whole subtree and a `gap` would need
+   the item to be a flex container. */
+.tree [role="treeitem"] + [role="treeitem"],
+.tree [role="treeitem"] > [role="group"] { margin-block-start: var(--space-1); }
 /* A collapsed branch keeps its children in the markup, so a branch that opens shows
    them at once; the attribute alone hides them. */
 .tree [aria-expanded="false"] > [role="group"] { display: none; }
@@ -17089,17 +17290,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     background: var(--brand);
     border-color: var(--brand);
 }
-.tree [aria-checked="true"] > .tree-row > .tree-check::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 4px;
-    top: 1px;
-    width: 4px;
-    height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: rotate(45deg);
-}
+/* The tick is drawn with the one in 34-forms.css, over the box's padding box. */
 .tree [aria-checked="mixed"] > .tree-row > .tree-check::after {
     content: '';
     position: absolute;
@@ -27422,6 +27613,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-combo-box > .chip[data-armed],
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
+    .segmented-option:has(input:checked:focus-visible),
+    .listbox:focus-visible [role="option"][data-active],
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
@@ -27463,8 +27656,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     button.cal-more:focus-visible,
     a.cal-agenda-title:focus-visible,
     :is(a, button).toast-body:focus-visible,
-    :is(.form-input, .form-select)[data-state="warn"]:focus,
-    :is(.form-input, .form-select)[aria-invalid="true"]:focus,
+    :is(.form-input, .form-select, .listbox)[data-state="warn"]:focus,
+    :is(.form-input, .form-select, .listbox)[aria-invalid="true"]:focus,
     .form-color[data-state="warn"]:focus-visible,
     .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
     .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
@@ -27508,6 +27701,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .file-tile:has(.file-tile-check :checked),
     .media-transcript li[aria-current="true"],
     .segmented-option:has(input:checked),
+    .listbox [role="option"][aria-selected="true"],
     .th-filter--active,
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
@@ -27603,7 +27797,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .gauge::before,
     /* A star is a clipped background too, and it is the score itself. */
     .rating-star::before,
-    .rating-star::after { forced-color-adjust: none; }
+    .rating-star::after,
+    /* A tick is a masked background: Canvas on a Canvas box shows nothing. The box and the
+       mark opt out together, and read the user's palette through the tokens above —
+       --control-on to Highlight, --on-solid to HighlightText. */
+    .form-check input[type="checkbox"],
+    .tree-check,
+    .form-combo-option::before,
+    .form-combo-option::after,
+    .listbox [role="option"]::after,
+    .menu-item[aria-current]:not([aria-current="false"])::after { forced-color-adjust: none; }
 
     /* A chart's marks are its data, and each series is told from the next by its colour
        and its shape: forced colours would paint every mark CanvasText through
@@ -28265,6 +28468,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    .listbox          { transition: none; }   /* 60 */
     .editor           { transition: none; }   /* 44 */
     .form-color       { transition: none; }   /* 45 */
     .form-signature-pad { transition: none; } /* 47 */

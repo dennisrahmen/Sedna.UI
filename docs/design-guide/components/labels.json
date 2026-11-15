@@ -18,7 +18,7 @@
       { "text": "Whether a connection or a feed is live", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "088935604cf647e7"
+    "stamp": "b9b650c25e1a5f7d"
   },
   {
     "page": "/chip",
@@ -53,7 +53,7 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "d2588c84f2f5d706"
+    "stamp": "8be12c4cf20a6a95"
   },
   {
     "page": "/status-dot",

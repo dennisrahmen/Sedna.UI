@@ -71,7 +71,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
-    "stamp": "99feb957d3089bb5"
+    "stamp": "9b3a8899a1fe0396"
   },
   {
     "page": "/grid",
@@ -90,7 +90,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "52f7afee46d566c2"
+    "stamp": "b2b367a70f32d943"
   },
   {
     "page": "/panel-grid",
@@ -161,7 +161,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "1ab6e6190cc3ead1"
+    "stamp": "f60218b22548af8d"
   },
   {
     "page": "/timeline",
