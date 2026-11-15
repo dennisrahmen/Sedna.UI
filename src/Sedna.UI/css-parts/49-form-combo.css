@@ -422,19 +422,15 @@
     width: 15px;
     height: 15px;
 }
-.form-combo-option[aria-selected="true"]::after,
-[aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
-    content: "";
-    position: absolute;
-    /* The tick sits over the ::before slot. Offset from the inline start, so it
-       follows the slot in RTL. */
-    inset-inline-start: calc(var(--space-4) + 5px);
-    top: 50%;
-    width: 5px;
-    height: 9px;
-    border-inline-end: 2px solid var(--brand-text);
-    border-bottom: 2px solid var(--brand-text);
-    transform: translateY(-60%) rotate(45deg);
+/* The tick is the one `.form-check` draws (34-forms.css), 13px square over the slot's
+   padding box: placed from the inline start and centred on the option's own line. */
+.form-combo-option[aria-selected="true"]::after {
+    inset: auto;
+    inset-inline-start: calc(var(--space-4) + 1px);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
 }
 /* The same box `.form-check` draws, so a multiselect reads as a list of checkboxes. */
 [aria-multiselectable="true"] > .form-combo-option::before {
@@ -447,9 +443,7 @@
     border-color: var(--brand);
 }
 [aria-multiselectable="true"] > .form-combo-option[aria-selected="true"]::after {
-    width: 4px;
-    height: 8px;
-    border-color: var(--on-solid);
+    background: var(--on-solid);
 }
 
 .form-combo-option-text { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }

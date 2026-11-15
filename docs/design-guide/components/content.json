@@ -51,7 +51,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "b37b5f104e7cd44f"
+    "stamp": "903af5246c64c9b5"
   },
   {
     "page": "/video",
@@ -112,7 +112,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "1f7334c816ace779"
+    "stamp": "4c49312a1fc483bc"
   },
   {
     "page": "/diff",
@@ -189,7 +189,7 @@
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text", "mention-someone", "format-as-you-type", "limit-rich-text-length", "edit-tables-in-text", "write-in-full-screen" ],
-    "stamp": "1fc81f1216cc6bd6"
+    "stamp": "74dfc501e51826ad"
   },
   {
     "page": "/chat",
@@ -208,6 +208,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "7bf0681dbcd8cdaa"
+    "stamp": "1daafa5a3bd47e2f"
   }
 ]

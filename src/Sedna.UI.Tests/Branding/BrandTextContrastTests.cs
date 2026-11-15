@@ -95,6 +95,10 @@ public class BrandTextContrastTests
         // the label sits on either one.
         [".form-select option:checked"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),
         [".form-select option::checkmark"] = (Ink.Icon, ["--brand-tint", "--brand-tint-strong"]),
+        // A chosen listbox row is the same tint, and its hint, icon and tick are the same ink on it.
+        [".listbox [role=\"option\"][aria-selected=\"true\"]"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),
+        [".listbox [role=\"option\"][aria-selected=\"true\"] .option-hint"] = (Ink.Text, ["--brand-tint", "--brand-tint-strong"]),
+        [".listbox [role=\"option\"][aria-selected=\"true\"] > i"] = (Ink.Icon, ["--brand-tint", "--brand-tint-strong"]),
         // A workflow's step to add, pointed at: on the tint it takes then.
         [".workflow-node.workflow-node--add:hover"] = (Ink.Text, ["--brand-tint"]),
         [".workflow-node.workflow-node--add:hover .workflow-node-title"] = (Ink.Text, ["--brand-tint"]),

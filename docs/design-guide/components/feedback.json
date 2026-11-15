@@ -16,7 +16,7 @@
       { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
     ],
     "goals": [ "explain-a-page-condition", "summarise-form-errors", "show-field-errors", "confirm-before-it-happens" ],
-    "stamp": "d9d5b29a105f1a98"
+    "stamp": "21dfd7d20794b0ca"
   },
   {
     "page": "/toast",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "4c35c7b7a73a79e5"
+    "stamp": "83e9038c0f0645c1"
   }
 ]

@@ -3881,6 +3881,19 @@
     "list-title": {
       "family": "list-title"
     },
+    "listbox": {
+      "family": "listbox",
+      "attributes": [
+        "[aria-disabled=\"true\"]"
+      ],
+      "pseudoClasses": [
+        ":focus",
+        ":focus-visible"
+      ]
+    },
+    "listbox-heading": {
+      "family": "listbox-heading"
+    },
     "markdown-body": {
       "family": "markdown-body"
     },
@@ -5013,6 +5026,9 @@
     },
     "rating-star--on": {
       "family": "rating-star"
+    },
+    "rating-value": {
+      "family": "rating-value"
     },
     "reasoning": {
       "family": "reasoning",

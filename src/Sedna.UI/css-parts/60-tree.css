@@ -38,6 +38,12 @@
     border-inline-start: 1px solid var(--divider);
 }
 .tree [role="treeitem"] { font-size: var(--text-4); outline: none; }
+/* The gap a `.menu` and a `.list-row` keep between rows, so a picked row and the one the
+   pointer is on never touch: one step between sibling items and between a branch's row and
+   its children. A margin, because the item holds its whole subtree and a `gap` would need
+   the item to be a flex container. */
+.tree [role="treeitem"] + [role="treeitem"],
+.tree [role="treeitem"] > [role="group"] { margin-block-start: var(--space-1); }
 /* A collapsed branch keeps its children in the markup, so a branch that opens shows
    them at once; the attribute alone hides them. */
 .tree [aria-expanded="false"] > [role="group"] { display: none; }
@@ -186,17 +192,7 @@
     background: var(--brand);
     border-color: var(--brand);
 }
-.tree [aria-checked="true"] > .tree-row > .tree-check::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 4px;
-    top: 1px;
-    width: 4px;
-    height: 8px;
-    border-inline-end: 2px solid var(--on-solid);
-    border-bottom: 2px solid var(--on-solid);
-    transform: rotate(45deg);
-}
+/* The tick is drawn with the one in 34-forms.css, over the box's padding box. */
 .tree [aria-checked="mixed"] > .tree-row > .tree-check::after {
     content: '';
     position: absolute;

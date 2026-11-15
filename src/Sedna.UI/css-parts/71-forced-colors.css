@@ -167,6 +167,8 @@
     .form-combo-box > .chip[data-armed],
     .form-combo-group-action[data-active],
     .segmented-option:has(input:focus-visible),
+    .segmented-option:has(input:checked:focus-visible),
+    .listbox:focus-visible [role="option"][data-active],
     button.chip:focus-visible,
     a.chip:focus-visible,
     a.stat:focus-visible,
@@ -253,6 +255,7 @@
     .file-tile:has(.file-tile-check :checked),
     .media-transcript li[aria-current="true"],
     .segmented-option:has(input:checked),
+    .listbox [role="option"][aria-selected="true"],
     .th-filter--active,
     .chat-reaction[aria-pressed="true"],
     .swatch[aria-pressed="true"],
@@ -346,7 +349,15 @@
     .gauge::before,
     /* A star is a clipped background too, and it is the score itself. */
     .rating-star::before,
-    .rating-star::after { forced-color-adjust: none; }
+    .rating-star::after,
+    /* A tick is a masked background: Canvas on a Canvas box shows nothing. The box and the
+       mark opt out together, and read the user's palette through the tokens above —
+       --control-on to Highlight, --on-solid to HighlightText. */
+    .form-check input[type="checkbox"],
+    .tree-check,
+    .form-combo-option::before,
+    .form-combo-option::after,
+    .listbox [role="option"]::after { forced-color-adjust: none; }
 
     /* A chart's marks are its data, and each series is told from the next by its colour
        and its shape: forced colours would paint every mark CanvasText through
