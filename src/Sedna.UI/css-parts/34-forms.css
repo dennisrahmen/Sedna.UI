@@ -131,7 +131,7 @@ textarea.form-input::-webkit-resizer {
 /* ── The tick ───────────────────────────────────────────────────────────────
    Drawn once, here, for every box in the library that draws its own: `.form-check`,
    a tree's `.tree-check` and a multiselect's option — and for the tick a chosen listbox
-   row carries at its end.
+   row and a menu's current item carry at their end.
 
    It is a MASK on a box that fills the padding box, and not a rotated border. A
    transformed element is not pixel-snapped in Chromium: the box (and its border) snap
@@ -151,7 +151,8 @@ textarea.form-input::-webkit-resizer {
 .form-check input[type="checkbox"]:checked::after,
 .tree [aria-checked="true"] > .tree-row > .tree-check::after,
 .form-combo-option[aria-selected="true"]::after,
-.listbox [role="option"][aria-selected="true"]::after {
+.listbox [role="option"][aria-selected="true"]::after,
+.menu-item[aria-current]:not([aria-current="false"])::after {
     content: '';
     position: absolute;
     inset: 0;

@@ -16,7 +16,7 @@
       { "text": "A whole page to start from", "instead": "/page-recipes" }
     ],
     "goals": [ "frame-every-page", "move-between-pages", "collapse-the-sidebar", "skip-to-the-content", "fill-the-screen-below-the-header", "show-on-a-wall-screen", "use-the-app-on-a-narrow-screen", "pick-a-workspace", "keep-a-footer-at-the-bottom", "sign-in", "explain-access-denied", "say-a-page-was-not-found", "sign-in-after-the-session-expired" ],
-    "stamp": "0c395d7f7f98d89d"
+    "stamp": "0de1bf2766470afb"
   },
   {
     "page": "/nav",
@@ -70,7 +70,7 @@
       { "text": "A bar of the app's own along the bottom edge", "instead": "/utility-safe-area#holding-an-element-clear" }
     ],
     "goals": [ "navigate-on-a-phone", "act-on-a-record-on-a-phone", "use-the-app-on-a-narrow-screen" ],
-    "stamp": "383a5315d7b0662a"
+    "stamp": "80f878ff841dbce9"
   },
   {
     "page": "/topbar",
@@ -90,7 +90,7 @@
       { "text": "Telling the reader the connection dropped", "instead": "/status-bar" }
     ],
     "goals": [ "frame-every-page", "collapse-the-sidebar", "see-who-is-signed-in", "switch-between-apps", "show-the-running-version", "show-acting-as" ],
-    "stamp": "538892d76789b1fb"
+    "stamp": "66a3a3097223b039"
   },
   {
     "page": "/search",
@@ -105,7 +105,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-the-whole-app" ],
-    "stamp": "db706e6f504b345f"
+    "stamp": "6c2d29608d81c2c0"
   },
   {
     "page": "/status-bar",
@@ -138,7 +138,7 @@
       { "text": "A page that cannot be used during maintenance", "instead": "/common-pages#maintenance" }
     ],
     "goals": [ "announce-to-everyone", "show-a-service-phase", "confirm-after-a-redirect", "ask-for-cookie-consent", "say-when-maintenance-ends", "keep-working-through-an-outage" ],
-    "stamp": "db9e6544c75bae0b"
+    "stamp": "cb07bd2492c7f72f"
   },
   {
     "page": "/hover-hints",
@@ -155,7 +155,7 @@
       { "text": "A label on the collapsed rail's links", "instead": "/nav#collapsed-rail" }
     ],
     "goals": [ "show-status-history", "explain-a-control", "act-with-an-icon-button", "explain-a-disabled-action" ],
-    "stamp": "b8916e599ab0a499"
+    "stamp": "41b77ed7c60d077f"
   },
   {
     "page": "/common-pages",
@@ -176,7 +176,7 @@
       { "text": "Signing in", "instead": "/page-recipes#sign-in-page" }
     ],
     "goals": [ "recover-a-dropped-connection", "report-an-unhandled-error", "explain-access-denied", "say-a-page-was-not-found", "recover-from-a-server-error", "sign-in-after-the-session-expired", "warn-before-the-session-ends", "say-when-maintenance-ends", "count-down-to-a-deadline" ],
-    "stamp": "fada5ca26f4f4bf9"
+    "stamp": "d6c0edbec9483f78"
   },
   {
     "page": "/page-recipes",
@@ -197,6 +197,6 @@
       { "text": "A dashboard of panels the reader arranges", "instead": "/panel-grid#panels-the-reader-reorders" }
     ],
     "goals": [ "search-the-whole-app", "see-who-is-signed-in", "sign-in", "see-how-things-stand", "find-a-record-on-a-list-page", "read-a-record", "create-or-edit-a-record", "do-a-task-in-steps", "work-through-records", "search-everything", "change-settings", "manage-their-account", "ask-if-a-page-helped", "show-content-loading", "explain-an-empty-view", "group-settings-in-boxes", "answer-one-question-at-a-time", "jump-to-a-section", "see-the-step-they-are-on", "see-what-a-site-offers" ],
-    "stamp": "afb2bc836bdec966"
+    "stamp": "1e51ba898c2f5913"
   }
 ]

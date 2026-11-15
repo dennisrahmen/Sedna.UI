@@ -69,7 +69,7 @@
         <p>
             <code>.chat-composer--prompt</code> draws a <a href="/chat"><code>.chat-composer</code></a> as one
             rounded field: the text on top, <code>.chat-composer-tools</code> under it for attachments, toggles
-            as <code>button.chip</code> with <code>aria-pressed</code>, and a model choice, and
+            as <code>button.chip</code> with <code>aria-pressed</code>, and a model choice that opens the list of models, and
             <code>.chat-composer-send</code> holding the send button at the end. The field's focus ring is the
             composer's, so the whole box lights up as one control.
         </p>
@@ -77,12 +77,14 @@
 
     <CatExample TExample="Examples.AgentChat.PromptToolbar" Title="Prompt toolbar" Demo="ex-demo--block ex-demo--pad">
         <p>
-            Under the text, in order: a <a href="/menu"><code>.menu</code></a> behind &ldquo;+&rdquo; for what can
-            be added &mdash; a file, a screenshot, a link &mdash; the model, and in
-            <code>.chat-composer-send</code> the screenshot, the <a href="/voice"><code>.btn-mic</code></a> and
-            the submit button. What may be attached is said once, as a <code>.form-hint</code> the field names in
-            <code>aria-describedby</code>; a file that breaks the limit is a <code>.form-error</code> in the same
-            place, saying which file and why.
+            One frame, three rows. Attachments are <code>.chip</code>s in <code>.chat-composer-files</code>, inside
+            the frame above the text. Under the text, in <code>.chat-composer-tools</code>, every control is
+            <code>btn--sm</code> and stands on one line: a <a href="/menu"><code>.menu</code></a> behind &ldquo;+&rdquo;
+            for what can be added &mdash; a file, a screenshot, a link &mdash; the model, which opens the
+            <a href="#model-picker">model list</a>, and in <code>.chat-composer-send</code> the screenshot, the
+            <a href="/voice"><code>.btn-mic</code></a> and the submit button. What may be attached is said once, as a
+            <code>.form-hint</code> under the frame that the field names in <code>aria-describedby</code>; a file
+            that breaks the limit is a <code>.form-error</code> in the same place, saying which file and why.
         </p>
         <p>
             The submit button is send, stop or retry depending on where the answer is. Write all three inside

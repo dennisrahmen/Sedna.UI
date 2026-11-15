@@ -25,6 +25,7 @@
     border: 0;
 }
 .form-file-name { color: var(--muted); font-size: var(--text-3); }
+/* Its overflow rules are the file name's, in 64-files.css. */
 /* The focus ring has to be drawn on the label, because the focused element is the
    input the reader cannot see. */
 .form-file:has(input:focus-visible) .btn { box-shadow: 0 0 0 2px var(--focus-ring); }
@@ -153,7 +154,7 @@
     font-size: var(--text-3);
 }
 .file-item > i { font-size: var(--text-7); color: var(--muted); flex-shrink: 0; }
-.file-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-name { flex: 1; }
 .file-item-size { color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
 /* Failed upload or a rejected type. The icon carries it too, so it is not colour
    alone. */

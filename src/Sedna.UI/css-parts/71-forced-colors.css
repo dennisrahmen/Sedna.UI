@@ -359,7 +359,8 @@
     .tree-check,
     .form-combo-option::before,
     .form-combo-option::after,
-    .listbox [role="option"]::after { forced-color-adjust: none; }
+    .listbox [role="option"]::after,
+    .menu-item[aria-current]:not([aria-current="false"])::after { forced-color-adjust: none; }
 
     /* A chart's marks are its data, and each series is told from the next by its colour
        and its shape: forced colours would paint every mark CanvasText through

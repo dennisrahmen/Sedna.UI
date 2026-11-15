@@ -90,7 +90,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "606690d0bc97c9b3"
+    "stamp": "03cb13b8e2022750"
   },
   {
     "page": "/panel-grid",
@@ -161,7 +161,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "19db3af15755a9ba"
+    "stamp": "9d561eb9c1aea9e0"
   },
   {
     "page": "/timeline",

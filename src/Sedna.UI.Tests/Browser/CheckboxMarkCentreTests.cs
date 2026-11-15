@@ -110,6 +110,82 @@ public class CheckboxMarkCentreTests : ScriptTestBase
         Assert.True(dys.Max() - dys.Min() <= 0.5, $"The tick moved {dys.Max() - dys.Min():0.00}px between fractional positions: {string.Join(", ", dys.Select(d => d.ToString("0.00")))}.");
     }
 
+    private const string MenuContexts = """
+        <style>*, *::before, *::after { transition: none !important; } .at { padding-top: var(--at); }</style>
+        <div class="at"><div class="menu" style="position: static; display: block; width: 260px">
+          <button class="menu-item" type="button">Reader</button>
+          <button class="menu-item" type="button" aria-current="true" id="current">Maintainer</button>
+          <button class="menu-item" type="button">Owner <span class="menu-item-note">⌘O</span></button></div></div>
+        """;
+
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public async Task The_tick_of_a_menus_current_item_is_centred_in_its_box_at_every_fractional_position(string variant, int scale)
+    {
+        // A menu's current item carries the same tick, on the item's tint instead of a fill of its own,
+        // so its box is the one the stylesheet places — read from the pseudo-element's used geometry.
+        if (NoBrowser) return;
+        var failures = new List<string>();
+        foreach (var offset in Offsets)
+        {
+            var (page, errors) = await OpenStyled(MenuContexts, deviceScaleFactor: scale);
+            await Js.Run(page, """
+                ([variant, offset]) => {
+                    document.documentElement.dataset.variant = variant;
+                    document.documentElement.style.setProperty('--at', offset);
+                }
+                """, new[] { variant, offset });
+            await Js.Settle(page);
+
+            var box = await page.EvaluateAsync<double[]>("""
+                () => {
+                    const item = document.getElementById('current');
+                    const r = item.getBoundingClientRect();
+                    const c = getComputedStyle(item, '::after');
+                    const w = parseFloat(c.width), h = parseFloat(c.height);
+                    return [r.right - parseFloat(c.right) - w, r.top + parseFloat(c.top), w, h];
+                }
+                """);
+            // A whole-pixel clip around the box, so the page and the image share a grid; the tick must
+            // sit on the middle of the box the stylesheet placed, to within the device pixel it snaps to.
+            const int pad = 3;
+            var cx = Math.Floor(box[0]) - pad;
+            var cy = Math.Floor(box[1]) - pad;
+            var png = await page.ScreenshotAsync(new() { Clip = new() { X = (float)cx, Y = (float)cy, Width = (float)(Math.Ceiling(box[2]) + 2 * pad + 1), Height = (float)(Math.Ceiling(box[3]) + 2 * pad + 1) } });
+            var image = Ink.Png.Decode(png);
+            var ground = image.Pixel(0, 0);
+            // Half the strongest contrast in the clip is where the ink's edge is, whatever the theme's
+            // contrast: a fixed threshold cuts the thin end of a stroke short on a pale ground.
+            var peak = 0;
+            for (var y = 0; y < image.Height; y++)
+                for (var x = 0; x < image.Width; x++)
+                {
+                    var c = image.Pixel(x, y);
+                    peak = Math.Max(peak, Math.Abs(c.R - ground.R) + Math.Abs(c.G - ground.G) + Math.Abs(c.B - ground.B));
+                }
+            int x0 = int.MaxValue, x1 = -1, y0 = int.MaxValue, y1 = -1;
+            for (var y = 0; y < image.Height; y++)
+                for (var x = 0; x < image.Width; x++)
+                {
+                    var c = image.Pixel(x, y);
+                    if (Math.Abs(c.R - ground.R) + Math.Abs(c.G - ground.G) + Math.Abs(c.B - ground.B) > peak / 2)
+                    {
+                        x0 = Math.Min(x0, x); x1 = Math.Max(x1, x + 1);
+                        y0 = Math.Min(y0, y); y1 = Math.Max(y1, y + 1);
+                    }
+                }
+            Assert.True(x1 > x0, "The current item paints no tick.");
+            var dx = ((x0 + x1) / 2.0 - (box[0] + box[2] / 2 - cx) * scale) / scale;
+            var dy = ((y0 + y1) / 2.0 - (box[1] + box[3] / 2 - cy) * scale) / scale;
+            var label = $"menu @ {offset}, {variant}, {scale}x";
+            if (Math.Abs(dx) > Tolerance) failures.Add($"{label}: the tick is {dx:0.00}px off its box's centre horizontally");
+            if (Math.Abs(dy) > Tolerance) failures.Add($"{label}: the tick is {dy:0.00}px off its box's centre vertically");
+            Assert.Empty(errors);
+            await page.Context.DisposeAsync();
+        }
+        Assert.True(failures.Count == 0, string.Join("\n", failures));
+    }
+
     /// <summary>
     /// How far the middle of what is painted over a box's fill sits from the middle of the box,
     /// in CSS pixels, read from a screenshot at the page's own device scale.
