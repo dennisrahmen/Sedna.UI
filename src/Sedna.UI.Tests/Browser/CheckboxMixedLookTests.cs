@@ -54,15 +54,18 @@ public class CheckboxMixedLookTests : ScriptTestBase
             () => {
                 const out = [];
                 const box = el => { const s = getComputedStyle(el); return { bg: s.backgroundColor, edge: s.borderTopColor }; };
+                // A tick and a dash are both masks over a box that fills the padding box: a tick is four
+                // gradients, a dash one rectangle whose size the mask names. The tree's dash is a box.
                 const mark = el => {
                     const s = getComputedStyle(el, '::after');
-                    const m = new DOMMatrixReadOnly(s.transform === 'none' ? undefined : s.transform);
-                    return { content: s.content, w: parseFloat(s.width), h: parseFloat(s.height), ink: s.backgroundColor,
-                             tickInk: s.borderBottomColor, level: Math.abs(m.b) < 1e-6 && Math.abs(m.c) < 1e-6 };
+                    const layers = s.maskImage === 'none' ? 0 : (s.maskImage.match(/linear-gradient/g) || []).length;
+                    const size = s.maskSize.match(/([\d.]+)px ([\d.]+)px/);
+                    return { content: s.content, w: size ? parseFloat(size[1]) : parseFloat(s.width),
+                             h: size ? parseFloat(size[2]) : parseFloat(s.height), ink: s.backgroundColor, tick: layers >= 4 };
                 };
                 const on = document.getElementById('on'), off = document.getElementById('off');
                 const tick = mark(on);
-                if (tick.level) out.push('the ticked box draws no rotated tick to compare with');
+                if (!tick.tick) out.push('the ticked box draws no tick to compare with');
                 for (const id of ['prop', 'aria', 'both']) {
                     const el = document.getElementById(id);
                     const b = box(el), want = box(on);
@@ -71,9 +74,9 @@ public class CheckboxMixedLookTests : ScriptTestBase
                     if (b.bg === box(off).bg && b.edge === box(off).edge) out.push(`${id}: the box looks unticked`);
                     const m = mark(el);
                     if (m.content === 'none') out.push(`${id}: no mark is drawn`);
-                    if (!m.level) out.push(`${id}: the mark is turned, a tick rather than a dash`);
+                    if (m.tick) out.push(`${id}: the mark is a tick, not a dash`);
                     if (!(m.w > m.h * 2)) out.push(`${id}: the mark is ${m.w}x${m.h}, not a dash`);
-                    if (m.ink !== tick.tickInk) out.push(`${id}: the dash is ${m.ink}, the tick ${tick.tickInk}`);
+                    if (m.ink !== tick.ink) out.push(`${id}: the dash is ${m.ink}, the tick ${tick.ink}`);
                 }
                 const tOn = document.querySelector('#t-on .tree-check'), tMixed = document.querySelector('#t-mixed .tree-check');
                 const tb = box(tMixed), tw = box(tOn);

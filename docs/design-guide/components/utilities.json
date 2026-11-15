@@ -46,7 +46,7 @@
       { "text": "Prose the app did not write", "instead": "/prose" }
     ],
     "goals": [ "read-long-text-in-part" ],
-    "stamp": "5c8efff1a8e9d015"
+    "stamp": "7d91337f16bb112a"
   },
   {
     "page": "/utility-visibility",
@@ -79,7 +79,7 @@
       { "text": "Thousands of rows", "instead": "/table-large#virtualized-rows" }
     ],
     "goals": [ "scroll-inside-a-region" ],
-    "stamp": "d0478a581d09802a"
+    "stamp": "79b12d202eb2cf80"
   },
   {
     "page": "/utility-safe-area",

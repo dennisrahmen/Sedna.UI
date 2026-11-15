@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "97bcc4d776f3bbda"
+    "stamp": "414e10dfb05b288a"
   },
   {
     "page": "/table-editing",
@@ -52,7 +52,7 @@
       { "text": "A table of a few dozen rows", "instead": "/table" }
     ],
     "goals": [ "filter-table-columns", "browse-thousands-of-rows", "expand-a-hierarchy-in-a-table" ],
-    "stamp": "8717259cb79c31de"
+    "stamp": "81afaa3a7b9858fd"
   },
   {
     "page": "/table-columns",
@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "c6e6f3f9462398e8"
+    "stamp": "5a1cfde4124a6e61"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "90592fa972bd4c49"
+    "stamp": "bbe3e40e1f4c7146"
   },
   {
     "page": "/stat",
@@ -152,7 +152,7 @@
       { "text": "Entries that each need words", "instead": "/timeline" }
     ],
     "goals": [ "show-status-history", "show-activity-over-time" ],
-    "stamp": "7d2039f6588e7f4f"
+    "stamp": "e8f755a1d26ee8ca"
   },
   {
     "page": "/calendar",
@@ -188,7 +188,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "790aa6e817db725d"
+    "stamp": "89736ff88e8ddf30"
   },
   {
     "page": "/pager",
@@ -223,7 +223,7 @@
       { "text": "A value against its limit", "instead": "/bars#value-against-thresholds" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "plot-data", "recover-from-a-failed-load" ],
-    "stamp": "a997d7ec9b09ed71"
+    "stamp": "a3fa9f84750d6167"
   },
   {
     "page": "/graph",
@@ -241,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "803ce5ef0876b946"
+    "stamp": "eab7feba3afbca0d"
   },
   {
     "page": "/graph-layouts",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "57d4757fc619a230"
+    "stamp": "4593f43f1c4fc41c"
   },
   {
     "page": "/graph-plugins",

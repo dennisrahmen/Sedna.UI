@@ -17,7 +17,7 @@
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
     "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
-    "stamp": "ddd1ae2f53ef9e5b"
+    "stamp": "dc7c52feecf486d5"
   },
   {
     "page": "/form-validation",
@@ -34,7 +34,7 @@
       { "text": "A file turned away from an upload", "instead": "/form-file#limits-and-a-refused-file" }
     ],
     "goals": [ "fill-in-a-form", "show-field-errors", "summarise-form-errors", "create-or-edit-a-record" ],
-    "stamp": "29e4d6f9465ca9e3"
+    "stamp": "343b10952e8bd32f"
   },
   {
     "page": "/form-flow",
@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "de094b5b1a12fc5a"
+    "stamp": "d0a9e1325b1ae451"
   },
   {
     "page": "/form-saving",
@@ -69,7 +69,7 @@
       { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
     ],
     "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
-    "stamp": "9a088c48bb65a4d5"
+    "stamp": "80adfb4368312a57"
   },
   {
     "page": "/form-text",
@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "c3794d8fc7e07df8"
+    "stamp": "dbcccba8f217048b"
   },
   {
     "page": "/form-code",
@@ -103,7 +103,7 @@
       { "text": "A long number with a format, such as an IBAN or a card number", "instead": "/form-text#entering-a-format" }
     ],
     "goals": [ "enter-a-one-time-code" ],
-    "stamp": "524b015f938f36d1"
+    "stamp": "1d0f863e9173fa95"
   },
   {
     "page": "/form-textarea",
@@ -120,7 +120,7 @@
       { "text": "One line of text", "instead": "/form-text" }
     ],
     "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
-    "stamp": "ca29dc52c91aada4"
+    "stamp": "72c36e2e3cd4eada"
   },
   {
     "page": "/form-datetime",
@@ -138,11 +138,11 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "b79ee3ec0c3754df"
+    "stamp": "c62b71c9c1c8bd21"
   },
   {
     "page": "/form-select",
-    "useFor": "Picking one answer, or a few, from a short list known in advance: a drop-down, a list box, or two lists the rows move between.",
+    "useFor": "Picking one answer, or a few, from a short list known in advance: a drop-down, a list box (a native select, or the library's own .listbox for the same look in every browser), or two lists the rows move between.",
     "combineWith": [
       { "page": "/form#fields", "how": "In a .form-field with its label and hint, as any control." },
       { "page": "/toolbar#filters-and-a-count", "how": "A filter in a toolbar, sized to its value with .sedna-w-fit and the toolbar's small tier." },
@@ -156,7 +156,7 @@
       { "text": "Actions on a record", "instead": "/menu" }
     ],
     "goals": [ "pick-one-from-a-short-list", "move-rows-between-two-lists", "pick-a-microphone", "open-a-panel-upward" ],
-    "stamp": "00843cdbfe1c55ec"
+    "stamp": "ebccdcfb8e344327"
   },
   {
     "page": "/form-combo",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "730990d3cc03c2ef"
+    "stamp": "686f13f72bb60f91"
   },
   {
     "page": "/form-choice",
@@ -191,7 +191,7 @@
       { "text": "Filters that narrow a list", "instead": "/chip#filter-sets" }
     ],
     "goals": [ "turn-a-setting-on-or-off", "tick-an-option", "choose-one-of-a-few", "choose-between-pictures", "show-dependent-options", "answer-an-agents-question" ],
-    "stamp": "a26c5c7360c47a5b"
+    "stamp": "2119db33faa0ae3d"
   },
   {
     "page": "/form-check-list",
@@ -209,7 +209,7 @@
       { "text": "A long set the reader builds up row by row", "instead": "/form-select#moving-rows-between-two-lists" }
     ],
     "goals": [ "pick-a-set-from-a-list" ],
-    "stamp": "ff566284e4477359"
+    "stamp": "18142d98e064c8e6"
   },
   {
     "page": "/segmented",
@@ -227,13 +227,13 @@
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
     "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
-    "stamp": "2b1018609fe60222"
+    "stamp": "38a6f041c4f80b31"
   },
   {
     "page": "/form-rating",
     "useFor": "Showing a score as stars, or taking one from the reader in whole or half stars.",
     "combineWith": [
-      { "page": "/list", "how": "A shown score sits in a list row's meta, the number beside it for the eye." },
+      { "page": "/list", "how": "A shown score sits in a list row's meta, with its number as .rating-value inside the row." },
       { "page": "/form#fields", "how": "A score to give is a field with its label and hint, and a hint that says why when rating is closed." }
     ],
     "notFor": [
@@ -241,7 +241,7 @@
       { "text": "A choice between named options", "instead": "/form-choice#radio-buttons" }
     ],
     "goals": [ "rate-with-stars", "show-a-score" ],
-    "stamp": "3505d5353bbb3da8"
+    "stamp": "d304446a7dc59ae6"
   },
   {
     "page": "/form-file",
@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "77fb6faf9bf3c753"
+    "stamp": "05ff11fd529e1711"
   },
   {
     "page": "/form-numeric",
@@ -273,7 +273,7 @@
       { "text": "An exact amount typed with its unit", "instead": "/form-text#kinds-of-affix" }
     ],
     "goals": [ "choose-a-value-on-a-slider", "choose-a-span-of-values", "step-a-count" ],
-    "stamp": "5574c3d7ae5f8482"
+    "stamp": "61339bf2f539787c"
   },
   {
     "page": "/form-color",
@@ -287,7 +287,7 @@
       { "text": "A category told apart by colour", "instead": "/chip" }
     ],
     "goals": [ "pick-any-colour", "pick-a-preset-colour" ],
-    "stamp": "45ad6402b12a4660"
+    "stamp": "66cce3ba0e582794"
   },
   {
     "page": "/form-signature",

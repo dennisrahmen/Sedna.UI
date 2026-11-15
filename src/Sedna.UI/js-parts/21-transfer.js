@@ -34,17 +34,39 @@
    an ordinary `multiple` select, so a form posts it with no help from here, and
    what the reader has chosen is what that select contains.
 
+   The lists may be `<select multiple>` or `.listbox`es (22-listbox.js): a row of a listbox is
+   moved the same way, chosen is its `aria-selected`, and the destination list is
+   told with the `change` and `sedna-listbox-select` events a click would have sent.
+   A listbox posts nothing, so the app reads the right-hand list's `values`.
+
    Nothing about the CSS depends on this. With scripting blocked the two lists are
    still two list boxes, still labelled, still postable — the buttons simply do
    nothing, which is why they are buttons and not the only way to choose.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
+    function isBox(list) { return list.classList.contains('listbox'); }
+
+    /* A select's options, or a listbox's rows — a real array either way, taken before anything
+       moves, because a live HTMLCollection would shorten underneath the loop that appends. */
+    function rowsOf(list) {
+        return isBox(list)
+            ? Array.prototype.filter.call(list.querySelectorAll('[role="option"]'), function (o) { return o.closest('.listbox') === list; })
+            : Array.prototype.slice.call(list.options);
+    }
+    function textOf(row) { return (row.text !== undefined ? row.text : row.textContent || '').trim(); }
+
     function selectedIn(list) {
-        // A live HTMLCollection would shorten underneath the loop that appends from
-        // it, so this is a real array taken before anything moves.
-        return Array.prototype.filter.call(
-            list.options, function (o) { return o.selected && !o.disabled; });
+        return rowsOf(list).filter(function (o) {
+            return isBox(list)
+                ? o.getAttribute('aria-selected') === 'true' && o.getAttribute('aria-disabled') !== 'true'
+                : o.selected && !o.disabled;
+        });
+    }
+
+    function unselect(list, row) {
+        if (isBox(list)) { row.setAttribute('aria-selected', 'false'); row.removeAttribute('data-active'); }
+        else row.selected = false;
     }
 
     /* Alphabetical, and only where the list was already in order. Re-sorting a list
@@ -52,27 +74,28 @@
        it, so the check is whether the destination is sorted before the move, not a
        setting somebody has to know about. */
     function sorted(list) {
-        for (var i = 1; i < list.options.length; i++) {
-            if (list.options[i - 1].text.localeCompare(list.options[i].text) > 0) return false;
+        var rows = rowsOf(list);
+        for (var i = 1; i < rows.length; i++) {
+            if (textOf(rows[i - 1]).localeCompare(textOf(rows[i])) > 0) return false;
         }
         return true;
     }
 
-    function place(list, option) {
-        var at = null;
-        for (var i = 0; i < list.options.length; i++) {
-            if (list.options[i].text.localeCompare(option.text) > 0) { at = list.options[i]; break; }
+    function place(list, row) {
+        var rows = rowsOf(list), at = null;
+        for (var i = 0; i < rows.length; i++) {
+            if (textOf(rows[i]).localeCompare(textOf(row)) > 0) { at = rows[i]; break; }
         }
-        list.insertBefore(option, at);
+        (at ? at.parentNode : list).insertBefore(row, at);
     }
 
-    function move(from, to, options) {
-        if (!from || !to || !options.length) return 0;
+    function move(from, to, rows) {
+        if (!from || !to || !rows.length) return 0;
 
         var inOrder = sorted(to);
-        for (var i = 0; i < options.length; i++) {
-            options[i].selected = false;
-            if (inOrder) place(to, options[i]); else to.appendChild(options[i]);
+        for (var i = 0; i < rows.length; i++) {
+            unselect(from, rows[i]);
+            if (inOrder) place(to, rows[i]); else to.appendChild(rows[i]);
         }
 
         /* Nothing arrives selected, and the destination's own selection is cleared.
@@ -83,18 +106,25 @@
            and cannot remember making, and it made the next Remove act on all of
            them. The first row moved is scrolled into view instead, which is the part
            that was actually worth having. */
-        to.selectedIndex = -1;
-        if (options.length && options[0].scrollIntoView) {
-            options[0].scrollIntoView({ block: 'nearest' });
-        }
+        if (isBox(to)) {
+            rowsOf(to).forEach(function (o) { unselect(to, o); });
+            to.removeAttribute('aria-activedescendant');
+        } else to.selectedIndex = -1;
+        if (rows[0].scrollIntoView) rows[0].scrollIntoView({ block: 'nearest' });
 
         notify(from);
         notify(to);
-        return options.length;
+        return rows.length;
     }
 
     function notify(list) {
         list.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        if (isBox(list)) {
+            list.dispatchEvent(new CustomEvent('sedna-listbox-select', {
+                bubbles: true, composed: true,
+                detail: { values: ui.listbox ? ui.listbox.values(list) : [] }
+            }));
+        }
     }
 
     function lists(host) {
@@ -135,10 +165,10 @@
        one row, and taking the selection with it would move rows the reader had
        chosen minutes ago and forgotten about. */
     document.addEventListener('dblclick', function (e) {
-        var option = e.target.closest('[data-transfer] option');
-        if (!option || option.disabled) return;
+        var option = e.target.closest('[data-transfer] option, [data-transfer] [role="option"]');
+        if (!option || option.disabled || option.getAttribute('aria-disabled') === 'true') return;
 
-        var list = option.closest('select');
+        var list = option.closest('select, .listbox');
         var host = option.closest('[data-transfer]');
         if (!list || !host) return;
 

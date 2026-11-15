@@ -1,26 +1,25 @@
 <div class="form-field" style="max-width:340px">
-    <label class="form-label" for="lb-sections">Escalate to</label>
-    <select class="form-input form-select" id="lb-sections" multiple size="7">
-        <optgroup label="On call">
-            <legend>On call</legend>
-            <option selected>Duty engineer</option>
-            <option>Duty lead</option>
-        </optgroup>
-        <optgroup label="Teams">
-            <legend>Teams</legend>
-            <option>Fulfilment</option>
-            <option selected>Network</option>
-            <option>Warehouse</option>
-        </optgroup>
-        <optgroup label="Off rota">
-            <legend>Off rota</legend>
-            <option disabled>Finance &mdash; no rota this week</option>
-            <option>Facilities</option>
-        </optgroup>
-    </select>
+    <span class="form-label" id="lbg-label">Escalate to</span>
+    <div class="listbox" role="listbox" aria-labelledby="lbg-label" aria-multiselectable="true" tabindex="0" style="--listbox-rows:8">
+        <div role="group" aria-labelledby="lbg-oncall">
+            <div class="listbox-heading" id="lbg-oncall" role="presentation">On call</div>
+            <div role="option" aria-selected="true">Duty engineer</div>
+            <div role="option" aria-selected="false">Duty lead</div>
+        </div>
+        <div role="group" aria-labelledby="lbg-teams">
+            <div class="listbox-heading" id="lbg-teams" role="presentation">Teams</div>
+            <div role="option" aria-selected="false">Fulfilment</div>
+            <div role="option" aria-selected="true">Network</div>
+            <div role="option" aria-selected="false">Warehouse</div>
+        </div>
+        <div role="group" aria-labelledby="lbg-off">
+            <div class="listbox-heading" id="lbg-off" role="presentation">Off rota</div>
+            <div role="option" aria-selected="false" aria-disabled="true">Finance &mdash; no rota this week</div>
+            <div role="option" aria-selected="false">Facilities</div>
+        </div>
+    </div>
     <p class="form-hint">
-        <code>size</code> counts rows, and a <code>&lt;legend&gt;</code> is a row. 7 here shows
-        3 headings and 4 options; ask for the headings as well as the options you want on
-        screen.
+        A heading is not a row for <code>--listbox-rows</code>, but it takes room: leave a little more height than the
+        options you want on screen.
     </p>
 </div>

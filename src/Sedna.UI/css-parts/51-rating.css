@@ -60,6 +60,23 @@
     width: fit-content;
     vertical-align: middle;
 }
+/* The number printed beside the stars, inside the row so it takes the row's size. It is
+   set at seven tenths of the star and centred on the star's weight, not on its box: a
+   five-pointed star is a point on top and two on the bottom, so its mass sits at 55% of
+   its height, and a figure centred on the box looks a pixel high next to it. The offset
+   is a layout inset rounded to a whole pixel — a transform would put the digits between
+   pixels. */
+.rating-value {
+    position: relative;
+    inset-block-start: round(calc(var(--rating-size) * 0.05), 1px);
+    margin-inline-start: var(--space-2);
+    color: var(--fg-soft);
+    font-size: calc(var(--rating-size) * 0.7);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap);
+}
 .rating--sm { --rating-size: 16px; }
 .rating--lg { --rating-size: 28px; }
 .rating:has(input) { min-height: var(--control-height); }

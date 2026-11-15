@@ -22,6 +22,7 @@
      22-anchored.js
      22-grid.js
      22-group.js
+     22-listbox.js
      22-menu.js
      22-popover.js
      22-scroll-edge.js
@@ -1247,6 +1248,13 @@ window.sednaUi = window.sednaUi || {};
    attribute, is given its input's value as text. Leave the attribute off where the
    app writes the text itself — a binding and this would fight over the same node.
 
+   A lone range has no box, and its readout is an `output` beside it — `.form-range-value`,
+   its `for` naming the range, `data-range-value` on it or on the element inside it that holds the number.
+   It is written the same way, so a unit around the number stays the app's:
+
+     <input class="form-range" id="conf" type="range" min="0" max="100" value="85">
+     <output class="form-range-value" for="conf"><span data-range-value>85</span>%</output>
+
    It follows every `input` and `reset`, and a render that adds or swaps markup. A
    value set from code without either — a binding writing `value` — is picked up at
    the next of those; dispatch an `input` event on the range after setting one.
@@ -1305,9 +1313,23 @@ window.sednaUi = window.sednaUi || {};
         }
     }
 
+    // The readout of a range that has no box: any `output` outside one whose `for` names a range.
+    function syncReadouts() {
+        var outs = document.querySelectorAll('output[for]');
+        for (var i = 0; i < outs.length; i++) {
+            var out = outs[i];
+            if (out.parentElement && out.parentElement.matches(BOX)) continue;
+            var slot = out.hasAttribute('data-range-value') ? out : out.querySelector('[data-range-value]');
+            if (!slot) continue;
+            var input = document.getElementById((out.getAttribute('for') || '').split(/\s+/)[0]);
+            if (input && input.tagName === 'INPUT' && input.type === 'range' && slot.textContent !== input.value) slot.textContent = input.value;
+        }
+    }
+
     function syncAll() {
         var boxes = document.querySelectorAll(BOX);
         for (var i = 0; i < boxes.length; i++) sync(boxes[i]);
+        syncReadouts();
     }
 
     var queued = false;
@@ -1322,6 +1344,7 @@ window.sednaUi = window.sednaUi || {};
         if (!(t instanceof HTMLInputElement) || t.type !== 'range') return;
         var box = t.parentElement;
         if (box && box.matches(BOX)) sync(box, t);
+        else syncReadouts();
     }
 
     function init() {
@@ -1481,17 +1504,39 @@ window.sednaUi = window.sednaUi || {};
    an ordinary `multiple` select, so a form posts it with no help from here, and
    what the reader has chosen is what that select contains.
 
+   The lists may be `<select multiple>` or `.listbox`es (22-listbox.js): a row of a listbox is
+   moved the same way, chosen is its `aria-selected`, and the destination list is
+   told with the `change` and `sedna-listbox-select` events a click would have sent.
+   A listbox posts nothing, so the app reads the right-hand list's `values`.
+
    Nothing about the CSS depends on this. With scripting blocked the two lists are
    still two list boxes, still labelled, still postable — the buttons simply do
    nothing, which is why they are buttons and not the only way to choose.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
 
+    function isBox(list) { return list.classList.contains('listbox'); }
+
+    /* A select's options, or a listbox's rows — a real array either way, taken before anything
+       moves, because a live HTMLCollection would shorten underneath the loop that appends. */
+    function rowsOf(list) {
+        return isBox(list)
+            ? Array.prototype.filter.call(list.querySelectorAll('[role="option"]'), function (o) { return o.closest('.listbox') === list; })
+            : Array.prototype.slice.call(list.options);
+    }
+    function textOf(row) { return (row.text !== undefined ? row.text : row.textContent || '').trim(); }
+
     function selectedIn(list) {
-        // A live HTMLCollection would shorten underneath the loop that appends from
-        // it, so this is a real array taken before anything moves.
-        return Array.prototype.filter.call(
-            list.options, function (o) { return o.selected && !o.disabled; });
+        return rowsOf(list).filter(function (o) {
+            return isBox(list)
+                ? o.getAttribute('aria-selected') === 'true' && o.getAttribute('aria-disabled') !== 'true'
+                : o.selected && !o.disabled;
+        });
+    }
+
+    function unselect(list, row) {
+        if (isBox(list)) { row.setAttribute('aria-selected', 'false'); row.removeAttribute('data-active'); }
+        else row.selected = false;
     }
 
     /* Alphabetical, and only where the list was already in order. Re-sorting a list
@@ -1499,27 +1544,28 @@ window.sednaUi = window.sednaUi || {};
        it, so the check is whether the destination is sorted before the move, not a
        setting somebody has to know about. */
     function sorted(list) {
-        for (var i = 1; i < list.options.length; i++) {
-            if (list.options[i - 1].text.localeCompare(list.options[i].text) > 0) return false;
+        var rows = rowsOf(list);
+        for (var i = 1; i < rows.length; i++) {
+            if (textOf(rows[i - 1]).localeCompare(textOf(rows[i])) > 0) return false;
         }
         return true;
     }
 
-    function place(list, option) {
-        var at = null;
-        for (var i = 0; i < list.options.length; i++) {
-            if (list.options[i].text.localeCompare(option.text) > 0) { at = list.options[i]; break; }
+    function place(list, row) {
+        var rows = rowsOf(list), at = null;
+        for (var i = 0; i < rows.length; i++) {
+            if (textOf(rows[i]).localeCompare(textOf(row)) > 0) { at = rows[i]; break; }
         }
-        list.insertBefore(option, at);
+        (at ? at.parentNode : list).insertBefore(row, at);
     }
 
-    function move(from, to, options) {
-        if (!from || !to || !options.length) return 0;
+    function move(from, to, rows) {
+        if (!from || !to || !rows.length) return 0;
 
         var inOrder = sorted(to);
-        for (var i = 0; i < options.length; i++) {
-            options[i].selected = false;
-            if (inOrder) place(to, options[i]); else to.appendChild(options[i]);
+        for (var i = 0; i < rows.length; i++) {
+            unselect(from, rows[i]);
+            if (inOrder) place(to, rows[i]); else to.appendChild(rows[i]);
         }
 
         /* Nothing arrives selected, and the destination's own selection is cleared.
@@ -1530,18 +1576,25 @@ window.sednaUi = window.sednaUi || {};
            and cannot remember making, and it made the next Remove act on all of
            them. The first row moved is scrolled into view instead, which is the part
            that was actually worth having. */
-        to.selectedIndex = -1;
-        if (options.length && options[0].scrollIntoView) {
-            options[0].scrollIntoView({ block: 'nearest' });
-        }
+        if (isBox(to)) {
+            rowsOf(to).forEach(function (o) { unselect(to, o); });
+            to.removeAttribute('aria-activedescendant');
+        } else to.selectedIndex = -1;
+        if (rows[0].scrollIntoView) rows[0].scrollIntoView({ block: 'nearest' });
 
         notify(from);
         notify(to);
-        return options.length;
+        return rows.length;
     }
 
     function notify(list) {
         list.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        if (isBox(list)) {
+            list.dispatchEvent(new CustomEvent('sedna-listbox-select', {
+                bubbles: true, composed: true,
+                detail: { values: ui.listbox ? ui.listbox.values(list) : [] }
+            }));
+        }
     }
 
     function lists(host) {
@@ -1582,10 +1635,10 @@ window.sednaUi = window.sednaUi || {};
        one row, and taking the selection with it would move rows the reader had
        chosen minutes ago and forgotten about. */
     document.addEventListener('dblclick', function (e) {
-        var option = e.target.closest('[data-transfer] option');
-        if (!option || option.disabled) return;
+        var option = e.target.closest('[data-transfer] option, [data-transfer] [role="option"]');
+        if (!option || option.disabled || option.getAttribute('aria-disabled') === 'true') return;
 
-        var list = option.closest('select');
+        var list = option.closest('select, .listbox');
         var host = option.closest('[data-transfer]');
         if (!list || !host) return;
 
@@ -2609,6 +2662,236 @@ window.sednaUi = window.sednaUi || {};
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
     else watch();
+
+})(window.sednaUi);
+
+/* ── 22-listbox.js ──────────────────────────────────────────────── */
+/* ── Listbox, delegated ──────────────────────────────────────────────────────
+   The keyboard and the selection behind a `.listbox`: an ARIA listbox the app writes as
+   a box of `role="option"` rows, flat or in `role="group"`s.
+
+     <div class="listbox" role="listbox" aria-multiselectable="true" aria-label="Notify groups" tabindex="0">
+       <div role="option" aria-selected="true" data-value="fulfilment">Fulfilment</div>
+       <div role="option" aria-selected="false" data-value="network">Network</div>
+       <div role="option" aria-selected="false" aria-disabled="true">Finance</div>
+     </div>
+
+   `aria-selected` is chosen, `aria-disabled="true"` is passed over, `aria-multiselectable`
+   allows several. `data-value` is what an event names a row by, else its text;
+   `data-label` overrides the text typeahead reads.
+
+   ONE TAB STOP, as a combo field has: the listbox takes the focus and the row the keyboard
+   is on is named by `aria-activedescendant`. The script gives a row without an id one, marks
+   the active row `data-active` for the paint, and starts on the first chosen row.
+
+     ↓ ↑              next and previous row; in a listbox that takes one answer, it chooses it
+     Home End         first and last row
+     a letter         typeahead: the next row whose label starts with it
+     Space            toggles the row in a multiselectable listbox
+     Shift+↓ ↑        extends the choice from where it began
+     Ctrl+A (⌘A)      chooses every row in a multiselectable listbox
+
+   A click chooses the row and drops the others; Ctrl or ⌘ toggles it, Shift chooses from the
+   row the last click or key began on. That is what a native list box does and what a staging
+   choice wants.
+
+   THE SCRIPT HOLDS THE STATE, AND SAYS SO. It writes `aria-selected`, `aria-activedescendant`
+   and `data-active` on the app's elements — attributes a render leaves alone while the app's
+   own value for them does not change — and after each change dispatches on the listbox, both
+   bubbling:
+
+     change                      a plain Event, so an app's `@onchange` sees it
+     sedna-listbox-select        { values }           every value chosen, in document order (the target is the listbox)
+
+   A listbox is not a form control: it posts nothing. An app that submits a choice reads
+   `values` or the rows' `aria-selected`, or uses a `<select multiple>`, which a form posts.
+   ─────────────────────────────────────────────────────────────────────────── */
+(function (ui) {
+
+    var typed = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var anchors = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var counter = 0;
+
+    function toArray(list) { return Array.prototype.slice.call(list); }
+    /* Only a `.listbox`: a combo field's list is also `role="listbox"`, and the combo's script owns it. */
+    function listboxOf(el) { return el && el.closest ? el.closest('.listbox[role="listbox"]') : null; }
+    function multi(box) { return box.getAttribute('aria-multiselectable') === 'true'; }
+    function disabled(box) { return box.getAttribute('aria-disabled') === 'true'; }
+
+    function optionsOf(box) {
+        return toArray(box.querySelectorAll('[role="option"]')).filter(function (o) { return listboxOf(o) === box; });
+    }
+    function reachable(box) {
+        return optionsOf(box).filter(function (o) { return o.getAttribute('aria-disabled') !== 'true'; });
+    }
+    function isOn(o) { return o.getAttribute('aria-selected') === 'true'; }
+    function valueOf(o) {
+        var v = o.getAttribute('data-value');
+        return v !== null ? v : (o.textContent || '').trim();
+    }
+    function labelOf(o) {
+        var l = o.getAttribute('data-label');
+        return (l !== null ? l : o.textContent || '').trim().toLowerCase();
+    }
+
+    function setOn(o, on) {
+        var was = isOn(o);
+        o.setAttribute('aria-selected', on ? 'true' : 'false');
+        return was !== on;
+    }
+
+    function activeOf(box) {
+        var id = box.getAttribute('aria-activedescendant');
+        if (!id) return null;
+        var el = document.getElementById(id);
+        return el && listboxOf(el) === box ? el : null;
+    }
+
+    function activate(box, o) {
+        var all = optionsOf(box);
+        for (var i = 0; i < all.length; i++) if (all[i] !== o) all[i].removeAttribute('data-active');
+        if (!o) { box.removeAttribute('aria-activedescendant'); return; }
+        if (!o.id) o.id = 'sedna-listbox-option-' + (++counter);
+        o.setAttribute('data-active', '');
+        box.setAttribute('aria-activedescendant', o.id);
+        if (o.scrollIntoView) o.scrollIntoView({ block: 'nearest' });
+    }
+
+    function announce(box) {
+        var values = optionsOf(box).filter(isOn).map(valueOf);
+        box.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        box.dispatchEvent(new CustomEvent('sedna-listbox-select', { bubbles: true, composed: true, detail: { values: values } }));
+    }
+
+    /* Chooses exactly `chosen` (an array of rows) and says so if that changed anything. */
+    function choose(box, chosen) {
+        var changed = false;
+        optionsOf(box).forEach(function (o) {
+            var on = chosen.indexOf(o) >= 0 && o.getAttribute('aria-disabled') !== 'true';
+            if (setOn(o, on)) changed = true;
+        });
+        if (changed) announce(box);
+    }
+
+    function rangeBetween(box, a, b) {
+        var all = reachable(box);
+        var i = all.indexOf(a), j = all.indexOf(b);
+        if (i < 0 || j < 0) return b ? [b] : [];
+        return all.slice(Math.min(i, j), Math.max(i, j) + 1);
+    }
+
+    function anchorOf(box) { return (anchors && anchors.get(box)) || activeOf(box); }
+    function setAnchor(box, o) { if (anchors) anchors.set(box, o); }
+
+    /* A move of the keyboard to `target`: in a single-answer listbox it chooses it; with Shift in a
+       multiselectable one it extends from the anchor; otherwise it only moves. */
+    function moveTo(box, target, extend) {
+        if (!target) return;
+        activate(box, target);
+        if (!multi(box)) { setAnchor(box, target); choose(box, [target]); }
+        else if (extend) choose(box, rangeBetween(box, anchorOf(box), target));
+        else setAnchor(box, target);
+    }
+
+    function step(box, from, by) {
+        var all = reachable(box);
+        if (!all.length) return null;
+        var i = all.indexOf(from);
+        if (i < 0) return by > 0 ? all[0] : all[all.length - 1];
+        return all[Math.min(all.length - 1, Math.max(0, i + by))];
+    }
+
+    function startOf(box) {
+        var all = reachable(box);
+        for (var i = 0; i < all.length; i++) if (isOn(all[i])) return all[i];
+        return all[0] || null;
+    }
+
+    function typeahead(box, key) {
+        var now = Date.now();
+        var st = (typed && typed.get(box)) || { text: '', at: 0 };
+        st.text = (now - st.at > 700 ? '' : st.text) + key.toLowerCase();
+        st.at = now;
+        if (typed) typed.set(box, st);
+        var all = reachable(box);
+        var from = all.indexOf(activeOf(box));
+        var same = st.text.length > 1 && st.text.split('').every(function (c) { return c === st.text[0]; });
+        var needle = same ? st.text[0] : st.text;
+        for (var n = 1; n <= all.length; n++) {
+            var o = all[(from + n + all.length) % all.length];
+            if (o && labelOf(o).indexOf(needle) === 0) return o;
+        }
+        return null;
+    }
+
+    document.addEventListener('focusin', function (e) {
+        var box = e.target && e.target.matches && e.target.matches('.listbox[role="listbox"]') ? e.target : null;
+        if (!box || disabled(box) || activeOf(box)) return;
+        var o = startOf(box);
+        if (o) { activate(box, o); setAnchor(box, o); }
+    });
+
+    document.addEventListener('mousedown', function (e) {
+        var o = e.target.closest ? e.target.closest('[role="option"]') : null;
+        var box = listboxOf(o);
+        if (!o || !box || disabled(box)) return;
+        // Focus is the listbox's own, and a drag across rows must not select text.
+        if (box.getAttribute('tabindex') !== null && document.activeElement !== box) box.focus({ preventScroll: true });
+        if (e.shiftKey) e.preventDefault();
+    });
+
+    document.addEventListener('click', function (e) {
+        var o = e.target.closest ? e.target.closest('[role="option"]') : null;
+        var box = listboxOf(o);
+        if (!o || !box || disabled(box) || o.getAttribute('aria-disabled') === 'true') return;
+
+        activate(box, o);
+        if (multi(box) && (e.ctrlKey || e.metaKey)) {
+            setOn(o, !isOn(o));
+            setAnchor(box, o);
+            announce(box);
+        } else if (multi(box) && e.shiftKey) {
+            choose(box, rangeBetween(box, anchorOf(box), o));
+        } else {
+            setAnchor(box, o);
+            choose(box, [o]);
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var box = e.target && e.target.matches && e.target.matches('.listbox[role="listbox"]') ? e.target : null;
+        if (!box || disabled(box) || e.altKey) return;
+
+        var from = activeOf(box) || startOf(box);
+        var key = e.key;
+        var handled = true;
+
+        if (key === 'ArrowDown') moveTo(box, step(box, from, 1), e.shiftKey);
+        else if (key === 'ArrowUp') moveTo(box, step(box, from, -1), e.shiftKey);
+        else if (key === 'Home') moveTo(box, reachable(box)[0], e.shiftKey);
+        else if (key === 'End') { var all = reachable(box); moveTo(box, all[all.length - 1], e.shiftKey); }
+        else if ((key === ' ' || key === 'Enter') && from) {
+            if (multi(box)) { setOn(from, !isOn(from)); setAnchor(box, from); announce(box); }
+            else choose(box, [from]);
+        }
+        else if ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'A') && multi(box)) choose(box, reachable(box));
+        else if (key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            var hit = typeahead(box, key);
+            if (hit) moveTo(box, hit, false);
+            else handled = false;
+        }
+        else handled = false;
+
+        if (handled) e.preventDefault();
+    });
+
+    ui.listbox = {
+        /* The values chosen in a listbox, in document order — what `sedna-listbox-select` carries,
+           for a caller that was not listening. */
+        values: function (box) {
+            return box ? optionsOf(box).filter(isOn).map(valueOf) : [];
+        }
+    };
 
 })(window.sednaUi);
 

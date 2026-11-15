@@ -21,7 +21,7 @@
     "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Horizontal.razor": "c3c31d68d79c2e88",
     "src/Sedna.UI.Catalogue/Examples/UtilityScroll/Vertical.razor": "cc4e353e09cbd9e5",
     "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
-    "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
+    "src/Sedna.UI/css-parts/46-form-layout.css": "8bf0ca88d161416b",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "ee0106d595849204",
     "src/Sedna.UI/js-parts/22-scroll-edge.js": "b57cd39e6dcfa1a4"
   },
@@ -37,7 +37,7 @@
     "src/Sedna.UI.Catalogue/Examples/UtilityText/Overflow.razor": "f70f4e98b833c308",
     "src/Sedna.UI.Catalogue/Examples/UtilityText/ShowMore.razor": "d48dd1a07a592ecc",
     "src/Sedna.UI.Catalogue/Examples/UtilityText/Tone.razor": "505d4cbd32d21663",
-    "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
+    "src/Sedna.UI/css-parts/46-form-layout.css": "8bf0ca88d161416b",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "ee0106d595849204",
     "src/Sedna.UI/css-parts/80-utilities.css": "7018485e687d8612",
     "src/Sedna.UI/js-parts/28-clamp.js": "d4a12e5d61a39fdc"
