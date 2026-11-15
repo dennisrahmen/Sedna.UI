@@ -403,6 +403,16 @@ function drawAxes(c, g, L) {
     }
 }
 const MARKERS_UP_TO = 60;
+function roundedEnd(box, side, r) {
+    const { x, y, w, h } = box, x1 = x + w, y1 = y + h;
+    const f = round;
+    switch (side) {
+        case 'top':    return `M${f(x)} ${f(y1)}V${f(y + r)}A${f(r)} ${f(r)} 0 0 1 ${f(x + r)} ${f(y)}H${f(x1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1)} ${f(y + r)}V${f(y1)}Z`;
+        case 'bottom': return `M${f(x)} ${f(y)}H${f(x1)}V${f(y1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1 - r)} ${f(y1)}H${f(x + r)}A${f(r)} ${f(r)} 0 0 1 ${f(x)} ${f(y1 - r)}Z`;
+        case 'right':  return `M${f(x)} ${f(y)}H${f(x1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1)} ${f(y + r)}V${f(y1 - r)}A${f(r)} ${f(r)} 0 0 1 ${f(x1 - r)} ${f(y1)}H${f(x)}Z`;
+        default:       return `M${f(x1)} ${f(y)}H${f(x + r)}A${f(r)} ${f(r)} 0 0 0 ${f(x)} ${f(y + r)}V${f(y1 - r)}A${f(r)} ${f(r)} 0 0 0 ${f(x + r)} ${f(y1)}H${f(x1)}Z`;
+    }
+}
 function drawCartesian(c, g) {
     const shown = shownSeries(c);
     const stacked = c.el.hasAttribute('data-chart-stack') && (c.type === 'column' || c.type === 'bar' || c.type === 'area');
@@ -419,6 +429,11 @@ function drawCartesian(c, g) {
         const each = stacked ? width : width / Math.max(1, shown.length);
         for (let j = 0; j < n; j++) {
             let up = 0, down = 0;
+            const outer = { up: -1, down: -1 };
+            if (stacked) shown.forEach(({ s, i }) => {
+                const value = s.values[j] && s.values[j].v;
+                if (value > 0) outer.up = i; else if (value < 0) outer.down = i;
+            });
             shown.forEach(({ s, i }, k) => {
                 const value = s.values[j] && s.values[j].v;
                 if (value === null || value === undefined) return;
@@ -440,11 +455,17 @@ function drawCartesian(c, g) {
                     ? { x: mid - each / 2 + gap, y: Math.min(a, b), w: Math.max(1, each - 2 * gap), h: Math.max(0.5, Math.abs(b - a)) }
                     : { x: Math.min(a, b), y: mid - each / 2 + gap, w: Math.max(0.5, Math.abs(b - a)), h: Math.max(1, each - 2 * gap) };
                 const tone = shown.length === 1 && cats[j].tone ? cats[j].tone : s.tone;
-                node('rect', {
-                    x: round(box.x), y: round(box.y), width: round(box.w), height: round(box.h),
-                    rx: Math.min(2, box.w / 2, box.h / 2) > 0 ? round(Math.min(2, box.w / 2, box.h / 2)) : null,
-                    class: 'chart-mark chart-bar ' + toneClass(tone),
-                }, marks);
+                const radius = Math.min(2, box.w / 2, box.h / 2);
+                const end = !stacked ? 'both' : value === 0 || outer[value > 0 ? 'up' : 'down'] !== i ? null
+                    : across ? (b < a ? 'top' : 'bottom') : (b > a ? 'right' : 'left');
+                const cls = 'chart-mark chart-bar ' + toneClass(tone);
+                if (end === 'both' || !end || radius <= 0) {
+                    node('rect', {
+                        x: round(box.x), y: round(box.y), width: round(box.w), height: round(box.h),
+                        rx: end === 'both' && radius > 0 ? round(radius) : null,
+                        class: cls,
+                    }, marks);
+                } else node('path', { d: roundedEnd(box, end, radius), class: cls }, marks);
                 const tip = across ? { x: mid, y: value >= 0 ? box.y : box.y + box.h } : { x: (value >= 0) === !c.rtl ? box.x + box.w : box.x, y: mid };
                 c.points.push({ s: i, i: j, x: tip.x, y: tip.y, box, tone, shape: s.shape });
             });
