@@ -26,7 +26,7 @@
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
+.btn, .fab, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -42,7 +42,7 @@
     --tone-on-solid: initial;
 }
 
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
+.btn--brand, .fab--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -58,7 +58,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
+.btn--go, .fab--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -74,7 +74,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
+.btn--warn, .fab--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -90,7 +90,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
+.btn--danger, .fab--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -106,7 +106,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
+.btn--info, .fab--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -122,7 +122,7 @@
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
+.btn--secret, .fab--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -218,6 +218,12 @@
 .btn.btn--solid:hover { background: var(--tone-solid-hover, var(--fg-soft)); }
 .btn.btn--solid:active { background: var(--tone-solid-active, var(--fg-soft)); }
 .btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
+/* A floating button is always filled, so it reads the solid properties and has no soft or
+   ghost form. Untoned it is the brand's (61-buttons-extra.css). */
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret) { background: var(--tone-solid); border-color: var(--tone-solid-edge); color: var(--tone-on-solid); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):hover { background: var(--tone-solid-hover); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):active { background: var(--tone-solid-active); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):focus-visible { box-shadow: var(--shadow-float), 0 0 0 3px var(--tone-ring-solid); }
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
@@ -277,8 +283,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    contrast: a disabled control is still read, to learn why it cannot be used, and
    opacity took the text under 3:1. Nothing is faded; the control loses its tone and its
    fill instead. Graphics with no text — a check mark, a range thumb — keep the opacity. */
-.btn:is(:disabled, [aria-disabled="true"]),
-.btn:is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+:is(.btn, .fab):is(:disabled, [aria-disabled="true"]),
+:is(.btn, .fab):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
     background: var(--disabled-bg);
     border-color: var(--disabled-border);
     color: var(--disabled-fg);

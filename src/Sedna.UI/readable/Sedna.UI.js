@@ -2968,6 +2968,19 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
 
+    /* A secondary press selects the word under it before the contextmenu event, on macOS,
+       so the text flashed selected and then the menu opened over it. The press is cancelled
+       on an element that has a menu at the pointer, which is the only place the selection
+       is the browser's own default for a gesture the app has taken over; a primary press
+       there still selects, and so does a secondary press anywhere else. Ctrl+click is the
+       secondary press on a Mac. */
+    document.addEventListener('mousedown', function (e) {
+        if (e.button !== 2 && !(e.button === 0 && e.ctrlKey)) return;
+        var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
+        if (!on || !document.getElementById(on.getAttribute('data-menu-context'))) return;
+        e.preventDefault();
+    });
+
     document.addEventListener('contextmenu', function (e) {
         var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
         if (!on) return;
@@ -10746,6 +10759,8 @@ window.sednaUi = window.sednaUi || {};
        before closing (`data-close-guard` in 42-modal.js) stays open, and with the
        transform already cleared that is the spring back. */
     function slideOut(sheet) {
+        // An engine that cannot keep a closed dialog displayed slides it out from here.
+        if (ui._.slideFrom) ui._.slideFrom(sheet, sheet.style.transform);
         sheet.classList.remove(DRAGGING);   // the transition comes back…
         sheet.style.transform = '';         // …and the target becomes .sheet's own
         if (typeof sheet.requestClose === 'function') sheet.requestClose();
@@ -13674,15 +13689,21 @@ window.sednaUi = window.sednaUi || {};
 /* ── A closing drawer slides out in every engine ────────────────────────────
    `dialog.drawer` — a drawer or a sheet — slides in and out with a CSS transition
    that keeps the closing dialog displayed through `display` and `overlay`, both
-   `allow-discrete`. Safari has no `overlay` property and takes the dialog away the
-   moment it closes, so the panel vanishes instead of leaving.
+   `allow-discrete`, and its backdrop fades with it (63-drawer.css). Safari has no
+   `overlay` property and takes the dialog away the moment it closes, with its
+   backdrop, so the panel vanishes instead of leaving.
 
-   Where the engine lacks `overlay`, this plays the same slide after the fact: the
-   closed dialog is held displayed and visible for the length of its own transform
-   transition, animated from where an open panel sits to where the stylesheet puts a
-   closed one, and then let go. Nothing is added to the page and nothing is decided
-   here — the duration, the easing and both ends are read from the stylesheet, so a
-   theme, a variant and reduced motion (a zero duration) apply as they do elsewhere.
+   Where the engine lacks `overlay`, this plays the same exit after the fact: the
+   closed dialog is held displayed for the length of its own transform transition and
+   slid from where an open panel sits to where the stylesheet puts a closed one, and
+   then let go. Where it sat is its open transform — none, or the height a snapping
+   sheet rests at (`--sheet-rest`) — or, for a sheet dragged shut, where the finger let
+   go, which 29-sheet.js hands over. The backdrop is not there to fade, so a held
+   modal dialog dims the page itself in 63-drawer.css, with a spread shadow that fades
+   over the same duration: the script writes that duration, and the easing, from the
+   transform's own. Nothing is added to the page and nothing is decided here — the
+   duration, the easing and both ends are read from the stylesheet, so a theme, a
+   variant and reduced motion (a zero duration) apply as they do elsewhere.
    `modal.idle` waits for it like any other animation on the dialog.
    ─────────────────────────────────────────────────────────────────────────── */
 (function (ui) {
@@ -13694,17 +13715,25 @@ window.sednaUi = window.sednaUi || {};
     var HELD = 'data-sedna-closing';
 
     // Dialogs seen open since they last slid out, so a later idle() on a dialog closed
-    // long ago never replays the slide.
+    // long ago never replays the slide; the ones among them that were modal, which are
+    // the ones with a backdrop to fade; and where a dragged sheet was let go.
     var opened = new WeakSet();
+    var modal = new WeakSet();
+    var dropped = new WeakMap();
+    function seen(d) {
+        opened.add(d);
+        dropped.delete(d);
+        if (d.matches(':modal')) modal.add(d); else modal.delete(d);
+    }
     function watch(record) {
         var d = record.target;
-        if (d.tagName === 'DIALOG' && d.open) opened.add(d);
+        if (d.tagName === 'DIALOG' && d.open) seen(d);
     }
     if (typeof MutationObserver === 'function') {
         new MutationObserver(function (records) { records.forEach(watch); })
             .observe(document.documentElement, { attributes: true, attributeFilter: ['open'], subtree: true });
     }
-    document.querySelectorAll('dialog[open]').forEach(function (d) { opened.add(d); });
+    document.querySelectorAll('dialog[open]').forEach(seen);
 
     function seconds(value) {
         var n = parseFloat(value);
@@ -13727,25 +13756,47 @@ window.sednaUi = window.sednaUi || {};
         if (!d.hasAttribute(HELD)) return;
         d.removeAttribute(HELD);
         d.style.removeProperty('display');
+        d.style.removeProperty('--sedna-exit-duration');
+        d.style.removeProperty('--sedna-exit-easing');
     }
 
-    // Starts the slide for a dialog that has just closed, once: from the `close` event,
+    /* Where an open panel sits: where a sheet was let go, else the transform the open
+       rules give it — none, but for a snapping sheet the height it rests at. */
+    function openTransform(d, style) {
+        var drop = dropped.get(d);
+        dropped.delete(d);
+        // Only a drop that is this close: a sheet dragged shut that asked first may be
+        // closed later by its button, from the rest.
+        if (drop && performance.now() - drop.time < 250) return drop.transform;
+        if (d.hasAttribute('data-sheet-snap')) {
+            var rest = style.getPropertyValue('--sheet-rest').trim();
+            if (rest) return 'translateY(' + rest + ')';
+        }
+        return 'none';
+    }
+
+    // Starts the exit for a dialog that has just closed, once: from the `close` event,
     // or sooner from modal.idle(), which is called straight after close() and has to
     // see the animation it is about to wait for — the event comes a task later.
     function slideOut(d) {
         if (!d || d.tagName !== 'DIALOG' || d.open || !opened.has(d)) return;
         opened.delete(d);
         if (d.hasAttribute(HELD) || !d.matches('.drawer')) return;
-        var closed = getComputedStyle(d);
-        var t = timing(closed);
+        var t = timing(getComputedStyle(d));
         if (!t) return;
-        var to = closed.transform;
-        d.setAttribute(HELD, '');
+        // A closed dialog has no box, and a percentage translation has no matrix
+        // without one: displayed, it computes to where the stylesheet puts it closed.
+        d.setAttribute(HELD, modal.has(d) ? 'modal' : '');
         d.style.setProperty('display', 'flex');
+        d.style.setProperty('--sedna-exit-duration', t.duration + 'ms');
+        d.style.setProperty('--sedna-exit-easing', t.easing);
+        var style = getComputedStyle(d);
+        var to = style.transform;
+        var from = openTransform(d, style);
         var run;
         try {
             run = d.animate(
-                [{ transform: 'none', visibility: 'visible' }, { transform: to, visibility: 'visible' }],
+                [{ transform: from, visibility: 'visible' }, { transform: to, visibility: 'visible' }],
                 { duration: t.duration, easing: t.easing });
         } catch (err) {
             release(d);
@@ -13757,6 +13808,8 @@ window.sednaUi = window.sednaUi || {};
     }
 
     ui._.slideOut = slideOut;
+    // 29-sheet.js: the transform a dragged sheet is let go at, as it closes.
+    ui._.slideFrom = function (d, transform) { if (transform) dropped.set(d, { transform: transform, time: performance.now() }); };
 
     document.addEventListener('close', function (e) { slideOut(e.target); }, true);
 
@@ -13838,11 +13891,23 @@ window.sednaUi = window.sednaUi || {};
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
 
-   CLOSED BY A CLICK BESIDE IT — closedby="any". The platform's own light dismiss, on any
-   of these dialogs: a click whose press and release both land on the backdrop is a close
-   request, so on a guarded dialog it raises `cancel` like Escape and the app decides. A
-   drag from a field out to the backdrop is not one. A `.lightbox` has no backdrop to click
-   — it fills the screen — so here a click on its stage beside the picture stands in.
+   CLOSED BY A CLICK ON THE BACKDROP — the default. A press and a release that both land on
+   the backdrop of a modal `.modal`, `.drawer` or `.sheet` is a close request, as Escape is:
+   it closes the dialog with no returnValue, so show() resolves null for both, and on a
+   guarded dialog it raises `cancel` and the app decides. A press that starts inside the
+   dialog and ends on the backdrop — a text selection dragged too far — closes nothing. A
+   dialog where a stray click would lose work opts out with the platform's own attribute:
+
+     <dialog class="modal" closedby="closerequest">    Escape closes it, the backdrop does not
+     <dialog class="modal" closedby="none">             neither does
+
+   It is done here, not left to the platform, so the default is the same in every engine and
+   a dialog that says nothing is dismissed by its backdrop. Where the engine implements
+   `closedby` and the dialog says `closedby="any"`, the platform's own light dismiss does it
+   and this stands aside. A dialog opened without a modal (`data-modeless`) has no backdrop
+   and is not closed by a click on the page beside it unless it says `closedby="any"`. A
+   `.lightbox` fills the screen, so there is no backdrop to click: with `closedby="any"` a
+   click on its stage beside the picture stands in.
 
    ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
    element, that carries both holds work that is not saved, and closing the tab,
@@ -14009,24 +14074,38 @@ window.sednaUi = window.sednaUi || {};
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 
-    /* A lightbox fills the screen, so a press beside its picture lands inside its box and
-       `closedby="any"` never sees it. On a `.lightbox` that carries it, a click on the stage
-       around the picture — or the dialog's own ground — is the same close request a click on
-       the backdrop is for every other dialog: both ends of the press have to land there, so a
-       drag that starts on the picture or a control closes nothing, and data-close-guard asks
-       first. */
+    /* The dialog this press would close, or null.
+
+       The backdrop belongs to the dialog: a click on it is dispatched to the <dialog>
+       itself, so a press whose target is the dialog and whose point lies outside its box
+       is on the backdrop; one inside its box — its padding — is not. A lightbox fills the
+       screen, so its stage and its own ground stand in, and only with `closedby="any"`. */
+    function dismissible(d) {
+        var by = (d.getAttribute('closedby') || '').toLowerCase();
+        if (d.classList.contains('lightbox')) return by === 'any';
+        if (!d.matches('.modal, .drawer') || !d.matches(':modal')) return false;
+        if (by === 'closerequest' || by === 'none') return false;
+        return !(by === 'any' && 'closedBy' in d);   // the platform does this one
+    }
+
     var besideDown = null;
     function beside(e) {
         var t = e.target instanceof Element ? e.target : null;
-        var d = t ? t.closest('dialog.lightbox[open]') : null;
-        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
-        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        if (!t) return null;
+        var d = t.closest('dialog[open]');
+        if (!d || !dismissible(d)) return null;
+        if (d.classList.contains('lightbox')) {
+            return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        }
+        if (t !== d) return null;
+        var r = d.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom ? d : null;
     }
     document.addEventListener('pointerdown', function (e) {
         besideDown = e.button === 0 ? beside(e) : null;
     }, true);
-    // A press and a release on two elements click their common ancestor — the stage, for a
-    // release on the picture — so the release is checked where it lands.
+    // A press and a release on two elements click their common ancestor — the dialog, for a
+    // press inside it and a release on its backdrop — so the release is checked where it lands.
     document.addEventListener('pointerup', function (e) {
         if (besideDown && beside(e) !== besideDown) besideDown = null;
     }, true);

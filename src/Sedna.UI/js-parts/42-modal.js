@@ -66,11 +66,23 @@
    — a combo, a drag — and Escape meant for an open popover are left alone, exactly
    as the platform would leave them.
 
-   CLOSED BY A CLICK BESIDE IT — closedby="any". The platform's own light dismiss, on any
-   of these dialogs: a click whose press and release both land on the backdrop is a close
-   request, so on a guarded dialog it raises `cancel` like Escape and the app decides. A
-   drag from a field out to the backdrop is not one. A `.lightbox` has no backdrop to click
-   — it fills the screen — so here a click on its stage beside the picture stands in.
+   CLOSED BY A CLICK ON THE BACKDROP — the default. A press and a release that both land on
+   the backdrop of a modal `.modal`, `.drawer` or `.sheet` is a close request, as Escape is:
+   it closes the dialog with no returnValue, so show() resolves null for both, and on a
+   guarded dialog it raises `cancel` and the app decides. A press that starts inside the
+   dialog and ends on the backdrop — a text selection dragged too far — closes nothing. A
+   dialog where a stray click would lose work opts out with the platform's own attribute:
+
+     <dialog class="modal" closedby="closerequest">    Escape closes it, the backdrop does not
+     <dialog class="modal" closedby="none">             neither does
+
+   It is done here, not left to the platform, so the default is the same in every engine and
+   a dialog that says nothing is dismissed by its backdrop. Where the engine implements
+   `closedby` and the dialog says `closedby="any"`, the platform's own light dismiss does it
+   and this stands aside. A dialog opened without a modal (`data-modeless`) has no backdrop
+   and is not closed by a click on the page beside it unless it says `closedby="any"`. A
+   `.lightbox` fills the screen, so there is no backdrop to click: with `closedby="any"` a
+   click on its stage beside the picture stands in.
 
    ASKING BEFORE THE PAGE IS LEFT — data-close-guard with data-dirty. A form, or any
    element, that carries both holds work that is not saved, and closing the tab,
@@ -237,24 +249,38 @@
         if (typeof d.requestClose === 'function') d.requestClose(); else d.close();
     });
 
-    /* A lightbox fills the screen, so a press beside its picture lands inside its box and
-       `closedby="any"` never sees it. On a `.lightbox` that carries it, a click on the stage
-       around the picture — or the dialog's own ground — is the same close request a click on
-       the backdrop is for every other dialog: both ends of the press have to land there, so a
-       drag that starts on the picture or a control closes nothing, and data-close-guard asks
-       first. */
+    /* The dialog this press would close, or null.
+
+       The backdrop belongs to the dialog: a click on it is dispatched to the <dialog>
+       itself, so a press whose target is the dialog and whose point lies outside its box
+       is on the backdrop; one inside its box — its padding — is not. A lightbox fills the
+       screen, so its stage and its own ground stand in, and only with `closedby="any"`. */
+    function dismissible(d) {
+        var by = (d.getAttribute('closedby') || '').toLowerCase();
+        if (d.classList.contains('lightbox')) return by === 'any';
+        if (!d.matches('.modal, .drawer') || !d.matches(':modal')) return false;
+        if (by === 'closerequest' || by === 'none') return false;
+        return !(by === 'any' && 'closedBy' in d);   // the platform does this one
+    }
+
     var besideDown = null;
     function beside(e) {
         var t = e.target instanceof Element ? e.target : null;
-        var d = t ? t.closest('dialog.lightbox[open]') : null;
-        if (!d || (d.getAttribute('closedby') || '').toLowerCase() !== 'any') return null;
-        return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        if (!t) return null;
+        var d = t.closest('dialog[open]');
+        if (!d || !dismissible(d)) return null;
+        if (d.classList.contains('lightbox')) {
+            return t === d || (t.classList.contains('lightbox-stage') && t.parentElement === d) ? d : null;
+        }
+        if (t !== d) return null;
+        var r = d.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom ? d : null;
     }
     document.addEventListener('pointerdown', function (e) {
         besideDown = e.button === 0 ? beside(e) : null;
     }, true);
-    // A press and a release on two elements click their common ancestor — the stage, for a
-    // release on the picture — so the release is checked where it lands.
+    // A press and a release on two elements click their common ancestor — the dialog, for a
+    // press inside it and a release on its backdrop — so the release is checked where it lands.
     document.addEventListener('pointerup', function (e) {
         if (besideDown && beside(e) !== besideDown) besideDown = null;
     }, true);

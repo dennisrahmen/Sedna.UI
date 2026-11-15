@@ -7,9 +7,35 @@
         <button class="chip" type="button" aria-pressed="true"><i class="ri-global-line"></i><span class="chip-label">Search</span></button>
         <button class="chip" type="button" aria-pressed="false"><i class="ri-lightbulb-line"></i><span class="chip-label">Think longer</span></button>
         <span class="chat-composer-send">
-            <button class="btn btn--sm btn--ghost" type="button"><span>Balanced</span><i class="ri-arrow-down-s-line"></i></button>
+            <button class="btn btn--sm btn--ghost" type="button" popovertarget="pf-models"><span>Balanced</span><i class="ri-arrow-down-s-line"></i></button>
             <button class="btn btn--ghost btn--icon btn-mic" type="button" aria-label="Talk"><i class="ri-mic-line"></i></button>
             <button class="btn btn--brand btn--solid btn--icon" type="submit" aria-label="Send"><i class="ri-arrow-up-line"></i></button>
         </span>
     </div>
 </form>
+<div class="popover popover--flush" id="pf-models" popover>
+    <div class="form-combo form-combo--inline" data-combo="single" data-combo-managed>
+        <div class="form-combo-box">
+            <span class="form-combo-icon"><i class="ri-search-line"></i></span>
+            <input class="form-combo-input" type="text" role="combobox" placeholder="Search models" aria-label="Model"
+                   aria-expanded="false" aria-controls="pf-models-list" aria-autocomplete="list" autocomplete="off" />
+        </div>
+        <div class="form-combo-panel">
+            <div class="form-combo-list" id="pf-models-list" role="listbox" aria-label="Models">
+                <div class="form-combo-option" role="option" id="pf-large" data-value="large" aria-selected="false">
+                    <i class="ri-cloud-line" aria-hidden="true"></i>
+                    <span class="form-combo-option-text">Large<span class="form-combo-option-note">Deepest reasoning, slowest to answer</span></span>
+                </div>
+                <div class="form-combo-option" role="option" id="pf-balanced" data-value="balanced" aria-selected="true">
+                    <i class="ri-cloud-line" aria-hidden="true"></i>
+                    <span class="form-combo-option-text">Balanced<span class="form-combo-option-note">Good for most questions</span></span>
+                </div>
+                <div class="form-combo-option" role="option" id="pf-fast" data-value="fast" aria-selected="false">
+                    <i class="ri-cloud-line" aria-hidden="true"></i>
+                    <span class="form-combo-option-text">Fast<span class="form-combo-option-note">Short answers, lowest cost</span></span>
+                </div>
+            </div>
+            <div class="form-combo-empty"><i class="ri-search-line"></i><span>No model matches.</span></div>
+        </div>
+    </div>
+</div>

@@ -2382,6 +2382,7 @@
       ],
       "attributes": [
         ":not([open])",
+        "[data-sedna-closing=\"modal\"]",
         "[open]"
       ],
       "combinedWith": [
@@ -2557,17 +2558,50 @@
     "fab": {
       "family": "fab",
       "variants": [
-        "fab--icon"
+        "fab--brand",
+        "fab--danger",
+        "fab--go",
+        "fab--icon",
+        "fab--info",
+        "fab--lg",
+        "fab--secret",
+        "fab--sm",
+        "fab--warn"
       ],
       "attributes": [
         "[aria-expanded=\"true\"]"
       ],
       "pseudoClasses": [
+        ":active",
         ":focus-visible",
         ":hover"
       ]
     },
+    "fab--brand": {
+      "family": "fab"
+    },
+    "fab--danger": {
+      "family": "fab"
+    },
+    "fab--go": {
+      "family": "fab"
+    },
     "fab--icon": {
+      "family": "fab"
+    },
+    "fab--info": {
+      "family": "fab"
+    },
+    "fab--lg": {
+      "family": "fab"
+    },
+    "fab--secret": {
+      "family": "fab"
+    },
+    "fab--sm": {
+      "family": "fab"
+    },
+    "fab--warn": {
       "family": "fab"
     },
     "fab-dial": {

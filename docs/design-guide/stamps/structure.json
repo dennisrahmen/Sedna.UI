@@ -8,7 +8,7 @@
     "src/Sedna.UI/css-parts/55-page-structure.css": "8c074ff1e15ad9d9"
   },
   "/card": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Card.razor": "0226bf996f129bb6",
+    "src/Sedna.UI.Catalogue/Components/Pages/Card.razor": "05666e6cb85a59c0",
     "src/Sedna.UI.Catalogue/Examples/Card/BodyFlush.razor": "42518a580ede0448",
     "src/Sedna.UI.Catalogue/Examples/Card/BodyOnly.razor": "cb3c6e2950eb2ab2",
     "src/Sedna.UI.Catalogue/Examples/Card/CaveatAboutCardSOwn.razor": "bcff686a7e841fab",
@@ -65,7 +65,7 @@
     "src/Sedna.UI.Catalogue/Examples/Grid/SpanFull.razor": "a65bc5f3232faa80",
     "src/Sedna.UI.Catalogue/Examples/Grid/Split.razor": "b0da05258e92812e",
     "src/Sedna.UI.Catalogue/Examples/Grid/SplitOptions.razor": "16711b00200cf3b0",
-    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "681227f3bcc9c1f4",
+    "src/Sedna.UI/css-parts/16-frame-page-scroll.css": "32dd2675f8da2ce8",
     "src/Sedna.UI/css-parts/30-cards.css": "52a17637c3b152cc",
     "src/Sedna.UI/css-parts/43-content-grids.css": "a5c5bec12e3be5d5",
     "src/Sedna.UI/css-parts/46-form-layout.css": "2c96905469acc811",
@@ -128,7 +128,7 @@
     "src/Sedna.UI/css-parts/37-alerts.css": "b373565eb8452442",
     "src/Sedna.UI/css-parts/55-actions-fold.css": "d0cb5ef6aff7f429",
     "src/Sedna.UI/css-parts/55-page-structure.css": "8c074ff1e15ad9d9",
-    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
+    "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c",
     "src/Sedna.UI/graph-parts/70-graph.js": "a126adda623ade1e",
     "src/Sedna.UI/js-parts/10-settings.js": "4ccd10f514cabfb5",
     "src/Sedna.UI/orb-parts/50-orb.js": "2e16b28737d8f704",
@@ -159,7 +159,7 @@
     "src/Sedna.UI/css-parts/52-avatar.css": "8b256c5bcb3fbd3c",
     "src/Sedna.UI/css-parts/60-lists.css": "6cacdf02ae149162",
     "src/Sedna.UI/css-parts/69-timeline.css": "b94f67914134dc04",
-    "src/Sedna.UI/css-parts/69-tone.css": "91d8a3fd9cf84d4c",
+    "src/Sedna.UI/css-parts/69-tone.css": "a3172fac3631c62c",
     "src/Sedna.UI/js-parts/27-workflow.js": "63763826fdc679ba"
   },
   "/tree": {
