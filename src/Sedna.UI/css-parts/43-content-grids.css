@@ -319,7 +319,8 @@
     /* The column gap is capped at a share of the width, as `.sedna-grid-24`'s is: 23 gaps
        of 16px come to 368px, and a grid narrower than that would push its tracks to
        nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
-    column-gap: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
+    --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
+    column-gap: var(--panel-gap-x);
 }
 :where(.panel-grid > *) {
     --panel-x: 0;
@@ -342,16 +343,35 @@
 .panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
 /* Arranging: a dot at the centre of every cell, so every place a panel can start and
-   every size it can take is marked. The tile is a cell and the gap after it, and the dot
-   sits in the cell, half a gap in from the tile's far corner. `--panel-guide-dot` is its
+   every size it can take is marked. It is drawn on a layer behind the panels as two
+   stripe patterns that a mask intersects — a stripe a cell wide, the column gap as drawn
+   (`--panel-gap-x`) apart, across, and a stripe a row high, `--grid-gap` apart, down —
+   rather than as a tiled background: WebKit rounds a tile to whole pixels, and over 24
+   columns the dots drift out of their cells. Where the gap is capped the cell is as wide
+   as nothing and the dot sits at the start of its column. `--panel-guide-dot` is its
    colour. */
 .panel-grid[data-arrange] {
     --panel-guide-dot: var(--border-strong);
-    background-image: radial-gradient(
-        circle at calc(50% - var(--grid-gap) / 2) calc(50% - var(--grid-gap) / 2),
-        var(--panel-guide-dot) 1.5px, transparent 2px);
-    background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
-    border-radius: var(--radius-surface);
+    position: relative;
+}
+.panel-grid[data-arrange]::after {
+    --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
+    --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
+    --panel-dot-y: calc(var(--panel-row) / 2 - 1px);
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--panel-guide-dot);
+    mask:
+        repeating-linear-gradient(90deg, transparent 0 var(--panel-dot-x),
+            currentColor var(--panel-dot-x) calc(var(--panel-dot-x) + 2px),
+            transparent calc(var(--panel-dot-x) + 2px) var(--panel-pitch-x)),
+        repeating-linear-gradient(180deg, transparent 0 var(--panel-dot-y),
+            currentColor var(--panel-dot-y) calc(var(--panel-dot-y) + 2px),
+            transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
+    mask-composite: intersect;
 }
 /* Not arranging, a panel is content: its own handles are not there. A handle of a zone
    nested inside a panel — a list in it the reader reorders — is that zone's. */

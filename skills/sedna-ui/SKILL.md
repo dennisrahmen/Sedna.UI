@@ -108,9 +108,8 @@ These helpers compute from the app's own state — never a component:
   `sedna-resize` carry `Panels`, the whole arrangement: store it and render it back. Settle anything
   the app changes itself — a panel added, a stored layout loaded — with `SednaPanels.Arrange`, and never
   write collision logic of your own. The grid has 24 columns, the same as `.sedna-grid-24`, so pass
-  `columns: 24` and size a panel in them: `--panel-w: 8` is a third of the row. A layout stored for the
-  old 12-column grid is migrated by doubling every `x` and `w` — rows are unchanged — or kept as it is
-  by setting `--panel-cols: 12` on the grid and passing `columns: 12`.
+  `columns: 24` and size a panel in them: `--panel-w: 8` is a third of the row. A grid with another
+  count sets `--panel-cols` and passes the same `columns`.
 
 ### Tables, filters and pagers
 

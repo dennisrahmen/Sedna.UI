@@ -576,4 +576,37 @@ public class PanelGridTests : ScriptTestBase
         }
         Assert.Empty(errors);
     }
+
+    // Where the column gap is capped at a share of the width, the cells are as wide as nothing and
+    // the dots stay where the cells are: at each column's start, a column's pitch apart.
+    [Fact]
+    public async Task Where_the_column_gap_is_capped_the_dots_stay_with_the_columns()
+    {
+        if (NoBrowser) return;
+        var (page, errors) = await OpenStyled("""
+            <div style="width: 600px; padding: 8px">
+              <div class="panel-grid" id="grid" data-arrange style="--grid-gap: 40px; --panel-row: 48px; block-size: 140px"></div>
+            </div>
+            """);
+        var box = (await page.Locator("#grid").BoundingBoxAsync())!;
+        var gapX = Math.Min(40.0, box.Width / 23);               // the cap binds: 40px > 600/23
+        Assert.Equal(gapX, await page.EvaluateAsync<double>(
+            "() => { const g = document.getElementById('grid'); const t = getComputedStyle(g).gridTemplateColumns.split(' ').map(parseFloat); return (g.getBoundingClientRect().width - t.reduce((a, b) => a + b, 0)) / 23; }"), 0.1);
+
+        var png = Ink.Png.Decode(await page.Locator("#grid").ScreenshotAsync(new() { Animations = ScreenshotAnimations.Disabled }));
+        var pitchX = (box.Width + gapX) / 24;
+        var pitchY = 48.0 + 40;
+        var background = png.Pixel(3, 3);
+        // A dot is a few pixels across, so look a pixel or two around where its centre should be.
+        bool Dot(double cx, double cy) =>
+            Enumerable.Range(-2, 5).Any(dx => Enumerable.Range(-2, 5).Any(dy => png.Pixel((int)Math.Round(cx) + dx, (int)Math.Round(cy) + dy) != background));
+        foreach (var col in new[] { 3, 10, 17 })
+        {
+            Assert.True(Dot(col * pitchX, 24), $"No dot at column {col}, row 0.");
+            Assert.True(Dot(col * pitchX, pitchY + 24), $"No dot at column {col}, row 1.");
+            // Half way between two columns there is none.
+            Assert.False(Dot(col * pitchX + pitchX / 2, 24), $"A dot between columns {col} and {col + 1}.");
+        }
+        Assert.Empty(errors);
+    }
 }

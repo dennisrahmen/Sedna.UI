@@ -3661,7 +3661,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     grid-template-columns: repeat(var(--panel-cols), minmax(0, 1fr));
     grid-auto-rows: var(--panel-row);
     gap: var(--grid-gap);
-    column-gap: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
+    --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
+    column-gap: var(--panel-gap-x);
 }
 :where(.panel-grid > *) {
     --panel-x: 0;
@@ -3683,11 +3684,26 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 .panel-grid[data-arrange] {
     --panel-guide-dot: var(--border-strong);
-    background-image: radial-gradient(
-        circle at calc(50% - var(--grid-gap) / 2) calc(50% - var(--grid-gap) / 2),
-        var(--panel-guide-dot) 1.5px, transparent 2px);
-    background-size: calc((100% + var(--grid-gap)) / var(--panel-cols)) calc(var(--panel-row) + var(--grid-gap));
-    border-radius: var(--radius-surface);
+    position: relative;
+}
+.panel-grid[data-arrange]::after {
+    --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
+    --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
+    --panel-dot-y: calc(var(--panel-row) / 2 - 1px);
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--panel-guide-dot);
+    mask:
+        repeating-linear-gradient(90deg, transparent 0 var(--panel-dot-x),
+            currentColor var(--panel-dot-x) calc(var(--panel-dot-x) + 2px),
+            transparent calc(var(--panel-dot-x) + 2px) var(--panel-pitch-x)),
+        repeating-linear-gradient(180deg, transparent 0 var(--panel-dot-y),
+            currentColor var(--panel-dot-y) calc(var(--panel-dot-y) + 2px),
+            transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
+    mask-composite: intersect;
 }
 .panel-grid:not([data-arrange]) [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
 .panel-grid:not([data-arrange]) > * > [data-resize] { display: none; }
