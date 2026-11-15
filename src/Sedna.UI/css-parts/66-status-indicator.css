@@ -73,6 +73,16 @@
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    /* Beside a figure it stands on the centre of the figure's capitals, as a badge does: a zero-size
+       item of its own makes its baseline its centre. See "A label in a line" in 31-badges.css. */
+    vertical-align: calc(var(--line-cap) / 2);
+}
+.stale::before {
+    content: '';
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-inline-end: calc(var(--space-2) * -1);
 }
 .stale i { font-size: var(--text-3); }
 .stale--warn { color: var(--warn-fg); }

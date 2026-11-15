@@ -164,6 +164,19 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     initial-value: 0px;
 }
 
+/* A label set inside running text — a badge after a word, a freshness note after a figure — is
+   centred on the capitals of the line it sits in. The line's capital height is a length of the
+   line's own font, so every element resolves it in its own font and hands it down; a label does
+   not declare it, and so reads the line's rather than its own. Registered, so what a label
+   inherits is the resolved length. `vertical-align` only acts on a box in a line, so the same
+   label in a flex row, where `align-items` centres it, is left as it was. */
+@property --line-cap {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+:where(*:not(.badge, .stale)) { --line-cap: 1cap; }
+
 :where(span, strong, b, em, small, time, abbr, cite, data, output, q, s, u, var):where(:not([class]), [class^="text-"], [class*=" text-"], [class^="sedna-"], [class*=" sedna-"]):not(:empty, :has(*)) {
     text-box: trim-both cap alphabetic;
     padding-block: var(--cap-gap);
