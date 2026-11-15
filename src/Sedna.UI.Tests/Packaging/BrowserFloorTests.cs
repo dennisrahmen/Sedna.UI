@@ -319,20 +319,31 @@ internal static class WorkflowYaml
         var shards = Regex.Match(plan, @"SHARDS:\s*'(?<n>\d+)'");
         Assert.True(shards.Success, "tests.yml's plan job sets no SHARDS.");
 
-        var info = new ProcessStartInfo("python3", "-I -")
+        // The script is run from a file, not piped in: a write to the interpreter's input fails
+        // with a broken pipe whenever the interpreter has gone first, and hides why it went.
+        var file = Path.Combine(Path.GetTempPath(), $"sedna-plan-{Guid.NewGuid():N}.py");
+        File.WriteAllText(file, script);
+        Task<string> stdout, stderr;
+        try
         {
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
-        info.Environment["SHARDS"] = shards.Groups["n"].Value;
-        using var process = Process.Start(info)!;
-        process.StandardInput.Write(script);
-        process.StandardInput.Close();
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEndAsync();
-        Assert.True(process.WaitForExit(60_000), "tests.yml's plan script did not finish.");
-        Assert.True(process.ExitCode == 0, "tests.yml's plan script failed: " + stderr.Result);
+            var info = new ProcessStartInfo("python3")
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            info.ArgumentList.Add("-I");
+            info.ArgumentList.Add(file);
+            info.Environment["SHARDS"] = shards.Groups["n"].Value;
+            using var process = Process.Start(info)!;
+            stdout = process.StandardOutput.ReadToEndAsync();
+            stderr = process.StandardError.ReadToEndAsync();
+            Assert.True(process.WaitForExit(60_000), "tests.yml's plan script did not finish.");
+            Assert.True(process.ExitCode == 0, $"tests.yml's plan script exited with {process.ExitCode}: {stderr.Result}");
+        }
+        finally
+        {
+            File.Delete(file);
+        }
 
         var line = stdout.Result.Split('\n').FirstOrDefault(l => l.StartsWith("matrix=", StringComparison.Ordinal));
         Assert.True(line is not null, "tests.yml's plan script prints no `matrix=` line.");
