@@ -72,7 +72,8 @@
             <code>.badge--swatch</code> is a label a reader made and coloured, as in an issue tracker.
             <strong>The colour is the app's data</strong>, set as <code>--label-colour</code> on the badge:
             a dot, and with <code>.badge--swatch-outline</code> the pill's edge too. The text never takes
-            the colour, so a yellow the reader picked is still legible in every theme. A colour that
+            the colour, so a yellow the reader picked is still legible in every theme, and the dot
+            steps down with <code>.badge--sm</code> as the text does. A colour that
             means something is a <a href="/badge#semantic-tones">semantic tone</a> instead.
         </p>
     </CatExample>
@@ -116,7 +117,8 @@
             field or a cell where a word would crowd the value. It has no words on screen, so
             <strong>its name is a <code>.visually-hidden</code> span</strong> and says that the value was
             generated. In an <code>.input-group</code> it sits inside the field's border after the value; in a
-            cell or a line of text, after the value it marks.
+            cell or a line of text, after the value it marks, standing on the centre of the line's capitals as every
+            badge in a line does.
         </p>
     </CatExample>
 </CatGroup>

@@ -40,6 +40,12 @@ internal static class CataloguePages
     public const string Feedback = "Feedback";
     public const string Overlays = "Overlays";
     public const string Utilities = "Utilities";
+    /// <summary>The section of Start that holds how a page is composed and how the CSS is written against the library.</summary>
+    public const string Foundations = "Foundations";
+    /// <summary>The section of Start that holds the tokens and the tools that write a brand.css.</summary>
+    public const string Theming = "Theming";
+    /// <summary>The section of Start that holds Sedna.UI's own brand.</summary>
+    public const string Brand = "Brand";
     /// <summary>The section of Start that holds the reference pages: the script, C#, the MCP server.</summary>
     public const string Reference = "Reference";
     /// <summary>The section of Data that holds the table's pages: the class, the keyboard grid, large tables and the reader's columns.</summary>
@@ -92,21 +98,26 @@ internal static class CataloguePages
         new("/design-guide", Start, "Design guide", "ri-compass-3-line",
             "Which part answers what the user has to do, and how to compose, space, colour and word a page.",
             "design guide principles guidelines best practice when to use combine composition spacing rhythm margin gap colour color tone primary action feedback density motion words goal user goal pattern"),
-        new("/principles", Start, "Principles", "ri-ruler-2-line",
+        new("/principles", Start, "Design principles", "ri-ruler-2-line",
             "How any page is composed: spacing, colour, actions, feedback, density, motion, words and accessibility.",
-            "principles rules guidelines composition layout spacing rhythm colour color actions primary feedback density motion animation words copy writing tone accessibility a11y"),
-        new("/concepts", Start, "Concepts", "ri-shapes-line",
+            "principles rules guidelines composition layout spacing rhythm colour color actions primary feedback density motion animation words copy writing tone accessibility a11y",
+            Section: Foundations),
+        new("/concepts", Start, "How the CSS works", "ri-shapes-line",
             "The three tiers, the cascade layers, the z-order scale and the token contract.",
-            "tier layer cascade z-index override specificity naming contract state hover focus-visible aria-pressed aria-selected aria-current aria-expanded aria-busy words wording copy content writing label save apply sentence case error message empty state"),
+            "concepts tier layer cascade z-index override specificity naming contract state hover focus-visible aria-pressed aria-selected aria-current aria-expanded aria-busy words wording copy content writing label save apply sentence case error message empty state",
+            Section: Foundations),
         new("/tokens", Start, "Tokens", "ri-palette-line",
             "Every colour, font and shadow token, read live from the loaded stylesheet.",
-            "colour color token variable var swatch"),
-        new("/branding", Start, "Branding", "ri-drop-line",
-            "The mark, its detail tiers, the palette read live, and the decisions behind it.",
-            "logo mark tile wordmark lockup clear space misuse svg outfit theme forest cobalt switch"),
+            "colour color token variable var swatch",
+            Section: Theming),
         new("/theme-builder", Start, "Theme builder", "ri-paint-brush-line",
-            "Edit every token in dark and light, see the components take it on, and copy the brand.css.",
-            "theme builder generator editor brand colour color picker brand.css ramp palette accent canvas base surface text border radius spacing font shadow motion token override dark light variant rebrand contrast wcag hue check"),
+            "Edit every token in dark and light, switch the registered themes, pin a mandated colour, and copy the brand.css.",
+            "theme builder generator editor brand colour color picker brand.css ramp palette accent canvas base surface text border radius spacing font shadow motion token override dark light variant rebrand contrast wcag hue check switch theme forest cobalt graphite colour-blind density direction rtl exact anchor FromAnchor Surface WithStep",
+            Section: Theming),
+        new("/branding", Start, "Branding", "ri-drop-line",
+            "Sedna.UI's own mark, its detail tiers, the palette read live, and the decisions behind it.",
+            "logo mark tile wordmark lockup clear space misuse svg outfit",
+            Section: Brand),
 
         new("/frame", Frame, "Shell", "ri-layout-3-line",
             "The three page shells, the rhythm inside them, and the skip link.",
@@ -526,15 +537,11 @@ internal static class CataloguePages
             "The read-only endpoint an agent points at, its tools and its resources.",
             "mcp agent ai claude tool resource read-only streamable http rate limit since",
             Section: Reference),
-        new("/script", Start, "The script", "ri-code-s-slash-line",
-            "Loading it, and the JavaScript behind toasts, the clipboard and the delegated behaviours.",
-            "sednaUi toast modal copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent",
+        new("/script", Start, "Script and C#", "ri-code-s-slash-line",
+            "The JavaScript behind toasts, the clipboard and menus, and ISednaUi, the same members called from a component.",
+            "sednaUi toast modal copy clipboard menu tabs dropzone follow javascript boot theme default time zone cookie tz select refresh selectedcontent ISednaUi interop C# csharp AddSednaUi ToastAsync ShowModalAsync ISednaOverlays FollowSpotlightAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync prerender OnAfterRenderAsync from c#",
             Section: Reference),
-        new("/interop", Start, "From C#", "ri-braces-line",
-            "ISednaUi: toasts, dialogs, settings, the time zone and the spotlight, called from a component.",
-            "ISednaUi interop C# csharp AddSednaUi ToastAsync ShowModalAsync ISednaOverlays FollowSpotlightAsync ISednaSettings LoadSettingsAsync GetTimeZoneAsync ShowModalAsync prerender OnAfterRenderAsync",
-            Section: Reference),
-        new("/tooling", Start, "App tooling", "ri-tools-line",
+        new("/tooling", Start, "Upgrading and tooling", "ri-tools-line",
             "The build warning on a renamed class, the rename script, the Stylelint config and the agent skill.",
             "stylelint lint linter msbuild targets build warning SEDNAUI001 SEDNAUI002 rename codemod upgrade migrate removed class skill SKILL.md claude agent nowarn",
             Section: Reference),
@@ -582,6 +589,8 @@ internal static class CataloguePages
             ["/layouts"] = "/frame",
             ["/overlay"] = "/drawer",
             ["/everything"] = "/",
+            // From C# was the script's members typed for a component, on a page of its own.
+            ["/interop"] = "/script",
         };
 
     /// <summary>The pages in one group, in registration order.</summary>

@@ -14,7 +14,8 @@
         is the app's, and so is its cap: write &ldquo;99+&rdquo; past what fits. An empty
         <code>.count-badge</code> is a dot, for &ldquo;something is new&rdquo; without a number.
         <strong>Say the count in the host's own name and hide the badge</strong>, or the number is
-        read twice.
+        read twice. On a bare icon the badge hangs off the corner, so it touches the glyph's corner
+        and never its body; leave room beside the icon for it.
     </p>
 </CatExample>
 
@@ -33,9 +34,26 @@
     </p>
 </CatExample>
 
+<CatExample TExample="Examples.Count.Sizes" Title="Sizes">
+    <p>
+        The badge marks the corner and does not cover what it sits on, so it follows its host: a
+        <code>.btn--sm</code> or <code>.avatar--sm</code> carries the small badge, a
+        <code>.btn--lg</code> or <code>.avatar--lg</code> the large one, and a bare icon the small
+        one. <code>.count-badge--sm</code> and <code>--lg</code> name a size outright, and
+        <code>--count-size</code> on the host gives any other. A bare icon at its own size carries its
+        badge off the corner; a large icon keeps it on the corner, with
+        <code>.count-badge--lg</code> or <code>--count-inset: 2px</code> on the host. On a host under
+        about 24px, send the dot rather than a number.
+    </p>
+</CatExample>
+
 <CatExample TExample="Examples.Count.Tones" Title="Tones">
     <p>
-        Brand by default; <code>--danger</code> for counts that need acting on, <code>--go</code>,
-        <code>--info</code>, and <code>--muted</code> for a total that asks nothing of the reader.
+        The library's tones, as a <a href="/badge">badge</a> has: brand by default,
+        <code>--danger</code> for counts that need acting on, <code>--go</code>, <code>--warn</code>,
+        <code>--info</code> and <code>--secret</code>, the hues <code>--cyan</code>,
+        <code>--orange</code> and <code>--teal</code> that mean nothing, and <code>--muted</code> for a
+        total that asks nothing of the reader. A count is filled by nature, so the tone alone gives
+        the fill.
     </p>
 </CatExample>
