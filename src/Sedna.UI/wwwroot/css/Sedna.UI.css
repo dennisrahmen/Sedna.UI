@@ -874,6 +874,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     inherits: true;
     initial-value: 0px;
 }
+@property --line-cap {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+:where(*:not(.badge, .stale)) { --line-cap: 1cap; }
 :where(span, strong, b, em, small, time, abbr, cite, data, output, q, s, u, var):where(:not([class]), [class^="text-"], [class*=" text-"], [class^="sedna-"], [class*=" sedna-"]):not(:empty, :has(*)) {
     text-box: trim-both cap alphabetic;
     padding-block: var(--cap-gap);
@@ -2445,9 +2451,10 @@ a.card.card--fill { display: flex; }
 }
 @layer sedna.paint {
 .badge {
+    --badge-gap: var(--space-2);
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--badge-gap);
     background: var(--badge-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
@@ -2456,7 +2463,7 @@ a.card.card--fill { display: flex; }
     color: var(--fg-soft);
     line-height: round(1.45em, 2px);
     white-space: nowrap;
-    vertical-align: middle;
+    vertical-align: calc(var(--line-cap) / 2);
 }
 .badge i { font-size: var(--text-3); line-height: 1; }
 .badge--sm   { font-size: var(--text-1); padding: 0 var(--space-3); }
@@ -2471,6 +2478,15 @@ a.card.card--fill { display: flex; }
 .badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 .badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
 .badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
+.badge:not(:has(> *)) { vertical-align: calc((var(--line-cap) - 1cap) / 2); }
+.badge:has(> *):not(.badge--swatch)::before {
+    content: '';
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-inline-end: calc(var(--badge-gap) * -1);
+}
+.badge--swatch { vertical-align: calc((var(--line-cap) - var(--badge-dot)) / 2); }
 .badge--mono {
     font-family: var(--font-mono);
     letter-spacing: 0;
@@ -2503,7 +2519,7 @@ a.card.card--fill { display: flex; }
 }
 .badge-copy:hover { opacity: 1; }
 .badge-copy:focus-visible { opacity: 1; outline: 2px solid var(--focus-ring); outline-offset: 1px; }
-.badge--scoped { padding-inline-start: 0; gap: 0; overflow: hidden; }
+.badge--scoped { --badge-gap: 0px; padding-inline-start: 0; overflow: hidden; }
 .badge-key {
     align-self: stretch;
     display: inline-flex;
@@ -2553,6 +2569,8 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 }
 .count-host--round { --count-inset: 14.6%; }
 .btn.count-host    { --count-inset: 3px; }
+.count-host:not(.btn, .count-host--round):has(> i) { --count-inset: -2px; }
+.count-host:not(.btn, .count-host--round) > .count-badge--lg { --count-inset: 2px; }
 .btn--sm.count-host,
 .count-host:not(.btn):has(> i),
 .count-host:has(> .avatar--sm),
@@ -2563,8 +2581,8 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 .count-badge {
     position: absolute;
     inset-block-start: var(--count-inset);
-    inset-inline-end: var(--count-inset);
-    translate: 50% -50%;
+    inset-inline-start: calc(100% - var(--count-inset) - var(--count-size, 14px) / 2);
+    translate: 0 -50%;
     box-sizing: border-box;
     min-width: var(--count-size, 14px);
     height: var(--count-size, 14px);
@@ -2584,7 +2602,13 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     pointer-events: none;
     print-color-adjust: exact;
 }
-.count-badge:empty { min-width: 0; width: var(--count-dot, 8px); height: var(--count-dot, 8px); padding: 0; }
+.count-badge:empty {
+    min-width: 0;
+    width: var(--count-dot, 8px);
+    height: var(--count-dot, 8px);
+    padding: 0;
+    inset-inline-start: calc(100% - var(--count-inset) - var(--count-dot, 8px) / 2);
+}
 }
 @layer sedna.paint {
 .kbd {
@@ -11134,22 +11158,20 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .agent-status--xl { --status-h: 64px; --status-orb: 48px; gap: var(--space-7); padding-inline-end: var(--space-10); font-size: var(--text-8); }
 .agent-status--warn { border-color: var(--warn-border); background: var(--warn-bg); color: var(--warn-fg); }
 .badge-ai {
-    background: var(--agent-tint);
-    border-color: var(--agent-edge);
-    color: var(--fg-soft);
+    background: var(--info-bg);
+    border-color: var(--info-border);
+    color: var(--info-fg);
 }
-.badge-ai > i { color: var(--agent-from); }
 button.badge-ai {
     font-family: inherit;
     cursor: pointer;
     transition: border-color var(--motion-fast), background var(--motion-fast);
 }
-button.badge-ai:hover { border-color: var(--agent-to); }
+button.badge-ai:hover { background: var(--info-bg-hover); border-color: var(--info-fg); }
 button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .badge-ai--icon {
     --badge-ai-pad: var(--space-1);
-    display: inline-grid;
-    place-items: center;
+    justify-content: center;
     flex-shrink: 0;
     inline-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
     block-size: calc(1lh + 2 * var(--badge-ai-pad) + 2px);
@@ -11157,7 +11179,7 @@ button.badge-ai:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus
 }
 .badge--sm.badge-ai--icon { --badge-ai-pad: 0px; }
 .badge--lg.badge-ai--icon { --badge-ai-pad: var(--space-2); }
-.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); }
+.input-group > .badge-ai { align-self: center; margin-inline: var(--space-3); border-radius: var(--radius-pill); }
 .confidence { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--text-3); color: var(--muted); line-height: 1; }
 .confidence-bars { display: inline-flex; align-items: flex-end; gap: var(--space-1); block-size: 12px; }
 .confidence-bars > i { inline-size: 3px; border-radius: 1px; background: var(--border-strong); }
@@ -13107,6 +13129,14 @@ button.inbox-item-title {
     font-size: var(--text-2);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    vertical-align: calc(var(--line-cap) / 2);
+}
+.stale::before {
+    content: '';
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-inline-end: calc(var(--space-2) * -1);
 }
 .stale i { font-size: var(--text-3); }
 .stale--warn { color: var(--warn-fg); }
@@ -15746,7 +15776,6 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 [dir="rtl"] .diff-fold > td { direction: rtl; }
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
-[dir="rtl"] .count-badge { translate: -50% -50%; }
 }
 @layer sedna.paint {
 @media (forced-colors: active) {

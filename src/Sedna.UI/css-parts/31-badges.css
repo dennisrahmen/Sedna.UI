@@ -7,9 +7,10 @@
    title without setting the line's height. That is why `.badge--lg` is 12px text and
    not a 36px pill. The chip, which is interactive, does take the control heights. */
 .badge {
+    --badge-gap: var(--space-2);
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--badge-gap);
     background: var(--badge-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
@@ -18,7 +19,9 @@
     color: var(--fg-soft);
     line-height: round(1.45em, 2px);
     white-space: nowrap;
-    vertical-align: middle;
+    /* In a line of text its centre is the centre of the line's capitals, not the middle of its
+       x-height as `middle` puts it: see "A label in a line" below. */
+    vertical-align: calc(var(--line-cap) / 2);
 }
 /* `line-height: 1`, or the glyph inherits the pill's 1.45 line box and its font's
    baseline offset drops it a pixel under the text on iOS. */
@@ -54,6 +57,25 @@
 .badge:not(:has(> *))     { display: inline-block; text-box: trim-both cap alphabetic; padding-block: calc(var(--space-1) + var(--cap-gap)); }
 .badge--sm:not(:has(> *)) { padding-block: var(--cap-gap); }
 .badge--lg:not(:has(> *)) { padding-block: calc(var(--space-2) + var(--cap-gap)); }
+
+/* ── A label in a line ─────────────────────────────────────────────────────
+   Inside a line of text the badge's centre sits on the centre of the line's capitals, which is
+   where the eye puts a word's middle. `vertical-align` raises the box's baseline above the
+   line's, so each shape of badge says where its own baseline is:
+   - a word on its own is a block holding its trimmed text, whose baseline is the text's and whose
+     centre is half its own capital height above it;
+   - a badge holding an icon, or anything else, is a flex row whose baseline would be its first
+     item's, so a zero-size item of its own, centred, makes its baseline its centre;
+   - a swatch's first item is its dot, which sits on its bottom edge. */
+.badge:not(:has(> *)) { vertical-align: calc((var(--line-cap) - 1cap) / 2); }
+.badge:has(> *):not(.badge--swatch)::before {
+    content: '';
+    align-self: center;
+    width: 0;
+    height: 0;
+    margin-inline-end: calc(var(--badge-gap) * -1);
+}
+.badge--swatch { vertical-align: calc((var(--line-cap) - var(--badge-dot)) / 2); }
 
 /* ── An identifier ─────────────────────────────────────────────────────────
    A record number, a version, a commit, an address, a key: a value the reader copies or
@@ -101,7 +123,7 @@
    One pill, read as "environment is production".
 
      <span class="badge badge--scoped badge--danger"><span class="badge-key">env</span>prod</span> */
-.badge--scoped { padding-inline-start: 0; gap: 0; overflow: hidden; }
+.badge--scoped { --badge-gap: 0px; padding-inline-start: 0; overflow: hidden; }
 .badge-key {
     align-self: stretch;
     display: inline-flex;
