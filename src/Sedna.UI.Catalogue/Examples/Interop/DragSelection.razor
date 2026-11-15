@@ -19,7 +19,7 @@
                                    checked="@_picked.Contains(photo.Id)" @onchange="e => Toggle(photo.Id, e)" />
                         </label>
                         <span class="file-tile-thumb"><span class="file-icon file-icon--image"><i class="ri-image-line"></i></span></span>
-                        <span class="file-name">@photo.Name</span>
+                        <span class="file-name" title="@photo.Name"><span class="file-name-start">@Path.GetFileNameWithoutExtension(photo.Name)</span><span class="file-name-end">@Path.GetExtension(photo.Name)</span></span>
                         <span class="file-meta"><span>@photo.Size</span></span>
                     </li>
                 }

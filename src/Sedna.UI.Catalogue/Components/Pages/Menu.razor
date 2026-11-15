@@ -31,8 +31,8 @@
         the closed state is the <code>hidden</code> <strong>attribute</strong> rather than a class,
         which is what takes the panel out of the tab order as well as out of the layout; an app
         holding the state in C# leaves the attribute off and renders <code>hidden</code> itself. The
-        panel lines up with the anchor's <em>trailing</em> edge and sizes to its widest row, floored
-        at 220px — add <code>.menu--start</code> to the panel for a trigger near the leading edge.
+        panel lines up with the anchor's <em>trailing</em> edge and sizes to its widest row, and is never
+        narrower than its trigger — add <code>.menu--start</code> to the panel for a trigger near the leading edge.
         A menu is for actions: a list of <em>values</em> is a <code>&lt;select&gt;</code> or a
         <a href="/segmented">segmented control</a>, a list of <em>places</em> is the sidebar.
     </p>
@@ -118,8 +118,9 @@
         nav link is tinted and ticks it at the trailing edge, where a select ticks its chosen option,
         and keeps that column free on every row so a <code>.menu-item-note</code> stays lined up.
         Write no tick of your own. Name the trigger with its value as well as what it sets.
-        <code>--value-trigger-measure</code> is how much of the value the control keeps room for,
-        10ch by default, and <code>.col-control</code> on the <code>th</code> and the
+        The control is as wide as its value and the chevron;
+        <code>--value-trigger-measure</code> reserves room for a longer value, so a column of them
+        lines its chevrons up, and <code>.col-control</code> on the <code>th</code> and the
         <code>td</code> gives the column its floor — see <a href="/table">Tables</a>.
     </p>
 </CatExample>

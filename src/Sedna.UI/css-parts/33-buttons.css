@@ -12,12 +12,15 @@
    shorter than the 1.4-line text next to it, so without it an icon-only button sits
    several pixels short in a mixed row. */
 .btn {
+    /* The room either side of the label, per tier. A leading or trailing icon takes less
+       of it on its own side, below. */
+    --btn-pad-x: var(--space-7);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2);
+    gap: var(--btn-gap);
     min-height: var(--control-height);
-    padding: var(--space-3) var(--space-7);
+    padding: var(--space-3) var(--btn-pad-x);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--bg-elevated);
@@ -41,10 +44,21 @@
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
-.btn--sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+.btn--sm   { --btn-pad-x: var(--space-5); min-height: var(--control-height-sm); padding-block: var(--space-2); font-size: var(--text-3); }
 .btn--sm i { font-size: var(--text-4); }
-.btn--lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn--lg   { --btn-pad-x: var(--space-9); min-height: var(--control-height-lg); padding-block: var(--space-4); font-size: var(--text-5); }
 .btn--lg i { font-size: var(--text-8); }
+
+/* ── The icon and its label ─────────────────────────────────────────────────
+   The gap between an icon and the label beside it is `--btn-gap`, one value at every
+   size. The icon's own side of the button gives back 4px of the padding, so the room
+   from the button's edge to the icon and from the icon to the label read as a pair
+   — most of all in a label that wraps, where the text beside the icon is a block and
+   the icon would otherwise stand 16px from the edge and 4px from its text.
+   Only an icon that has a sibling element counts, so an icon-only button keeps the
+   padding it was given; put the label in a <span>. */
+.btn:not(.btn--icon):has(> i:first-child:not(:only-child)) { padding-inline-start: calc(var(--btn-pad-x) - var(--space-2)); }
+.btn:not(.btn--icon):has(> i:last-child:not(:only-child))  { padding-inline-end:   calc(var(--btn-pad-x) - var(--space-2)); }
 
 /* ── Filling the row ────────────────────────────────────────────────────────
    `--fill` on a control that sits in a row of its own makes it as wide as its

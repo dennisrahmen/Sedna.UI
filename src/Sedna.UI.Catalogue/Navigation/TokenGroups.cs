@@ -171,7 +171,7 @@ internal static class TokenGroups
         ], Swatch: false),
 
         new("Type, space and shape", "Control height", [
-            "--control-height-sm", "--control-height", "--control-height-lg",
+            "--control-height-sm", "--control-height", "--control-height-lg", "--btn-gap",
         ], Swatch: false),
 
         new("Type, space and shape", "Choice inset", [
