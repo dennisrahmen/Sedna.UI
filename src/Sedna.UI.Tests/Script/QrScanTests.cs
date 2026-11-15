@@ -274,14 +274,14 @@ public class QrScanTests : ScriptTestBase
               return [r.width, s.left - r.left, s.width, +el.dataset.qrModules];
             }
             """);
-        var module = geometry[0] / (geometry[3] + (2 * quiet));
+        var module = geometry[0] / (geometry[3] + (2.0 * quiet));
         Assert.Equal(quiet * module, geometry[1], 1);
         Assert.Equal(geometry[3] * module, geometry[2], 1);
 
         // The picture: the paper round the symbol is the token's, so the first dark pixel on the
         // finder's top row is where the quiet zone says.
         var (pixels, size) = await QrReader.Pixels(page, "q", 600);
-        var perModule = (double)size / (geometry[3] + (2 * quiet));
+        var perModule = (double)size / (geometry[3] + (2.0 * quiet));
         var y = (int)((quiet + 0.5) * perModule);
         var firstDark = Enumerable.Range(0, size).First(x => pixels[((y * size) + x) * 4] < 128);
         Assert.True(Math.Abs(firstDark - (quiet * perModule)) <= perModule * 0.6, $"The symbol starts at {firstDark}px; a quiet zone of {quiet} modules is {quiet * perModule}px.");

@@ -243,7 +243,7 @@
     "answer": [
       { "page": "/qr#download-as-svg-or-png", "role": "primary" },
       { "page": "/qr#wi-fi-contacts-and-places", "role": "part" },
-      { "page": "/qr#a-logo-in-the-middle", "role": "part" },
+      { "page": "/qr#logo-in-the-middle", "role": "part" },
       { "page": "/qr#contrast-that-scans", "role": "part" }
     ],
     "how": "A button the app wrote beside the code with data-qr-download=\"svg\" or \"png\" and a data-qr-size, which saves the code in the colours it shows. Wi-Fi, contacts, places and events come from SednaQrPayload.",
