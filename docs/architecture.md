@@ -484,8 +484,10 @@ override of a token that differs by variant names the subtree in its selector, a
 The colour-blind palette (`data-cvd="1"`) remaps only the `go` family to blue, so go and danger read as
 blue against red. Amber and the brand colour are unchanged.
 
-`data-density="compact"` and `data-density="touch"` are token remaps of spacing and control heights;
-neither touches the type, which the reader sizes with the browser's zoom. Compact tightens and keeps the
+`data-density="compact"` and `data-density="touch"` are token remaps of spacing and control heights,
+on `<html>` for the page or on any element for the part inside it, as `data-variant` is; `data-density="comfortable"`
+on an element gives a part of a compact page the default back.
+Neither touches the type, which the reader sizes with the browser's zoom. Compact tightens and keeps the
 small control tier at 24px; touch loosens and puts the default control at 44px. Both move the page's
 rhythm and padding (`--page-rhythm`, `--page-pad`) and the three control heights
 (`--control-height-sm`, `--control-height`, `--control-height-lg`). Each tightens table cells through `--cell-pad-y` /

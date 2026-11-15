@@ -51,7 +51,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "ac91683e5e5ccd97"
+    "stamp": "84f8170a4ada3b9b"
   },
   {
     "page": "/video",
@@ -65,7 +65,7 @@
       { "text": "A still picture opened large", "instead": "/media#looking-at-one-large" }
     ],
     "goals": [ "play-a-video" ],
-    "stamp": "b0741fdbc85f96c2"
+    "stamp": "98aed0b70eff79b0"
   },
   {
     "page": "/audio",
@@ -96,7 +96,7 @@
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "c8f75ccf818fd288"
+    "stamp": "780a4c2ce07a9439"
   },
   {
     "page": "/markdown",
@@ -113,7 +113,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "write-markdown-beside-its-preview", "upload-files-pasted-into-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "f5382e1e397b4800"
+    "stamp": "88244ea04011d9f7"
   },
   {
     "page": "/diff",
@@ -128,7 +128,7 @@
       { "text": "Code shown once, with nothing to compare", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "mark-changed-words", "compare-two-versions" ],
-    "stamp": "5a88a1d794f83d6f"
+    "stamp": "46f7c60be689408d"
   },
   {
     "page": "/code-blocks",
@@ -144,7 +144,7 @@
       { "text": "A value the reader copies from a field", "instead": "/form-text" }
     ],
     "goals": [ "copy-a-command", "check-the-tools-an-agent-ran" ],
-    "stamp": "5ccda3e94626d20a"
+    "stamp": "4cbe9fc9748296bb"
   },
   {
     "page": "/pdf",
@@ -192,7 +192,7 @@
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text", "mention-someone", "format-as-you-type", "limit-rich-text-length", "edit-tables-in-text", "write-in-full-screen" ],
-    "stamp": "7a8bc6db43ebd262"
+    "stamp": "b4e72a3e15c6c477"
   },
   {
     "page": "/chat",
@@ -211,6 +211,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "4a3678571e8d2212"
+    "stamp": "6d66355a179d9c66"
   }
 ]

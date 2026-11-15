@@ -8,6 +8,7 @@
       { "page": "/page-recipes#list-page", "how": "The head over a toolbar and a table: the page's create and export in the head, the list's own actions in the toolbar." },
       { "page": "/menu#anchored-under-a-trigger", "how": "The .actions-more menu a folding head shows in place of the buttons it has no room for." },
       { "page": "/carousel", "how": "A slide of the carousel is a page head with a picture, so a hero can be a slideshow." },
+      { "page": "/button#tone-and-emphasis", "how": "The head's secondary action is a .btn--outline, whose edge holds on the scrim." },
       { "page": "/card#card-as-a-link", "how": "The offers under the head are cards that are links, in a grid." }
     ],
     "notFor": [
@@ -19,7 +20,7 @@
       { "text": "A block of code or output to copy", "instead": "/code-blocks" }
     ],
     "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "open-a-page-on-a-big-picture", "read-light-text-on-a-dark-band", "see-what-a-site-offers" ],
-    "stamp": "4043ce0c17025131"
+    "stamp": "b64afe0aa6837b0c"
   },
   {
     "page": "/page-navigation",
@@ -34,7 +35,7 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "6d225ba6acc3d29f"
+    "stamp": "b6dba3b413ca8d17"
   },
   {
     "page": "/breadcrumbs",
@@ -71,7 +72,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
-    "stamp": "36f53e3f85b84f9f"
+    "stamp": "bdb31789df4c30ca"
   },
   {
     "page": "/grid",
@@ -90,13 +91,14 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "849a52ddf7e01136"
+    "stamp": "29cfa12c9e0107dd"
   },
   {
     "page": "/panel-grid",
     "useFor": "A dashboard the reader arranges: panels on cells that they move and resize from the pointer or the keyboard, and the app stores per reader.",
     "combineWith": [
-      { "page": "/card#width-height-or-both", "how": "Every panel is a .card--resizable whose handles count in cells." },
+      { "page": "/card#width-height-or-both", "how": "A panel is a .card--resizable, or any element of the app's own, and its handles count in cells." },
+      { "page": "/alert", "how": "A status band above the panels is an .alert in a .panel-grid-band, and the cells start below it." },
       { "page": "/drag-drop#keyboard", "how": "The grid is a drag zone with data-drag-axis=\"cells\", picked up and moved with the same keys and announced in the same live region." },
       { "page": "/grid#two-independent-columns", "how": "Panels the app places itself, beside or above the ones the reader arranges, are on the same 24 columns." },
       { "page": "/toolbar", "how": "A toolbar button puts the grid into arrange mode with data-arrange and takes it out again." }
@@ -106,7 +108,7 @@
       { "text": "Reordering a list", "instead": "/drag-drop" }
     ],
     "goals": [ "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "932f2b7c1448d2d2"
+    "stamp": "c5e5367cbc947a8f"
   },
   {
     "page": "/list",
@@ -117,7 +119,8 @@
       { "page": "/avatar#name-with-a-subtext", "how": "An avatar first in the row names the person it is about." },
       { "page": "/skeleton#list-rows", "how": "Skeleton rows while the first page loads." },
       { "page": "/empty-state", "how": "In the list's place when a whole view has nothing in it; .list-empty when the list stays among its toolbar and heading." },
-      { "page": "/drawer#record-detail", "how": "A row that opens a drawer with the record, so the reader keeps their place." }
+      { "page": "/drawer#record-detail", "how": "A row that opens a drawer with the record, so the reader keeps their place." },
+      { "page": "/button#icon-only", "how": "A dense list of row tools takes data-density=\"compact\", so its small icon buttons are 24px." }
     ],
     "notFor": [
       { "text": "Values compared down columns", "instead": "/table" },
@@ -126,7 +129,7 @@
       { "text": "A list of files", "instead": "/files#file-list" }
     ],
     "goals": [ "open-an-item-from-a-list", "group-a-list-under-headings", "choose-from-an-action-sheet", "list-running-jobs", "explain-an-empty-view", "finish-parts-in-any-order", "show-a-score", "work-through-records", "list-people", "pick-a-conversation" ],
-    "stamp": "eefaf87fbeadf072"
+    "stamp": "ebaeb227fd22692f"
   },
   {
     "page": "/collections",
@@ -161,7 +164,7 @@
       { "text": "A flat set of options to tick", "instead": "/form-check-list" }
     ],
     "goals": [ "pick-from-a-hierarchy", "tick-whole-branches", "expand-a-hierarchy-in-a-table", "pick-from-a-tree" ],
-    "stamp": "1631bfec15bd1955"
+    "stamp": "8bb3f9557e635833"
   },
   {
     "page": "/timeline",
@@ -180,7 +183,7 @@
       { "text": "What happened in each slot of a period", "instead": "/tracker" }
     ],
     "goals": [ "see-what-happened-to-a-record", "open-a-record-beside-the-list" ],
-    "stamp": "0fd19ae1dfade305"
+    "stamp": "16a9cd14752d0323"
   },
   {
     "page": "/tabs",
@@ -189,7 +192,8 @@
       { "page": "/card", "how": "The tablist in a .card-head--tabs and the panels in the body, so the strip's line is the head's own border." },
       { "page": "/page-recipes#detail-page", "how": "A record's sections under its page head, each tab a link with its count." },
       { "page": "/code-blocks#several-files-in-a-card", "how": "One file per tab, each a flush code block." },
-      { "page": "/badge", "how": ".tab-count after a tab's label, for how many its panel holds." }
+      { "page": "/badge", "how": ".tab-count after a tab's label, for how many its panel holds." },
+      { "page": "/menu#anchored-under-a-trigger", "how": "A tab that opens a menu sits in a .menu-anchor and takes its share of a .tabs--fill row." }
     ],
     "notFor": [
       { "text": "Changing a setting or a view mode", "instead": "/segmented" },
@@ -198,6 +202,6 @@
       { "text": "The few places used most on a phone", "instead": "/bottombar" }
     ],
     "goals": [ "switch-views-in-place", "catch-up-on-notifications", "read-a-record", "search-everything" ],
-    "stamp": "10b4df4c1290209e"
+    "stamp": "52163227e0a75898"
   }
 ]
