@@ -76,7 +76,7 @@
         clip-path: inset(50%);
     }
     .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
-    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-3) var(--space-7); }
     .layout--responsive .sidebar .nav-filter { display: none; }
     .layout--responsive .sidebar.sidebar--areas > .nav { display: none; }
     .layout--responsive .sidebar.sidebar--areas .nav-areas { border-inline-end: none; }
@@ -164,6 +164,10 @@
         position: sticky;
         top: var(--safe-block-start);
     }
+    /* The banner scrolls away under the sticky header, which keeps the shadow: see
+       18-frame-banner.css. */
+    .layout--flow .topbar:has(+ .page-banner) { box-shadow: var(--shadow-topbar); }
+    .layout--flow .topbar + .page-banner { position: static; box-shadow: none; }
     .layout--flow > .sidebar {
         position: sticky;
         top: 0;
