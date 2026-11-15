@@ -12,7 +12,7 @@ public class MenuTopLayerTests : ScriptTestBase
     // A box that clips and holds a transform, which makes it the containing block of everything
     // fixed inside it: the worst panel a menu can sit in. It is narrower than the menu.
     private const string Panel = """
-        <div id="clip" style="width: 150px; height: 120px; margin: 60px; overflow: hidden; transform: translateZ(0); border: 1px solid var(--border); border-radius: 8px">
+        <div id="clip" style="width: 90px; height: 120px; margin: 60px; overflow: hidden; transform: translateZ(0); border: 1px solid var(--border); border-radius: 8px">
           <div class="menu-anchor">
             <button class="btn" type="button" id="toggle" data-menu-toggle aria-expanded="false">Actions</button>
             <div class="menu" id="menu" hidden>
@@ -60,8 +60,10 @@ public class MenuTopLayerTests : ScriptTestBase
         var clip = (await page.Locator("#clip").BoundingBoxAsync())!;
         var menu = (await page.Locator("#menu").BoundingBoxAsync())!;
         var sub = (await page.Locator("#sub").BoundingBoxAsync())!;
-        Assert.True(menu.X + menu.Width > clip.X + clip.Width, "The dropdown is meant to be wider than the box it sits in.");
-        Assert.True(sub.X + sub.Width > clip.X + clip.Width, "The submenu is meant to open beyond the box it sits in.");
+        // Either edge: which side a dropdown hangs off its trigger is the menu's own business.
+        bool Beyond(LocatorBoundingBoxResult b) => b.X < clip.X || b.X + b.Width > clip.X + clip.Width;
+        Assert.True(Beyond(menu), "The dropdown is meant to be wider than the box it sits in.");
+        Assert.True(Beyond(sub), "The submenu is meant to open beyond the box it sits in.");
 
         // What is painted at the far end of each is the panel's own item, not the box's edge or the page.
         Assert.True(await Reaches(page, "archive"), "The dropdown is clipped by the box it sits in.");
