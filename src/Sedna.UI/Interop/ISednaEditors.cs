@@ -121,6 +121,18 @@ public interface ISednaEditors
     /// </returns>
     Task<IJSStreamReference?> OpenFileAsync(string editorId, string fileId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Fills the editor's mention list — the app's <c>[data-editor-mention]</c> menu — with one row per
+    /// entry, cloned from the <c>&lt;template data-editor-mention-item&gt;</c> inside it: the answer to
+    /// <c>@onsedna-editor-mention</c>, cancelled, once the app has searched for what the reader typed
+    /// after the "@". The editor shows every row it is given. Rows an earlier call made are replaced.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="mentions">Who can be named; entries with an empty <see cref="SednaMention.Value"/> are skipped.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>How many rows were made — 0 for an editor with no such list or template — or null when there is no such editor.</returns>
+    Task<int?> SetMentionsAsync(string editorId, IEnumerable<SednaMention> mentions, CancellationToken cancellationToken = default);
+
     /// <summary>Puts the focus in the document, where the caret last was.</summary>
     Task FocusAsync(string editorId, CancellationToken cancellationToken = default);
 

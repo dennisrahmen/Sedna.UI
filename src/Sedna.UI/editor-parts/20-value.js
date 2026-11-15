@@ -27,8 +27,12 @@ const VALUE = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'va
 function htmlOf(quill) {
     if (quill.getLength() <= 1 && !quill.getContents().ops.some(op => typeof op.insert === 'object')) return '';
     return quill.getSemanticHTML()
+        // What the editor puts on the page for itself is not the document: the mark on a chosen
+        // media, and the cursor Quill holds for a format switched off at the caret.
+        .replace(/ data-editor-selected(?:="")?/g, '')
+        .replace(/<span class="ql-cursor">[^<]*<\/span>/g, '')
         .replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1))
-        .replace(/(<\/video>)<p><\/p>$/, '$1');
+        .replace(/(<\/video>|<hr>)<p><\/p>$/, '$1');
 }
 
 function stateOf(e) {

@@ -95,14 +95,35 @@ function sizeEvent(value) {
 /* Quill's image, keeping only the addresses above: anything else is written as Quill
    writes an address it refuses, and the clipboard below has already dropped it. */
 const QuillImage = Quill.import('formats/image');
+/* How a picture or a video sits against its text: `data-align` on the element, `start`,
+   `end` or `center` — logical edges, so the same HTML mirrors in a right-to-left document.
+   An attribute rather than a class: it is the editor's own, survives as plain HTML, and
+   `.prose img[data-align]` styles it wherever the HTML is shown. Any other value is dropped. */
+const ALIGNS = ['start', 'end', 'center'];
+const IMAGE_ATTRIBUTES = ['alt', 'height', 'width', 'data-align'];
 class SednaImage extends QuillImage {
     static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+
+    static formats(node) {
+        return IMAGE_ATTRIBUTES.reduce((f, name) => {
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
+            return f;
+        }, {});
+    }
+
+    format(name, value) {
+        if (name !== 'data-align') return super.format(name, value);
+        if (ALIGNS.includes(value)) this.domNode.setAttribute(name, value);
+        else this.domNode.removeAttribute(name);
+    }
 }
 
 /* A video the browser plays itself. Quill's own `video` is an iframe — a page from
    anywhere, framed inside the document — so this replaces it under the same name. */
 const BlockEmbed = Quill.import('blots/block/embed');
-const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label'];
+const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label', 'data-align'];
 class SednaVideo extends BlockEmbed {
     static blotName = 'video';
     static tagName = 'VIDEO';
@@ -121,7 +142,9 @@ class SednaVideo extends BlockEmbed {
 
     static formats(node) {
         return VIDEO_ATTRIBUTES.reduce((f, name) => {
-            if (node.hasAttribute(name)) f[name] = node.getAttribute(name);
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
             return f;
         }, {});
     }
@@ -129,6 +152,7 @@ class SednaVideo extends BlockEmbed {
     format(name, value) {
         if (!VIDEO_ATTRIBUTES.includes(name)) return super.format(name, value);
         if (name === 'poster' && value) value = mediaUrl(value);
+        if (name === 'data-align' && !ALIGNS.includes(value)) value = null;
         if (value) this.domNode.setAttribute(name, value);
         else this.domNode.removeAttribute(name);
     }
@@ -260,13 +284,21 @@ function mediaKindAt(q, index) {
 function markPicked(e) {
     const q = e.quill;
     for (const node of q.root.querySelectorAll(`[${SELECTED}]`)) node.removeAttribute(SELECTED);
+    e.pickedNode = null;
     const picked = e.picked;
-    if (!picked) return;
+    if (!picked) {
+        syncBar(e);
+        return;
+    }
     // A leaf is found by an index inside it, and the index of an edge is the one before; so an
     // image is the leaf at the index after its own, and a video is the block at its own.
     let node = q.getLeaf(picked.index + 1)[0]?.domNode;
     if (!node?.matches?.('img, video')) node = q.getLine(picked.index)[0]?.domNode;
-    if (node?.matches?.('img, video')) node.setAttribute(SELECTED, '');
+    if (node?.matches?.('img, video')) {
+        node.setAttribute(SELECTED, '');
+        e.pickedNode = node;
+    }
+    syncBar(e);
 }
 
 function unpick(e) {
@@ -328,10 +360,12 @@ function wirePick(e) {
     }, true);
     // Choosing is not a state of the document: what changes it, or the caret leaving the media,
     // lets it go — except while the media form is open on it.
-    q.on('text-change', () => { if (!e.mediaing) unpick(e); });
+    q.on('text-change', () => { if (!e.mediaing && !e.keepPick) unpick(e); });
     q.on('selection-change', range => {
         const p = e.picked;
         if (!p || e.mediaing) return;
+        // The focus going to the media bar is not the caret leaving the media.
+        if (!range && e.bar && e.bar.contains(document.activeElement)) return;
         let still;
         if (p.kind === 'image') {
             still = range && range.index === p.index && range.length === 1;

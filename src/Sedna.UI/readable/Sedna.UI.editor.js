@@ -10,10 +10,15 @@
      00-imports.js
      10-markup.js
      20-value.js
+     25-limit.js
      30-toolbar.js
      40-link.js
      45-slash.js
      50-media.js
+     55-media-bar.js
+     60-rule.js
+     62-autoformat.js
+     65-mention.js
      70-editor.js
      99-exports.js
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -80,10 +85,12 @@ import Quill from '../lib/quill/quill.js';
    ─────────────────────────────────────────────────────────────────────────── */
 
 const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link', 'image', 'video',
-    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table'];
+    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table',
+    'direction', 'divider', 'mention'];
 // What a table is made of in Quill: the cell is `table`, held by these three.
 const TABLE_PARTS = ['table-row', 'table-body', 'table-container'];
-const CONTROL = '[data-editor-format],[data-editor-action]';
+// A full-screen button in the toolbar is one of its stops, though the editor does nothing for it.
+const CONTROL = '[data-editor-format],[data-editor-action],[data-fullscreen]';
 
 const warned = new Set();
 function warnOnce(key, message) {
@@ -105,7 +112,9 @@ function readMarkup(el) {
     const media = el.querySelector('[data-editor-media]');
     const slash = el.querySelector('[data-editor-slash]');
     const notice = el.querySelector('[data-editor-file-notice]');
-    return { value, body, toolbar, link, media, slash, notice };
+    const bar = el.querySelector('[data-editor-media-bar]');
+    const mention = el.querySelector('[data-editor-mention]');
+    return { value, body, toolbar, link, media, slash, notice, bar, mention };
 }
 
 /* The formats this editor accepts, as Quill names them. A list needs indent, for its
@@ -117,6 +126,9 @@ function formatsOf(el) {
     const wanted = new Set(named.length ? named : offered);
     if (acted.includes('indent') || acted.includes('outdent') || wanted.has('list')) wanted.add('indent');
     if (acted.some(a => a && a.startsWith('table-'))) wanted.add('table');
+    // A horizontal rule is the `rule` action's, and a mention is the app's menu for it.
+    if (acted.includes('rule')) wanted.add('divider');
+    if (el.querySelector('[data-editor-mention]')) wanted.add('mention');
     for (const f of wanted) {
         if (!FORMATS.includes(f)) {
             warnOnce('format:' + f, `"${f}" is not a format the editor offers; it is ignored.`);
@@ -157,8 +169,12 @@ const VALUE = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'va
 function htmlOf(quill) {
     if (quill.getLength() <= 1 && !quill.getContents().ops.some(op => typeof op.insert === 'object')) return '';
     return quill.getSemanticHTML()
+        // What the editor puts on the page for itself is not the document: the mark on a chosen
+        // media, and the cursor Quill holds for a format switched off at the caret.
+        .replace(/ data-editor-selected(?:="")?/g, '')
+        .replace(/<span class="ql-cursor">[^<]*<\/span>/g, '')
         .replace(/(?:&nbsp;)+/g, run => ' ' + '&nbsp;'.repeat(run.length / 6 - 1))
-        .replace(/(<\/video>)<p><\/p>$/, '$1');
+        .replace(/(<\/video>|<hr>)<p><\/p>$/, '$1');
 }
 
 function stateOf(e) {
@@ -264,6 +280,43 @@ function watchRequired(e) {
     e.cleanups.push(() => {
         form.removeEventListener('submit', onSubmit, true);
         ta.required = true;
+    });
+}
+
+/* ── 25-limit.js ──────────────────────────────────────────────── */
+/* ── The length limit ─────────────────────────────────────────────────────────
+   The textarea's `maxlength`, held by the editor: it counts the characters of the
+   document's text — what `state().length` says, not the HTML — and what is typed or pasted
+   beyond it is cut away at once. While typing is being stopped the frame carries
+   `aria-invalid="true"`, which the next change inside the limit takes off. A document the app
+   sets is its own: only what the reader types is held to the limit. Without the script the
+   textarea holds it itself.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function limitOf(e) {
+    const n = parseInt(e.value.getAttribute('maxlength') ?? '', 10);
+    return n > 0 ? n : 0;
+}
+
+function wireLimit(e) {
+    const q = e.quill;
+    q.on('text-change', (delta, old, source) => {
+        const max = limitOf(e);
+        const length = q.getText().replace(/\n$/, '').length;
+        if (source === 'user' && !e.setting && max && length > max) {
+            const over = length - max;
+            const caret = caretAfter(delta) ?? (q.getSelection()?.index ?? length);
+            const from = Math.max(0, caret - over);
+            q.deleteText(from, over, 'silent');
+            q.setSelection(from, 0, 'silent');
+            if (!e.el.hasAttribute('aria-invalid')) {
+                e.el.setAttribute('aria-invalid', 'true');
+                e.limitMarked = true;
+            }
+        } else if (e.limitMarked && source !== 'silent') {
+            e.limitMarked = false;
+            e.el.removeAttribute('aria-invalid');
+        }
     });
 }
 
@@ -381,6 +434,7 @@ function act(e, c) {
         case 'table-column-before': case 'table-column-after':
         case 'table-row-delete': case 'table-column-delete': case 'table-delete':
             tableAction(q, action); break;
+        case 'rule': insertRule(e); break;
         case 'clean': {
             const range = q.getSelection(true);
             if (!range) break;
@@ -405,7 +459,7 @@ function wireToolbar(e) {
         const c = ev.target.closest(CONTROL);
         if (!c || c.tagName === 'SELECT' || c.tagName === 'INPUT' || !e.controls.includes(c) || c.disabled) return;
         if (c.hasAttribute('data-editor-format')) applyFormat(e, c);
-        else act(e, c);
+        else if (c.hasAttribute('data-editor-action')) act(e, c);
     });
     on(e.el, 'change', ev => {
         const c = ev.target.closest('select[data-editor-format], input[data-editor-format]');
@@ -917,14 +971,35 @@ function sizeEvent(value) {
 /* Quill's image, keeping only the addresses above: anything else is written as Quill
    writes an address it refuses, and the clipboard below has already dropped it. */
 const QuillImage = Quill.import('formats/image');
+/* How a picture or a video sits against its text: `data-align` on the element, `start`,
+   `end` or `center` — logical edges, so the same HTML mirrors in a right-to-left document.
+   An attribute rather than a class: it is the editor's own, survives as plain HTML, and
+   `.prose img[data-align]` styles it wherever the HTML is shown. Any other value is dropped. */
+const ALIGNS = ['start', 'end', 'center'];
+const IMAGE_ATTRIBUTES = ['alt', 'height', 'width', 'data-align'];
 class SednaImage extends QuillImage {
     static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+
+    static formats(node) {
+        return IMAGE_ATTRIBUTES.reduce((f, name) => {
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
+            return f;
+        }, {});
+    }
+
+    format(name, value) {
+        if (name !== 'data-align') return super.format(name, value);
+        if (ALIGNS.includes(value)) this.domNode.setAttribute(name, value);
+        else this.domNode.removeAttribute(name);
+    }
 }
 
 /* A video the browser plays itself. Quill's own `video` is an iframe — a page from
    anywhere, framed inside the document — so this replaces it under the same name. */
 const BlockEmbed = Quill.import('blots/block/embed');
-const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label'];
+const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label', 'data-align'];
 class SednaVideo extends BlockEmbed {
     static blotName = 'video';
     static tagName = 'VIDEO';
@@ -943,7 +1018,9 @@ class SednaVideo extends BlockEmbed {
 
     static formats(node) {
         return VIDEO_ATTRIBUTES.reduce((f, name) => {
-            if (node.hasAttribute(name)) f[name] = node.getAttribute(name);
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
             return f;
         }, {});
     }
@@ -951,6 +1028,7 @@ class SednaVideo extends BlockEmbed {
     format(name, value) {
         if (!VIDEO_ATTRIBUTES.includes(name)) return super.format(name, value);
         if (name === 'poster' && value) value = mediaUrl(value);
+        if (name === 'data-align' && !ALIGNS.includes(value)) value = null;
         if (value) this.domNode.setAttribute(name, value);
         else this.domNode.removeAttribute(name);
     }
@@ -1082,13 +1160,21 @@ function mediaKindAt(q, index) {
 function markPicked(e) {
     const q = e.quill;
     for (const node of q.root.querySelectorAll(`[${SELECTED}]`)) node.removeAttribute(SELECTED);
+    e.pickedNode = null;
     const picked = e.picked;
-    if (!picked) return;
+    if (!picked) {
+        syncBar(e);
+        return;
+    }
     // A leaf is found by an index inside it, and the index of an edge is the one before; so an
     // image is the leaf at the index after its own, and a video is the block at its own.
     let node = q.getLeaf(picked.index + 1)[0]?.domNode;
     if (!node?.matches?.('img, video')) node = q.getLine(picked.index)[0]?.domNode;
-    if (node?.matches?.('img, video')) node.setAttribute(SELECTED, '');
+    if (node?.matches?.('img, video')) {
+        node.setAttribute(SELECTED, '');
+        e.pickedNode = node;
+    }
+    syncBar(e);
 }
 
 function unpick(e) {
@@ -1150,10 +1236,12 @@ function wirePick(e) {
     }, true);
     // Choosing is not a state of the document: what changes it, or the caret leaving the media,
     // lets it go — except while the media form is open on it.
-    q.on('text-change', () => { if (!e.mediaing) unpick(e); });
+    q.on('text-change', () => { if (!e.mediaing && !e.keepPick) unpick(e); });
     q.on('selection-change', range => {
         const p = e.picked;
         if (!p || e.mediaing) return;
+        // The focus going to the media bar is not the caret leaving the media.
+        if (!range && e.bar && e.bar.contains(document.activeElement)) return;
         let still;
         if (p.kind === 'image') {
             still = range && range.index === p.index && range.length === 1;
@@ -1338,6 +1426,557 @@ function takeMediaRange(e) {
     return was.range;
 }
 
+/* ── 55-media-bar.js ──────────────────────────────────────────────── */
+/* ── The bar on a chosen image or video ───────────────────────────────────────
+   The app's own controls, written once inside the editor, which the editor shows above
+   the image or video a click chose (50-media.js) and hides when it is let go:
+
+     <div class="editor-media-bar" data-editor-media-bar role="toolbar" aria-label="Image" hidden>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-size="240">Small</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-size="">Original</button>
+       <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-media-align="start" aria-label="Float left"><i class="ri-align-left"></i></button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-edit>Edit</button>
+       <button class="btn btn--ghost btn--sm" type="button" data-editor-media-remove>Remove</button>
+     </div>
+
+   A control is any element inside it with one of these:
+
+     data-editor-media-size="240"   the width in pixels, the height cleared so the aspect
+                                    ratio holds; "" is the natural size, both cleared
+     data-editor-media-align="start"  start, end or center — "" for none: `data-align` on the media
+     data-editor-media-edit         opens the media form, filled with it
+     data-editor-media-remove       deletes it
+
+   Size and align controls carry `aria-pressed` for what the media is now. An element
+   marked `data-editor-media-for="image"` or `"video"` shows only for that kind. The bar is
+   placed with a transform above the media — below it where there is no room above — and
+   follows a scroll of the document. It is one tab stop: Alt+F10 in the document goes to it
+   while a media is chosen, the arrows, Home and End move between its controls, and Escape
+   comes back to the document with the media still chosen. A press with the pointer leaves
+   the focus in the document.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const BAR_CONTROL = '[data-editor-media-size],[data-editor-media-align],[data-editor-media-edit],[data-editor-media-remove]';
+
+function barControls(e) {
+    if (!e.bar) return [];
+    return Array.from(e.bar.querySelectorAll(BAR_CONTROL)).filter(c => !c.hidden && !c.closest('[data-editor-media-for][hidden]'));
+}
+
+// Shows, updates or hides the bar for the media now chosen. Called wherever the choice changes.
+function syncBar(e) {
+    const bar = e.bar;
+    if (!bar || e.disposed) return;
+    const node = e.pickedNode;
+    const picked = pickedRange(e);
+    if (!node || !picked) {
+        bar.hidden = true;
+        return;
+    }
+    for (const part of bar.querySelectorAll('[data-editor-media-for]')) {
+        part.hidden = part.getAttribute('data-editor-media-for') !== e.picked.kind;
+    }
+    const width = node.getAttribute('width') || '';
+    const align = node.getAttribute('data-align') || '';
+    for (const c of bar.querySelectorAll('[data-editor-media-size]')) {
+        const size = c.getAttribute('data-editor-media-size');
+        c.setAttribute('aria-pressed', String(sizeOf(size) === (sizeOf(width) || '') && !node.hasAttribute('height')));
+    }
+    for (const c of bar.querySelectorAll('[data-editor-media-align]')) {
+        c.setAttribute('aria-pressed', String(c.getAttribute('data-editor-media-align') === align));
+    }
+    bar.hidden = false;
+    placeBar(e);
+}
+
+// Above the chosen media, or below it where the frame has no room above.
+function placeBar(e) {
+    const bar = e.bar;
+    const node = e.pickedNode;
+    if (!bar || bar.hidden || !node) return;
+    const frame = e.el.getBoundingClientRect();
+    const rect = node.getBoundingClientRect();
+    bar.style.transform = 'translate(0px, 0px)';
+    const own = bar.getBoundingClientRect();
+    const rtl = getComputedStyle(e.quill.root).direction === 'rtl';
+    let x = (rtl ? rect.right - own.width : rect.left) - frame.left;
+    x = Math.max(8, Math.min(x, frame.width - own.width - 8));
+    let y = rect.top - frame.top - own.height - 6;
+    if (y < 8) y = Math.min(rect.bottom - frame.top + 6, frame.height - own.height - 8);
+    bar.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+}
+
+function barAct(e, c) {
+    const p = pickedRange(e);
+    if (!p) return;
+    const q = e.quill;
+    const kind = e.picked.kind;
+    if (c.hasAttribute('data-editor-media-edit')) {
+        openMedia(e, kind);
+        return;
+    }
+    // The document's own change lets the choice go; this one is the reader's, on the choice.
+    e.keepPick = true;
+    try {
+        if (c.hasAttribute('data-editor-media-remove')) {
+            e.keepPick = false;
+            q.deleteText(p.index, 1, 'user');
+            q.focus();
+            return;
+        }
+        if (c.hasAttribute('data-editor-media-size')) {
+            const width = sizeOf(c.getAttribute('data-editor-media-size'));
+            if (width === null) return;
+            q.formatText(p.index, 1, 'width', width || false, 'user');
+            q.formatText(p.index, 1, 'height', false, 'user');
+        } else if (c.hasAttribute('data-editor-media-align')) {
+            q.formatText(p.index, 1, 'data-align', c.getAttribute('data-editor-media-align') || false, 'user');
+        }
+    } finally {
+        e.keepPick = false;
+    }
+    markPicked(e);
+}
+
+// Alt+F10 while a media is chosen: to the bar's stop.
+function toBar(e) {
+    const list = barControls(e);
+    if (!e.bar || e.bar.hidden || !list.length) return false;
+    const stop = list.find(c => c.tabIndex === 0) || list[0];
+    for (const c of list) c.tabIndex = c === stop ? 0 : -1;
+    stop.focus();
+    return true;
+}
+
+function wireBar(e) {
+    const bar = e.bar;
+    if (!bar) return;
+    bar.hidden = true;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    on(bar, 'click', ev => {
+        const c = ev.target.closest(BAR_CONTROL);
+        if (c && bar.contains(c) && !c.disabled) barAct(e, c);
+    });
+    // Pressed with the pointer, a control leaves the focus, and the media, where they were.
+    on(bar, 'mousedown', ev => { if (ev.target.closest(BAR_CONTROL)) ev.preventDefault(); });
+    on(bar, 'keydown', ev => {
+        const list = barControls(e);
+        const i = list.indexOf(ev.target);
+        if (ev.key === 'Escape') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const p = pickedRange(e);
+            e.quill.focus();
+            if (p && e.picked.kind === 'image') e.quill.setSelection(p.index, 1, 'silent');
+            return;
+        }
+        if (i < 0) return;
+        const rtl = getComputedStyle(bar).direction === 'rtl';
+        const step = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1 }[ev.key];
+        let next = null;
+        if (step) next = list[(i + step + list.length) % list.length];
+        else if (ev.key === 'Home') next = list[0];
+        else if (ev.key === 'End') next = list[list.length - 1];
+        if (!next) return;
+        ev.preventDefault();
+        for (const c of list) c.tabIndex = c === next ? 0 : -1;
+        next.focus();
+    });
+    // It follows the media as the document scrolls, and the frame as the window changes.
+    on(e.quill.root, 'scroll', () => placeBar(e));
+    on(window, 'resize', () => placeBar(e));
+    // The one tab stop: Tab from the bar goes on in the page, as from the toolbar.
+    for (const c of bar.querySelectorAll(BAR_CONTROL)) c.tabIndex = -1;
+}
+
+/* ── 60-rule.js ──────────────────────────────────────────────── */
+/* ── The horizontal rule ──────────────────────────────────────────────────────
+   `data-editor-action="rule"` puts an `<hr>` at the caret — in a line of its own, as a video
+   is — and the caret on the line after it. A rule is a format like any other: the editor holds
+   it only when the toolbar offers the action, or `data-editor-formats` names `divider`, and
+   what is pasted into one that does not is cut down without it. `.prose hr` draws it, so it
+   looks the same where the HTML is shown.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const SednaRule = (() => {
+    const BlockEmbed = Quill.import('blots/block/embed');
+    return class SednaRule extends BlockEmbed {
+        static blotName = 'divider';
+        static tagName = 'HR';
+    };
+})();
+Quill.register({ 'formats/divider': SednaRule }, true);
+
+// Puts a rule where the caret is, or in place of the selection; the caret after it.
+function insertRule(e, at) {
+    const q = e.quill;
+    if (!q.scroll.query('divider')) return false;
+    const range = at || q.getSelection(true) || e.lastRange;
+    if (!range) return false;
+    q.updateContents(new Delta().retain(range.index).delete(range.length).insert({ divider: true }), 'user');
+    // A rule put in the middle of a line starts a line of its own, one place on.
+    const index = [range.index, range.index + 1].find(i => q.getContents(i, 1).ops[0]?.insert?.divider) ?? range.index;
+    q.setSelection(index + 1, 0, 'silent');
+    e.lastRange = { index: index + 1, length: 0 };
+    reflect(e);
+    return true;
+}
+
+/* ── 62-autoformat.js ──────────────────────────────────────────────── */
+/* ── Markdown shortcuts while typing ──────────────────────────────────────────
+   What a reader who knows Markdown types, turned into the format it names, for the formats
+   the editor accepts and no others:
+
+     # … ######  and a space      a heading of that level
+     >  and a space                a quote
+     ---  and Enter                a horizontal rule
+     ```  and Enter               a code block
+     **x**  *x*  `x`  ~~x~~       bold, italic, code, strike — when the closing mark is typed
+
+   A list starts the way Quill already starts one: "- ", "1. ", "[ ] ". The change is its own
+   step in the history, so Ctrl+Z puts back what was typed. Nothing happens inside a code
+   block, or in a line of code.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const INLINE_MARKS = [
+    { format: 'bold', pattern: /\*\*([^*\s](?:[^*]*[^*\s])?)\*\*$/, mark: 2, last: '*' },
+    { format: 'strike', pattern: /~~([^~\s](?:[^~]*[^~\s])?)~~$/, mark: 2, last: '~' },
+    { format: 'code', pattern: /`([^`]+)`$/, mark: 1, last: '`' },
+    { format: 'italic', pattern: /(?<![*\w])\*([^*\s](?:[^*]*[^*\s])?)\*$/, mark: 1, last: '*' },
+];
+
+// Quill's keyboard bindings: the block shortcuts, which a key opens.
+function autoformatBindings(e) {
+    const has = f => e.formats.includes(f);
+    const plain = { list: false, 'code-block': false };
+    const line = (range, ctx, fn) => {
+        const q = e.quill;
+        q.history.cutoff();
+        const start = range.index - ctx.prefix.length;
+        q.deleteText(start, ctx.prefix.length, 'user');
+        fn(start);
+        q.history.cutoff();
+        reflect(e);
+        return false;
+    };
+    return {
+        'sedna heading': {
+            key: ' ', collapsed: true, format: plain, prefix: /^#{1,6}$/,
+            handler(range, ctx) {
+                if (!has('header')) return true;
+                return line(range, ctx, start => e.quill.formatLine(start, 0, 'header', ctx.prefix.length, 'user'));
+            },
+        },
+        'sedna quote': {
+            key: ' ', collapsed: true, format: plain, prefix: /^>$/,
+            handler(range, ctx) {
+                if (!has('blockquote')) return true;
+                return line(range, ctx, start => e.quill.formatLine(start, 0, 'blockquote', true, 'user'));
+            },
+        },
+        'sedna rule': {
+            key: 'Enter', collapsed: true, format: plain, prefix: /^---$/, suffix: /^$/,
+            handler(range, ctx) {
+                if (!has('divider')) return true;
+                return line(range, ctx, start => insertRule(e, { index: start, length: 0 }));
+            },
+        },
+        'sedna code block': {
+            key: 'Enter', collapsed: true, format: plain, prefix: /^```$/, suffix: /^$/,
+            handler(range, ctx) {
+                if (!has('code-block')) return true;
+                return line(range, ctx, start => e.quill.formatLine(start, 0, 'code-block', true, 'user'));
+            },
+        },
+    };
+}
+
+// The inline marks: heard in the change that typed the closing one.
+function wireAutoformat(e) {
+    const q = e.quill;
+    q.on('text-change', (delta, old, source) => {
+        if (source !== 'user' || e.autoformatting || !e.formats.some(f => INLINE_MARKS.some(m => m.format === f))) return;
+        const typed = delta.ops.find(op => typeof op.insert === 'string');
+        if (!typed || typed.insert.length !== 1 || !INLINE_MARKS.some(m => m.last === typed.insert)) return;
+        const caret = caretAfter(delta);
+        if (caret == null) return;
+        const [block, offset] = q.getLine(caret);
+        if (!block) return;
+        const here = q.getFormat(caret - 1, 1);
+        if (here['code-block'] || here.code) return;
+        const before = q.getText(caret - offset, offset);
+        for (const rule of INLINE_MARKS) {
+            if (!e.formats.includes(rule.format)) continue;
+            const m = rule.pattern.exec(before);
+            if (!m) continue;
+            const start = caret - offset + m.index;
+            e.autoformatting = true;
+            try {
+                q.history.cutoff();
+                q.updateContents(new Delta().retain(start).delete(rule.mark).retain(m[1].length, { [rule.format]: true }).delete(rule.mark), 'user');
+                q.setSelection(start + m[1].length, 0, 'silent');
+                // What is typed next is not in the mark.
+                q.format(rule.format, false, 'silent');
+                q.history.cutoff();
+            } finally {
+                e.autoformatting = false;
+            }
+            break;
+        }
+    });
+}
+
+/* ── 65-mention.js ──────────────────────────────────────────────── */
+/* ── Mentions ─────────────────────────────────────────────────────────────────
+   "@" in the document — at the start of a line or after a space — opens the app's own list of
+   who can be named, and the one chosen is written into the text as a mention. The list is a
+   `.menu` the app writes once inside the editor, as it writes the slash menu, and names
+   with `data-editor-mention`:
+
+     <div class="menu editor-mention" data-editor-mention hidden aria-label="People">
+       <button class="menu-item" type="button" tabindex="-1" data-mention-value="alex.fischer" data-label="Alex Fischer">
+         <span class="avatar avatar--xs">AF</span><span>Alex Fischer</span>
+       </button>
+       <template data-editor-mention-item>
+         <button class="menu-item" type="button" tabindex="-1"><span data-label></span><span data-note></span></button>
+       </template>
+     </div>
+
+   What follows the "@" filters the items as it is typed, ranked by the palette's matcher
+   against an item's `data-label` or its text and its `data-mention-value`; an item that does
+   not match is `hidden`. Up and Down move the item marked `data-active`, Enter or Tab writes
+   "@" and its label — as a mention, `<data value="…">@Label</data>`, then a space — Escape
+   closes the list until another "@" is typed, and a press on an item does the same as Enter.
+   The focus stays in the document, which points at the item with `aria-activedescendant`.
+
+   Rows the app has not written come from its search: each time the word after the "@"
+   changes the editor sends `sedna-editor-mention`, cancelable, with `{ query }`. An app
+   that answers from a server cancels it, fills the list with `mentions([...])` — rows cloned
+   from the `<template data-editor-mention-item>`, its `data-label` and `data-note` slots
+   filled with text — and the editor then shows every row it was given, unfiltered.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const MENTION = /(?:^|\s)@([^\s@]{0,40})$/;
+const SednaMention = (() => {
+    const Inline = Quill.import('blots/inline');
+    return class SednaMention extends Inline {
+        static blotName = 'mention';
+        static tagName = 'DATA';
+
+        static create(value) {
+            const node = super.create();
+            node.setAttribute('value', String(value).slice(0, 200));
+            return node;
+        }
+
+        static formats(node) { return node.getAttribute('value'); }
+
+        format(name, value) {
+            if (name !== this.statics.blotName || !value) super.format(name, value);
+            else this.domNode.setAttribute('value', String(value).slice(0, 200));
+        }
+    };
+})();
+Quill.register({ 'formats/mention': SednaMention }, true);
+
+let mentionIds = 0;
+
+function mentionItems(e) {
+    if (!e.mention) return [];
+    return Array.from(e.mention.querySelectorAll('.menu-item[data-mention-value]'))
+        .filter(item => item.closest('[data-editor-mention]') === e.mention && !item.disabled && item.getAttribute('aria-disabled') !== 'true');
+}
+
+const mentionLabel = item => String(item.getAttribute('data-label') || item.textContent || '').trim();
+
+function mentionAt(e, caret) {
+    const q = e.quill;
+    const range = caret == null ? q.getSelection() : { index: caret, length: 0 };
+    if (!range || range.length) return null;
+    const [line, offset] = q.getLine(range.index);
+    if (!line) return null;
+    let format = {};
+    try { format = q.getFormat(range.index, 0); } catch (x) { format = {}; }
+    if (format['code-block'] || format.code) return null;
+    const m = MENTION.exec(q.getText(range.index - offset, offset));
+    if (!m) return null;
+    return { start: range.index - m[1].length - 1, end: range.index, query: m[1] };
+}
+
+function setMentionActive(e, item) {
+    for (const it of mentionItems(e)) {
+        const on = it === item;
+        it.toggleAttribute('data-active', on);
+        it.setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    if (item) {
+        e.quill.root.setAttribute('aria-activedescendant', item.id);
+        item.scrollIntoView({ block: 'nearest' });
+    } else if (e.slash?.hidden !== false) {
+        e.quill.root.removeAttribute('aria-activedescendant');
+    }
+}
+
+const shownMentions = e => mentionItems(e).filter(item => !item.hidden);
+
+function closeMention(e) {
+    if (!e.mention || e.mention.hidden) return;
+    e.mention.hidden = true;
+    e.mentionOpen = null;
+    setMentionActive(e, null);
+    e.quill.root.removeAttribute('aria-controls');
+}
+
+function placeMention(e, index) {
+    const menu = e.mention;
+    const b = e.quill.getBounds(index, 0);
+    if (!b) return;
+    const frame = e.el.getBoundingClientRect();
+    const box = e.quill.container.getBoundingClientRect();
+    menu.style.transform = 'translate(0px, 0px)';
+    const own = menu.getBoundingClientRect();
+    const rtl = getComputedStyle(e.quill.root).direction === 'rtl';
+    let x = box.left - frame.left + (rtl ? b.right - own.width : b.left);
+    x = Math.max(0, Math.min(x, frame.width - own.width));
+    let y = box.top - frame.top + b.bottom + 4;
+    if (frame.top + y + own.height > window.innerHeight - 8) y = box.top - frame.top + b.top - own.height - 4;
+    menu.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+}
+
+// Opens, filters or closes the list for where the caret is now; only typing opens it.
+function updateMention(e, typed, caret) {
+    if (!e.mention || e.disposed) return;
+    const at = mentionAt(e, caret);
+    if (!at || !e.formats.includes('mention')) {
+        e.mentionDismissed = null;
+        closeMention(e);
+        return;
+    }
+    if (e.mentionDismissed === at.start || (!typed && e.mention.hidden)) return;
+    // The app that answers from a server cancels this and fills the list itself.
+    const own = e.mentionQuery !== at.query || e.mention.hidden;
+    let appAnswers = e.mentionAppAnswers;
+    if (own && typed) {
+        e.mentionQuery = at.query;
+        appAnswers = !e.emit('sedna-editor-mention', { query: at.query }, true);
+        e.mentionAppAnswers = appAnswers;
+    }
+    const score = window.sednaUi?._?.score;
+    let any = false;
+    for (const item of mentionItems(e)) {
+        const match = appAnswers || !at.query || !score
+            || score(at.query, mentionLabel(item), 0) >= 0
+            || score(at.query, item.getAttribute('data-mention-value') || '', 0) >= 0;
+        item.hidden = !match;
+        if (match) any = true;
+    }
+    if (!any) {
+        closeMention(e);
+        return;
+    }
+    const wasOpen = !e.mention.hidden;
+    e.mentionOpen = at;
+    if (!wasOpen) {
+        e.mention.setAttribute('role', 'listbox');
+        if (!e.mention.id) e.mention.id = 'sedna-mention-menu-' + (++mentionIds);
+        e.mention.hidden = false;
+        e.quill.root.setAttribute('aria-controls', e.mention.id);
+    }
+    for (const item of mentionItems(e)) {
+        item.setAttribute('role', 'option');
+        if (!item.id) item.id = 'sedna-editor-mention-' + (++mentionIds);
+    }
+    const shown = shownMentions(e);
+    setMentionActive(e, shown.find(item => item.hasAttribute('data-active')) || shown[0]);
+    placeMention(e, at.start);
+}
+
+function applyMention(e, item) {
+    const at = e.mentionOpen;
+    if (!at || !item) return;
+    const q = e.quill;
+    const caret = (q.getSelection() || { index: at.end }).index;
+    const label = '@' + mentionLabel(item);
+    const value = item.getAttribute('data-mention-value');
+    closeMention(e);
+    q.history.cutoff();
+    q.updateContents(new Delta().retain(at.start).delete(Math.max(0, caret - at.start)).insert(label, { mention: value }).insert(' '), 'user');
+    q.setSelection(at.start + label.length + 1, 0, 'silent');
+    q.history.cutoff();
+    reflect(e);
+}
+
+/* Rows from the app's search: replaces the rows an earlier call made with one per entry —
+   { value, label, note, icon } — cloned from the app's template. Returns how many it made. */
+function setMentions(e, list) {
+    const menu = e.mention;
+    const template = menu?.querySelector('template[data-editor-mention-item]');
+    if (!menu || !template) {
+        warnOnce('mentions', 'mentions() needs a [data-editor-mention] menu with a <template data-editor-mention-item> inside the editor.');
+        return 0;
+    }
+    for (const old of menu.querySelectorAll('[data-editor-mention-made]')) old.remove();
+    let made = 0;
+    for (const entry of Array.isArray(list) ? list : []) {
+        const value = String(entry?.value ?? '').trim();
+        if (!value) continue;
+        const row = window.sednaUi._.fill(template, { label: entry.label ?? value, note: entry.note, icon: entry.icon });
+        if (!row) continue;
+        row.setAttribute('data-mention-value', value);
+        row.setAttribute('data-label', String(entry.label ?? value));
+        row.setAttribute('data-editor-mention-made', '');
+        menu.append(row);
+        made++;
+    }
+    if (!menu.hidden && e.mentionOpen) updateMention(e, true);
+    return made;
+}
+
+function wireMention(e) {
+    if (!e.mention) return;
+    e.mention.hidden = true;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    const q = e.quill;
+    q.on('text-change', (delta, old, source) => { if (source === 'user') updateMention(e, true, caretAfter(delta)); });
+    q.on('selection-change', range => {
+        if (!range) closeMention(e);
+        else if (!e.mention.hidden) updateMention(e, false);
+    });
+    on(e.el, 'keydown', ev => {
+        if (e.mention.hidden || ev.isComposing || ev.target !== q.root) return;
+        const plain = !ev.altKey && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey;
+        const shown = shownMentions(e);
+        const move = step => {
+            const i = shown.findIndex(item => item.hasAttribute('data-active'));
+            if (shown.length) setMentionActive(e, shown[(i + step + shown.length) % shown.length]);
+        };
+        if (ev.key === 'ArrowDown' && plain) move(1);
+        else if (ev.key === 'ArrowUp' && plain) move(-1);
+        else if ((ev.key === 'Enter' || ev.key === 'Tab') && plain) applyMention(e, shown.find(item => item.hasAttribute('data-active')));
+        else if (ev.key === 'Escape') {
+            e.mentionDismissed = e.mentionOpen ? e.mentionOpen.start : null;
+            closeMention(e);
+        } else return;
+        ev.preventDefault();
+        ev.stopPropagation();
+    }, true);
+    on(e.mention, 'mousedown', ev => { if (ev.target.closest('.menu-item')) ev.preventDefault(); });
+    on(e.mention, 'click', ev => {
+        const item = ev.target.closest('.menu-item[data-mention-value]');
+        if (item && mentionItems(e).includes(item) && !item.hidden) applyMention(e, item);
+    });
+    on(e.mention, 'pointermove', ev => {
+        const item = ev.target.closest('.menu-item[data-mention-value]');
+        if (item && !item.hidden && !item.hasAttribute('data-active')) setMentionActive(e, item);
+    });
+}
+
 /* ── 70-editor.js ──────────────────────────────────────────────── */
 /* ── An editor ────────────────────────────────────────────────────────────────
    One `[data-editor]` element, from its markup to a document being edited:
@@ -1355,6 +1994,7 @@ function takeMediaRange(e) {
      sedna-editor-change   the same, after each change
      sedna-editor-media    { kind, src, alt, width, height }, cancelable, before the media form opens
      sedna-editor-file     { files, index }, cancelable — cancelled when the app takes them
+     sedna-editor-mention  { query }, cancelable — cancelled when the app fills the list itself
 
    and the textarea's own `input` and `change`, which is what `@bind` listens to.
    ─────────────────────────────────────────────────────────────────────────── */
@@ -1403,12 +2043,12 @@ function describe(e) {
 }
 
 function start(e) {
-    const { value, body, toolbar, link, media, slash, notice } = readMarkup(e.el);
+    const { value, body, toolbar, link, media, slash, notice, bar, mention } = readMarkup(e.el);
     if (!value || !body) {
         e.el.setAttribute('data-editor-state', 'error');
         throw new Error('a [data-editor] element needs a <textarea data-editor-value> and a <div class="editor-body"> inside it.');
     }
-    Object.assign(e, { value, body, toolbar, link, media, slash, notice, controls: controlsOf(e.el) });
+    Object.assign(e, { value, body, toolbar, link, media, slash, notice, bar, mention, controls: controlsOf(e.el) });
     e.el.setAttribute('data-editor-state', 'loading');
 
     const formats = formatsOf(e.el);
@@ -1425,11 +2065,12 @@ function start(e) {
             table: formats.includes('table'),
             keyboard: {
                 bindings: {
-                    toolbar: { key: 'F10', altKey: true, handler: () => toToolbar(e) },
+                    toolbar: { key: 'F10', altKey: true, handler: () => (toBar(e) ? false : toToolbar(e)) },
                     link: { key: 'k', shortKey: true, handler: () => { if (e.link) openLink(e); return !e.link; } },
                     // Tab leaves the document, as it leaves a textarea, rather than typing a tab
                     // character. In a list or a code block Quill's own indent comes first.
                     tab: { key: 'Tab', handler: () => true },
+                    ...autoformatBindings(e),
                 },
             },
         },
@@ -1443,6 +2084,10 @@ function start(e) {
     wireLink(e);
     wireMedia(e);
     wireSlash(e);
+    wireBar(e);
+    wireLimit(e);
+    wireMention(e);
+    wireAutoformat(e);
 
     const q = e.quill;
     q.on('text-change', (delta, old, source) => {
@@ -1488,7 +2133,13 @@ function makeApi(e) {
         /* Replaces the document — and the textarea's value, with its events — as a paste of
            this HTML would, cut down to the formats the editor accepts. */
         set: html => {
-            e.quill.setContents(e.quill.clipboard.convert({ html: html || '' }), 'user');
+            // A document the app sets is its own: the length limit holds what the reader types.
+            e.setting = true;
+            try {
+                e.quill.setContents(e.quill.clipboard.convert({ html: html || '' }), 'user');
+            } finally {
+                e.setting = false;
+            }
             return stateOf(e);
         },
         /* Text at the caret — or at the end, if the document has not had the focus. */
@@ -1505,6 +2156,9 @@ function makeApi(e) {
            not http, https or relative, or a size is not a whole number above zero. */
         insertImage: (url, alt, width, height) => insertMedia(e, 'image', url, alt, takeMediaRange(e), { width, height }),
         insertVideo: (url, label, width, height) => insertMedia(e, 'video', url, label, takeMediaRange(e), { width, height }),
+        /* The rows of the mention list, from the app's own search: `[{ value, label, note,
+           icon }]`, cloned from the list's template. How many rows were made. */
+        mentions: list => setMentions(e, list),
         focus: () => e.quill.focus(),
         enable: on => {
             e.value.disabled = on === false;
@@ -1527,6 +2181,7 @@ function invoke(e, method, args) {
         case 'insert': return api.insert(a[0]);
         case 'image': return api.insertImage(a[0], a[1], a[2], a[3]);
         case 'video': return api.insertVideo(a[0], a[1], a[2], a[3]);
+        case 'mentions': return api.mentions(a[0]);
         case 'focus': api.focus(); return null;
         case 'enable': api.enable(a[0] !== false); return null;
         // A File: Blazor reads it as an IJSStreamReference.
