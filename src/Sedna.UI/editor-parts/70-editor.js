@@ -73,12 +73,22 @@ function start(e) {
 
     const formats = formatsOf(e.el);
     e.formats = formats;
+    // Pictures kept inline (50-media.js): only on an editor that takes images.
+    e.inline = null;
+    if (e.el.hasAttribute('data-editor-inline-images')) {
+        if (formats.includes('image')) {
+            const max = Number(e.el.getAttribute('data-editor-inline-max'));
+            e.inline = { max: Number.isFinite(max) && max > 0 ? max : INLINE_MAX };
+        } else {
+            warnOnce('inline-images', 'data-editor-inline-images needs an editor that takes images: offer data-editor-format="image" or name it in data-editor-formats.');
+        }
+    }
     e.quill = new Quill(body, {
         formats,
         modules: {
             toolbar: false,
             history: { delay: 800, maxStack: 200, userOnly: true },
-            clipboard: { matchers: MEDIA_MATCHERS },
+            clipboard: { matchers: mediaMatchers(e) },
             uploader: uploaderFor(e),
             // Only an editor that takes tables loads the module, so one that does not
             // still cuts a pasted table down to its text.

@@ -129,6 +129,27 @@ inside it is written back with `src`.
 dropped into the document is not inlined either: **uploading is the app's.** It puts the file where
 it can be fetched and hands the editor the address, through its own form or a call.
 
+### Pictures kept inline
+
+A form with nowhere to upload to — a feedback dialog whose whole HTML goes out in one request — opts in
+to keeping pictures in the document itself:
+
+```html
+<div class="editor" data-editor data-editor-inline-images data-editor-inline-max="2000000">…</div>
+```
+
+- A pasted or dropped picture is offered to the app first, as `sedna-editor-file`. One the app does not
+  take is written into the document as a `data:` address, where the caret was.
+- **Only PNG, JPEG, GIF and WebP**, never SVG. An `<img>` with a raster `data:` address is kept in the
+  HTML the editor loads and in what is pasted; an SVG one is dropped.
+- `data-editor-inline-max` is the cap per picture, in bytes, 2000000 if it is not given. A larger
+  picture, or a file of another type, shows `[data-editor-file-notice]`.
+- `insertImage` and the media form take a raster `data:` address too, under the same cap.
+- The editor must take images (`data-editor-format="image"`, or `image` in `data-editor-formats`).
+  Without the attribute, a `data:` address is dropped as before.
+- A page with a Content Security Policy that names `img-src` adds `data:` to it, or the pictures do not
+  show.
+
 ### The media form
 
 The app's own form, written once inside the editor, which an image or video control opens at the caret:

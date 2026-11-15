@@ -57,6 +57,16 @@
      </p>
 
    It hides again at the next change to the document, or the next file that is taken.
+
+   KEPT INLINE. A form with nowhere to upload to — a feedback dialog whose whole HTML goes
+   out in one request — opts in with `data-editor-inline-images` on the `.editor`. A pasted
+   or dropped picture nobody takes is then written into the document as a `data:` address,
+   and one already in the HTML loaded or pasted is kept. Only a raster picture — PNG, JPEG,
+   GIF or WebP, never SVG, which is a document that can carry script — and only up to
+   `data-editor-inline-max` bytes each (2000000 by default); a larger one, or another type,
+   shows the notice. `sedna-editor-file` is still sent first, so an app with a store takes
+   the file as before. The editor must take images. Without the attribute nothing changes:
+   a `data:` address is dropped.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const Delta = Quill.import('delta');
@@ -73,6 +83,29 @@ function mediaUrl(url) {
     } catch (x) {
         return null;
     }
+}
+
+/* A raster picture written into its own address — `data:image/png;base64,…` — or null. */
+const INLINE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+const INLINE_MAX = 2000000;
+function inlineImage(url) {
+    const s = String(url ?? '').trim();
+    return /^data:image\/(?:png|jpeg|gif|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(s) ? s : null;
+}
+
+/* The bytes an inline picture holds, from the length of its base64. */
+function inlineBytes(s) {
+    const b64 = s.slice(s.indexOf(',') + 1).replace(/\s/g, '');
+    return Math.floor(b64.length * 3 / 4) - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0);
+}
+
+/* An image address this editor keeps: one any editor keeps, or — where it opted in — a
+   raster picture inline, under its cap. Null otherwise. */
+function imageUrlFor(e, url) {
+    const kept = mediaUrl(url);
+    if (kept) return kept;
+    const inline = e.inline ? inlineImage(url) : null;
+    return inline && inlineBytes(inline) <= e.inline.max ? inline : null;
 }
 
 /* A width or a height as the attribute holds it: a whole number of pixels above zero.
@@ -102,7 +135,10 @@ const QuillImage = Quill.import('formats/image');
 const ALIGNS = ['start', 'end', 'center'];
 const IMAGE_ATTRIBUTES = ['alt', 'height', 'width', 'data-align'];
 class SednaImage extends QuillImage {
-    static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+    // An inline raster picture is a format any editor can hold; whether one may enter is
+    // decided per editor where it arrives — the paste and load matchers, insertImage, the
+    // media form and a pasted file — by imageUrlFor.
+    static sanitize(url) { return mediaUrl(url) ?? inlineImage(url) ?? '//:0'; }
 
     static formats(node) {
         return IMAGE_ATTRIBUTES.reduce((f, name) => {
@@ -161,14 +197,18 @@ class SednaVideo extends BlockEmbed {
 Quill.register({ 'formats/image': SednaImage, 'formats/video': SednaVideo }, true);
 
 /* What arrives as HTML — a paste, the textarea's value — loses an image or a video whose
-   address the editor would not keep, rather than keeping a broken one. */
-function dropUnsafe(kind) {
-    return (node, delta) => {
-        const src = kind === 'image' ? node.getAttribute('src') : SednaVideo.value(node);
-        return mediaUrl(src) ? delta : new Delta();
+   address this editor would not keep, rather than keeping a broken one. An inline picture
+   over the cap of an editor that keeps them says so with the notice. */
+function mediaMatchers(e) {
+    const image = (node, delta) => {
+        const src = node.getAttribute('src');
+        if (imageUrlFor(e, src)) return delta;
+        if (e.inline && inlineImage(src)) notify(e, true);
+        return new Delta();
     };
+    const video = (node, delta) => (mediaUrl(SednaVideo.value(node)) ? delta : new Delta());
+    return [['img', image], ['video', video]];
 }
-const MEDIA_MATCHERS = [['img', dropUnsafe('image')], ['video', dropUnsafe('video')]];
 
 /* A file pasted or dropped into the document is not inlined: uploading is the app's. The
    editor says a file arrived — `sedna-editor-file`, with an id per file — and keeps the
@@ -211,9 +251,40 @@ function uploaderFor(e) {
                 if (range) e.lastRange = range;
                 taken = !e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null }, true);
             }
+            if (!taken && e.inline) {
+                // Not taken, in an editor that keeps pictures inline: each raster one under the
+                // cap is written into the document; anything else still shows the notice.
+                const inlined = kept.filter(file => INLINE_TYPES.includes(file.type) && file.size <= e.inline.max);
+                inlineFiles(e, inlined, range);
+                notify(e, inlined.length < files.length);
+                return;
+            }
             notify(e, !taken || kept.length < files.length);
         },
     };
+}
+
+/* Reads each picture as a `data:` address and puts it where the paste or the drop was, in
+   order, the caret after the last. */
+function inlineFiles(e, files, range) {
+    if (!files.length) return;
+    const q = e.quill;
+    let at = range ? range.index : (q.getSelection()?.index ?? q.getLength() - 1);
+    const read = file => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+    });
+    (async () => {
+        for (const file of files) {
+            const url = await read(file);
+            if (e.disposed || !url || !imageUrlFor(e, url)) continue;
+            q.insertEmbed(at, 'image', url, 'user');
+            at += 1;
+        }
+        if (!e.disposed) q.setSelection(at, 0, 'user');
+    })();
 }
 
 /* Shows the app's notice, or hides it. Shown again while it is already showing, it is
@@ -388,7 +459,7 @@ function insertMedia(e, kind, url, alt, range, size = {}) {
         warnOnce('media:' + kind, `this editor does not take a ${kind}: offer data-editor-format="${kind}" or name it in data-editor-formats.`);
         return null;
     }
-    const src = mediaUrl(url);
+    const src = kind === 'image' ? imageUrlFor(e, url) : mediaUrl(url);
     if (!src) return null;
     const sizes = { width: sizeOf(size.width), height: sizeOf(size.height) };
     if (sizes.width === null || sizes.height === null) return null;
@@ -494,7 +565,7 @@ function saveMedia(e) {
         size[name] = sizeOf(field.validity?.badInput ? 'x' : field.value);
         if (size[name] === null) bad.push(field);
     }
-    const urlBad = !mediaUrl(given);
+    const urlBad = !(was.kind === 'image' ? imageUrlFor(e, given) : mediaUrl(given));
     if (urlBad && url) url.setAttribute('aria-invalid', 'true');
     for (const field of bad) field.setAttribute('aria-invalid', 'true');
     if (urlBad || bad.length) {

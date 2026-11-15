@@ -614,6 +614,22 @@ function mediaUrl(url) {
         return null;
     }
 }
+const INLINE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+const INLINE_MAX = 2000000;
+function inlineImage(url) {
+    const s = String(url ?? '').trim();
+    return /^data:image\/(?:png|jpeg|gif|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(s) ? s : null;
+}
+function inlineBytes(s) {
+    const b64 = s.slice(s.indexOf(',') + 1).replace(/\s/g, '');
+    return Math.floor(b64.length * 3 / 4) - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0);
+}
+function imageUrlFor(e, url) {
+    const kept = mediaUrl(url);
+    if (kept) return kept;
+    const inline = e.inline ? inlineImage(url) : null;
+    return inline && inlineBytes(inline) <= e.inline.max ? inline : null;
+}
 function sizeOf(value) {
     if (value === undefined) return undefined;
     const s = String(value ?? '').trim();
@@ -628,7 +644,7 @@ const QuillImage = Quill.import('formats/image');
 const ALIGNS = ['start', 'end', 'center'];
 const IMAGE_ATTRIBUTES = ['alt', 'height', 'width', 'data-align'];
 class SednaImage extends QuillImage {
-    static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+    static sanitize(url) { return mediaUrl(url) ?? inlineImage(url) ?? '//:0'; }
     static formats(node) {
         return IMAGE_ATTRIBUTES.reduce((f, name) => {
             if (!node.hasAttribute(name)) return f;
@@ -674,13 +690,16 @@ class SednaVideo extends BlockEmbed {
     }
 }
 Quill.register({ 'formats/image': SednaImage, 'formats/video': SednaVideo }, true);
-function dropUnsafe(kind) {
-    return (node, delta) => {
-        const src = kind === 'image' ? node.getAttribute('src') : SednaVideo.value(node);
-        return mediaUrl(src) ? delta : new Delta();
+function mediaMatchers(e) {
+    const image = (node, delta) => {
+        const src = node.getAttribute('src');
+        if (imageUrlFor(e, src)) return delta;
+        if (e.inline && inlineImage(src)) notify(e, true);
+        return new Delta();
     };
+    const video = (node, delta) => (mediaUrl(SednaVideo.value(node)) ? delta : new Delta());
+    return [['img', image], ['video', video]];
 }
-const MEDIA_MATCHERS = [['img', dropUnsafe('image')], ['video', dropUnsafe('video')]];
 const FILE_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml',
     'video/mp4', 'video/webm'];
 const FILES_KEPT = 20;
@@ -709,9 +728,35 @@ function uploaderFor(e) {
                 if (range) e.lastRange = range;
                 taken = !e.emit('sedna-editor-file', { files: listed, index: range ? range.index : null }, true);
             }
+            if (!taken && e.inline) {
+                const inlined = kept.filter(file => INLINE_TYPES.includes(file.type) && file.size <= e.inline.max);
+                inlineFiles(e, inlined, range);
+                notify(e, inlined.length < files.length);
+                return;
+            }
             notify(e, !taken || kept.length < files.length);
         },
     };
+}
+function inlineFiles(e, files, range) {
+    if (!files.length) return;
+    const q = e.quill;
+    let at = range ? range.index : (q.getSelection()?.index ?? q.getLength() - 1);
+    const read = file => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+    });
+    (async () => {
+        for (const file of files) {
+            const url = await read(file);
+            if (e.disposed || !url || !imageUrlFor(e, url)) continue;
+            q.insertEmbed(at, 'image', url, 'user');
+            at += 1;
+        }
+        if (!e.disposed) q.setSelection(at, 0, 'user');
+    })();
 }
 function notify(e, show) {
     const notice = e.notice;
@@ -849,7 +894,7 @@ function insertMedia(e, kind, url, alt, range, size = {}) {
         warnOnce('media:' + kind, `this editor does not take a ${kind}: offer data-editor-format="${kind}" or name it in data-editor-formats.`);
         return null;
     }
-    const src = mediaUrl(url);
+    const src = kind === 'image' ? imageUrlFor(e, url) : mediaUrl(url);
     if (!src) return null;
     const sizes = { width: sizeOf(size.width), height: sizeOf(size.height) };
     if (sizes.width === null || sizes.height === null) return null;
@@ -943,7 +988,7 @@ function saveMedia(e) {
         size[name] = sizeOf(field.validity?.badInput ? 'x' : field.value);
         if (size[name] === null) bad.push(field);
     }
-    const urlBad = !mediaUrl(given);
+    const urlBad = !(was.kind === 'image' ? imageUrlFor(e, given) : mediaUrl(given));
     if (urlBad && url) url.setAttribute('aria-invalid', 'true');
     for (const field of bad) field.setAttribute('aria-invalid', 'true');
     if (urlBad || bad.length) {
@@ -1463,12 +1508,21 @@ function start(e) {
     e.el.setAttribute('data-editor-state', 'loading');
     const formats = formatsOf(e.el);
     e.formats = formats;
+    e.inline = null;
+    if (e.el.hasAttribute('data-editor-inline-images')) {
+        if (formats.includes('image')) {
+            const max = Number(e.el.getAttribute('data-editor-inline-max'));
+            e.inline = { max: Number.isFinite(max) && max > 0 ? max : INLINE_MAX };
+        } else {
+            warnOnce('inline-images', 'data-editor-inline-images needs an editor that takes images: offer data-editor-format="image" or name it in data-editor-formats.');
+        }
+    }
     e.quill = new Quill(body, {
         formats,
         modules: {
             toolbar: false,
             history: { delay: 800, maxStack: 200, userOnly: true },
-            clipboard: { matchers: MEDIA_MATCHERS },
+            clipboard: { matchers: mediaMatchers(e) },
             uploader: uploaderFor(e),
             table: formats.includes('table'),
             keyboard: {

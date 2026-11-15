@@ -157,6 +157,17 @@
         </p>
     </CatExample>
 
+    <CatExample TExample="Examples.Editor.InlinePictures" Title="Pictures kept inline" Demo="ex-demo--block ex-demo--pad">
+        <p>
+            <strong>Live &mdash; paste a screenshot into the report.</strong> A form with nowhere to upload to opts
+            in with <code>data-editor-inline-images</code>: a picture the app does not take from
+            <code>sedna-editor-file</code> is written into the document as a <code>data:</code> address, so the whole
+            report, pictures and all, goes out as the field's HTML. Only PNG, JPEG, GIF and WebP, never SVG, and
+            only up to <code>data-editor-inline-max</code> bytes each; anything else shows the notice. A page with a
+            Content Security Policy adds <code>data:</code> to its <code>img-src</code>.
+        </p>
+    </CatExample>
+
     <CatExample TExample="Examples.Interop.EditorImagePicker" Title="Your own image picker" Demo="ex-demo--block ex-demo--pad">
         <p>
             <strong>Live &mdash; put the caret in the report, then add a photo.</strong> Before the media form opens,
