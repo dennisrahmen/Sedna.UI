@@ -14,7 +14,8 @@
         is the app's, and so is its cap: write &ldquo;99+&rdquo; past what fits. An empty
         <code>.count-badge</code> is a dot, for &ldquo;something is new&rdquo; without a number.
         <strong>Say the count in the host's own name and hide the badge</strong>, or the number is
-        read twice.
+        read twice. On a bare icon the badge hangs off the corner, so it touches the glyph's corner
+        and never its body; leave room beside the icon for it.
     </p>
 </CatExample>
 
@@ -39,8 +40,10 @@
         <code>.btn--sm</code> or <code>.avatar--sm</code> carries the small badge, a
         <code>.btn--lg</code> or <code>.avatar--lg</code> the large one, and a bare icon the small
         one. <code>.count-badge--sm</code> and <code>--lg</code> name a size outright, and
-        <code>--count-size</code> on the host gives any other. On a host under about 24px, send the dot
-        rather than a number.
+        <code>--count-size</code> on the host gives any other. A bare icon at its own size carries its
+        badge off the corner; a large icon keeps it on the corner, with
+        <code>.count-badge--lg</code> or <code>--count-inset: 2px</code> on the host. On a host under
+        about 24px, send the dot rather than a number.
     </p>
 </CatExample>
 
