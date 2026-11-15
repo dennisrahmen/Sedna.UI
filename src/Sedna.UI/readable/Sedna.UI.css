@@ -5008,7 +5008,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     display: inline-flex;
     flex-shrink: 0;
 }
-.count-host--round { --count-inset: 14.6%; }
+.count-host--round { --count-inset: round(14.6%, 1px); }
 .btn.count-host    { --count-inset: 3px; }
 /* The size follows the host the library draws, and `--sm` and `--lg` on the badge name one
    outright, over the host's. A dot is a little over half the number's height, and even. */
@@ -5032,6 +5032,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
+    /* The system stack, not the host's: a `<button>` does not inherit its parent's font, so a
+       count on a bare button was set in the browser's own button font. */
+    font-family: var(--font-sans);
     font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;

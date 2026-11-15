@@ -24,7 +24,12 @@ internal static class Ink
     /// background — the colour most of its pixels have. The page must have been opened at a
     /// device scale factor of <see cref="Scale"/>.
     /// </summary>
-    public static async Task<double[][]> Of(IPage page, params string[] selectors)
+    public static async Task<double[][]> Of(IPage page, params string[] selectors) => await Measure(page, false, selectors);
+
+    /// <summary>[left, right] of the paint of each element, the same way <see cref="Of"/> reads the rows.</summary>
+    public static async Task<double[][]> Across(IPage page, params string[] selectors) => await Measure(page, true, selectors);
+
+    private static async Task<double[][]> Measure(IPage page, bool columns, string[] selectors)
     {
         var boxes = new List<LocatorBoundingBoxResult>();
         foreach (var selector in selectors)
@@ -37,7 +42,7 @@ internal static class Ink
         var png = await page.ScreenshotAsync(new() { Clip = new() { X = left, Y = top, Width = right - left, Height = bottom - top } });
         var image = Png.Decode(png);
 
-        return boxes.Select(b => Paint(image, left, top, b.X, b.Y, b.Width, b.Height)
+        return boxes.Select(b => Paint(image, left, top, b.X, b.Y, b.Width, b.Height, columns: columns)
             ?? throw new InvalidOperationException("Nothing is painted in that element's box.")).ToArray();
     }
 
@@ -46,8 +51,12 @@ internal static class Ink
     /// sits at (<paramref name="left"/>, <paramref name="top"/>) in page pixels, against the
     /// colour most of the box's pixels have; null when nothing is.
     /// </summary>
+    /// <param name="columns">
+    /// Read the columns instead of the rows: [left, right] of the paint, in page pixels. The same
+    /// measurement turned a quarter, for what has to be centred across as well as down.
+    /// </param>
     public static double[]? Paint(Png image, double left, double top, double x, double y, double width, double height,
-        (int R, int G, int B)? colour = null)
+        (int R, int G, int B)? colour = null, bool columns = false)
     {
         int x0 = Math.Max(0, (int)Math.Ceiling((x - left) * Scale)), x1 = Math.Min(image.Width, (int)Math.Floor((x + width - left) * Scale));
         int y0 = Math.Max(0, (int)Math.Ceiling((y - top) * Scale)), y1 = Math.Min(image.Height, (int)Math.Floor((y + height - top) * Scale));
@@ -67,7 +76,7 @@ internal static class Ink
         // Given the colour the paint is in, a pixel counts only for how far it has moved from
         // the background towards that colour, so a border or a curve in another colour drawn in
         // the same box is not taken for it.
-        var rows = new double[y1 - y0];
+        var rows = new double[columns ? x1 - x0 : y1 - y0];
         double fr = 0, fg = 0, fb = 0, span = 1;
         if (colour is { } c)
         {
@@ -88,7 +97,8 @@ internal static class Ink
                     d = along > 0 && off < 0.35 * Math.Sqrt(span) * Math.Max(along, 0.2) ? along * 255 : 0;
                 }
                 else d = Math.Abs(p.R - bg.Item1) + Math.Abs(p.G - bg.Item2) + Math.Abs(p.B - bg.Item3);
-                if (d > rows[py - y0]) rows[py - y0] = d;
+                var at = columns ? px - x0 : py - y0;
+                if (d > rows[at]) rows[at] = d;
             }
         var full = rows.Max();
         if (full < (colour is null ? 96 : 64)) return null;
@@ -97,7 +107,9 @@ internal static class Ink
         var last = Array.FindLastIndex(rows, d => d > floor);
         var topEdge = first + 1 - Math.Min(1, rows[first] / full);
         var bottomEdge = last + Math.Min(1, rows[last] / full);
-        return [top + (y0 + topEdge) / Scale, top + (y0 + bottomEdge) / Scale];
+        return columns
+            ? [left + (x0 + topEdge) / Scale, left + (x0 + bottomEdge) / Scale]
+            : [top + (y0 + topEdge) / Scale, top + (y0 + bottomEdge) / Scale];
     }
 
     /// <summary>
