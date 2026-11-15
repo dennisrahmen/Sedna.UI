@@ -306,7 +306,13 @@ public class AppToolingTests
             @"^(?<file>.+?)\((?<line>\d+),(?<column>\d+),\d+,\d+\): Sedna\.UI warning (?<code>SEDNAUI\d{3}): (?<message>.*?) \[",
             RegexOptions.Multiline);
 
-        public string Root { get; } = Directory.CreateTempSubdirectory("sedna-ui-tooling-").FullName;
+        // MSBuild reports the real path of a file, and on macOS the temp folder is reached through
+        // the /var -> /private/var link, so a root left as created makes every reported path
+        // relative to it climb out of it instead of naming the file.
+        public string Root { get; } = Real(Directory.CreateTempSubdirectory("sedna-ui-tooling-").FullName);
+
+        private static string Real(string path) =>
+            OperatingSystem.IsMacOS() && path.StartsWith("/var/", StringComparison.Ordinal) ? "/private" + path : path;
 
         public string PathOf(string relative) => Path.Combine(Root, relative.Replace('/', Path.DirectorySeparatorChar));
 

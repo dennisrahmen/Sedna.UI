@@ -40,30 +40,38 @@ public class ButtonEdgeContrastTests
         Assert.Equal("--brand-edge", Tones.Carriers()["brand"]["solid-edge"]);
     }
 
-    public static IEnumerable<object[]> TonesThemesAndPalettes() =>
-        from tone in Tones.Families()["btn"]
-        from row in TintedTextContrastTests.ThemesAndPalettes()
-        select new[] { tone, row[0], row[1] };
-
-    [Theory]
-    [MemberData(nameof(TonesThemesAndPalettes))]
-    public void Every_solid_buttons_boundary_clears_3_to_1(string tone, SednaTheme theme, string palette)
+    [Fact]
+    public void Every_solid_buttons_boundary_clears_3_to_1()
     {
-        var tokens = Tokens.Resolved(palette, theme.Palette);
-        var carrier = Tones.Carriers()[tone];
-        var failures = new List<string>();
+        // Tone, theme and palette are all named in each failure, so one test over the whole
+        // matrix reports every miss at once; a result per cell added nothing a message does not say.
+        var cells = (from tone in Tones.Families()["btn"]
+                     from row in TintedTextContrastTests.ThemesAndPalettes()
+                     select (tone, theme: (SednaTheme)row[0], palette: (string)row[1])).ToList();
+        Assert.NotEmpty(cells);
 
-        foreach (var ground in Grounds)
+        var problems = new List<string>();
+        foreach (var (tone, theme, palette) in cells)
         {
-            var fill = Tokens.Contrast(tokens, carrier["solid"], ground);
-            var edge = Tokens.Contrast(tokens, carrier["solid-edge"], ground);
-            if (Math.Max(fill, edge) < Floor)
-                failures.Add($"on {ground}: fill {carrier["solid"]} {fill:0.00}:1, edge {carrier["solid-edge"]} {edge:0.00}:1");
+            var tokens = Tokens.Resolved(palette, theme.Palette);
+            var carrier = Tones.Carriers()[tone];
+            var failures = new List<string>();
+
+            foreach (var ground in Grounds)
+            {
+                var fill = Tokens.Contrast(tokens, carrier["solid"], ground);
+                var edge = Tokens.Contrast(tokens, carrier["solid-edge"], ground);
+                if (Math.Max(fill, edge) < Floor)
+                    failures.Add($"on {ground}: fill {carrier["solid"]} {fill:0.00}:1, edge {carrier["solid-edge"]} {edge:0.00}:1");
+            }
+
+            if (failures.Count > 0)
+                problems.Add($".btn--{tone}.btn--solid, \"{theme.Name}\", {palette}: the boundary is under {Floor}:1.\n  "
+                    + string.Join("\n  ", failures));
         }
 
-        Assert.True(failures.Count == 0,
-            $".btn--{tone}.btn--solid, \"{theme.Name}\", {palette}: the boundary is under {Floor}:1.\n  "
-            + string.Join("\n  ", failures)
+        Assert.True(problems.Count == 0,
+            string.Join("\n", problems)
             + "\nGive the tone an edge token a step away from the fill, as --brand-edge does; never lighten the fill, which carries white text.");
     }
 }
