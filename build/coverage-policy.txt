@@ -9,7 +9,7 @@
 #
 # Percentages, 0-100.
 changed_lines_min = 90
-whole_floor = 80
+whole_floor = 90
 
 # What is measured: tracked files under a scope directory with one of its extensions.
 scope = src/Sedna.UI/ .cs
