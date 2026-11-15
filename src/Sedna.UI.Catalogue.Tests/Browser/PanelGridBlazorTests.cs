@@ -51,8 +51,8 @@ public class PanelGridBlazorTests(CatalogueAppFixture app)
 
         await page.WaitForFunctionAsync(
             $"() => /--panel-y:\\s*0;/.test(document.querySelector(\"{Grid} > [data-drag-item='returns']\").getAttribute('style'))");
-        Assert.Equal("--panel-x:0;--panel-y:0;--panel-w:8;--panel-h:3", await Rendered(page, "returns"));
-        Assert.Equal("--panel-x:0;--panel-y:3;--panel-w:4;--panel-h:3", await Rendered(page, "orders"));
+        Assert.Equal("--panel-x:0;--panel-y:0;--panel-w:16;--panel-h:3", await Rendered(page, "returns"));
+        Assert.Equal("--panel-x:0;--panel-y:3;--panel-w:8;--panel-h:3", await Rendered(page, "orders"));
         // The component renders in the arrangement's reading order.
         Assert.Equal("returns", await page.EvaluateAsync<string>($"() => document.querySelector(\"{Grid} > [data-drag-item]\").getAttribute('data-drag-item')"));
 
@@ -60,8 +60,8 @@ public class PanelGridBlazorTests(CatalogueAppFixture app)
         var width = page.Locator($"{Grid} > [data-drag-item='returns'] [data-resize='--panel-w']");
         await width.FocusAsync();
         await page.Keyboard.PressAsync("ArrowLeft");
-        await Assertions.Expect(width).ToHaveAttributeAsync("aria-valuenow", "7");
-        Assert.Equal("--panel-x:0;--panel-y:0;--panel-w:7;--panel-h:3", await Rendered(page, "returns"));
+        await Assertions.Expect(width).ToHaveAttributeAsync("aria-valuenow", "15");
+        Assert.Equal("--panel-x:0;--panel-y:0;--panel-w:15;--panel-h:3", await Rendered(page, "returns"));
 
         Assert.Empty(errors);
         await page.Context.CloseAsync();
