@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "d60ba6872d5fc152"
+    "stamp": "159a1c3f301ee9ce"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "e1d60ac962101eb3"
+    "stamp": "67aa1301345b7569"
   },
   {
     "page": "/stat",
@@ -104,7 +104,7 @@
       { "text": "A figure over time", "instead": "/chart" }
     ],
     "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard", "open-a-page-from-a-card" ],
-    "stamp": "be8e4226b8ff22d6"
+    "stamp": "bed04503b4f0f770"
   },
   {
     "page": "/bars",
@@ -188,7 +188,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "94e37273b6be035c"
+    "stamp": "7c81ec5135e2df1a"
   },
   {
     "page": "/pager",
@@ -241,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "8e2b027daa0381a2"
+    "stamp": "c46ad0636412f1cd"
   },
   {
     "page": "/graph-layouts",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "e493591b4154ab5a"
+    "stamp": "8c39e41427d6f765"
   },
   {
     "page": "/graph-plugins",
@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "e13ab987bf423e30"
+    "stamp": "2cc7a7fa03f96caf"
   },
   {
     "page": "/workflow-run",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "fb975c9cc29f297a"
+    "stamp": "b3ee2d87d8d8551c"
   }
 ]

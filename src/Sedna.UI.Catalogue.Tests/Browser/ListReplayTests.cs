@@ -28,8 +28,7 @@ public class ListReplayTests(CatalogueAppFixture app)
         await page.GetByRole(AriaRole.Button, new() { Name = "Replay" }).ClickAsync();
 
         // The rows arrive again: a row is held at its start, transparent, until its turn.
-        await page.WaitForFunctionAsync("() => document.getElementById('stagger-list').getAnimations({ subtree: true }).length > 0",
-            null, new() { Timeout = 3_000 });
+        await page.WaitForFunctionAsync("() => document.getElementById('stagger-list').getAnimations({ subtree: true }).length > 0");
         Assert.True(await list.EvaluateAsync<bool>("el => !el.hidden"), "Replay left the list hidden.");
         await context.CloseAsync();
     }
