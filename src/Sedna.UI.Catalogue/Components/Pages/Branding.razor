@@ -5,110 +5,10 @@
 @inject ISednaSettings Settings
 
 <CatHead Title="Branding" Tier="@CatHead.Site">
-    A rebrand, not a redesign: corner rounding, spacing, type and motion carry over unchanged, and
-    what moves is hue. The full manual is
-    <a href="@CatalogueLinks.BrandingDoc">docs/BRANDING.md</a>.
+    Sedna.UI's own brand: the mark in its three drawings, the palette it is generated from, and the
+    decisions behind it. To rebrand an app, use the <a href="/theme-builder">Theme builder</a>. The full
+    manual is <a href="@CatalogueLinks.BrandingDoc">docs/BRANDING.md</a>.
 </CatHead>
-
-<CatGroup Title="Themes">
-    <h3 id="switch">Switch it live <CatAnchor Id="switch" /></h3>
-
-    <p class="cat-lede">
-        Four registered themes, applied by flipping <code>data-theme</code> and
-        <code>data-variant</code> on <code>&lt;html&gt;</code> for the rest of this site.
-        <strong>Forest</strong> moves both halves, brand and base ramp; <strong>Cobalt</strong> moves the
-        brand only; <strong>Graphite</strong> the base only. A brand hue landing within ~15° of a
-        semantic family has to move that family — which is why Forest also moves <code>go</code> and
-        Cobalt moves <code>orbit</code>. Cobalt moves <code>indigo</code> as well, because its blue
-        brand is the first series colour and indigo the sixth.
-    </p>
-
-    <div style="display:flex; gap:24px; flex-wrap:wrap; margin:20px 0 34px">
-        <fieldset class="form-section" style="margin:0">
-            <legend>Theme</legend>
-            <div class="segmented">
-                <label class="segmented-option">
-                    <input type="radio" name="branding-theme" checked="@IsSedna" @onchange="SelectSedna" /> Sedna
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-theme" checked="@IsForest" @onchange="SelectForest" /> Forest
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-theme" checked="@IsCobalt" @onchange="SelectCobalt" /> Cobalt
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-theme" checked="@IsGraphite" @onchange="SelectGraphite" /> Graphite
-                </label>
-            </div>
-        </fieldset>
-        <fieldset class="form-section" style="margin:0">
-            <legend>Variant</legend>
-            <div class="segmented">
-                <label class="segmented-option">
-                    <input type="radio" name="branding-variant" checked="@IsDark" @onchange="SelectDark" />
-                    <i class="ri-moon-line"></i> <span>Dark</span>
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-variant" checked="@IsLight" @onchange="SelectLight" />
-                    <i class="ri-sun-line"></i> <span>Light</span>
-                </label>
-            </div>
-        </fieldset>
-        @* The other three appearance settings the header carries, on the page that is about
-           appearance. They are the same ISednaSettings the header writes, so flipping one here
-           moves the header's own toggle and the reverse, and neither has to know about the other. *@
-        <fieldset class="form-section" style="margin:0">
-            <legend>Palette</legend>
-            <div class="segmented">
-                <label class="segmented-option">
-                    <input type="radio" name="branding-palette" checked="@(!IsColourBlind)" @onchange="SelectFullColour" />
-                    <i class="ri-palette-line"></i> <span>Full colour</span>
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-palette" checked="@IsColourBlind" @onchange="SelectColourBlind" />
-                    <i class="ri-contrast-2-line"></i> <span>Colour-blind</span>
-                </label>
-            </div>
-        </fieldset>
-        <fieldset class="form-section" style="margin:0">
-            <legend>Density</legend>
-            <div class="segmented">
-                <label class="segmented-option">
-                    <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "comfortable")" @onchange="SelectComfortable" />
-                    <i class="ri-menu-line"></i> <span>Comfortable</span>
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-density" checked="@IsCompact" @onchange="SelectCompact" />
-                    <i class="ri-list-check-2"></i> <span>Compact</span>
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-density" checked="@(Settings.Current.Density == "touch")" @onchange="SelectTouch" />
-                    <i class="ri-hand"></i> <span>Touch</span>
-                </label>
-            </div>
-        </fieldset>
-        <fieldset class="form-section" style="margin:0">
-            <legend>Direction</legend>
-            <div class="segmented">
-                <label class="segmented-option">
-                    <input type="radio" name="branding-direction" checked="@(!IsRtl)" @onchange="SelectLtr" />
-                    <i class="ri-text-direction-r"></i> <span>Left to right</span>
-                </label>
-                <label class="segmented-option">
-                    <input type="radio" name="branding-direction" checked="@IsRtl" @onchange="SelectRtl" />
-                    <i class="ri-text-direction-l"></i> <span>Right to left</span>
-                </label>
-            </div>
-        </fieldset>
-    </div>
-
-    <CatExample TExample="Examples.Branding.Showcase" Title="Recolours instantly" Demo="ex-demo--block">
-        <p>
-            The same six things every page on this site is built from. Watch the card under Forest and
-            Graphite: its fill, its border and the page behind it all come from the theme's own base ramp.
-        </p>
-    </CatExample>
-</CatGroup>
 
 <CatGroup Title="Brand mark">
     <h3 id="mark">Three drawings <CatAnchor Id="mark" /></h3>
@@ -213,7 +113,7 @@
 
     <p class="cat-lede">
         The seven core colours the rest of the palette is generated from, read from the stylesheet the
-        browser actually loaded — so they follow whichever theme is selected above.
+        browser actually loaded — so they follow whichever theme the header's theme control selects.
     </p>
 
     <div class="cat-swatches">
@@ -228,45 +128,6 @@
             </div>
         }
     </div>
-
-    <h3 id="exact-brand">Exact brand colour <CatAnchor Id="exact-brand" /></h3>
-
-    <p class="cat-lede">
-        <code>SednaRamp.FromAnchor</code> takes the anchor's hue and chroma and reads its
-        <em>lightness</em> off the curve every family shares, so the step you anchored comes back a
-        different colour — close, deliberate, and wrong for a corporate design that mandates a hex.
-        <code>exactAnchor: true</code> keeps that one step verbatim and still generates the rest around
-        it.
-    </p>
-
-    <div class="cat-swatches">
-        @foreach (var step in PinnedSteps)
-        {
-            <div class="cat-swatch">
-                <span class="cat-chip" style="background: @Pinned[step]"></span>
-                <div class="cat-swatch-text">
-                    <div class="cat-swatch-name">Step @step</div>
-                    <div class="cat-swatch-value">@Pinned[step] — from the curve: @Curve[step]</div>
-                </div>
-            </div>
-        }
-    </div>
-
-    <CatSnippet Name="Branding/ExactAnchor.txt" Title="Pinned anchor step">
-        <p>
-            With <code>exactAnchor: true</code>, step 600 above is the anchor itself; its neighbours are
-            the ordinary generated steps. Use it for the one colour a brand guide names, not for a whole
-            ramp — pinning every step by hand is what the dictionary constructor is for.
-        </p>
-    </CatSnippet>
-
-    <CatSnippet Name="Branding/WithStep.txt" Title="Step from another colour">
-        <p>
-            <code>exactAnchor</code> keeps the colour a ramp is generated from, so its hue reaches every
-            step. When the hue comes from one colour and the mandated step from another, generate from
-            the first and pin the second with <code>WithStep</code>.
-        </p>
-    </CatSnippet>
 
     <h3 id="decisions">Three palette decisions <CatAnchor Id="decisions" /></h3>
 
@@ -309,33 +170,6 @@
 @code {
     private Dictionary<string, string>? _values;
 
-    // Read from ISednaSettings rather than kept here, so this page and the header's
-    // own toggle cannot disagree about what is applied. They did: each held its own
-    // copy, and changing the theme in one left the other showing the old choice
-    // until a reload.
-    private bool IsSedna => Settings.Current.Theme == "sedna";
-    private bool IsForest => Settings.Current.Theme == "forest";
-    private bool IsCobalt => Settings.Current.Theme == "cobalt";
-    private bool IsGraphite => Settings.Current.Theme == "graphite";
-    // "system" is stored as itself and resolves in the document. These two controls
-    // have no third state, so a reader on "system" sees the variant they are
-    // actually looking at rather than an empty selection.
-    private bool IsLight => Settings.Current.Variant == "light";
-    private bool IsDark => !IsLight;
-    private bool IsColourBlind => Settings.Current.ColourBlind;
-    private bool IsCompact => Settings.Current.Density == "compact";
-    private bool IsRtl => Settings.Current.Direction == "rtl";
-
-    /// <summary>
-    /// A neutral red standing in for a mandated corporate brand colour, generated both ways so the
-    /// difference at the anchor step is visible rather than described.
-    /// </summary>
-    private const string MandatedBrand = "#D62828";
-
-    private static readonly int[] PinnedSteps = [500, 600, 700];
-    private static readonly SednaRamp Curve = SednaRamp.FromAnchor(MandatedBrand, 600);
-    private static readonly SednaRamp Pinned = SednaRamp.FromAnchor(MandatedBrand, 600, exactAnchor: true);
-
     /// <summary>The seven fixed points every ramp is generated from — docs/BRANDING.md §1.4.</summary>
     private static readonly (string Label, string Token)[] CoreAnchors =
     [
@@ -373,20 +207,6 @@
         await Settings.StartAsync();
         await Read();
     }
-
-    private Task SelectSedna() => Settings.SetThemeAsync("sedna");
-    private Task SelectForest() => Settings.SetThemeAsync("forest");
-    private Task SelectCobalt() => Settings.SetThemeAsync("cobalt");
-    private Task SelectGraphite() => Settings.SetThemeAsync("graphite");
-    private Task SelectDark() => Settings.SetVariantAsync("dark");
-    private Task SelectLight() => Settings.SetVariantAsync("light");
-    private Task SelectFullColour() => Settings.SetColourBlindAsync(false);
-    private Task SelectColourBlind() => Settings.SetColourBlindAsync(true);
-    private Task SelectComfortable() => Settings.SetDensityAsync("comfortable");
-    private Task SelectCompact() => Settings.SetDensityAsync("compact");
-    private Task SelectTouch() => Settings.SetDensityAsync("touch");
-    private Task SelectLtr() => Settings.SetDirectionAsync("ltr");
-    private Task SelectRtl() => Settings.SetDirectionAsync("rtl");
 
     /// <summary>
     /// Every change arrives here, whichever control made it — this page's own segmented

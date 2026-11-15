@@ -1845,6 +1845,12 @@ window.sednaUi = window.sednaUi || {};
     var secondaryDown = false;
     document.addEventListener('pointerdown', function (e) { if (e.button === 2) secondaryDown = true; }, true);
     document.addEventListener('pointerup', function (e) { if (e.button === 2) secondaryDown = false; }, true);
+    document.addEventListener('mousedown', function (e) {
+        if (e.button !== 2 && !(e.button === 0 && e.ctrlKey)) return;
+        var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
+        if (!on || !document.getElementById(on.getAttribute('data-menu-context'))) return;
+        e.preventDefault();
+    });
     document.addEventListener('contextmenu', function (e) {
         var on = e.target instanceof Element ? e.target.closest('[data-menu-context]') : null;
         if (!on) return;

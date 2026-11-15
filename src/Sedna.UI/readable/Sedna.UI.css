@@ -1057,6 +1057,10 @@
     /* The hit area a small control grows to on a coarse pointer (69-touch.css). */
     --touch-target:      32px;
 
+    /* The room between an icon and the label beside it in a button and in a floating
+       button, one value at every size (33-buttons.css, 61-buttons-extra.css). */
+    --btn-gap: var(--space-4);
+
     /* ── Choice inset ───────────────────────────────────────────────────────
        Where a choice control's label starts, measured from the control's inline
        edge: the box or track plus the gap after it. `.choice-dependent` indents by
@@ -2633,6 +2637,7 @@ a.topbar-version--pre:hover {
     /* The page's ink, not the header's: the panel is a surface of its own, and a header
        painted with --topbar-fg would otherwise hand white text to a white panel. */
     color: var(--fg);
+    min-width: 220px;
     position: absolute;
     top: calc(100% + var(--space-2));
     inset-inline-end: 0;
@@ -5210,12 +5215,15 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
    shorter than the 1.4-line text next to it, so without it an icon-only button sits
    several pixels short in a mixed row. */
 .btn {
+    /* The room either side of the label, per tier. A leading or trailing icon takes less
+       of it on its own side, below. */
+    --btn-pad-x: var(--space-7);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2);
+    gap: var(--btn-gap);
     min-height: var(--control-height);
-    padding: var(--space-3) var(--space-7);
+    padding: var(--space-3) var(--btn-pad-x);
     border: 1px solid var(--border);
     border-radius: var(--radius-control);
     background: var(--bg-elevated);
@@ -5239,10 +5247,21 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 
 /* Three tiers. Each sets its height from the matching token and scales its padding,
    text and icon with it. */
-.btn--sm   { min-height: var(--control-height-sm); padding: var(--space-2) var(--space-5); font-size: var(--text-3); }
+.btn--sm   { --btn-pad-x: var(--space-5); min-height: var(--control-height-sm); padding-block: var(--space-2); font-size: var(--text-3); }
 .btn--sm i { font-size: var(--text-4); }
-.btn--lg   { min-height: var(--control-height-lg); padding: var(--space-4) var(--space-9); font-size: var(--text-5); gap: var(--space-4); }
+.btn--lg   { --btn-pad-x: var(--space-9); min-height: var(--control-height-lg); padding-block: var(--space-4); font-size: var(--text-5); }
 .btn--lg i { font-size: var(--text-8); }
+
+/* ── The icon and its label ─────────────────────────────────────────────────
+   The gap between an icon and the label beside it is `--btn-gap`, one value at every
+   size. The icon's own side of the button gives back 4px of the padding, so the room
+   from the button's edge to the icon and from the icon to the label read as a pair
+   — most of all in a label that wraps, where the text beside the icon is a block and
+   the icon would otherwise stand 16px from the edge and 4px from its text.
+   Only an icon that has a sibling element counts, so an icon-only button keeps the
+   padding it was given; put the label in a <span>. */
+.btn:not(.btn--icon):has(> i:first-child:not(:only-child)) { padding-inline-start: calc(var(--btn-pad-x) - var(--space-2)); }
+.btn:not(.btn--icon):has(> i:last-child:not(:only-child))  { padding-inline-end:   calc(var(--btn-pad-x) - var(--space-2)); }
 
 /* ── Filling the row ────────────────────────────────────────────────────────
    `--fill` on a control that sits in a row of its own makes it as wide as its
@@ -14754,18 +14773,20 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    Dismissal is the app's: click the scrim, press Escape. There is deliberately no
    JavaScript behind this — the frame must work with scripting blocked.
    ─────────────────────────────────────────────────────────────────────────── */
-/* `width: max-content` is what makes the panel as wide as its widest row, and the
-   220px is a floor rather than the width. Shrink-to-fit was the width before, and
-   for an out-of-flow box that is measured against the CONTAINING BLOCK, not the
-   content: anchored inside a narrow table cell the available width was the cell,
-   so the panel came out at the floor with its rows wrapped or clipped inside it.
-   A dropdown sizes to what is in it.
+/* `width: max-content` is what makes the panel as wide as its widest row. Shrink-to-fit
+   was the width before, and for an out-of-flow box that is measured against the
+   CONTAINING BLOCK, not the content: anchored inside a narrow table cell the available
+   width was the cell, so the panel came out narrow with its rows wrapped or clipped
+   inside it. A dropdown sizes to what is in it.
+
+   There is no fixed floor. A menu of two short items is as wide as they are, and a menu
+   opened from a trigger is never narrower than the trigger (`anchor-size`, below), so
+   it does not read as a smaller thing hanging off a larger one.
 
    The cap keeps a long item from drawing a panel wider than the viewport; past it
    the rows wrap, which is the right failure for a label nobody can shorten. */
 .menu {
     width: max-content;
-    min-width: 220px;
     max-width: min(20rem, calc(100vw - 32px));
     padding: var(--space-2);
     --surface-here: var(--bg-elevated);
@@ -14853,6 +14874,8 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     position-visibility: anchors-visible;
     margin-block-start: var(--space-2);
+    /* At least as wide as the trigger. */
+    min-width: anchor-size(inline, 0px);
     z-index: 550;
 }
 /* This offset is computed when the panel becomes visible and Chromium does not
@@ -14997,29 +15020,31 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
    The chevron is drawn by CSS, so the markup is the value and nothing else. Pair it
    with data-menu-toggle and a sibling .menu.
 
-   `--value-trigger-measure` is how much of the value the control keeps room for —
-   a knob on the element, the same shape as `--toolbar-input-width` and
-   `--col-control-min`. Set it per instance for a column whose values are longer
-   (`style="--value-trigger-measure: 16ch"`). See the note on the value span below
-   for what it is holding open. */
+   The control is as wide as its value and the chevron after it. A column of them that
+   should line their chevrons up reserves room for the longest value with
+   `--value-trigger-measure` — a knob on the element, the same shape as
+   `--toolbar-input-width` and `--col-control-min`
+   (`style="--value-trigger-measure: 16ch"`); it is a floor and is 0 by default. */
 .value-trigger {
-    --value-trigger-measure: 10ch;
-    /* The measure PLUS the chevron's own room, on the TRIGGER rather than on the
-       value inside it. The chevron is an ::after, and `.menu-anchor`'s shrink-to-fit
-       does not count a pseudo-element's contribution — measured: an anchor 12px
-       narrower than its own trigger's max-content, exactly the gap plus the
-       chevron — so a floor on the value alone sized the trigger to the value and the
-       chevron was drawn outside it and clipped. A min-width here is a definite
-       length, which the parent does count.
+    --value-trigger-measure: 0ch;
+    /* As wide as its value and the chevron, and no wider unless a measure asks for it.
+       `width: max-content` is the value's own width, so a long value is cut by the
+       container and a short one leaves nothing stranded between it and the chevron.
 
-       The four terms are the gap, the chevron's 8px of border, the inline padding
-       and the border, so the value still gets its full measure inside them. */
-    min-width: calc(var(--value-trigger-measure) + var(--space-2) + 8px
+       The trigger's negative inline margin (below) pulls it out of the box its
+       `.menu-anchor` or cell measures, so `max-width` adds the same room back to the
+       percentage and `flex-shrink: 0` keeps the anchor's narrower content box from
+       squeezing the value inside it — measured: an anchor 12px narrower than its trigger
+       cut every value by two characters. The floor is the measure PLUS the chevron's own
+       room: the gap, the chevron's 8px of border, the inline padding and the border. */
+    min-width: calc(var(--value-trigger-measure) + var(--space-4) + 8px
                     + var(--space-3) * 2 + 2px);
+    width: max-content;
+    max-width: calc(100% + var(--space-3) * 2);
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    max-width: 100%;
+    gap: var(--space-4);
     padding: var(--space-1) var(--space-3);
     margin-inline: calc(var(--space-3) * -1);   /* so the text still lines up with its column */
     background: none;
@@ -15052,16 +15077,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 .value-trigger[aria-expanded="true"]::after { transform: rotate(180deg); }
 .value-trigger[aria-disabled="true"] { color: var(--muted); pointer-events: none; }
 .value-trigger[aria-disabled="true"]::after { display: none; }
-/* The value itself, so a long one truncates instead of pushing the chevron out.
-
-   `min-width: 0` rather than the measure. `overflow: hidden` on a flex item already
-   sets its automatic minimum size to zero — that is what makes the ellipsis possible
-   — and the floor that stops it truncating ALWAYS is the trigger's own min-width
-   above. It has to be there and not here: in a table cell a zero minimum is also the
-   column's minimum contribution, so auto table layout squeezes the column down to
-   the padding and every value in it renders as two characters and an ellipsis. The
-   trigger's min-width is what the column now asks for, and it reserves the chevron's
-   room in the same number. */
+/* The value itself, so a long one truncates instead of pushing the chevron out. */
 .value-trigger > span {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -15130,14 +15146,20 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     transform: translateY(-60%) rotate(45deg);
 }
 
+/* A group's heading. Its line is trimmed to its capitals and given back in the padding,
+   as an item's is, so the space above the first heading is the space above the first
+   item whatever line height the panel inherits: in a table cell the inherited line is
+   taller than a page's, and an untrimmed heading came out several pixels taller there. */
 .menu-label {
     display: block;
-    padding: var(--space-4) var(--space-5) var(--space-2);
+    padding: calc(var(--space-4) + var(--cap-gap)) var(--space-5) calc(var(--space-2) + var(--cap-gap));
     font-size: var(--text-1);
     font-weight: 600;
+    line-height: round(1.5em, 2px);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--muted);
+    text-box: trim-both cap alphabetic;
 }
 .menu-sep { border: none; border-top: 1px solid var(--divider); margin: var(--space-2) var(--space-1); }
 
@@ -15222,6 +15244,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     position-try-fallbacks: flip-block;
     position-visibility: anchors-visible;
     margin-block-start: var(--space-2);
+    min-inline-size: 220px;
     max-block-size: 16rem;
     overflow-y: auto;
     z-index: 550;
@@ -17123,11 +17146,12 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-4);
-    min-height: 48px;
+    gap: var(--btn-gap);
+    --fab-size: 48px;
+    min-height: var(--fab-size);
     padding: 0 var(--space-8);
     background: var(--brand);
-    border: none;
+    border: 1px solid var(--brand-edge);
     border-radius: var(--radius-pill);
     color: var(--on-solid);
     font-family: inherit;
@@ -17140,7 +17164,15 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
 .fab:hover { background: var(--brand-hover); }
 .fab:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* Icon-only: circular, and the label goes in an aria-label. */
-.fab--icon { width: 48px; padding: 0; }
+.fab--icon { width: var(--fab-size); padding: 0; }
+/* Three sizes, as the button has: the size is the height, and an icon-only one is as wide.
+   A tone is a modifier too — .fab--go, --warn, --danger, --info, --secret — read in
+   69-tone.css. */
+.fab--sm { --fab-size: 40px; padding-inline: var(--space-7); font-size: var(--text-4); }
+.fab--sm i { font-size: var(--text-7); }
+.fab--lg { --fab-size: 56px; padding-inline: var(--space-9); }
+.fab--lg i { font-size: var(--text-9); }
+.fab--icon:is(.fab--sm, .fab--lg) { padding: 0; }
 
 /* ── Speed dial ─────────────────────────────────────────────────────────────
    A FAB that fans out a few related actions above itself instead of doing one:
@@ -18535,6 +18567,15 @@ button.sheet-handle:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--f
 }
 .file-name-start { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .file-name-end { flex-shrink: 0; }
+/* A name the app did not split is one run of text, and a flex container leaves a bare
+   text run as an anonymous item that never shrinks — so a long name, joined by dashes
+   and with no place to break, ran out of its tile. Without the split spans the name is
+   a block cut at its end, which is all `text-overflow` can do to it. */
+.file-name:not(.file-name--wrap, :has(> .file-name-start)) {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 /* The whole name over as many lines as it takes, for a reader who has to see every
    character of a name they did not choose — an upload straight off a phone. A token
    with no break in it breaks anywhere rather than running out of the tile, and does
@@ -26487,7 +26528,7 @@ button.inbox-item-title {
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
+.btn, .fab, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -26503,7 +26544,7 @@ button.inbox-item-title {
     --tone-on-solid: initial;
 }
 
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
+.btn--brand, .fab--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -26519,7 +26560,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
+.btn--go, .fab--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -26535,7 +26576,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
+.btn--warn, .fab--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -26551,7 +26592,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
+.btn--danger, .fab--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -26567,7 +26608,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
+.btn--info, .fab--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -26583,7 +26624,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
+.btn--secret, .fab--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -26679,6 +26720,12 @@ button.inbox-item-title {
 .btn.btn--solid:hover { background: var(--tone-solid-hover, var(--fg-soft)); }
 .btn.btn--solid:active { background: var(--tone-solid-active, var(--fg-soft)); }
 .btn.btn--solid:focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
+/* A floating button is always filled, so it reads the solid properties and has no soft or
+   ghost form. Untoned it is the brand's (61-buttons-extra.css). */
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret) { background: var(--tone-solid); border-color: var(--tone-solid-edge); color: var(--tone-on-solid); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):hover { background: var(--tone-solid-hover); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):active { background: var(--tone-solid-active); }
+.fab:is(.fab--brand, .fab--go, .fab--warn, .fab--danger, .fab--info, .fab--secret):focus-visible { box-shadow: var(--shadow-float), 0 0 0 3px var(--tone-ring-solid); }
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
@@ -26738,8 +26785,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    contrast: a disabled control is still read, to learn why it cannot be used, and
    opacity took the text under 3:1. Nothing is faded; the control loses its tone and its
    fill instead. Graphics with no text — a check mark, a range thumb — keep the opacity. */
-.btn:is(:disabled, [aria-disabled="true"]),
-.btn:is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+:is(.btn, .fab):is(:disabled, [aria-disabled="true"]),
+:is(.btn, .fab):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
     background: var(--disabled-bg);
     border-color: var(--disabled-border);
     color: var(--disabled-fg);
