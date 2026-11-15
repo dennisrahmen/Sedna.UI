@@ -37,7 +37,7 @@ public class PanelPlacementTests
             "the same label on the responsive rail, which mirrors the collapsed one",
         [".menu-sub-anchor > .menu-sub"] =
             "a submenu opens beside its item by construction, wherever its own menu opened",
-        [".menu[popover]"] =
+        [".menu[popover]:not([data-menu-raised])"] =
             "a menu at the pointer opens where the reader clicked; a point has no side to choose",
     };
 

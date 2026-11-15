@@ -890,7 +890,7 @@ window.sednaUi = window.sednaUi || {};
     }
     function closePointMenus(scroller) {
         var open;
-        try { open = document.querySelectorAll('.menu[popover]:popover-open'); }
+        try { open = document.querySelectorAll('.menu[popover]:not([data-menu-raised]):popover-open'); }
         catch (err) { return; }
         for (var i = 0; i < open.length; i++) {
             var panel = open[i];
@@ -1567,12 +1567,36 @@ window.sednaUi = window.sednaUi || {};
         var anchor = toggle.closest('.menu-anchor');
         return anchor ? anchor.querySelector('.menu') : null;
     }
+    function raise(panel, open) {
+        if (!panel || typeof panel.showPopover !== 'function') return;
+        try {
+            if (!open) {
+                if (panel.hasAttribute('data-menu-raised') && panel.matches(':popover-open')) panel.hidePopover();
+                return;
+            }
+            if (panel.hasAttribute('popover') && !panel.hasAttribute('data-menu-raised')) return;   // a menu at the pointer
+            if (!panel.hasAttribute('data-menu-raised')) {
+                if (getComputedStyle(panel).position === 'static') return;
+                panel.setAttribute('data-menu-raised', '');
+                panel.setAttribute('popover', 'manual');
+            }
+            if (getComputedStyle(panel).position === 'static') return;
+            if (!panel.matches(':popover-open')) panel.showPopover();
+        } catch (err) { /* the panel stays where it is */ }
+    }
+    function lower(panel) {
+        var subs = panel.querySelectorAll('.menu-sub[data-menu-raised]');
+        for (var i = 0; i < subs.length; i++) raise(subs[i], false);
+        raise(panel, false);
+    }
     function setOpen(toggle, panel, open) {
+        if (!open) lower(panel);
         panel.hidden = !open;
         toggle.setAttribute('aria-expanded', String(open));
+        if (open && !toggle.closest('.fab-dial')) raise(panel, true);
         if (open) startFilter(panel);
         if (open && ui._.layer) {
-            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) panel.hidden = true; });
+            ui._.layer.whenGone(toggle, function () { if (panel.isConnected) { lower(panel); panel.hidden = true; } });
         }
     }
     function closeAll(except) {
@@ -1623,7 +1647,7 @@ window.sednaUi = window.sednaUi || {};
         return menu;
     }
     function closeMenu(menu) {
-        if (menu.hasAttribute('popover')) {
+        if (menu.hasAttribute('popover') && !menu.hasAttribute('data-menu-raised')) {
             try { if (menu.matches(':popover-open')) menu.hidePopover(); } catch (err) { /* closed */ }
             return;
         }
@@ -1649,11 +1673,19 @@ window.sednaUi = window.sednaUi || {};
         var anchor = item.closest('.menu-sub-anchor');
         return anchor ? anchor.querySelector(':scope > .menu-sub') : null;
     }
+    function syncSub(anchor) {
+        var sub = anchor.querySelector(':scope > .menu-sub');
+        if (!sub) return;
+        var open = anchor.hasAttribute('data-open');
+        try { open = open || anchor.matches(':hover, :focus-within'); } catch (err) { /* no :hover here */ }
+        raise(sub, open);
+    }
     function setSub(item, open) {
         var anchor = item.closest('.menu-sub-anchor');
         if (!anchor) return;
         if (open) anchor.setAttribute('data-open', ''); else anchor.removeAttribute('data-open');
         item.setAttribute('aria-expanded', String(open));
+        syncSub(anchor);
     }
     document.addEventListener('keydown', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
@@ -1748,13 +1780,22 @@ window.sednaUi = window.sednaUi || {};
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) setSub(opener, false);
     });
+    document.addEventListener('focusin', function (e) {
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (anchor) syncSub(anchor);
+    });
     document.addEventListener('pointerover', function (e) {
-        var opener = e.target instanceof Element ? e.target.closest('[data-menu-sub]') : null;
-        if (opener) opener.setAttribute('aria-expanded', 'true');
+        var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
+        if (!anchor) return;
+        var opener = anchor.querySelector(':scope > [data-menu-sub]');
+        if (opener && opener.contains(e.target)) opener.setAttribute('aria-expanded', 'true');
+        syncSub(anchor);
     });
     document.addEventListener('pointerout', function (e) {
         var anchor = e.target instanceof Element ? e.target.closest('.menu-sub-anchor') : null;
-        if (!anchor || anchor.contains(e.relatedTarget) || anchor.hasAttribute('data-open')) return;
+        if (!anchor || anchor.contains(e.relatedTarget)) return;
+        setTimeout(function () { syncSub(anchor); }, 0);
+        if (anchor.hasAttribute('data-open')) return;
         var opener = anchor.querySelector(':scope > [data-menu-sub]');
         if (opener) opener.setAttribute('aria-expanded', 'false');
     });
@@ -1824,7 +1865,7 @@ window.sednaUi = window.sednaUi || {};
     });
     document.addEventListener('toggle', function (e) {
         var panel = e.target;
-        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]')) return;
+        if (e.newState !== 'closed' || !panel || !panel.matches || !panel.matches('.menu[popover]:not([data-menu-raised])')) return;
         var on = origins.get(panel);
         origins.delete(panel);
         if (on && on.hasAttribute('data-menu-context-target')) on.removeAttribute('data-menu-context-target');
@@ -1832,7 +1873,7 @@ window.sednaUi = window.sednaUi || {};
     document.addEventListener('click', function (e) {
         var item = e.target instanceof Element ? e.target.closest('.menu-item') : null;
         if (!item || item.hasAttribute('data-menu-sub')) return;
-        var panel = item.closest('.menu[popover]');
+        var panel = item.closest('.menu[popover]:not([data-menu-raised])');
         try { if (panel && panel.matches(':popover-open')) panel.hidePopover(); } catch (err) { /* closed */ }
     });
 })(window.sednaUi);

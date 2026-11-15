@@ -39,6 +39,17 @@
     box-shadow: var(--shadow-dropdown);
 }
 
+/* A panel the script has put in the top layer (22-menu.js, `raise`) keeps the place and the look
+   it had: a popover's own styles — an inset on every side, auto margins, scrolling, the
+   canvas colours — are undone, and what the panel is placed by is its own below. It comes first,
+   so the panel's own margins, later, outrank the reset. */
+.menu[data-menu-raised] {
+    inset: auto;
+    margin: 0;
+    overflow: visible;
+    color: inherit;
+}
+
 /* Wrap trigger + panel in this to anchor the panel under the trigger.
    ─── Why this is anchor positioning and no longer `position: absolute` ─────
    An absolutely positioned panel is laid out INSIDE the nearest scroll container
@@ -227,7 +238,7 @@
     pointer-events: none;
     anchor-name: --sedna-menu-point;
 }
-.menu[popover] {
+.menu[popover]:not([data-menu-raised]) {
     inset: auto;
     margin: 0;
     position: fixed;
@@ -533,7 +544,7 @@
    reason, a field's results under it, keeps its place under its anchor. */
 @media (max-width: 767px) {
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu,
-    .menu[popover] {
+    .menu[popover]:not([data-menu-raised]) {
         position: fixed;
         inset: auto 0 0;
         position-area: none;
@@ -563,7 +574,7 @@
     /* Above the catcher, which is the panel's first box: the rows are what a press on
        the panel reaches. */
     .menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]):not(:has(> .menu-scrim)) > .menu > * { position: relative; z-index: 1; }
-    .menu[popover]::backdrop { background: var(--backdrop); }
+    .menu[popover]:not([data-menu-raised])::backdrop { background: var(--backdrop); }
 
     :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item { padding-block: var(--space-5); }
     :is(.menu-anchor:not(.fab-dial):has(> [aria-expanded="true"], [data-menu-toggle][aria-expanded="true"]) > .menu, .menu[popover]) .menu-item:not(:has(> *)) {

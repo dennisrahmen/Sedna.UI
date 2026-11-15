@@ -4035,7 +4035,9 @@
         "menu--start"
       ],
       "attributes": [
+        ":not([data-menu-raised])",
         "[data-menu-empty]",
+        "[data-menu-raised]",
         "[popover]"
       ]
     },

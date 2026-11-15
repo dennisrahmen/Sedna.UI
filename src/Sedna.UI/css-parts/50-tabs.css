@@ -48,15 +48,18 @@
     transition: color var(--motion-fast), border-color var(--motion-fast), background var(--motion-fast);
 }
 .tab i { font-size: var(--text-6); }
-.tab:hover { color: var(--fg); background: var(--surface-soft); text-decoration: none; }
+/* Hover recolours the label and draws a hairline where the indicator will be: no fill, so a
+   strip inside a panel or a card head is not a row of grey boxes against its edge. */
+.tab:hover { color: var(--fg); border-bottom-color: var(--control-border); text-decoration: none; }
 .tab:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .tab:disabled,
 .tab[aria-disabled="true"] { cursor: not-allowed; }
+.tab:where(:disabled, [aria-disabled="true"]):hover { color: var(--muted); border-bottom-color: transparent; }
 
 .tab--active,
 .tab[aria-selected="true"] { color: var(--brand-text); border-bottom-color: var(--tab-indicator); }
 .tab--active:hover,
-.tab[aria-selected="true"]:hover { color: var(--brand-text); background: none; }
+.tab[aria-selected="true"]:hover { color: var(--brand-text); }
 
 /* A count beside the label — how many rows the tab's panel holds. */
 .tab-count {

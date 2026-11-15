@@ -186,6 +186,20 @@
    its place at the inline start or end, which already mirrors. */
 [dir="rtl"] .carousel :is([data-carousel-prev], [data-carousel-next]) > i { transform: scaleX(-1); }
 
+/* 40, 41, 69 — what sweeps across a track runs from the inline start to the inline end, which is
+   from the right here. The indeterminate bar is moved by a translate, which has no logical form,
+   so it reads a sign (41-progress.css); the busy bar and the skeleton's band are background
+   positions, which are physical, so each rests at its far end and runs its sweep backwards. */
+[dir="rtl"] .progress--indeterminate .progress-bar { --progress-flow: -1; }
+[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    animation-direction: reverse;
+    background-position: 142.8572% 0;
+}
+[dir="rtl"] .skeleton {
+    animation-direction: reverse;
+    background-position: 200% 0, 0 0;
+}
+
 /* 56 — a diff's lines are code and stay left to right (56-diff.css sets the body
    `direction: ltr`); a fold row holds the app's own words, which follow the page. */
 [dir="rtl"] .diff-fold > td { direction: rtl; }
