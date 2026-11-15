@@ -506,7 +506,8 @@
 .cat-guide-goals > li > a:hover { border-color: var(--brand); color: var(--brand-text); text-decoration: none; }
 /* The design guide's goals: one area at a time, a card per goal, two or three across. The card
    a component page links to is outlined, so the reader lands on it rather than near it. */
-.cat-goals { margin-top: 16px; align-items: start; }
+/* At least a screen tall, so an area with few goals can still scroll its heading to the top. */
+.cat-goals { margin-top: 16px; align-items: start; min-height: 100dvh; }
 .cat-goal { scroll-margin-top: 16px; }
 .cat-goal:target { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
 .cat-goal > .card-body > h3 { margin: 0 0 8px; font-size: 15px; line-height: 1.4; }
