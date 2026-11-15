@@ -33,14 +33,14 @@
    in the shared shape rule: a select carrying `.form-select` alone is a complete,
    correct class list, and the one control a form most often rejects — an empty
    required dropdown — would otherwise report nothing. */
-:is(.form-input, .form-select, .form-color)[data-state="warn"],
+:is(.form-input, .form-select, .form-color, .listbox)[data-state="warn"],
 .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]),
 .form-combo-box:has(> .form-combo-input[data-state="warn"]),
 .editor[data-state="warn"],
 .editor:has(> [data-editor-value][data-state="warn"], > .editor-body [data-state="warn"]),
 .md-editor:has(> [data-md-input][data-state="warn"]) { border-color: var(--field-border-warn); }
 
-:is(.form-input, .form-select)[data-state="warn"]:focus,
+:is(.form-input, .form-select, .listbox)[data-state="warn"]:focus,
 .form-color[data-state="warn"]:focus-visible,
 .input-group:has(> :is(.form-input, .form-select)[data-state="warn"]):focus-within,
 .form-combo-box:has(> .form-combo-input[data-state="warn"]):focus-within,
@@ -50,14 +50,14 @@
     box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
-:is(.form-input, .form-select, .form-color)[aria-invalid="true"],
+:is(.form-input, .form-select, .form-color, .listbox)[aria-invalid="true"],
 .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]),
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]),
 .editor[aria-invalid="true"],
 .editor:has(> [data-editor-value][aria-invalid="true"], > .editor-body [aria-invalid="true"]),
 .md-editor:has(> [data-md-input][aria-invalid="true"]) { border-color: var(--field-border-danger); }
 
-:is(.form-input, .form-select)[aria-invalid="true"]:focus,
+:is(.form-input, .form-select, .listbox)[aria-invalid="true"]:focus,
 .form-color[aria-invalid="true"]:focus-visible,
 .input-group:has(> :is(.form-input, .form-select)[aria-invalid="true"]):focus-within,
 .form-combo-box:has(> .form-combo-input[aria-invalid="true"]):focus-within,

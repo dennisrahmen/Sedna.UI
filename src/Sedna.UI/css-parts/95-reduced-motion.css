@@ -63,6 +63,7 @@
     .form-input,
     .form-select      { transition: none; }   /* 34 */
     .form-check input[type="checkbox"] { transition: none; }   /* 34 */
+    .listbox          { transition: none; }   /* 60 */
     .editor           { transition: none; }   /* 44 */
     .form-color       { transition: none; }   /* 45 */
     .form-signature-pad { transition: none; } /* 47 */

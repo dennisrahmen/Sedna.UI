@@ -303,7 +303,12 @@
 }
 .stepper .form-input::-webkit-outer-spin-button,
 .stepper .form-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.stepper .btn { border-radius: 0; }
+/* The buttons take the input's edge. A `.btn` draws `--border`, the quiet edge of a
+   button on its own, and the input draws `--field-border`, the controls' 3:1 edge: side by
+   side the one shared line between them was the button's, and the field ran into the
+   plus with almost no outline at all. All three parts are one control, so one colour. */
+.stepper .btn { border-radius: 0; border-color: var(--field-border); }
+.stepper .btn:hover { border-color: var(--border-hover); }
 .stepper > :first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
 .stepper > :last-child  { border-start-end-radius: var(--radius-control);   border-end-end-radius: var(--radius-control); }
 /* One shared border between neighbours rather than two adjacent ones. */

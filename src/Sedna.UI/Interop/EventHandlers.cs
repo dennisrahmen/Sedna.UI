@@ -56,6 +56,7 @@ namespace Sedna.UI;
 [EventHandler("onsedna-tree-check", typeof(SednaTreeSelectEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-countdown-end", typeof(SednaCountdownEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-selection", typeof(SednaSelectionEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
+[EventHandler("onsedna-listbox-select", typeof(SednaListboxEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-popover-fill", typeof(SednaPopoverEventArgs), enableStopPropagation: true, enablePreventDefault: false)]
 [EventHandler("onsedna-md-file", typeof(SednaMarkdownFileEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
 public static class EventHandlers

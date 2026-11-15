@@ -327,14 +327,24 @@
 .form-select option:has(> .option-hint)::checkmark { margin-inline-start: var(--space-5); }
 
 /* ── Groups and separators ──────────────────────────────────────────────────
-   Use a `<legend>` for a group heading, not the `label` attribute on its own. The
-   attribute's heading is drawn by the browser outside this document and cannot be
-   themed — the two lines below would do nothing to it. Keep the attribute as well:
-   it is what a browser without base appearance shows.
+   A group is an `<optgroup>` with a `<legend>` for its heading, and the label attribute
+   as well:
 
        <optgroup label="Regions"><legend>Regions</legend> … </optgroup>
 
-   `<hr>` between groups is a separator the picker renders like any other box. */
+   The attribute's heading is drawn by the browser outside this document and cannot be
+   themed — the rules below would do nothing to it — so it is what a browser without base
+   appearance shows, and the `<legend>` is what this one does. Keep both.
+
+   One line divides two groups, and the CSS draws it: the second group takes a hairline
+   and a step of space above it, so there is nothing to write between groups. An `<hr>`
+   between them was the habit, and it drew a second line beside this one, and beside the
+   platform's own in a browser that separates its groups itself — so an `<hr>` that
+   directly precedes a group is the divider and the group draws none. `<hr>` is for the
+   place a group is not: between loose options.
+
+   A list box is not divided: its headings are what separate groups, and a line would
+   come out of the `size` budget below. */
 .form-select optgroup > legend {
     padding: var(--space-4) var(--space-5) var(--space-2);
     font-size: var(--text-1);
@@ -343,10 +353,18 @@
     letter-spacing: 0.08em;
     color: var(--muted);
 }
+.form-select:not([multiple], [size]:not([size="1"])) :is(optgroup, option) + optgroup {
+    margin-block-start: var(--space-2);
+    border-block-start: 1px solid var(--divider);
+}
 .form-select hr {
     margin: var(--space-2) 0;
     border: 0;
     border-block-start: 1px solid var(--divider);
+}
+.form-select:not([multiple], [size]:not([size="1"])) hr + optgroup {
+    margin-block-start: 0;
+    border-block-start: 0;
 }
 
 /* ── The list box ───────────────────────────────────────────────────────────

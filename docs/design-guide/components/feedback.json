@@ -16,7 +16,7 @@
       { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
     ],
     "goals": [ "explain-a-page-condition", "summarise-form-errors", "show-field-errors", "confirm-before-it-happens" ],
-    "stamp": "cf244186d94b3450"
+    "stamp": "743ee422ce702f8b"
   },
   {
     "page": "/toast",
@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "c8323d661811cf43"
+    "stamp": "4d25ce3cdf167ad0"
   },
   {
     "page": "/progress",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "34a27646fb3e58dd"
+    "stamp": "497b192d53f9efec"
   }
 ]

@@ -23,7 +23,7 @@ const events = [
     'sedna-chart-select',
     'sedna-follow', 'sedna-resize', 'sedna-countdown-end',
     'sedna-tree-expand', 'sedna-tree-collapse', 'sedna-tree-select', 'sedna-tree-check',
-    'sedna-selection', 'sedna-popover-fill',
+    'sedna-selection', 'sedna-popover-fill', 'sedna-listbox-select',
     'sedna-md-file',
 ];
 

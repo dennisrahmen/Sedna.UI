@@ -25,8 +25,10 @@
         <p>
             A range gives no readout. Put the value in text beside it with
             <code>.form-range-value</code> — the thumb position is not a number, and it is unreadable to a
-            screen reader on its own. The readout is fixed-width and tabular, so the track does not shift
-            while dragging.
+            screen reader on its own. The readout is an <code>&lt;output&gt;</code> whose <code>for</code>
+            names the range, with <code>data-range-value</code> on the element that holds the number:
+            <code>Sedna.UI.js</code> writes the value there as the thumb moves, so the unit around it
+            stays the app's. It is fixed-width and tabular, so the track does not shift while dragging.
         </p>
     </CatExample>
 

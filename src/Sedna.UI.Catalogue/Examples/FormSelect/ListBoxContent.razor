@@ -1,26 +1,25 @@
 <div class="form-field" style="max-width:420px">
-    <label class="form-label" for="lb-rich">Escalation policy</label>
-    <select class="form-input form-select" id="lb-rich" multiple size="6">
-        <option selected>
+    <span class="form-label" id="lbc-label">Escalation policy</span>
+    <div class="listbox" role="listbox" aria-labelledby="lbc-label" aria-multiselectable="true" tabindex="0" style="--listbox-rows:6">
+        <div role="option" aria-selected="true">
             <i class="ri-phone-line" aria-hidden="true"></i>
-            <span class="option-text">Call the duty engineer<span class="option-sep"> · </span><span class="option-hint">Rings the rota phone, then the lead after 5 minutes</span></span>
-        </option>
-        <option>
+            <span class="option-text">Call the duty engineer<span class="option-hint">Rings the rota phone, then the lead after 5 minutes</span></span>
+        </div>
+        <div role="option" aria-selected="false">
             <i class="ri-mail-send-line" aria-hidden="true"></i>
-            <span class="option-text">E-mail the team<span class="option-sep"> · </span><span class="option-hint">One message to the group address, no acknowledgement</span></span>
-        </option>
-        <option selected>
+            <span class="option-text">E-mail the team<span class="option-hint">One message to the group address, no acknowledgement</span></span>
+        </div>
+        <div role="option" aria-selected="true">
             <i class="ri-notification-3-line" aria-hidden="true"></i>
-            <span class="option-text">Push to the on-call app<span class="option-sep"> · </span><span class="option-hint">Repeats every 2 minutes until someone accepts</span></span>
-        </option>
-        <option disabled>
+            <span class="option-text">Push to the on-call app<span class="option-hint">Repeats every 2 minutes until someone accepts</span></span>
+        </div>
+        <div role="option" aria-selected="false" aria-disabled="true">
             <i class="ri-chat-3-line" aria-hidden="true"></i>
-            <span class="option-text">Post to the channel<span class="option-sep"> · </span><span class="option-hint">Unavailable &mdash; no channel is connected</span></span>
-        </option>
-    </select>
+            <span class="option-text">Post to the channel<span class="option-hint">Unavailable &mdash; no channel is connected</span></span>
+        </div>
+    </div>
     <p class="form-hint">
-        The same <code>.option-text</code> and <code>.option-hint</code> a dropdown uses. A two-line
-        row is taller than the row height <code>size</code> divides by, so set <code>size</code> to
-        roughly half the rows you want on screen &mdash; here 6 shows 3.
+        A row is whatever the app writes in it. A two-line row is taller than a one-line one, so set
+        <code>--listbox-rows</code> to about half the rows you want on screen &mdash; here 6 shows 3.
     </p>
 </div>

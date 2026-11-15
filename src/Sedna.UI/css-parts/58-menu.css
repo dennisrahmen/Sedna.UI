@@ -356,8 +356,8 @@
 
    It is the tint and the brand ink `.nav-link.active` and a `.form-select`'s chosen
    option carry, so the three read alike, and a tick at the trailing edge, where the
-   select draws its own, so it does not depend on colour. The tick is drawn as the
-   combo field's is, and stands in a column of its own: a menu holding a current item
+   select draws its own, so it does not depend on colour. The tick is the shared
+   mask of `34-forms.css`, placed as the combo field's is, and stands in a column of its own: a menu holding a current item
    keeps that room at the end of every row, so a `.menu-item-note` stays lined up down
    the panel and never sits under the tick. */
 .menu:has(.menu-item[aria-current]:not([aria-current="false"])) .menu-item {
@@ -368,15 +368,12 @@
 .menu-item[aria-current]:not([aria-current="false"]) i { color: var(--brand-text); }
 .menu-item[aria-current]:not([aria-current="false"]):is(:hover, [data-active]) { background: var(--brand-tint-strong); }
 .menu-item[aria-current]:not([aria-current="false"])::after {
-    content: "";
-    position: absolute;
-    inset-inline-end: calc(var(--space-5) + 1px);
-    top: 50%;
-    width: 5px;
-    height: 9px;
-    border-inline-end: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-60%) rotate(45deg);
+    inset: auto;
+    inset-inline-end: var(--space-5);
+    top: calc(50% - 6.5px);
+    width: 13px;
+    height: 13px;
+    background: var(--brand-text);
 }
 
 /* A group's heading. Its line is trimmed to its capitals and given back in the padding,
