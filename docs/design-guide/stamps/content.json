@@ -173,7 +173,7 @@
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/js-parts/21-readonly.js": "5b20258743ff7fbd",
     "src/Sedna.UI/js-parts/30-markdown.js": "8b8c25465e56b2e9",
-    "src/Sedna.UI/js-parts/32-markdown-edit.js": "d272c43c710b766c"
+    "src/Sedna.UI/js-parts/32-markdown-edit.js": "d56b40676914112f"
   },
   "/media": {
     "src/Sedna.UI.Catalogue/Components/Pages/Media.razor": "b55b91a6e6c1c84f",

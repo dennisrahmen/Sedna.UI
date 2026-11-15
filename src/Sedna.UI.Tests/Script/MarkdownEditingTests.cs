@@ -518,6 +518,23 @@ public class MarkdownEditingTests : ScriptTestBase
     }
 
     [Fact]
+    public async Task Enter_on_a_line_of_thousands_of_quote_markers_does_not_stall_the_page()
+    {
+        if (NoBrowser) return;
+        // The pattern that reads the quote prefix once backtracked over a run like this.
+        var line = ">" + string.Concat(Enumerable.Repeat("\t>", 40000)) + "x";
+        var page = await Editor(line);
+
+        var ms = await page.EvaluateAsync<double>("""
+            () => { const ta = document.getElementById('ta'); const t = performance.now();
+                    ta.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+                    return performance.now() - t; }
+            """);
+
+        Assert.True(ms < 1000, $"Enter took {ms:0} ms");
+    }
+
+    [Fact]
     public async Task A_list_continued_with_Enter_numbers_each_item_and_is_one_undo_step_per_press()
     {
         if (NoBrowser) return;

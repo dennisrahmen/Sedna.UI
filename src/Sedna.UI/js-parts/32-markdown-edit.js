@@ -218,8 +218,10 @@
         var v = ta.value, s = ta.selectionStart;
         if (s !== ta.selectionEnd) return false;
         var ls = lineStart(v, s), le = lineEnd(v, s), line = v.slice(ls, le);
-        var m = /^(\s*(?:>[ \t]?\s*)*)(?:([-*+])|(\d{1,9})([.)]))([ \t]+)(\[[ xX]\][ \t]+)?/.exec(line);
-        var q = /^(\s*(?:>[ \t]?\s*)+)/.exec(line);
+        // Each ">" is a delimiter and the blanks after it are one run, so the pattern cannot
+        // backtrack over a long line of them.
+        var m = /^([ \t]*(?:>[ \t]*)*)(?:([-*+])|(\d{1,9})([.)]))([ \t]+)(\[[ xX]\][ \t]+)?/.exec(line);
+        var q = /^([ \t]*(?:>[ \t]*)+)/.exec(line);
         if (!m && !q) return false;
         if (inFence(v, ls)) return false;
         if (m) {
