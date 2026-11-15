@@ -40,6 +40,7 @@ internal static class Keys
     public static string SelectAll => Primary("A");
 
     /// <summary>Puts the caret at the end of the current line.</summary>
+    public static string LineStart => Mac ? "Meta+ArrowLeft" : "Home";
     public static string LineEnd => Mac ? "Meta+ArrowRight" : "End";
 
     /// <summary>Extends the selection to the start of the current line.</summary>

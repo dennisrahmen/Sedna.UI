@@ -542,6 +542,8 @@
         "/\\.editor-body(?![\\w-])/",
         "/\\.editor-link(?![\\w-])/",
         "/\\.editor-media(?![\\w-])/",
+        "/\\.editor-media-bar(?![\\w-])/",
+        "/\\.editor-mention(?![\\w-])/",
         "/\\.editor-notice(?![\\w-])/",
         "/\\.editor-sep(?![\\w-])/",
         "/\\.editor-slash(?![\\w-])/",

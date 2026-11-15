@@ -65,7 +65,7 @@
       { "text": "A guided tour of the page", "instead": "/spotlight" }
     ],
     "goals": [ "give-the-agent-a-character", "perch-a-mascot-on-the-page" ],
-    "stamp": "6277e02377fd7b4d"
+    "stamp": "96297a6b14993525"
   },
   {
     "page": "/agent-steps",

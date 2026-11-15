@@ -317,6 +317,8 @@ public class EditorTests : ScriptTestBase
           <span data-editor-media-for="video" id="for-video">Video</span>
           <input class="form-input" type="url" data-editor-media-url aria-label="Address" id="media-url" />
           <input class="form-input" type="text" data-editor-media-alt aria-label="Description" id="media-alt" />
+          <input class="form-input" type="number" min="1" data-editor-media-width aria-label="Width" id="media-width" />
+          <input class="form-input" type="number" min="1" data-editor-media-height aria-label="Height" id="media-height" />
           <button class="btn btn--sm" type="button" data-editor-media-save id="media-save">Insert</button>
           <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel id="media-cancel">Cancel</button>
         </div>
@@ -416,7 +418,7 @@ public class EditorTests : ScriptTestBase
         await Assertions.Expect(page.Locator("#for-image")).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("#for-video")).ToBeHiddenAsync();
         Assert.Equal("media-url", await page.EvaluateAsync<string>("() => document.activeElement.id"));
-        Assert.Equal("""[{"kind":"image","src":"","alt":""}]""", await page.EvaluateAsync<string>("() => JSON.stringify(asked)"));
+        Assert.Equal("""[{"kind":"image","src":"","alt":"","width":null,"height":null}]""", await page.EvaluateAsync<string>("() => JSON.stringify(asked)"));
 
         // An address the editor would not keep is refused where it was typed.
         await page.Locator("#media-url").FillAsync("javascript:alert(1)");
@@ -493,6 +495,288 @@ public class EditorTests : ScriptTestBase
         // An editor that offers no images takes none from a call either.
         var plain = await OpenEditor(Editor("&lt;p&gt;x&lt;/p&gt;"));
         Assert.True(await plain.EvaluateAsync<bool>("() => sednaUi.editor.invoke('note', 'image', ['https://example.com/a.png', '']).then(r => r === null)"));
+    }
+
+    // ── The size of an image or a video ───────────────────────────────────────
+
+    [Fact]
+    public async Task The_media_form_reads_and_writes_the_size_and_empty_removes_the_attribute()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;Week 12&lt;/p&gt;"));
+        await Js.Run(page, "() => { window.asked = []; document.addEventListener('sedna-editor-media', e => asked.push(e.detail)); }");
+        await TypeAtEnd(page, ":");
+
+        // A new image: both fields start empty, and a size typed is written as the attributes.
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-width")).ToHaveValueAsync("");
+        await page.Locator("#media-url").FillAsync("https://example.com/poster.png");
+        await page.Locator("#media-width").FillAsync("320");
+        await page.Locator("#media-height").FillAsync("200");
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("""<p>Week 12:<img src="https://example.com/poster.png" width="320" height="200"></p>""", await Value(page));
+
+        // Opened on it, the form holds the size, and the event names it.
+        await page.Keyboard.PressAsync("Shift+ArrowLeft");
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-width")).ToHaveValueAsync("320");
+        await Assertions.Expect(page.Locator("#media-height")).ToHaveValueAsync("200");
+        Assert.Equal("""{"kind":"image","src":"https://example.com/poster.png","alt":"","width":320,"height":200}""",
+            await page.EvaluateAsync<string>("() => JSON.stringify(asked.at(-1))"));
+
+        // Changing one and emptying the other keeps one attribute: the aspect ratio holds.
+        await page.Locator("#media-width").FillAsync("160");
+        await page.Locator("#media-height").FillAsync("");
+        await page.Locator("#media-save").ClickAsync();
+        Assert.Equal("""<p>Week 12:<img src="https://example.com/poster.png" width="160"></p>""", await Value(page));
+
+        await page.Keyboard.PressAsync("Shift+ArrowLeft");
+        await page.Locator("#image").ClickAsync();
+        await page.Locator("#media-width").FillAsync("");
+        await page.Locator("#media-save").ClickAsync();
+        Assert.Equal("""<p>Week 12:<img src="https://example.com/poster.png"></p>""", await Value(page));
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("-5")]
+    [InlineData("12.5")]
+    [InlineData("1e3")]
+    public async Task A_size_that_is_not_a_whole_number_of_pixels_marks_its_field_and_keeps_the_form_open(string typed)
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;x&lt;/p&gt;"));
+        await TypeAtEnd(page, "");
+        await page.Locator("#image").ClickAsync();
+        await page.Locator("#media-url").FillAsync("https://example.com/a.png");
+        await page.Locator("#media-height").FillAsync(typed);
+        await page.Keyboard.PressAsync("Enter");
+
+        Assert.Equal("true", await page.Locator("#media-height").GetAttributeAsync("aria-invalid"));
+        Assert.Null(await page.Locator("#media-width").GetAttributeAsync("aria-invalid"));
+        Assert.Null(await page.Locator("#media-url").GetAttributeAsync("aria-invalid"));
+        await Assertions.Expect(page.Locator("#media-form")).ToBeVisibleAsync();
+        Assert.Equal("media-height", await page.EvaluateAsync<string>("() => document.activeElement.id"));
+        Assert.Equal("<p>x</p>", await Value(page));
+
+        // Typing again clears the mark, and a good number goes in.
+        await page.Locator("#media-height").FillAsync("90");
+        Assert.Null(await page.Locator("#media-height").GetAttributeAsync("aria-invalid"));
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("""<p>x<img src="https://example.com/a.png" height="90"></p>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task A_video_takes_a_size_through_the_form_and_the_size_fields_follow_the_kind()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;Watch&lt;/p&gt;"));
+        await TypeAtEnd(page, "");
+        await page.Locator("#video").ClickAsync();
+        await page.Locator("#media-url").FillAsync("https://example.com/a.mp4");
+        await page.Locator("#media-width").FillAsync("640");
+        await page.Keyboard.PressAsync("Enter");
+        Assert.Equal("""<p>Watch</p><video controls="" src="https://example.com/a.mp4" width="640"></video>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task A_form_without_the_size_fields_keeps_the_size_of_the_media_it_replaces()
+    {
+        if (NoBrowser) return;
+        var form = MediaForm
+            .Replace("""<input class="form-input" type="number" min="1" data-editor-media-width aria-label="Width" id="media-width" />""", "", StringComparison.Ordinal)
+            .Replace("""<input class="form-input" type="number" min="1" data-editor-media-height aria-label="Height" id="media-height" />""", "", StringComparison.Ordinal);
+        var page = await OpenEditor(Editor(
+            System.Net.WebUtility.HtmlEncode("""<p>a<img src="https://example.com/a.png" alt="A" width="320" height="200">b</p>"""),
+            toolbar: MediaToolbar, link: form));
+
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => e.quill.setSelection(1, 1))");
+        await page.Locator("#image").ClickAsync();
+        await page.Locator("#media-url").FillAsync("/b.png");
+        await page.Locator("#media-save").ClickAsync();
+        Assert.Equal("""<p>a<img src="/b.png" alt="A" width="320" height="200">b</p>""", await Value(page));
+    }
+
+    [Fact]
+    public async Task The_handle_inserts_with_a_size_keeps_it_when_none_is_given_and_removes_it_when_null()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;Ab&lt;/p&gt;"));
+        await Js.Run(page, "() => document.addEventListener('sedna-editor-media', e => e.preventDefault())");
+        await page.Locator(".ql-editor").ClickAsync();
+        await page.Keyboard.PressAsync(Keys.DocumentEnd);
+        await page.Keyboard.PressAsync("ArrowLeft");
+
+        await Js.Run(page, "() => sednaUi.editor.invoke('note', 'image', ['/a.png', 'A', 480, null])");
+        Assert.Equal("""<p>A<img src="/a.png" alt="A" width="480">b</p>""", await Value(page));
+        // The size is numbers on the wire and strings from a script: both are written the same.
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/b.png', 'B', '300', 150); })");
+        Assert.Equal("""<p>A<img src="/b.png" alt="B" width="300" height="150">b</p>""", await Value(page));
+
+        // Not given: the size of the image it replaces. Null: none.
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/c.png', 'C'); })");
+        Assert.Equal("""<p>A<img src="/c.png" alt="C" width="300" height="150">b</p>""", await Value(page));
+        await Js.Run(page, "() => sednaUi.editor.get('note').then(e => { e.quill.setSelection(1, 1); return e.insertImage('/c.png', 'C', null, null); })");
+        Assert.Equal("""<p>A<img src="/c.png" alt="C">b</p>""", await Value(page));
+
+        // A video takes the same.
+        await Js.Run(page, "() => sednaUi.editor.invoke('note', 'video', ['https://example.com/a.mp4', 'A tour', 640, 360])");
+        Assert.Contains("""<video controls="" src="https://example.com/a.mp4" aria-label="A tour" width="640" height="360"></video>""", await Value(page), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("-1")]
+    [InlineData("12.5")]
+    [InlineData("50%")]
+    [InlineData("wide")]
+    public async Task A_size_the_editor_cannot_write_answers_null_and_inserts_nothing(string size)
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor("&lt;p&gt;x&lt;/p&gt;"));
+        Assert.True(await page.EvaluateAsync<bool>(
+            "s => sednaUi.editor.invoke('note', 'image', ['/a.png', '', s, null]).then(r => r === null)", size));
+        Assert.True(await page.EvaluateAsync<bool>(
+            "s => sednaUi.editor.invoke('note', 'video', ['/a.mp4', '', null, s]).then(r => r === null)", size));
+        Assert.Equal("<p>x</p>", await Html(page));
+    }
+
+    [Fact]
+    public async Task A_size_in_a_pasted_or_loaded_document_is_kept_and_a_size_removed_stays_removed()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor());
+        await Js.Run(page, """
+            () => sednaUi.editor.get('note').then(e => e.set(
+                '<p><img src="/a.png" width="200" height="100"><img src="/b.png"></p>' +
+                '<video src="/a.mp4" width="640" height="360"></video><video src="/b.mp4"></video>'))
+            """);
+        Assert.Equal("""<p><img src="/a.png" height="100" width="200"><img src="/b.png"></p><video controls="" src="/a.mp4" width="640" height="360"></video><video controls="" src="/b.mp4"></video>""", await Value(page));
+    }
+
+    // ── Choosing the media in the document ────────────────────────────────────
+
+    private const string Sized = """<p>Before <img src="https://example.com/chart.png" alt="Orders" width="320" height="200"> after</p>""";
+    private const string SizedVideo = """<p>Watch</p><video controls="" src="/missing.mp4" aria-label="A tour" width="320" height="180"></video><p>End</p>""";
+
+    private static string Encoded(string html) => System.Net.WebUtility.HtmlEncode(html);
+
+    [Fact]
+    public async Task A_click_on_an_image_chooses_it_and_the_image_control_changes_that_image_not_a_second_one()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(Encoded(Sized)));
+        await Js.Run(page, "() => { window.changes = 0; document.addEventListener('sedna-editor-change', () => changes++); }");
+
+        await page.Locator(".ql-editor img").ClickAsync();
+        Assert.Equal("", await page.Locator(".ql-editor img").GetAttributeAsync("data-editor-selected"));
+        // Choosing is not a change to the document: nothing is written, and the value has no mark.
+        Assert.Equal(0, await page.EvaluateAsync<int>("() => changes"));
+        Assert.DoesNotContain("data-editor-selected", await Value(page), StringComparison.Ordinal);
+
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-url")).ToHaveValueAsync("https://example.com/chart.png");
+        await Assertions.Expect(page.Locator("#media-width")).ToHaveValueAsync("320");
+        await Assertions.Expect(page.Locator("#media-height")).ToHaveValueAsync("200");
+        // The mark stays while the form is open on it.
+        Assert.Equal("", await page.Locator(".ql-editor img").GetAttributeAsync("data-editor-selected"));
+
+        await page.Locator("#media-width").FillAsync("160");
+        await page.Locator("#media-save").ClickAsync();
+        Assert.Equal("""<p>Before <img src="https://example.com/chart.png" alt="Orders" width="160" height="200"> after</p>""", await Value(page));
+        Assert.Equal(1, await page.Locator(".ql-editor img").CountAsync());
+        Assert.Null(await page.Locator(".ql-editor img").GetAttributeAsync("data-editor-selected"));
+    }
+
+    [Fact]
+    public async Task A_click_elsewhere_or_typing_lets_the_image_go_and_the_control_then_adds_one()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(Encoded(Sized)));
+        await page.Locator(".ql-editor img").ClickAsync();
+        Assert.Equal("", await page.Locator(".ql-editor img").GetAttributeAsync("data-editor-selected"));
+
+        // Typing replaces the selected image, as it does any selection; the mark goes with it.
+        await page.Keyboard.TypeAsync("x");
+        Assert.Equal(0, await page.Locator(".ql-editor img").CountAsync());
+
+        await Js.Run(page, "h => sednaUi.editor.get('note').then(e => e.set(h))", Sized);
+        await page.Locator(".ql-editor img").ClickAsync();
+        await page.Locator(".ql-editor p").ClickAsync(new() { Position = new() { X = 4, Y = 6 } });
+        Assert.Null(await page.Locator(".ql-editor img").GetAttributeAsync("data-editor-selected"));
+
+        // With nothing chosen the control is a new image, as before.
+        await page.Locator("#image").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-url")).ToHaveValueAsync("");
+    }
+
+    [Fact]
+    public async Task A_click_on_the_frame_of_a_video_chooses_it_and_the_video_control_changes_that_video()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(Encoded(SizedVideo)));
+
+        // The top of the frame, clear of the browser's own controls along the bottom.
+        await page.Locator(".ql-editor video").ClickAsync(new() { Position = new() { X = 160, Y = 20 } });
+        Assert.Equal("", await page.Locator(".ql-editor video").GetAttributeAsync("data-editor-selected"));
+
+        await page.Locator("#video").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-url")).ToHaveValueAsync("/missing.mp4");
+        await Assertions.Expect(page.Locator("#media-width")).ToHaveValueAsync("320");
+        await Assertions.Expect(page.Locator("#media-height")).ToHaveValueAsync("180");
+        await page.Locator("#media-width").FillAsync("640");
+        await page.Locator("#media-height").FillAsync("");
+        await page.Locator("#media-save").ClickAsync();
+
+        Assert.Equal("""<p>Watch</p><video controls="" src="/missing.mp4" aria-label="A tour" width="640"></video><p>End</p>""", await Value(page));
+        Assert.Equal(1, await page.Locator(".ql-editor video").CountAsync());
+    }
+
+    [Fact]
+    public async Task Shift_arrow_from_the_line_after_a_video_or_before_it_chooses_it()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(Encoded(SizedVideo)));
+
+        // From the line after it, towards it.
+        await page.Locator(".ql-editor > p").Last.ClickAsync();
+        await page.Keyboard.PressAsync(Keys.LineStart);
+        await page.Keyboard.PressAsync("Shift+ArrowLeft");
+        Assert.Equal("", await page.Locator(".ql-editor video").GetAttributeAsync("data-editor-selected"));
+        await page.Locator("#video").ClickAsync();
+        await Assertions.Expect(page.Locator("#media-url")).ToHaveValueAsync("/missing.mp4");
+        await page.Keyboard.PressAsync("Escape");
+    }
+
+    [Fact]
+    public async Task Shift_right_from_the_end_of_the_line_before_a_video_chooses_it()
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(Encoded(SizedVideo)));
+        await page.Locator(".ql-editor > p").First.ClickAsync();
+        await page.Keyboard.PressAsync(Keys.LineEnd);
+        await page.Keyboard.PressAsync("Shift+ArrowRight");
+        Assert.Equal("", await page.Locator(".ql-editor video").GetAttributeAsync("data-editor-selected"));
+        await page.Keyboard.PressAsync("ArrowLeft");
+        await Assertions.Expect(page.Locator(".ql-editor video")).Not.ToHaveAttributeAsync("data-editor-selected", "");
+    }
+
+    [Theory]
+    [InlineData("dark")]
+    [InlineData("light")]
+    public async Task The_chosen_media_is_outlined_in_the_focus_ring_in_both_variants(string variant)
+    {
+        if (NoBrowser) return;
+        var page = await OpenEditor(MediaEditor(Encoded(Sized)));
+        await Js.Run(page, "v => document.documentElement.setAttribute('data-variant', v)", variant);
+        await page.Locator(".ql-editor img").ClickAsync();
+
+        var outline = await page.EvaluateAsync<string[]>(
+            "() => { const c = getComputedStyle(document.querySelector('.ql-editor img')); const probe = document.createElement('i'); probe.style.color = 'var(--focus-ring)'; document.body.append(probe); const ring = getComputedStyle(probe).color; probe.remove(); return [c.outlineStyle, c.outlineWidth, c.outlineColor, ring]; }");
+        Assert.Equal("solid", outline[0]);
+        Assert.Equal("2px", outline[1]);
+        Assert.Equal(outline[3], outline[2]);
+        Assert.NotEqual("rgba(0, 0, 0, 0)", outline[2]);
     }
 
     // ── The textarea's own state ──────────────────────────────────────────────

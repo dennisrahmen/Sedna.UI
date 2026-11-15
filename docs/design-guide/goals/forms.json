@@ -206,6 +206,7 @@
     "phrases": [ "mention", "at mention", "tag a person in a comment", "mention autocomplete" ],
     "answer": [
       { "page": "/form-textarea#naming-someone-in-the-text", "role": "primary" },
+      { "page": "/editor#naming-someone", "role": "part" },
       { "page": "/menu", "role": "part" }
     ],
     "how": ".mention-field wraps the text area and a .menu of the people it can name, and data-mention points at the menu. @ opens the list under the field, typing filters it, and Enter writes the item's data-mention-value in place of what was typed.",

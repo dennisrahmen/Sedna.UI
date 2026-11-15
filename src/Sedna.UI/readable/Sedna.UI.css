@@ -7193,7 +7193,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    it. */
 .editor { position: relative; }
 @media (scripting: none) {
-    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media], [data-editor-slash]) { display: none; }
+    .editor :is(.editor-toolbar, .editor-body, [data-editor-link], [data-editor-media], [data-editor-media-bar], [data-editor-slash], [data-editor-mention]) { display: none; }
     .editor textarea[data-editor-value] {
         display: block;
         box-sizing: border-box;
@@ -7207,6 +7207,23 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
         resize: vertical;
     }
 }
+
+/* ── Full screen ────────────────────────────────────────────────────────────
+   A `data-fullscreen` button with `aria-controls` naming the editor puts the frame on the whole
+   display. The document takes the height the toolbar leaves and scrolls inside it, and the
+   forms and menus, which sit inside the frame, go with it. */
+.editor:fullscreen {
+    --editor-max-height: none;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: 0;
+    background: var(--bg);
+}
+.editor:fullscreen .editor-body { flex: 1; min-block-size: 0; display: flex; flex-direction: column; }
+.editor:fullscreen .ql-editor { flex: 1; min-block-size: 0; }
 
 /* ── The editable area ──────────────────────────────────────────────────────
    Quill makes `.editor-body` its container and writes the document into a `.ql-editor`
@@ -7400,6 +7417,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     border-radius: var(--radius-inner);
     background: var(--bg-elevated);
 }
+/* The image or video a click chose, which the media form then opens on. An outline rather than a
+   shadow, so forced colours keep it. */
+.editor .ql-editor :is(img, video)[data-editor-selected] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
 .editor .ql-editor code {
     font-family: var(--font-mono);
     font-size: 0.9em;
@@ -7447,6 +7470,31 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* The media form is the one with a second field; it wraps rather than leaving the frame. */
 .editor-media { flex-wrap: wrap; max-inline-size: calc(100% - 2 * var(--space-4)); }
 .editor-media .form-input { flex: 1 1 12rem; inline-size: auto; }
+/* The size fields are a number of pixels: narrow, side by side after the description. */
+.editor-media :is([data-editor-media-width], [data-editor-media-height]) { flex: 0 1 7rem; }
+
+/* ── The bar on a chosen image or video ─────────────────────────────────────
+   The app's controls, `[data-editor-media-bar]`, which the script shows above the media a
+   click chose and places with a transform from the frame's top-left corner, as it places the
+   forms. On the dropdown rung; wraps rather than leaving the frame. */
+.editor-media-bar {
+    position: absolute;
+    inset-block-start: 0;
+    /* rtl-ok: the script measures its offset from the frame's left edge in either direction. */
+    left: 0;
+    z-index: 550;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    max-inline-size: calc(100% - 2 * var(--space-4));
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-surface);
+    box-shadow: var(--shadow-dropdown);
+}
+.editor-media-bar[hidden] { display: none; }
 
 /* ── The notice about a file ────────────────────────────────────────────────
    The app's own words, `[data-editor-file-notice]`, which the script shows when a file
@@ -7463,7 +7511,8 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    line into another block. The script places it with a transform from the frame's
    top-left corner, as it places the link form, so its origin is physical; it scrolls
    past a screenful of items. On the dropdown rung. */
-.editor-slash {
+.editor-slash,
+.editor-mention {
     position: absolute;
     inset-block-start: 0;
     /* rtl-ok: the script measures its offset from the frame's left edge in either direction. */
@@ -16977,9 +17026,39 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     border-inline-start: 3px solid var(--border);
     color: var(--muted);
 }
+.prose data[value] { color: var(--accent); font-weight: 500; }
+/* What the rich-text editor writes for alignment, direction and the indent of a paragraph — classes
+   of its own, so the HTML it posts reads the same where it is shown. `right` is the physical edge
+   Quill stores; it is the end edge, and in a right-to-left block the start. */
+.prose .ql-align-center { text-align: center; }
+.prose .ql-align-justify { text-align: justify; }
+.prose .ql-align-right { text-align: end; }
+.prose .ql-direction-rtl { direction: rtl; text-align: inherit; }
+.prose .ql-direction-rtl.ql-align-right { text-align: start; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-1 { padding-inline-start: 3em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-2 { padding-inline-start: 6em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-3 { padding-inline-start: 9em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-4 { padding-inline-start: 12em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-5 { padding-inline-start: 15em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-6 { padding-inline-start: 18em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-7 { padding-inline-start: 21em; }
+.prose :is(p, h1, h2, h3, h4, h5, h6, blockquote).ql-indent-8 { padding-inline-start: 24em; }
 .prose hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 .prose img { max-width: 100%; height: auto; border-radius: var(--radius-inner); }
 .prose video { display: block; max-width: 100%; height: auto; margin: 1em 0; border-radius: var(--radius-inner); }
+/* How a picture or a video sits against its text — `data-align`, which the rich-text editor writes.
+   Logical edges, so a right-to-left document mirrors; below the phone breakpoint a float stacks
+   instead of squeezing the text into a column. A block that holds a float contains it. */
+.prose img[data-align="start"] { float: inline-start; margin-block: 0.25em 0.5em; margin-inline: 0 1em; }
+.prose img[data-align="end"] { float: inline-end; margin-block: 0.25em 0.5em; margin-inline: 1em 0; }
+.prose :is(img, video)[data-align="center"] { display: block; margin-inline: auto; }
+.prose video[data-align="start"] { margin-inline: 0 auto; }
+.prose video[data-align="end"] { margin-inline: auto 0; }
+.prose:has(img[data-align="start"], img[data-align="end"]) { display: flow-root; }
+@media (max-width: 560px) {
+    .prose img[data-align="start"],
+    .prose img[data-align="end"] { float: none; display: block; margin-inline: 0; }
+}
 /* A table in untrusted prose is the one thing that breaks the page width, because
    its own content sets its minimum size. */
 .prose table { display: block; overflow-x: auto; max-width: 100%; border-collapse: collapse; }
@@ -26677,6 +26756,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .page-banner-dismiss:focus-visible,
     .app-switcher-item:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .editor .ql-editor :is(img, video)[data-editor-selected] { outline: 2px solid CanvasText; outline-offset: 2px; }
     /* Inside its header cell, which clips what is drawn past its edge. */
     .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* Inside the run's frame, which meets its edge. */

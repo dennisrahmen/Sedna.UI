@@ -28,11 +28,24 @@
    Insert replaces it. An address the editor would not keep marks the address field
    `aria-invalid` and leaves the form open.
 
+   The size is two optional fields, `[data-editor-media-width]` and `[data-editor-media-height]`,
+   in pixels: the width and height attributes of the image or video, filled when the form
+   opens on one. Empty is no attribute, so the browser keeps the aspect ratio; anything but
+   a whole number above zero marks the field `aria-invalid` and leaves the form open. A form
+   without the fields leaves the size of the media it replaces as it was.
+
    Before the form opens, the editor sends `sedna-editor-media`, cancelable, with
-   `{ kind, src, alt }` — the media under the caret, or empty strings. An app that would
-   rather open its own dialog — with an upload in it — cancels it and answers with
-   `insertImage(url, alt)` or `insertVideo(url, label)`, which put the media where the
-   caret was.
+   `{ kind, src, alt, width, height }` — the media under the caret, or empty strings and
+   nulls. An app that would rather open its own dialog — with an upload in it — cancels it
+   and answers with `insertImage(url, alt, width, height)` or `insertVideo(url, label, width,
+   height)`, which put the media where the caret was.
+
+   A click on an image or a video in the document chooses it: the editor selects it as one
+   unit, marks it `data-editor-selected` — which `44-rich-text.css` draws as an outline in the
+   focus-ring token — and the image or video control then opens the form filled with it, so
+   Insert changes that media rather than adding a second. A video's controls keep their clicks
+   as the browser has them, so the frame of the video chooses it, and so does Shift+Arrow from
+   the line before it or after it. Typing, a click elsewhere or moving the caret lets it go.
 
    A file pasted or dropped in sends `sedna-editor-file`, cancelable: an app that takes
    the files cancels it. One that is not taken — not cancelled, or not an image or a video
@@ -62,17 +75,55 @@ function mediaUrl(url) {
     }
 }
 
+/* A width or a height as the attribute holds it: a whole number of pixels above zero.
+   `undefined` for no say in it, '' for none — null, '' and a number field's empty — the
+   number as written for a good one, and null for what is not one. */
+function sizeOf(value) {
+    if (value === undefined) return undefined;
+    const s = String(value ?? '').trim();
+    if (!s) return '';
+    return /^\d+$/.test(s) && Number(s) > 0 ? String(Number(s)) : null;
+}
+
+/* A size for what an event says: the number, or null for none and for one that is not a
+   number of pixels. */
+function sizeEvent(value) {
+    const n = sizeOf(value);
+    return n ? Number(n) : null;
+}
+
 /* Quill's image, keeping only the addresses above: anything else is written as Quill
    writes an address it refuses, and the clipboard below has already dropped it. */
 const QuillImage = Quill.import('formats/image');
+/* How a picture or a video sits against its text: `data-align` on the element, `start`,
+   `end` or `center` — logical edges, so the same HTML mirrors in a right-to-left document.
+   An attribute rather than a class: it is the editor's own, survives as plain HTML, and
+   `.prose img[data-align]` styles it wherever the HTML is shown. Any other value is dropped. */
+const ALIGNS = ['start', 'end', 'center'];
+const IMAGE_ATTRIBUTES = ['alt', 'height', 'width', 'data-align'];
 class SednaImage extends QuillImage {
     static sanitize(url) { return mediaUrl(url) ?? '//:0'; }
+
+    static formats(node) {
+        return IMAGE_ATTRIBUTES.reduce((f, name) => {
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
+            return f;
+        }, {});
+    }
+
+    format(name, value) {
+        if (name !== 'data-align') return super.format(name, value);
+        if (ALIGNS.includes(value)) this.domNode.setAttribute(name, value);
+        else this.domNode.removeAttribute(name);
+    }
 }
 
 /* A video the browser plays itself. Quill's own `video` is an iframe — a page from
    anywhere, framed inside the document — so this replaces it under the same name. */
 const BlockEmbed = Quill.import('blots/block/embed');
-const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label'];
+const VIDEO_ATTRIBUTES = ['width', 'height', 'poster', 'aria-label', 'data-align'];
 class SednaVideo extends BlockEmbed {
     static blotName = 'video';
     static tagName = 'VIDEO';
@@ -91,7 +142,9 @@ class SednaVideo extends BlockEmbed {
 
     static formats(node) {
         return VIDEO_ATTRIBUTES.reduce((f, name) => {
-            if (node.hasAttribute(name)) f[name] = node.getAttribute(name);
+            if (!node.hasAttribute(name)) return f;
+            const value = node.getAttribute(name);
+            if (name !== 'data-align' || ALIGNS.includes(value)) f[name] = value;
             return f;
         }, {});
     }
@@ -99,6 +152,7 @@ class SednaVideo extends BlockEmbed {
     format(name, value) {
         if (!VIDEO_ATTRIBUTES.includes(name)) return super.format(name, value);
         if (name === 'poster' && value) value = mediaUrl(value);
+        if (name === 'data-align' && !ALIGNS.includes(value)) value = null;
         if (value) this.domNode.setAttribute(name, value);
         else this.domNode.removeAttribute(name);
     }
@@ -206,13 +260,129 @@ function mediaAt(q, range) {
     const kind = MEDIA.find(k => k in op.insert);
     if (!kind) return null;
     const alt = op.attributes?.[kind === 'image' ? 'alt' : 'aria-label'] ?? '';
-    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt };
+    const width = String(op.attributes?.width ?? '');
+    const height = String(op.attributes?.height ?? '');
+    return { kind, index: range.index, src: String(op.insert[kind] ?? ''), alt, width, height };
+}
+
+/* ── Choosing the media in the document ──────────────────────────────────────────
+   `e.picked` is the media the reader clicked, as its kind and index. An image is selected
+   as a range of one, as Quill holds it; a video, a block of its own, cannot be a selection
+   of one in any engine — the browser collapses it — so it is held here, beside the caret as
+   it was, and let go when the caret moves. Either way the media form and the insert read it from here, and the replacement is a
+   delta that needs no selection. The node is marked `data-editor-selected`: an attribute
+   Quill's HTML never writes, since the value comes from its delta. */
+const SELECTED = 'data-editor-selected';
+
+function mediaKindAt(q, index) {
+    if (index < 0 || index >= q.getLength()) return null;
+    const op = q.getContents(index, 1).ops[0];
+    if (!op || typeof op.insert !== 'object') return null;
+    return MEDIA.find(k => k in op.insert) ?? null;
+}
+
+function markPicked(e) {
+    const q = e.quill;
+    for (const node of q.root.querySelectorAll(`[${SELECTED}]`)) node.removeAttribute(SELECTED);
+    e.pickedNode = null;
+    const picked = e.picked;
+    if (!picked) {
+        syncBar(e);
+        return;
+    }
+    // A leaf is found by an index inside it, and the index of an edge is the one before; so an
+    // image is the leaf at the index after its own, and a video is the block at its own.
+    let node = q.getLeaf(picked.index + 1)[0]?.domNode;
+    if (!node?.matches?.('img, video')) node = q.getLine(picked.index)[0]?.domNode;
+    if (node?.matches?.('img, video')) {
+        node.setAttribute(SELECTED, '');
+        e.pickedNode = node;
+    }
+    syncBar(e);
+}
+
+function unpick(e) {
+    if (!e.picked) return;
+    e.picked = null;
+    markPicked(e);
+}
+
+function pick(e, kind, index) {
+    const q = e.quill;
+    if (mediaKindAt(q, index) !== kind) return;
+    e.picked = { kind, index, sel: null };
+    if (kind === 'image') {
+        q.setSelection(index, 1, 'user');
+    } else {
+        // The caret stays where the reader put it: it is how the choice is let go.
+        const at = q.getSelection();
+        if (at) e.picked.sel = { index: at.index, length: at.length };
+    }
+    markPicked(e);
+}
+
+// The range of the chosen media, while it is still there — or null.
+function pickedRange(e) {
+    const picked = e.picked;
+    if (!picked || mediaKindAt(e.quill, picked.index) !== picked.kind) return null;
+    return { index: picked.index, length: 1 };
+}
+
+function wirePick(e) {
+    const q = e.quill;
+    const on = (target, type, fn, opts) => {
+        target.addEventListener(type, fn, opts);
+        e.cleanups.push(() => target.removeEventListener(type, fn, opts));
+    };
+    on(q.root, 'click', ev => {
+        if (!q.isEnabled() || ev.button) return;
+        const node = ev.target.closest?.('img, video');
+        const blot = node && Quill.find(node);
+        if (!blot) return;
+        pick(e, node.tagName === 'IMG' ? 'image' : 'video', q.getIndex(blot));
+    });
+    // Shift+Arrow towards a video from the line before it or after it chooses it, as the same
+    // keys select an image. Heard before Quill's own keyboard, which moves the selection by one
+    // and skips a heard key that was cancelled.
+    on(q.root, 'keydown', ev => {
+        if (!ev.shiftKey || ev.altKey || ev.ctrlKey || ev.metaKey || !q.isEnabled()) return;
+        if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+        const r = q.getSelection();
+        if (!r || r.length) return;
+        const next = ev.key === 'ArrowRight';
+        let at = -1;
+        if (!next) at = mediaKindAt(q, r.index - 1) === 'video' ? r.index - 1 : -1;
+        else if (mediaKindAt(q, r.index) === 'video') at = r.index;
+        else if (q.getText(r.index, 1) === '\n' && mediaKindAt(q, r.index + 1) === 'video') at = r.index + 1;
+        if (at < 0) return;
+        ev.preventDefault();
+        pick(e, 'video', at);
+    }, true);
+    // Choosing is not a state of the document: what changes it, or the caret leaving the media,
+    // lets it go — except while the media form is open on it.
+    q.on('text-change', () => { if (!e.mediaing && !e.keepPick) unpick(e); });
+    q.on('selection-change', range => {
+        const p = e.picked;
+        if (!p || e.mediaing) return;
+        // The focus going to the media bar is not the caret leaving the media.
+        if (!range && e.bar && e.bar.contains(document.activeElement)) return;
+        let still;
+        if (p.kind === 'image') {
+            still = range && range.index === p.index && range.length === 1;
+        } else {
+            // A click on a video can move the caret after it is chosen: the first range is the caret.
+            if (!p.sel && range) p.sel = { index: range.index, length: range.length };
+            still = range && p.sel && range.index === p.sel.index && range.length === p.sel.length;
+        }
+        if (!still) unpick(e);
+    });
 }
 
 /* Puts an image or a video in place of the range — the caret, the media it is on — and
    the caret after it. Null when the editor does not take that kind or the address is not
-   one it keeps. */
-function insertMedia(e, kind, url, alt, range) {
+   one it keeps, or a size is not a number of pixels. A size not given — undefined — is the
+   size of the media it replaces; given empty, there is none. */
+function insertMedia(e, kind, url, alt, range, size = {}) {
     const q = e.quill;
     if (!q.scroll.query(kind)) {
         warnOnce('media:' + kind, `this editor does not take a ${kind}: offer data-editor-format="${kind}" or name it in data-editor-formats.`);
@@ -220,8 +390,14 @@ function insertMedia(e, kind, url, alt, range) {
     }
     const src = mediaUrl(url);
     if (!src) return null;
+    const sizes = { width: sizeOf(size.width), height: sizeOf(size.height) };
+    if (sizes.width === null || sizes.height === null) return null;
     const at = range || q.getSelection() || e.lastRange || { index: q.getLength() - 1, length: 0 };
     const text = String(alt ?? '').trim();
+    const was = mediaAt(q, at);
+    for (const name of ['width', 'height']) {
+        if (sizes[name] === undefined) sizes[name] = was && was.kind === kind ? was[name] : '';
+    }
     q.updateContents(new Delta().retain(at.index).delete(at.length).insert({ [kind]: src }), 'user');
     // A video put in the middle of a line starts a line of its own, one place on — and Quill
     // formats the place it was asked for, so the description is written once it is there.
@@ -230,6 +406,9 @@ function insertMedia(e, kind, url, alt, range) {
         return op && typeof op.insert === 'object' && op.insert[kind] === src;
     }) ?? at.index;
     if (text) q.formatText(index, 1, kind === 'image' ? 'alt' : 'aria-label', text, 'user');
+    for (const name of ['width', 'height']) {
+        if (sizes[name]) q.formatText(index, 1, name, sizes[name], 'user');
+    }
     q.setSelection(index + 1, 0, 'silent');
     e.lastRange = { index: index + 1, length: 0 };
     return stateOf(e);
@@ -245,11 +424,17 @@ function fieldOf(panel, name, kind) {
 
 function openMedia(e, kind) {
     const q = e.quill;
-    const range = q.getSelection(true) || e.lastRange;
+    const picked = pickedRange(e);
+    let range = picked || q.getSelection(true) || e.lastRange;
     if (!range) return;
     const on = mediaAt(q, range);
     const existing = on && on.kind === kind ? on : null;
-    const asked = e.emit('sedna-editor-media', { kind, src: existing?.src ?? '', alt: existing?.alt ?? '' }, true);
+    // A chosen image asked for a video, or the reverse, is not replaced: the new one goes after it.
+    if (picked && !existing) range = { index: picked.index + 1, length: 0 };
+    const asked = e.emit('sedna-editor-media', {
+        kind, src: existing?.src ?? '', alt: existing?.alt ?? '',
+        width: sizeEvent(existing?.width), height: sizeEvent(existing?.height),
+    }, true);
     const panel = e.media;
     if (!asked || !panel) {
         if (asked) warnOnce('media', 'an image or video control needs the app\'s [data-editor-media] form inside the editor, or a sedna-editor-media listener that cancels the event and inserts.');
@@ -267,6 +452,14 @@ function openMedia(e, kind) {
         url.removeAttribute('aria-invalid');
     }
     if (alt) alt.value = existing ? existing.alt : '';
+    // The size as the attribute holds it, so a value the form would refuse — a percentage —
+    // is shown, and is the reader's to correct or clear.
+    for (const name of ['width', 'height']) {
+        const field = fieldOf(panel, `data-editor-media-${name}`, kind);
+        if (!field) continue;
+        field.value = existing ? existing[name] : '';
+        field.removeAttribute('aria-invalid');
+    }
     panel.hidden = false;
     place(e, panel, range);
     (url || panel).focus({ preventScroll: true });
@@ -277,6 +470,7 @@ function closeMedia(e, refocus) {
     e.media.hidden = true;
     const was = e.mediaing;
     e.mediaing = null;
+    unpick(e);
     if (refocus) {
         e.quill.focus();
         if (was) e.quill.setSelection(was.range.index + was.range.length, 0, 'silent');
@@ -290,22 +484,34 @@ function saveMedia(e) {
     const alt = fieldOf(e.media, 'data-editor-media-alt', was.kind);
     const given = (url?.value || '').trim();
     if (!given) return closeMedia(e, true);
-    if (!mediaUrl(given)) {
-        if (url) {
-            url.setAttribute('aria-invalid', 'true');
-            url.focus();
-        }
+    // A size is a whole number of pixels, or its field says it is not. A number field holding
+    // text it cannot read answers an empty value, and its validity says what it was.
+    const size = {};
+    const bad = [];
+    for (const name of ['width', 'height']) {
+        const field = fieldOf(e.media, `data-editor-media-${name}`, was.kind);
+        if (!field) continue;
+        size[name] = sizeOf(field.validity?.badInput ? 'x' : field.value);
+        if (size[name] === null) bad.push(field);
+    }
+    const urlBad = !mediaUrl(given);
+    if (urlBad && url) url.setAttribute('aria-invalid', 'true');
+    for (const field of bad) field.setAttribute('aria-invalid', 'true');
+    if (urlBad || bad.length) {
+        (urlBad && url ? url : bad[0]).focus();
         return;
     }
     e.mediaing = null;
     e.media.hidden = true;
+    unpick(e);
     e.quill.focus();
-    insertMedia(e, was.kind, given, alt?.value, was.range);
+    insertMedia(e, was.kind, given, alt?.value, was.range, size);
     reflect(e);
 }
 
 function wireMedia(e) {
     wirePaste(e);
+    wirePick(e);
     const panel = e.media;
     if (!panel) return;
     const on = (target, type, fn, opts) => {
@@ -327,7 +533,7 @@ function wireMedia(e) {
         }
     });
     on(panel, 'input', ev => {
-        if (ev.target.matches('[data-editor-media-url]')) ev.target.removeAttribute('aria-invalid');
+        if (ev.target.matches('[data-editor-media-url],[data-editor-media-width],[data-editor-media-height]')) ev.target.removeAttribute('aria-invalid');
     });
     // A press anywhere else closes it, leaving the focus where the press put it.
     on(document, 'pointerdown', ev => {

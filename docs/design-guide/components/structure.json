@@ -68,7 +68,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action" ],
-    "stamp": "7fe558b953be5e59"
+    "stamp": "0d900acd0c34dcb5"
   },
   {
     "page": "/grid",

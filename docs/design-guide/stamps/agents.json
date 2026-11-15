@@ -139,6 +139,7 @@
     "src/Sedna.UI/chart-parts/10-model.js": "e9aacbec218ac9cc",
     "src/Sedna.UI/css-parts/55-page-structure.css": "8c074ff1e15ad9d9",
     "src/Sedna.UI/css-parts/68-mochi.css": "4e31d4de3f0b0973",
+    "src/Sedna.UI/editor-parts/60-rule.js": "d79071ade2a9e816",
     "src/Sedna.UI/js-parts/46-mochi.js": "0efdf035d14abd7d"
   },
   "/orb": {

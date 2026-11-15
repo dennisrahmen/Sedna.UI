@@ -107,8 +107,13 @@ find "$DIR" -type f -name '*.cs' -not -path '*/obj/*' -not -path '*/bin/*' -prin
                         for (i = 1; i <= n; i++) {
                             p = params[i]
                             sub(/=.*$/, "", p)
-                            if (match(p, /[A-Za-z_][A-Za-z0-9_]*[ 	]*$/))
-                                emit(typeName "." substr(p, RSTART, RLENGTH))
+                            # A parameter with a default — `string? Note = null` — is cut at the
+                            # `=` and leaves a space after its name.
+                            if (match(p, /[A-Za-z_][A-Za-z0-9_]*[ 	]*$/)) {
+                                pname = substr(p, RSTART, RLENGTH)
+                                gsub(/[ 	]/, "", pname)
+                                emit(typeName "." pname)
+                            }
                         }
                     }
                 } else {

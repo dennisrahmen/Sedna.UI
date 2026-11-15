@@ -54,6 +54,9 @@ toolbar with `role="toolbar"` is one tab stop: the arrow keys, Home and End move
 | `data-editor-action="indent"`, `"outdent"` | One level in or out. |
 | `data-editor-action="clean"` | Removes the formatting from the selection. |
 | `<input type="color" data-editor-format="color">`, `"background"` | The text colour, the highlight. Opt-in: a stored colour is kept only where the editor offers it. The value is the app's choice, and so is its legibility in both variants. |
+| `data-editor-format="direction" value="rtl"` | Sets the block right to left; `aria-pressed` follows it. |
+| `data-editor-action="rule"` | A horizontal rule at the caret, an `<hr>` in a line of its own, the caret on the line after it. An editor holds rules only when the toolbar offers this action, or `data-editor-formats` names `divider`. |
+| `data-fullscreen` with `aria-controls` naming the editor | Full screen. Inside the toolbar it is one of its stops — the arrows reach it — though the editor does nothing for it; `.editor:fullscreen` gives the document the height the toolbar leaves. |
 | `data-editor-action="table-insert"` | A two-by-two table at the caret; `disabled` inside a table. Any table action makes the editor take tables, and a stored table is kept. |
 | `data-editor-action="table-row-above"`, `"table-row-below"`, `"table-column-before"`, `"table-column-after"`, `"table-row-delete"`, `"table-column-delete"`, `"table-delete"` | Changes the table the caret is in; `disabled` outside one. |
 
@@ -135,6 +138,8 @@ The app's own form, written once inside the editor, which an image or video cont
   <input class="form-input" type="url" data-editor-media-url aria-label="Address" placeholder="https://" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="image" aria-label="What the image shows" />
   <input class="form-input" type="text" data-editor-media-alt data-editor-media-for="video" aria-label="What the video is about" />
+  <input class="form-input" type="number" min="1" inputmode="numeric" data-editor-media-width aria-label="Width in pixels" placeholder="Width" />
+  <input class="form-input" type="number" min="1" inputmode="numeric" data-editor-media-height aria-label="Height in pixels" placeholder="Height" />
   <button class="btn btn--sm" type="button" data-editor-media-save>Insert</button>
   <button class="btn btn--ghost btn--sm" type="button" data-editor-media-cancel>Cancel</button>
 </div>
@@ -145,12 +150,70 @@ The app's own form, written once inside the editor, which an image or video cont
 - `data-editor-media-kind` on the form says which it is open for, `image` or `video`. An element inside
   it with `data-editor-media-for="image"` or `"video"` shows only for that kind, and a field marked so is
   the field for that kind.
-- Opened on an image or a video, it is filled with it, and Insert replaces it.
+- `[data-editor-media-width]` and `[data-editor-media-height]` take the size in pixels, as the `width`
+  and `height` attributes of an image or a video. Both are optional and work like the other fields: one
+  marked `data-editor-media-for` is the field for that kind. **Empty removes the attribute**, so the browser
+  keeps the aspect ratio from the one that is left, or from the file. A value that is not a whole number
+  above zero — `0`, `-5`, `12.5`, `50%` — marks its field `aria-invalid`, leaves the form open and takes the
+  focus; typing in the field clears the mark.
+- **A click on an image or a video in the document chooses it.** The editor selects it as one unit
+  and sets `data-editor-selected` on it — drawn as an outline in `--focus-ring` — so the image or
+  video control opens the form filled with it, size included, and Insert replaces that media rather
+  than adding a second. A video's own controls keep their clicks, so click its frame; Shift+Arrow from
+  the end of the line before a video, or the start of the line after it, chooses it from the keyboard,
+  as the same keys select an image. Typing, a click elsewhere or moving the caret lets it go, and with
+  nothing chosen the control opens an empty form for a new one. The attribute is on the document's
+  element only: it is never part of the HTML the editor writes.
+- A form with no size fields leaves the size of the media it replaces as it was.
 - Enter inserts, Escape closes, and a press outside it closes it. An address the editor would not keep
   marks the address field `aria-invalid` and leaves the form open; an empty one closes it.
 
 An upload belongs in the app's own markup: a file field or a dropzone in the form that, once the file
 is stored, writes its address into `[data-editor-media-url]`.
+
+### The bar on a chosen media
+
+The app's own controls, written once inside the editor, which the editor shows above the image or video a
+click chose and hides when it is let go:
+
+```html
+<div class="editor-media-bar" data-editor-media-bar role="toolbar" aria-label="Picture and video" hidden>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-media-size="240">Small</button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-media-size="">Original</button>
+  <button class="btn btn--ghost btn--icon btn--sm" type="button" data-editor-media-align="start" aria-label="Float to the start"><i class="ri-align-left"></i></button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-media-edit>Edit</button>
+  <button class="btn btn--ghost btn--sm" type="button" data-editor-media-remove>Remove</button>
+</div>
+```
+
+| Control | Does |
+|---|---|
+| `data-editor-media-size="240"` | The width in pixels, the height cleared so the aspect ratio holds. `""` is the natural size: both cleared. |
+| `data-editor-media-align="start"`, `"center"`, `"end"`, `""` | Sets `data-align` on the media; `""` removes it. |
+| `data-editor-media-edit` | Opens the media form, filled with it. |
+| `data-editor-media-remove` | Deletes it. |
+
+- Size and align controls carry `aria-pressed` for what the media is now. An element marked
+  `data-editor-media-for="image"` or `"video"` shows only for that kind.
+- The bar is placed with a transform above the media — below it where the frame has no room above —
+  follows a scroll of the document, and is on the dropdown rung of the z-index scale.
+- Alt+F10 in the document goes to the bar while a media is chosen; the arrows, Home and End move between
+  its controls and Escape comes back to the document with the media still chosen. A press with the pointer
+  leaves the focus in the document. An editor without a bar chooses media all the same.
+
+### How a picture sits
+
+**`data-align` on the `<img>` or `<video>`**: `start`, `end` or `center`. An attribute rather than a class,
+so the HTML stays plain and the editor's own; it is kept through paste and load, and any other value is
+dropped. `.prose` styles it wherever the HTML is shown:
+
+- `start` and `end` float a picture to that edge with the text beside it; the edges are logical, so a
+  right-to-left document mirrors. Below 560px the float stacks instead. A `.prose` that holds a float
+  contains it.
+- `center` makes an image or a video a centred block; on a video `start` and `end` keep it to that edge.
+
+The classes the editor writes for alignment, direction and a paragraph's indent — `ql-align-*`,
+`ql-direction-rtl`, `ql-indent-1` to `8` — are styled by `.prose` too.
 
 ### A file that is not taken
 
@@ -176,13 +239,18 @@ the words once inside the editor:
 
 ### Your own dialog
 
-Before the form opens, the editor sends `sedna-editor-media`, cancelable, with `{ kind, src, alt }` —
-the image or video under the caret, or empty strings. An app that would rather open its own dialog
+Before the form opens, the editor sends `sedna-editor-media`, cancelable, with
+`{ kind, src, alt, width, height }` — the image or video under the caret, its size in pixels or `null` for none,
+or empty strings and nulls. An app that would rather open its own dialog
 cancels it — the form stays shut, and an editor with no form needs nothing else — and answers with the
-handle's `insertImage(url, alt)` or `insertVideo(url, label)`, or `ISednaEditors.InsertImageAsync` and
-`InsertVideoAsync`. Each puts the media where the caret was, or in place of the media it is on, and
-answers null, inserting nothing, when the address is not one the editor keeps or the editor does not
-take that kind.
+handle's `insertImage(url, alt, width, height)` or `insertVideo(url, label, width, height)`, or
+`ISednaEditors.InsertImageAsync` and `InsertVideoAsync`. Each puts the media where the caret was, or in place
+of the media it is on, and answers null, inserting nothing, when the address is not one the editor keeps, a size
+is not a whole number of pixels above zero, or the editor does not take that kind.
+
+The size is optional. **Left out — `undefined` in script, the overload without a size in C# — it is the
+size of the media being replaced**, so an app that picks a new file for an image keeps the size it had.
+Given as `null` or empty it is none: the attribute is removed.
 
 ```razor
 <div class="editor" data-editor id="report" @onsedna-editor-media="PickImage" @onsedna-editor-media:preventDefault>
@@ -198,6 +266,67 @@ take that kind.
 }
 ```
 
+## Markdown shortcuts
+
+What a reader who knows Markdown types, turned into the format it names — for the formats the editor
+accepts, and no others:
+
+| Typed | Makes |
+|---|---|
+| `#` to `######` and a space, at the start of a line | A heading of that level |
+| `>` and a space | A quote |
+| `---` and Enter | A horizontal rule |
+| ` ``` ` and Enter | A code block |
+| `**x**`, `*x*`, `` `x` ``, `~~x~~` | Bold, italic, code, strike — when the closing mark is typed |
+
+A list starts as Quill starts one: `- `, `1. ` or `[ ] `. Each shortcut is its own step in the history, so
+Ctrl+Z puts back what was typed, and nothing happens inside a code block or a line of code. What follows the
+shortcut is plain text.
+
+## Mentions
+
+"@" at the start of a line or after a space opens the app's own list of who can be named. The list is a
+`.menu` written once inside the editor, named with `data-editor-mention`, with one `.menu-item` per person:
+
+```html
+<div class="menu editor-mention" data-editor-mention hidden aria-label="People">
+  <button class="menu-item" type="button" tabindex="-1" data-mention-value="alex.fischer" data-label="Alex Fischer">
+    <span class="avatar avatar--sm">AF</span><span>Alex Fischer</span>
+  </button>
+  <template data-editor-mention-item>
+    <button class="menu-item" type="button" tabindex="-1"><span data-label></span><span data-note></span></button>
+  </template>
+</div>
+```
+
+- What follows the "@" filters the items with the palette's matcher against `data-label` or the text, and
+  against `data-mention-value`. The focus stays in the document; Up and Down move `data-active`, Enter or
+  Tab writes the mention, Escape closes the list until another "@" is typed, and a press on an item does
+  the same as Enter. An address such as `alex@example.com` opens nothing.
+- **A mention is written as `<data value="alex.fischer">@Alex Fischer</data>`**, followed by a space. `<data>`
+  is the element HTML has for a machine-readable value; nothing else in an editor's document uses it, so it
+  cannot be taken for another format. The value is the id the server resolves; `.prose data[value]` colours
+  it. An editor holds mentions only when it has the list. It is kept through paste and load.
+- **From a search of the app's own:** each time the word changes the editor sends `sedna-editor-mention`,
+  cancelable, with `{ query }`. Cancel it — `@onsedna-editor-mention:preventDefault` — and answer with the
+  handle's `mentions([{ value, label, note, icon }])`, or `ISednaEditors.SetMentionsAsync(id, mentions)`:
+  one row per entry is cloned from the `<template data-editor-mention-item>`, its `data-label`, `data-note` and
+  `data-icon` slots filled with text. The editor then shows every row it was given, in that order, and does
+  not filter them.
+
+## The length limit
+
+`maxlength` on the textarea. The editor counts the characters of the document's text — `state().length`, not
+the HTML — and cuts what is typed or pasted beyond it, marking the frame `aria-invalid="true"` until the next
+change. A document the app sets with `set` or a bound value is its own: only what the reader types is held to
+the limit. The counter is the app's markup, written from `sedna-editor-change`'s `length`.
+
+## Not offered
+
+- Drag handles on an image, and a bar the library draws: the bar and its size presets are the app's markup,
+  written inside the editor (`docs/surfaces.md`, contract 2).
+- Find and replace: the browser's own.
+
 ## The keyboard
 
 | Keys | In the document |
@@ -206,7 +335,10 @@ take that kind.
 | Ctrl+K | The link form. |
 | Ctrl+Z, Ctrl+Y / Ctrl+Shift+Z | Undo, redo. |
 | Tab, Shift+Tab | In a list or a code block, indent and outdent; elsewhere, leave the document as from a textarea. |
-| Alt+F10 | To the toolbar. Escape there comes back. |
+| Alt+F10 | To the toolbar — to the bar, while an image or a video is chosen. Escape there comes back. |
+| Click on an image or a video; Shift+Arrow towards a video | Chooses it: the image or video control, and the bar, then change that media. |
+| Shortcuts such as `# `, `---` + Enter, `**x**` | Markdown while typing; Ctrl+Z takes one back. |
+| @ | After a space or at the start of a line, the mention list, if the editor has one. |
 | / | At the start of a line or after a space, the slash menu, if the editor has one. Up, Down, Enter, Tab and Escape then belong to it. |
 
 Cmd replaces Ctrl on macOS.
@@ -223,8 +355,8 @@ The textarea is the field, so everything that reads a field reads the editor:
 - **`required`** is held by the editor: an empty one stops the submit, is marked `aria-invalid` and takes
   the focus.
 
-The HTML written is the editor's own: lists as `<ul>` and `<ol>`, headings, paragraphs, links, images
-and videos, and only
+The HTML written is the editor's own: lists as `<ul>` and `<ol>`, headings, paragraphs, links — written with
+`target="_blank"` and `rel="noopener noreferrer"` — images, videos, rules, mentions, and only
 the formats the editor accepts. A value loaded from the textarea is cut down the same way. That is a
 convenience, not a sanitiser — what arrives at the server is still the server's to check.
 
@@ -236,12 +368,13 @@ Bubbling from the `[data-editor]` element, with plain data in `detail`:
 |---|---|
 | `sedna-editor-ready` | `{ html, text, length, isEmpty }`, once the document has loaded. |
 | `sedna-editor-change` | The same, after each change. |
-| `sedna-editor-media` | `{ kind, src, alt }`, cancelable, before the media form opens. |
+| `sedna-editor-media` | `{ kind, src, alt, width, height }`, cancelable, before the media form opens. `width` and `height` are numbers, or `null` for none and for a value that is not a number of pixels. |
+| `sedna-editor-mention` | `{ query }`, cancelable, while the mention list is open and its word changes. Cancel it and answer with `mentions([...])`. |
 | `sedna-editor-file` | `{ files: [{ id, name, type, size }], index }`, cancelable, when an image or a video is pasted or dropped. Nothing is inserted: read each file by its `id`, upload it, and answer with `insertImage` or `insertVideo`. Cancel it to say the app took them; otherwise `[data-editor-file-notice]` shows. |
 
 From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor-change`, each a
 `SednaEditorEventArgs`; `@onsedna-editor-media`, a `SednaEditorMediaEventArgs` —
-`@onsedna-editor-media:preventDefault` cancels it; and `@onsedna-editor-file`, a
+`@onsedna-editor-media:preventDefault` cancels it; `@onsedna-editor-mention`, a `SednaEditorMentionEventArgs` — `@onsedna-editor-mention:preventDefault` says the app fills the list; and `@onsedna-editor-file`, a
 `SednaEditorFileEventArgs` — `@onsedna-editor-file:preventDefault` says the app took the files.
 
 ## Script
@@ -254,8 +387,9 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `html()` | The document as HTML. |
 | `set(html)` | Replaces the document, as a paste would; the textarea follows with its events. |
 | `insert(text)` | Types text at the caret, or at the end. |
-| `insertImage(url, alt)` | An image at the caret, or in place of the one it is on; null when it is not kept. |
-| `insertVideo(url, label)` | A video, the same way. |
+| `insertImage(url, alt, width, height)` | An image at the caret, or in place of the one it is on; `width` and `height` in pixels, `null` for none, left out to keep the replaced image's. Null when it is not kept. |
+| `insertVideo(url, label, width, height)` | A video, the same way. |
+| `mentions(list)` | The mention list's rows — `[{ value, label, note, icon }]` — cloned from its template; how many were made. |
 | `file(id)` | A pasted or dropped file, as a `File`, by the id its `sedna-editor-file` named; null once the editor has let it go — it keeps the last few. |
 | `focus()` | Puts the focus in the document. |
 | `enable(on)` | Lets the reader edit, or stops them — by the textarea's `disabled`. |
@@ -273,8 +407,11 @@ From Razor, with `@using Sedna.UI`: `@onsedna-editor-ready` and `@onsedna-editor
 | `GetStateAsync(id)` | A `SednaEditorState` — `Html`, `Text`, `Length`, `IsEmpty` — or null when there is no such editor. |
 | `SetHtmlAsync(id, html)` | Replaces the document. |
 | `InsertTextAsync(id, text)` | Types text at the caret. |
-| `InsertImageAsync(id, url, alt)` | An image at the caret; null when it is not kept. |
+| `InsertImageAsync(id, url, alt)` | An image at the caret, keeping the size of the one it replaces; null when it is not kept. |
+| `InsertImageAsync(id, url, alt, width, height)` | The same with a size in pixels, an `int?` each — `null` for none. |
 | `InsertVideoAsync(id, url, label)` | A video at the caret; null when it is not kept. |
+| `InsertVideoAsync(id, url, label, width, height)` | The same with a size. |
+| `SetMentionsAsync(id, mentions)` | The mention list's rows, from `SednaMention(Value, Label, Note, Icon)` entries: how many were made — 0 for an editor with no list or template — or null when there is no such editor. |
 | `OpenFileAsync(id, fileId)` | A pasted or dropped file as an `IJSStreamReference` — `OpenReadStream(maxAllowedSize)` reads it — or null. |
 | `FocusAsync(id)` | Puts the focus in the document. |
 | `SetEnabledAsync(id, enabled)` | Lets the reader edit, or stops them. |
