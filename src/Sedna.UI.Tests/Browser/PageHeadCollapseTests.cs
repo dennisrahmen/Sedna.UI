@@ -195,17 +195,25 @@ public class PageHeadCollapseTests : ScriptTestBase
         </ul>
         """;
 
+    // Text is far from the fill; a fractional edge only blends the fill with itself.
+    private static bool Near((int R, int G, int B) a, (int R, int G, int B) b) =>
+        Math.Abs(a.R - b.R) <= 6 && Math.Abs(a.G - b.G) <= 6 && Math.Abs(a.B - b.B) <= 6;
+
     [Theory]
     [InlineData(1, 700)]
     [InlineData(2, 700)]
     [InlineData(1, 300)]
-    public async Task Nothing_of_the_list_shows_above_the_title_while_the_head_folds(int scale, int width)
+    [InlineData(1.1, 700)]
+    [InlineData(0.9, 700)]
+    [InlineData(2.2, 700)]
+    [InlineData(1.8, 300)]
+    public async Task Nothing_of_the_list_shows_above_the_title_while_the_head_folds(double scale, int width)
     {
         if (NoBrowser) return;
         var head = Head.Replace("""<div id="next" style="height:2400px">The list.</div>""", "", StringComparison.Ordinal);
         var (page, _) = await OpenStyled(
             $"""<div style="padding: 20px"><div class="sedna-scroll sedna-scroll--md" id="box" style="width:{width}px">{head}<div id="next"></div>{RowsUnder}</div></div>""",
-            deviceScaleFactor: scale);
+            deviceScaleFactor: (float)scale);
 
         foreach (var y in new[] { 0, 10, 25, 40, 60, 80, 100, 140, 200, 260 })
         {
@@ -220,11 +228,12 @@ public class PageHeadCollapseTests : ScriptTestBase
             Assert.True(Math.Abs(headBox[0]) <= 0.5, $"At {y}px the head started {headBox[0]}px below the scroller's top.");
 
             // The rows above the title's own line, right across the text column: the head's fill and nothing else.
-            var fill = png.Pixel(1 * scale, 1 * scale);
+            var fill = png.Pixel((int)Math.Ceiling(scale), (int)Math.Ceiling(scale));
             var textRight = (int)Math.Min(headBox[2] * scale, png.Width - 1);
-            for (var row = 0; row < 6 * scale; row++)
+            var rows = (int)Math.Floor(6 * scale);
+            for (var row = 0; row < rows; row++)
                 for (var x = 0; x < textRight; x++)
-                    Assert.True(png.Pixel(x, row) == fill,
+                    Assert.True(Near(png.Pixel(x, row), fill),
                         $"At {y}px, scale {scale}, width {width}: pixel ({x}, {row}) was {png.Pixel(x, row)}, not the head's {fill}.");
         }
     }
