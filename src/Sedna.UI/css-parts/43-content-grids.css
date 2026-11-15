@@ -331,7 +331,7 @@
     --panel-row-offset: 0;
 }
 .panel-grid .panel-grid-contents { display: contents; }
-.panel-grid > .panel-grid-band { grid-column: 1 / -1; grid-row: 1; min-inline-size: 0; }
+.panel-grid > .panel-grid-band { grid-column: 1 / span var(--panel-cols); grid-row: 1; min-inline-size: 0; }
 .panel-grid:has(> .panel-grid-band:not([hidden], :empty)) {
     --panel-row-offset: 1;
     grid-template-rows: auto;

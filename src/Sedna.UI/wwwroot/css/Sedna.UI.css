@@ -144,6 +144,7 @@
     --cal-weekend-tone-fg: var(--info-fg);
     --cal-holiday-tone-bg: var(--danger-bg);
     --cal-holiday-tone-fg: var(--danger-fg);
+    --hero-text-bg:        transparent;
     --surface-app:     var(--bg);
     --surface-chrome:  var(--sidebar-bg);
     --surface-content: var(--bg);
@@ -353,7 +354,6 @@
     --media-scrim:   color-mix(in srgb, var(--black) 62%, transparent);
     --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
     --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
-    --hero-text-bg:      transparent;
     --hero-text-shadow:  none;
     --checker-size:  8px;
     --reconnect-warn-bg:     color-mix(in srgb, var(--amber-900) 72%, var(--slate-950));
@@ -3735,7 +3735,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     --panel-row-offset: 0;
 }
 .panel-grid .panel-grid-contents { display: contents; }
-.panel-grid > .panel-grid-band { grid-column: 1 / -1; grid-row: 1; min-inline-size: 0; }
+.panel-grid > .panel-grid-band { grid-column: 1 / span var(--panel-cols); grid-row: 1; min-inline-size: 0; }
 .panel-grid:has(> .panel-grid-band:not([hidden], :empty)) {
     --panel-row-offset: 1;
     grid-template-rows: auto;

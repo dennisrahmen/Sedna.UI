@@ -20,7 +20,7 @@
       { "text": "A block of code or output to copy", "instead": "/code-blocks" }
     ],
     "goals": [ "head-a-page", "set-a-note-in-the-content", "show-where-a-page-sits", "fold-actions-into-a-menu", "frame-every-page", "open-a-page-on-a-big-picture", "read-light-text-on-a-dark-band", "see-what-a-site-offers" ],
-    "stamp": "b64afe0aa6837b0c"
+    "stamp": "d799ca265d2cbefe"
   },
   {
     "page": "/page-navigation",
@@ -35,7 +35,7 @@
       { "text": "Sections of a record that are pages of their own", "instead": "/tabs#strip-of-links" }
     ],
     "goals": [ "jump-to-a-section", "get-back-to-the-top", "change-settings" ],
-    "stamp": "b6dba3b413ca8d17"
+    "stamp": "ba8a6732c2297568"
   },
   {
     "page": "/breadcrumbs",
@@ -72,7 +72,7 @@
       { "text": "A condition of the whole page", "instead": "/alert" }
     ],
     "goals": [ "read-a-record-s-fields", "claim-before-acting", "arrange-dashboard-panels", "place-panels-freely", "lay-out-a-dashboard", "see-what-happened-to-a-record", "show-environment-variables", "check-answers-before-sending", "read-a-record", "manage-their-account", "approve-an-agent-action", "open-a-page-from-a-card", "open-a-page-on-a-big-picture", "see-what-a-site-offers" ],
-    "stamp": "bdb31789df4c30ca"
+    "stamp": "c5b3b78fb02452c0"
   },
   {
     "page": "/grid",
@@ -91,7 +91,7 @@
       { "text": "The app's frame: sidebar, topbar and page", "instead": "/frame" }
     ],
     "goals": [ "lay-out-a-dashboard", "work-beside-a-side-panel", "show-a-key-figure", "jump-to-a-section", "fill-in-a-form", "see-how-things-stand", "read-a-record", "work-through-records", "keep-generated-work-open", "open-a-page-from-a-card" ],
-    "stamp": "29cfa12c9e0107dd"
+    "stamp": "8c0f56e80b36d671"
   },
   {
     "page": "/panel-grid",
@@ -108,7 +108,7 @@
       { "text": "Reordering a list", "instead": "/drag-drop" }
     ],
     "goals": [ "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "c5e5367cbc947a8f"
+    "stamp": "f67cf42b1964e5e6"
   },
   {
     "page": "/list",

@@ -72,6 +72,11 @@
     --cal-holiday-tone-bg: var(--danger-bg);
     --cal-holiday-tone-fg: var(--danger-fg);
 
+    /* What the words of a page head with a picture stand on: nothing, over the scrim. In
+       forced colours the scrim, a gradient, is dropped and this is the user's canvas, which
+       is why it is declared here, with the tokens a variant or a mode remaps. */
+    --hero-text-bg:        transparent;
+
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
        An app asking "what colour is the navigation?" had to know that the
@@ -631,9 +636,6 @@
        for white text over the brightest photograph there is — HeroTests measures it. */
     --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
     --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
-    /* What the words of a page head with a picture stand on: nothing, over the scrim. In
-       forced colours the scrim, a gradient, is dropped and this is the user's canvas. */
-    --hero-text-bg:      transparent;
     /* A shadow under those words, for a head whose scrim an app has thinned — none by
        default, since the scrim alone clears AA. */
     --hero-text-shadow:  none;

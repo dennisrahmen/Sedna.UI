@@ -145,7 +145,7 @@ internal static class TokenGroups
 
         new("Controls and chrome", "Component surfaces", [
             "--badge-bg", "--table-head-bg", "--btn-active-bg", "--code-fg", "--code-bg",
-            "--backdrop", "--overlay", "--spotlight-dim", "--media-bg", "--media-scrim", "--hero-scrim-strong", "--hero-scrim-soft", "--tip-bg", "--tip-border", "--tip-fg",
+            "--backdrop", "--overlay", "--spotlight-dim", "--media-bg", "--media-scrim", "--hero-scrim-strong", "--hero-scrim-soft", "--hero-text-bg", "--tip-bg", "--tip-border", "--tip-fg",
             "--scrollbar", "--scrollbar-hover", "--scroll-shade",
             "--progress-track", "--skeleton-bg", "--skeleton-sheen",
             "--presence-out-of-office",
@@ -155,7 +155,13 @@ internal static class TokenGroups
             "--shadow-topbar", "--shadow-bottombar", "--shadow-nav-tools", "--shadow-modal", "--shadow-tip",
             "--shadow-flyout", "--shadow-dropdown", "--shadow-float", "--shadow-pop",
             "--shadow-tile", "--shadow-edge-start", "--shadow-edge-end",
+            "--hero-text-shadow",
         ], Swatch: false),
+
+        new("Controls and chrome", "Calendar shades", [
+            "--cal-weekend-bg", "--cal-holiday-bg",
+            "--cal-weekend-tone-bg", "--cal-weekend-tone-fg", "--cal-holiday-tone-bg", "--cal-holiday-tone-fg",
+        ]),
 
         new("Controls and chrome", "Reconnect banner", [
             "--reconnect-warn-bg", "--reconnect-warn-border", "--reconnect-warn-fg",
@@ -195,6 +201,14 @@ internal static class TokenGroups
             "--page-max", "--cell-pad-x", "--cell-pad-y", "--card-pad-block", "--card-pad-inline",
             "--list-pad-block", "--list-pad-inline", "--list-gap", "--list-lines", "--kv-key-width", "--code-clamp", "--page-rhythm", "--page-pad", "--page-banner-pad-block",
             "--cap-gap",
+        ], Swatch: false),
+
+        // The page head with a picture: its size, its text column, its padding, the point the
+        // picture is cropped around and where its scrim holds and ends.
+        new("Type, space and shape", "Page head with a picture", [
+            "--hero-height", "--hero-measure", "--hero-max", "--hero-radius",
+            "--hero-pad-block", "--hero-pad-inline", "--hero-gap", "--hero-focus",
+            "--hero-scrim-hold", "--hero-scrim-end",
         ], Swatch: false),
 
         // Where a panel anchored to a trigger opens: a keyword, read with a style query.
