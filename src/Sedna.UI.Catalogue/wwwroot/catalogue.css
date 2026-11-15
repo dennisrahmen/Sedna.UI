@@ -88,7 +88,7 @@
 
 .cat-lede { color: var(--muted); margin: 0 0 12px; line-height: 1.65; }
 
-/* One vertical rhythm for a prose page. Getting started, Concepts and the MCP server are
+/* One vertical rhythm for a prose page. Getting started, How the CSS works and the MCP server are
    built from h2 + lede + a card or a note rather than from .cat-ex, so their spacing
    cannot come from the example wrapper. Only bare elements inside .cat-main are named
    here — this file may not set a margin on .card or .table, which are the reader's

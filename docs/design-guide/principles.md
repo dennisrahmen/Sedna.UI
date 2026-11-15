@@ -204,7 +204,7 @@ library stops for a reader who asked for reduced motion, and print shows the end
 ## Words
 
 The words on the screen are the app's, and the rules for them are written once, as **Writing the
-words** on [Concepts](https://www.sedna-ui.com/concepts#words) and in §9 of [BRANDING](../BRANDING.md).
+words** on [How the CSS works](https://www.sedna-ui.com/concepts#words) and in §9 of [BRANDING](../BRANDING.md).
 In short: buttons are verbs, saving is **Save**, an empty state's headline says what to do, an error
 says what went wrong and how to fix it, sentence case everywhere, no "please", numbers as digits, and
 dates that cannot be read two ways.

@@ -186,7 +186,7 @@
     "src/Sedna.UI/js-parts/43-chart.js": "43c0baded42d131c"
   },
   "/search": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Search.razor": "ad608525c2ce769b",
+    "src/Sedna.UI.Catalogue/Components/Pages/Search.razor": "101ba01fe0f29607",
     "src/Sedna.UI.Catalogue/Examples/Interop/SearchRankFromCsharp.razor": "1a85be6375d4ad03",
     "src/Sedna.UI.Catalogue/Examples/Search/AnchoredSearch.html": "70314b00b21b9a49",
     "src/Sedna.UI.Catalogue/Examples/Search/HeaderSearch.razor": "54777557eae73e16",
