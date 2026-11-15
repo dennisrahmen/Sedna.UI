@@ -194,9 +194,13 @@ dialog.drawer[open]::backdrop { background-color: var(--dialog-backdrop); }
    that fades to nothing over the slide's own duration and easing, which the script
    writes as `--sedna-exit-duration` and `--sedna-exit-easing`. The shadow travels with
    the panel, and its spread is wider than any distance the panel has to go. */
-dialog.drawer[data-sedna-closing="modal"] {
+.drawer {
+    --sedna-exit-duration: var(--motion-mid);
+    --sedna-exit-easing: ease;
+}
+.drawer[data-sedna-closing="modal"] {
     box-shadow: var(--shadow-modal), 0 0 0 100vmax var(--dialog-backdrop);
-    animation: sedna-dim-out var(--sedna-exit-duration, var(--motion-mid)) var(--sedna-exit-easing, ease) forwards;
+    animation: sedna-dim-out var(--sedna-exit-duration) var(--sedna-exit-easing) forwards;
 }
 @keyframes sedna-dim-out {
     to { box-shadow: var(--shadow-modal), 0 0 0 100vmax transparent; }
