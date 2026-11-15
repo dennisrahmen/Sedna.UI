@@ -140,6 +140,8 @@ Linux-only failure is found before the merge. To run one slice as the workflow d
 SEDNA_UI_BROWSER=webkit SEDNA_UI_SHARD=2/4 dotnet test src/Sedna.UI.Catalogue.Tests --filter "Kind=Scan"
 ```
 
+Coverage is collected by the Chromium slices of a pull request and of `main`, and checked by the `coverage` job; how to run it locally, and the checks it applies, are in [coverage.md](coverage.md).
+
 `Kind!=Scan` is the rest of the catalogue's tests; `Scope=Site` marks the website's own tests, which
 the release leaves out and `main.yml` runs.
 

@@ -711,8 +711,9 @@ version first.
 
 The suite is one reusable workflow, `tests.yml`: every test project in every engine on Linux, the
 catalogue's page scans (`Kind=Scan`) in shards. A pull request runs `ci.yml` — `build`, and `tests`
-unless the change is prose alone — and the one required check is `ready`. Every push to `main` runs
-`main.yml`, the full suite with the website's tests (`Scope=Site`) included. `release.yml` publishes
+unless the change is prose alone, then `coverage`, the gate of `docs/coverage.md` — and the one required
+check is `ready`. Every push to `main` runs `main.yml`, the full suite with the website's tests
+(`Scope=Site`) included, and the coverage floor; a commit whose run fails is not verified for a release. `release.yml` publishes
 only a commit on `main`. It skips the suite when the newest `main.yml` run on branch `main` for exactly
 the tagged commit succeeded, waits for that run when it is still going, and otherwise runs `tests.yml` itself, without `Scope=Site`, and publishes only when it is green. So a
 browser regression is caught before the merge, and a tag on a commit whose `main.yml` run is green
