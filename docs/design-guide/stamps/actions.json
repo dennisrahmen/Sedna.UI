@@ -82,6 +82,7 @@
     "src/Sedna.UI/css-parts/58-menu.css": "78bd082703fd47e9",
     "src/Sedna.UI/css-parts/59-table-extensions.css": "1a15040de39b4a01",
     "src/Sedna.UI/editor-parts/45-slash.js": "e615ae05e98b8991",
+    "src/Sedna.UI/editor-parts/65-mention.js": "cf961ecb9dfea54a",
     "src/Sedna.UI/js-parts/22-anchored.js": "eccfa21cf94ce110",
     "src/Sedna.UI/js-parts/22-menu.js": "b7020a230408c688",
     "src/Sedna.UI/js-parts/22-tree.js": "4e9eefd37ed6656c",

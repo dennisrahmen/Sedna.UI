@@ -225,6 +225,7 @@
     .page-banner-dismiss:focus-visible,
     .app-switcher-item:focus-visible { outline: 2px solid CanvasText; outline-offset: 1px; }
     .workflow:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
+    .editor .ql-editor :is(img, video)[data-editor-selected] { outline: 2px solid CanvasText; outline-offset: 2px; }
     /* Inside its header cell, which clips what is drawn past its edge. */
     .col-resize:focus-visible { outline: 2px solid CanvasText; outline-offset: -2px; }
     /* Inside the run's frame, which meets its edge. */

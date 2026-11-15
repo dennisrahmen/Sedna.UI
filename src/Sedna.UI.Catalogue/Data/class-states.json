@@ -2429,7 +2429,8 @@
         "[data-state=\"warn\"]"
       ],
       "pseudoClasses": [
-        ":focus-within"
+        ":focus-within",
+        ":fullscreen"
       ]
     },
     "editor-body": {
@@ -2449,6 +2450,15 @@
     },
     "editor-media": {
       "family": "editor-media"
+    },
+    "editor-media-bar": {
+      "family": "editor-media-bar",
+      "attributes": [
+        "[hidden]"
+      ]
+    },
+    "editor-mention": {
+      "family": "editor-mention"
     },
     "editor-notice": {
       "family": "editor-notice"

@@ -30,10 +30,12 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 const FORMATS = ['bold', 'italic', 'underline', 'strike', 'code', 'script', 'link', 'image', 'video',
-    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table'];
+    'header', 'list', 'blockquote', 'code-block', 'align', 'indent', 'color', 'background', 'table',
+    'direction', 'divider', 'mention'];
 // What a table is made of in Quill: the cell is `table`, held by these three.
 const TABLE_PARTS = ['table-row', 'table-body', 'table-container'];
-const CONTROL = '[data-editor-format],[data-editor-action]';
+// A full-screen button in the toolbar is one of its stops, though the editor does nothing for it.
+const CONTROL = '[data-editor-format],[data-editor-action],[data-fullscreen]';
 
 const warned = new Set();
 function warnOnce(key, message) {
@@ -55,7 +57,9 @@ function readMarkup(el) {
     const media = el.querySelector('[data-editor-media]');
     const slash = el.querySelector('[data-editor-slash]');
     const notice = el.querySelector('[data-editor-file-notice]');
-    return { value, body, toolbar, link, media, slash, notice };
+    const bar = el.querySelector('[data-editor-media-bar]');
+    const mention = el.querySelector('[data-editor-mention]');
+    return { value, body, toolbar, link, media, slash, notice, bar, mention };
 }
 
 /* The formats this editor accepts, as Quill names them. A list needs indent, for its
@@ -67,6 +71,9 @@ function formatsOf(el) {
     const wanted = new Set(named.length ? named : offered);
     if (acted.includes('indent') || acted.includes('outdent') || wanted.has('list')) wanted.add('indent');
     if (acted.some(a => a && a.startsWith('table-'))) wanted.add('table');
+    // A horizontal rule is the `rule` action's, and a mention is the app's menu for it.
+    if (acted.includes('rule')) wanted.add('divider');
+    if (el.querySelector('[data-editor-mention]')) wanted.add('mention');
     for (const f of wanted) {
         if (!FORMATS.includes(f)) {
             warnOnce('format:' + f, `"${f}" is not a format the editor offers; it is ignored.`);

@@ -58,6 +58,24 @@ public interface ISednaEditors
     Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Puts an image with a size where the caret was — or in place of the image it is on — as
+    /// <c>&lt;img src alt width height&gt;</c>. The overload without a size keeps the size of the
+    /// image it replaces; this one sets it, and a null size is none.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="url">The image's address: <c>http</c>, <c>https</c> or relative.</param>
+    /// <param name="alt">Its description, written as <c>alt</c>; null or empty for none.</param>
+    /// <param name="width">Its width in pixels, written as <c>width</c>; null for none, so the browser keeps the aspect ratio.</param>
+    /// <param name="height">Its height in pixels, written as <c>height</c>; null for none.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// What the document holds afterwards, or null — and nothing inserted — when there is no such
+    /// editor, the editor does not take images, the address is not one it keeps, or a size is not
+    /// above zero.
+    /// </returns>
+    Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt, int? width, int? height = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Puts a video where the caret was — or in place of the video it is on — as a block of its
     /// own, <c>&lt;video controls src&gt;</c>, which never plays by itself.
     /// </summary>
@@ -72,6 +90,24 @@ public interface ISednaEditors
     Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Puts a video with a size where the caret was — or in place of the video it is on — as a block of
+    /// its own, <c>&lt;video controls src width height&gt;</c>. The overload without a size keeps the size
+    /// of the video it replaces; this one sets it, and a null size is none.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="url">The video file's address: <c>http</c>, <c>https</c> or relative.</param>
+    /// <param name="label">Its name, written as <c>aria-label</c>; null or empty for none.</param>
+    /// <param name="width">Its width in pixels, written as <c>width</c>; null for none.</param>
+    /// <param name="height">Its height in pixels, written as <c>height</c>; null for none.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>
+    /// What the document holds afterwards, or null — and nothing inserted — when there is no such
+    /// editor, the editor does not take videos, the address is not one it keeps, or a size is not
+    /// above zero.
+    /// </returns>
+    Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label, int? width, int? height = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Opens a file pasted or dropped into the editor, by the id its <c>sedna-editor-file</c>
     /// event named, for the app to upload.
     /// </summary>
@@ -84,6 +120,18 @@ public interface ISednaEditors
     /// few that arrived.
     /// </returns>
     Task<IJSStreamReference?> OpenFileAsync(string editorId, string fileId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Fills the editor's mention list — the app's <c>[data-editor-mention]</c> menu — with one row per
+    /// entry, cloned from the <c>&lt;template data-editor-mention-item&gt;</c> inside it: the answer to
+    /// <c>@onsedna-editor-mention</c>, cancelled, once the app has searched for what the reader typed
+    /// after the "@". The editor shows every row it is given. Rows an earlier call made are replaced.
+    /// </summary>
+    /// <param name="editorId">The <c>[data-editor]</c> element's id.</param>
+    /// <param name="mentions">Who can be named; entries with an empty <see cref="SednaMention.Value"/> are skipped.</param>
+    /// <param name="cancellationToken">Stops waiting.</param>
+    /// <returns>How many rows were made — 0 for an editor with no such list or template — or null when there is no such editor.</returns>
+    Task<int?> SetMentionsAsync(string editorId, IEnumerable<SednaMention> mentions, CancellationToken cancellationToken = default);
 
     /// <summary>Puts the focus in the document, where the caret last was.</summary>
     Task FocusAsync(string editorId, CancellationToken cancellationToken = default);

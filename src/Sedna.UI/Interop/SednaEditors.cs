@@ -54,6 +54,13 @@ public sealed class SednaEditors : ISednaEditors
     }
 
     /// <inheritdoc />
+    public async Task<SednaEditorState?> InsertImageAsync(string editorId, string url, string? alt, int? width, int? height = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
+        return await Call<SednaEditorState?>(editorId, "image", cancellationToken, url, alt ?? string.Empty, width, height);
+    }
+
+    /// <inheritdoc />
     public async Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
@@ -61,10 +68,24 @@ public sealed class SednaEditors : ISednaEditors
     }
 
     /// <inheritdoc />
+    public async Task<SednaEditorState?> InsertVideoAsync(string editorId, string url, string? label, int? width, int? height = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
+        return await Call<SednaEditorState?>(editorId, "video", cancellationToken, url, label ?? string.Empty, width, height);
+    }
+
+    /// <inheritdoc />
     public async Task<IJSStreamReference?> OpenFileAsync(string editorId, string fileId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileId);
         return await Call<IJSStreamReference?>(editorId, "file", cancellationToken, fileId);
+    }
+
+    /// <inheritdoc />
+    public async Task<int?> SetMentionsAsync(string editorId, IEnumerable<SednaMention> mentions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(mentions);
+        return await Call<int?>(editorId, "mentions", cancellationToken, new object?[] { mentions.ToArray() });
     }
 
     /// <inheritdoc />
