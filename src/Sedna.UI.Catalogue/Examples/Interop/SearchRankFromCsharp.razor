@@ -4,11 +4,13 @@
     <div class="card-head">
         <strong>Nothing at <code>@_missing</code></strong>
     </div>
-    <div class="card-body">
-        <label class="form-label" for="ex-missing">The address that was asked for</label>
-        <input class="form-input form-input--sm" id="ex-missing" type="text" spellcheck="false"
-               @bind="_missing" @bind:event="oninput" @bind:after="Suggest" />
-        <p class="form-hint">@(_pages is null ? "Pages like it appear once the page is live." : $"{_pages.Count} pages match. The closest:")</p>
+    <div class="card-body sedna-col sedna-gap-12">
+        <div class="form-field">
+            <label class="form-label" for="ex-missing">The address that was asked for</label>
+            <input class="form-input form-input--sm" id="ex-missing" type="text" spellcheck="false"
+                   @bind="_missing" @bind:event="oninput" @bind:after="Suggest" />
+        </div>
+        <p class="text-muted">@(_pages is null ? "Pages like it appear once the page is live." : $"{_pages.Count} pages match. The closest:")</p>
         @if (_pages is { Count: > 0 })
         {
             <ul class="list list--cards" aria-label="Pages like it">

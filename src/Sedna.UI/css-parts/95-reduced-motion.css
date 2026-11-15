@@ -316,6 +316,12 @@
         background-size: 100% 2px;
         background-position: 0 0;
     }
+    /* 70-rtl — the mirrored sweep stands still as well. */
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
     .choice-tile { transition: none; }
     button.cal-mark { transition: none; }
     .cal-resize::after { transition: none; }   /* 66 — the grip appears at once */

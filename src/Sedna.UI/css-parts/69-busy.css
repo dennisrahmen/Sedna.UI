@@ -49,15 +49,23 @@
     background-image: linear-gradient(var(--brand-soft), var(--brand-soft));
     background-size: 30% 2px;
     background-repeat: no-repeat;
-    background-position: -30% 0;
+    background-position: -42.8572% 0;
     animation: sedna-busy-bar var(--progress-duration) ease-in-out infinite;
 }
 :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] > * {
     opacity: 0.55;
     pointer-events: none;
 }
+/* A percentage `background-position` is measured against the track less the bar, so the
+   bar's own width decides where "outside" is: for a bar 30% wide, -30 / 70 puts its far
+   edge on the track's near edge, and 100 / 70 puts its near edge on the track's far edge.
+   Both ends are therefore fully outside the track, which clips the bar, so it slides in
+   from the inline start and out past the inline end without appearing or vanishing. The
+   rest position above is the first frame, so a delayed or paused animation shows no bar.
+   `background-position` is physical: 70-rtl.css runs the same sweep the other way. */
 @keyframes sedna-busy-bar {
-    to { background-position: 130% 0; }
+    from { background-position: -42.8572% 0; }
+    to   { background-position: 142.8572% 0; }
 }
 
 :is(.form-select, .form-combo-box, .form-color)[aria-readonly="true"],

@@ -695,6 +695,10 @@
     --topbar-fg:       var(--fg);
     --topbar-muted:    var(--muted);
     --topbar-hover:    var(--bg-hover);
+    /* The dividers drawn in the header: its bottom edge, the line before a section, a
+       button or the user widget. A brand-coloured header sets it beside --topbar-bg, so
+       its dividers are a step off its own colour instead of the page's. */
+    --topbar-border:   var(--border);
 
     /* ── Semantic status families ───────────────────────────────────────────
        "go"     — the action that sends something outward (approve, apply, send)
@@ -964,6 +968,10 @@
        .nav-section-label read it, and every surface resets it to --muted. */
     /* The header's height, and the sidebar's brand and area title, which line up with it. */
     --topbar-height:   44px;
+    /* The gap between the header and a panel that opens from it — the user menu, the app
+       switcher — and, for a panel at the trailing end, between the panel and the window's
+       edge. One value for both, so the panel floats level whatever the header's height. */
+    --topbar-panel-gap: var(--space-2);
 
     /* ── Panel bars ─────────────────────────────────────────────────────────
        A modal's header and footer and a card's head sit on the panel's own surface; an
@@ -2216,7 +2224,9 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .nav-link-tool i { opacity: 0.75; }
 .nav-link-tool:hover { color: var(--sidebar-fg); }
 .nav-link-tool:hover i { opacity: 1; }
-.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-5) var(--space-8) var(--space-2); }
+/* Level between the two groups it divides: the same space above and below, so a link either side
+   of it stands the same distance from the line. */
+.nav-tools-sep { border: none; border-top: 1px solid var(--sidebar-border); margin: var(--space-3) var(--space-8); }
 
 /* Sidebar status card (a monitored dependency: API reachable, DB connected, …).
    The --ok / --fail modifiers are commonly composed dynamically in the nav. */
@@ -2332,7 +2342,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     transition: position var(--snap) allow-discrete, width var(--snap) allow-discrete, height var(--snap) allow-discrete, overflow var(--snap) allow-discrete, clip-path var(--snap) allow-discrete;
 }
 .sidebar.collapsed .nav-status-dot { width: 9px; height: 9px; transition: width var(--snap), height var(--snap); }
-.sidebar.collapsed .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); transition: margin var(--snap); }
+.sidebar.collapsed .nav-tools-sep { margin: var(--space-3) var(--space-7); transition: margin var(--snap); }
 /* A rail has no room to type in, so the nav filter goes with the labels. */
 .sidebar.collapsed .nav-filter { display: none; transition: display var(--motion-mid) allow-discrete; }
 /* A collapsed area rail is the rail alone: the panel goes, and the rail's own
@@ -2388,7 +2398,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     --muted-here: var(--topbar-muted);
     background: var(--topbar-bg);
     color: var(--topbar-fg);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--topbar-border);
     flex-shrink: 0;
     position: relative;
     z-index: 60;
@@ -2400,7 +2410,7 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
     align-items: center;
     gap: var(--space-3);
     padding: 0 var(--space-8);
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 
 /* Square icon button living in the topbar. --start carries its divider on the
@@ -2408,12 +2418,12 @@ p.lede { color: var(--muted); margin: 0 0 var(--space-7); }
 .topbar-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: var(--topbar-height); flex-shrink: 0;
-    background: none; border: none; border-inline-start: 1px solid var(--border);
+    background: none; border: none; border-inline-start: 1px solid var(--topbar-border);
     color: var(--topbar-muted); cursor: pointer; font-size: var(--text-8);
     text-decoration: none;
 }
 .topbar-btn:hover { background: var(--topbar-hover); color: var(--topbar-fg); text-decoration: none; }
-.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--border); }
+.topbar-btn--start { border-inline-start: none; border-inline-end: 1px solid var(--topbar-border); }
 
 
 /* A header that stays at the top while the document scrolls under it — for a page
@@ -2592,7 +2602,7 @@ a.topbar-version--pre:hover {
     z-index: 200;
     display: flex;
     align-items: stretch;
-    border-inline-start: 1px solid var(--border);
+    border-inline-start: 1px solid var(--topbar-border);
 }
 .user-trigger {
     display: flex; align-items: center; gap: var(--space-5);
@@ -2622,7 +2632,8 @@ a.topbar-version--pre:hover {
 /* ── The widget's dropdown ──────────────────────────────────────────────────
    The panel itself is the tier-2 `.menu` (58-menu.css) — there is one dropdown
    style in this library, not one per place that needs one. Only the anchoring is
-   the frame's business, and it uses the same 4px gap as `.menu-anchor`. Flush
+   the frame's business, and it keeps `--topbar-panel-gap` below the header and from the
+   window's edge, the same gap the app switcher keeps. Flush
    against `top: 100%` the panel reads as welded to the topbar's bottom edge rather
    than floating below the trigger — the header's own border and the panel's top
    border land on the same line, so neither is legible as an edge.
@@ -2639,8 +2650,8 @@ a.topbar-version--pre:hover {
     color: var(--fg);
     min-width: 220px;
     position: absolute;
-    top: calc(100% + var(--space-2));
-    inset-inline-end: 0;
+    top: calc(100% + var(--topbar-panel-gap));
+    inset-inline-end: var(--topbar-panel-gap);
     z-index: 550;
 }
 
@@ -2901,6 +2912,25 @@ a.topbar-version--pre:hover {
     font-size: var(--text-4);
     /* A long address or token in the message wraps instead of widening the frame. */
     overflow-wrap: anywhere;
+}
+
+/* ── The shadow moves down ──────────────────────────────────────────────────
+   The header's shadow says "the page scrolls behind me", and with a banner under the
+   header it would fall on the banner instead of on the page. So the header gives its
+   shadow up and the banner draws it, from the same `--shadow-topbar`: the line between
+   the two stays a plain edge, and content scrolling behind the banner still reads as
+   behind. Setting `--shadow-topbar: none` removes it from both.
+
+   `z-index: 3` is local stacking: it lifts the banner over the page's own positioned
+   rows and the sticky header of a table, and stays under the header (60), which hides
+   the few pixels of the shadow that reach up. Where the banner scrolls away under a
+   sticky header — `.topbar--sticky`, and `.layout--flow` on a phone — the header keeps
+   its shadow and the banner has none; 19-frame-responsive.css puts the flow case back. */
+.topbar:not(.topbar--sticky):has(+ .page-banner) { box-shadow: none; }
+.topbar:not(.topbar--sticky) + .page-banner {
+    position: relative;
+    z-index: 3;
+    box-shadow: var(--shadow-topbar);
 }
 
 .page-banner > i {
@@ -3310,7 +3340,7 @@ a.topbar-version--pre:hover {
         clip-path: inset(50%);
     }
     .layout--responsive .sidebar .nav-status-dot { width: 9px; height: 9px; }
-    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-4) var(--space-7) var(--space-2); }
+    .layout--responsive .sidebar .nav-tools-sep { margin: var(--space-3) var(--space-7); }
     .layout--responsive .sidebar .nav-filter { display: none; }
     .layout--responsive .sidebar.sidebar--areas > .nav { display: none; }
     .layout--responsive .sidebar.sidebar--areas .nav-areas { border-inline-end: none; }
@@ -3398,6 +3428,10 @@ a.topbar-version--pre:hover {
         position: sticky;
         top: var(--safe-block-start);
     }
+    /* The banner scrolls away under the sticky header, which keeps the shadow: see
+       18-frame-banner.css. */
+    .layout--flow .topbar:has(+ .page-banner) { box-shadow: var(--shadow-topbar); }
+    .layout--flow .topbar + .page-banner { position: static; box-shadow: none; }
     .layout--flow > .sidebar {
         position: sticky;
         top: 0;
@@ -19586,9 +19620,14 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
    `aria-current="page"`. The popover is the platform's, so opening, light dismiss and
    Escape need no script.
 
-   A topbar button sits at either end of the header, and a popover spans towards the
-   inline end by default — from the last button in the header that is off the screen.
-   A popover holding a switcher tries the other side first. */
+   A topbar button sits at the trailing end of the header more often than the leading one,
+   so a popover holding a switcher spans towards the inline start from the button's
+   trailing edge, and flips to the other side where that has no room — from a button at
+   the header's leading end. In the header it keeps `--topbar-panel-gap` below the bar
+   and from the window's edge, the same gap the user menu keeps.
+
+   `.app-switcher--icons` shows the marks alone. Each name stays in the markup, which
+   is the link's accessible name; it is only not drawn. */
 .app-switcher {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -19598,9 +19637,42 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     margin: 0;
     padding: 0;
 }
-.popover:has(> .app-switcher) { position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline; }
+.popover:has(> .app-switcher) {
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+    margin-block-start: var(--topbar-panel-gap);
+    margin-inline-end: var(--topbar-panel-gap);
+}
+/* `--panel-placement` still places it, as it does every panel anchored to a trigger
+   (65-popover.css): the same three placements, with the gap the header keeps. */
+@container style(--panel-placement: block-start) {
+    .popover:has(> .app-switcher) {
+        position-area: block-start span-inline-start;
+        align-self: end;
+        margin-block: 0 var(--topbar-panel-gap);
+    }
+}
+@container style(--panel-placement: inline-end) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-end span-block-end;
+        justify-self: start;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: var(--topbar-panel-gap) 0;
+    }
+}
+@container style(--panel-placement: inline-start) {
+    .popover:has(> .app-switcher) {
+        position-area: inline-start span-block-end;
+        justify-self: end;
+        align-self: start;
+        margin-block: 0;
+        margin-inline: 0 var(--topbar-panel-gap);
+    }
+}
 
 .app-switcher-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19609,7 +19681,7 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
     padding: var(--space-5) var(--space-2);
     border-radius: var(--radius-control);
     color: var(--fg-soft);
-    font-size: var(--text-3);
+    font-size: var(--text-5);
     line-height: round(1.4em, 2px);
     text-align: center;
     text-decoration: none;
@@ -19618,6 +19690,29 @@ body.spotlight-lock .spotlight-allowed [data-spotlight-block] :is(button, a, inp
 .app-switcher-item:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
 .app-switcher-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 .app-switcher-item[aria-current]:not([aria-current="false"]) { background: var(--brand-tint); color: var(--brand-text); }
+
+/* The name is trimmed to its capitals, as a label in a row is, and given its line back on
+   the side that faces the mark only: the tile's edge is as far from the icon above as from
+   the last line of the name below. A name is any child that is not the mark. */
+.app-switcher-item > :not(.app-switcher-icon) {
+    text-box: trim-both cap alphabetic;
+    padding-block: var(--cap-gap) 0;
+}
+
+/* The marks alone: a tile is the icon, and the name is read by a screen reader and
+   shown by the hover hint the app puts on the link. */
+.app-switcher--icons { grid-template-columns: repeat(3, max-content); inline-size: auto; }
+.app-switcher--icons .app-switcher-item { padding: var(--space-3); }
+.app-switcher--icons .app-switcher-item > :not(.app-switcher-icon) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
 
 /* The app's mark: an icon on a tile of its own. */
 .app-switcher-icon {
@@ -26162,15 +26257,23 @@ button.inbox-item-title {
     background-image: linear-gradient(var(--brand-soft), var(--brand-soft));
     background-size: 30% 2px;
     background-repeat: no-repeat;
-    background-position: -30% 0;
+    background-position: -42.8572% 0;
     animation: sedna-busy-bar var(--progress-duration) ease-in-out infinite;
 }
 :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] > * {
     opacity: 0.55;
     pointer-events: none;
 }
+/* A percentage `background-position` is measured against the track less the bar, so the
+   bar's own width decides where "outside" is: for a bar 30% wide, -30 / 70 puts its far
+   edge on the track's near edge, and 100 / 70 puts its near edge on the track's far edge.
+   Both ends are therefore fully outside the track, which clips the bar, so it slides in
+   from the inline start and out past the inline end without appearing or vanishing. The
+   rest position above is the first frame, so a delayed or paused animation shows no bar.
+   `background-position` is physical: 70-rtl.css runs the same sweep the other way. */
 @keyframes sedna-busy-bar {
-    to { background-position: 130% 0; }
+    from { background-position: -42.8572% 0; }
+    to   { background-position: 142.8572% 0; }
 }
 
 :is(.form-select, .form-combo-box, .form-color)[aria-readonly="true"],
@@ -27094,6 +27197,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    left, so it slopes the other way, and the translate that centres it on its point turns round. */
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 
+/* The busy bar (69-busy.css) is a background, and a background position is physical: the
+   sweep runs from the inline start, which is the right edge, to the left. */
+[dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+    animation-direction: reverse;
+    background-position: 142.8572% 0;
+}
 }
 
 /* ── 71-forced-colors.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -28359,6 +28468,12 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     :is(.btn-bare, .menu-item, .tab, button.chip, .page-link, :is(a, button).list-row, .segmented-option,
         .topbar-btn, .bottombar-item, .nav-link, .fab)[aria-busy="true"] > i:first-of-type::after { animation: none; }
     :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
+        animation: none;
+        background-size: 100% 2px;
+        background-position: 0 0;
+    }
+    /* 70-rtl — the mirrored sweep stands still as well. */
+    [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {
         animation: none;
         background-size: 100% 2px;
         background-position: 0 0;
