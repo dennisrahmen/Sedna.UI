@@ -125,6 +125,24 @@ public sealed class CatalogueAppFixture : IAsyncLifetime
         return page;
     }
 
+    /// <summary>
+    /// Loads a route in a page the caller owns and waits for what a scan of the page needs: the
+    /// document and its images loaded, and the circuit connected — whose first render replaces
+    /// what the server rendered, so a scan before it reads a document about to be swapped out.
+    /// </summary>
+    /// <remarks>
+    /// Instead of <c>WaitUntilState.NetworkIdle</c>, which waits a fixed half second after the
+    /// last request on every load whatever the page was doing. Waits on <c>data-interactive</c>,
+    /// Blazor's own signal, never on a clock. A timeout names the route.
+    /// </remarks>
+    public async Task<IResponse?> GotoInteractiveAsync(IPage page, string route)
+    {
+        var response = await page.GotoAsync(Url(route), new() { WaitUntil = WaitUntilState.Load });
+        try { await page.WaitForSelectorAsync("[data-interactive='true']"); }
+        catch (TimeoutException ex) { throw new TimeoutException($"{route}: the circuit never connected.", ex); }
+        return response;
+    }
+
     /// <summary>Opens a page and waits for the server-rendered document.</summary>
     public async Task<IPage> OpenAsync(string route)
     {

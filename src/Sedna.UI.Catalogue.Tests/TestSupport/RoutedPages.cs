@@ -37,4 +37,24 @@ internal static class RoutedPages
         Assert.NotEmpty(data);
         return data;
     }
+
+    /// <summary>
+    /// The routes this run's scans walk: all of them, or the share <c>SEDNA_UI_SHARD</c> names.
+    /// Only the classes tagged <see cref="ScanKind"/> read this; every other test keeps <see cref="All"/>.
+    /// </summary>
+    public static IReadOnlyList<string> Scanned => Shard.Current.Select(All);
+
+    /// <summary>
+    /// A theory row per scanned route. A shard that holds none yields one empty route, which a
+    /// test returns on at once: a theory with no data fails in xunit, and an empty shard is not a
+    /// failure — <c>ShardTests</c> proves nothing fell out of every shard.
+    /// </summary>
+    public static TheoryData<string> ScannedAsTheoryData()
+    {
+        Assert.NotEmpty(All);
+        var data = new TheoryData<string>();
+        foreach (var route in Scanned) data.Add(route);
+        if (Scanned.Count == 0) data.Add("");
+        return data;
+    }
 }

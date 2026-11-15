@@ -1,4 +1,6 @@
+using System.Drawing;
 using Microsoft.Playwright;
+using Xunit.Abstractions;
 using Sedna.UI.Catalogue.Tests.TestSupport;
 using Sedna.UI.Tests.TestSupport;
 
@@ -23,7 +25,8 @@ namespace Sedna.UI.Catalogue.Tests;
 /// </para>
 /// </remarks>
 [Collection(CatalogueAppCollection.Name)]
-public class AlignmentScanTests(CatalogueAppFixture app)
+[Trait(ScanKind.Name, ScanKind.Scan)]
+public class AlignmentScanTests(CatalogueAppFixture app, ITestOutputHelper output)
 {
     /// <summary>
     /// How far from its centre line a drawing may land: a pixel. Both engines trim a line to
@@ -37,20 +40,16 @@ public class AlignmentScanTests(CatalogueAppFixture app)
     /// <summary>What the measurement itself is good to: a sixteenth of a pixel.</summary>
     private const double Measured = 1.0 / 16;
 
+    /// <summary>The variants one page is measured in: its density and its direction.</summary>
+    private static readonly (string Density, string Dir)[] VariantList =
+        [.. from dir in new[] { "ltr", "rtl" } from density in new[] { "comfortable", "compact", "touch" } select (density, dir)];
+
     /// <summary>
-    /// One case per page and variant, so each lasts seconds and a failure names its page:
-    /// the whole catalogue in one case outran the test host's hang timeout on a slow runner.
+    /// One case per page, so each lasts seconds and a failure names its page: the whole
+    /// catalogue in one case outran the test host's hang timeout on a slow runner. The page is
+    /// loaded once and measured in every variant, set on it in turn.
     /// </summary>
-    public static TheoryData<string, string, string> Variants()
-    {
-        var data = new TheoryData<string, string, string>();
-        foreach (var dir in new[] { "ltr", "rtl" })
-            foreach (var density in new[] { "comfortable", "compact", "touch" })
-                foreach (var route in RoutedPages.All)
-                    data.Add(route, density, dir);
-        Assert.NotEmpty(data);
-        return data;
-    }
+    public static TheoryData<string> Pages() => RoutedPages.ScannedAsTheoryData();
 
     private sealed record Box(string Kind, string Label, double X, double Y, double W, double H, int K, int[]? Fg = null, double[]? Line = null)
     {
@@ -60,11 +59,14 @@ public class AlignmentScanTests(CatalogueAppFixture app)
     private sealed record Row(string Path, double Centre, Box[] Items);
     private sealed record Scan(Row[] Rows, Box[] Boxes, string[] Bare, double Height);
 
+    /// <summary>How often a page moved while it was measured and was measured again, over the run.</summary>
+    private static int _remeasured;
+
     [Theory]
-    [MemberData(nameof(Variants))]
-    public async Task Every_row_and_every_box_paints_on_its_centre_line(string route, string density, string dir)
+    [MemberData(nameof(Pages))]
+    public async Task Every_row_and_every_box_paints_on_its_centre_line(string route)
     {
-        if (app.NoBrowser) return;
+        if (app.NoBrowser || route.Length == 0) return;
 
         var context = await app.Browser!.NewContextAsync(new()
         {
@@ -72,36 +74,60 @@ public class AlignmentScanTests(CatalogueAppFixture app)
             ViewportSize = new() { Width = 1280, Height = 900 },
             ReducedMotion = ReducedMotion.Reduce,
         });
-        List<string>? found = null;
-        string? moved = null;
+        var problems = new List<string>();
+        var timing = new List<string>();
         try
         {
-            // A page that moves while it is measured — a render that lands between reading
-            // the positions and taking the picture — is measured again from the start.
-            for (var attempt = 0; attempt < 3 && found is null; attempt++)
+            var page = await context.NewPageAsync();
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            await Open(page, route);
+            timing.Add($"load {clock.ElapsedMilliseconds}ms");
+            foreach (var (density, dir) in VariantList)
             {
-                var page = await context.NewPageAsync();
-                await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
-                // Interactive first: the circuit's first render replaces what the server
-                // rendered, so a scan before it has its letters turned back from H into the
-                // page's words — descenders and all — under the centre lines it recorded for
-                // the H's. A heavy page connects late enough for that to land mid-scan.
-                await page.WaitForSelectorAsync("[data-interactive='true']");
-                var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
-                    await page.EvaluateAsync<string>(Scanner, new { density, dir }),
-                    new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
-                await Js.Settle(page);
-                (found, moved) = await Measure(page, scan, route);
-                if (found is not null) found.InsertRange(0, scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
-                await page.CloseAsync();
+                // A page that moves while it is measured — a render that lands between reading
+                // the positions and taking the picture — is loaded and measured again from the start.
+                List<string>? found = null;
+                string? moved = null;
+                for (var attempt = 0; attempt < 3 && found is null; attempt++)
+                {
+                    if (attempt > 0)
+                    {
+                        Interlocked.Increment(ref _remeasured);
+                        await Open(page, route);
+                    }
+                    clock.Restart();
+                    // Back at the top, as a fresh page is: the scan reads where things are from there.
+                    await Js.Run(page, "() => window.scrollTo(0, 0)");
+                    var scan = System.Text.Json.JsonSerializer.Deserialize<Scan>(
+                        await page.EvaluateAsync<string>(Scanner, new { density, dir }),
+                        new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+                    await Js.Settle(page);
+                    var scanned = clock.ElapsedMilliseconds;
+                    (found, moved) = await Measure(page, scan, route);
+                    timing.Add($"{density}/{dir} scan {scanned}ms measure {clock.ElapsedMilliseconds - scanned}ms{(attempt > 0 ? $" (attempt {attempt + 1})" : "")}");
+                    if (found is not null) found.InsertRange(0, scan.Bare.Select(b => $"{route} {b}: a bare word beside an element"));
+                }
+
+                if (found is null) problems.Add($"{route}: the page kept moving while it was measured — {moved}");
+                else problems.AddRange(found.Select(p => $"[{density} {dir}] {p}"));
             }
+            await page.CloseAsync();
         }
         finally { await context.CloseAsync(); }
 
-        var problems = found ?? [$"{route}: the page kept moving while it was measured — {moved}"];
+        output.WriteLine($"{route}: {string.Join("; ", timing)}; pages measured again so far: {_remeasured}");
         var report = string.Join(Environment.NewLine, problems);
         Assert.True(problems.Count == 0, $"{problems.Count} off their centre line:{Environment.NewLine}{report}");
     }
+
+    /// <summary>
+    /// The circuit is connected before the scan: its first render replaces what the server
+    /// rendered, so a scan before it has its letters turned back from H into the page's words —
+    /// descenders and all — under the centre lines it recorded for the H's. A heavy page
+    /// connects late enough for that to land mid-scan. The fonts are awaited by the scan
+    /// itself, and a layout that still moves is caught by the measurement.
+    /// </summary>
+    private Task Open(IPage page, string route) => app.GotoInteractiveAsync(page, route);
 
     /// <summary>
     /// Where every measured element stands now: whether it is wholly in the viewport with
@@ -150,81 +176,135 @@ public class AlignmentScanTests(CatalogueAppFixture app)
     /// <summary>What was found, or what moved while it was being measured.</summary>
     private sealed record Outcome(List<string>? Found, string? Moved);
 
+    /// <summary>
+    /// Decoding a picture and reading the paint out of it is the longest step of a band, and
+    /// takes the CPU and not the browser: it runs beside the browser's next band, and a few at
+    /// a time, because a decoded screenshot is tens of megabytes.
+    /// </summary>
+    private static readonly SemaphoreSlim Decoding = new(Math.Max(1, Environment.ProcessorCount / 2));
+
     private static async Task<Outcome> Measure(IPage page, Scan scan, string route)
     {
-        var problems = new List<string>();
         var rows = scan.Rows.ToList();
         var boxes = scan.Boxes.ToList();
         var viewport = page.ViewportSize!.Height;
+        var width = page.ViewportSize!.Width;
         var options = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
-        for (double top = 0; rows.Count > 0 || boxes.Count > 0; top += viewport - 300)
+        // One job per band: what the band's picture says about the rows and boxes it shows.
+        var bands = new List<Task<List<string>>>();
+        try
         {
-            await Js.Run(page, "y => window.scrollTo(0, y)", top);
-            await Js.Frames(page);
-            async Task<Where> Read() => System.Text.Json.JsonSerializer.Deserialize<Where>(await page.EvaluateAsync<string>(Band), options)!;
-            // Taken again while the page moves between reading where things are and the picture,
-            // so what is measured is the page as it stays. A pinned element that moved is
-            // measured in a later band: WebKit moves one pinned to the viewport's bottom while it
-            // takes the picture.
-            var before = await Read();
-            var image = Ink.Png.Decode(await page.ScreenshotAsync());
-            var after = await Read();
-            double[] shift = [];
-            (double d, int k) moved = default;
-            for (var take = 0; ; take++)
+            for (double top = 0; rows.Count > 0 || boxes.Count > 0; top += viewport - 300)
             {
-                shift = before.Items.Zip(after.Items, (b, a) => Math.Abs(b[1] - a[1])).ToArray();
-                moved = shift.Select((d, k) => (d, k)).Where(x => before.Items[x.k][2] < 0.5).DefaultIfEmpty().MaxBy(x => x.d);
-                if (moved.d <= 0.1) break;
-                if (take == 2)
+                await Js.Run(page, "y => window.scrollTo(0, y)", top);
+                await Js.Frames(page);
+                async Task<Where> Read() => System.Text.Json.JsonSerializer.Deserialize<Where>(await page.EvaluateAsync<string>(Band), options)!;
+                // The part of the viewport that holds what can be measured in this band, to the
+                // pixel so a clipped picture is the same pixels as the whole one: nothing else
+                // is read, and a picture is decoded in proportion to its area.
+                RectangleF ClipOf(Where w)
                 {
-                    var what = scan.Rows.SelectMany(r => r.Items).Concat(scan.Boxes).First(b => b.K == moved.k);
-                    return new(null, $"{what.Label} moved {moved.d:0.00}px");
+                    double x0 = width, y0 = viewport, x1 = 0, y1 = 0;
+                    foreach (var b in rows.SelectMany(r => r.Items).Concat(boxes).Where(b => w.Items[b.K][0] > 0))
+                    {
+                        var at = b.Shifted(w.Items[b.K][1]);
+                        (x0, y0, x1, y1) = (Math.Min(x0, at.X), Math.Min(y0, at.Y - w.Y), Math.Max(x1, at.X + at.W), Math.Max(y1, at.Y - w.Y + at.H));
+                    }
+                    x0 = Math.Max(0, Math.Floor(x0) - 4); y0 = Math.Max(0, Math.Floor(y0) - 4);
+                    x1 = Math.Min(width, Math.Ceiling(x1) + 4); y1 = Math.Min(viewport, Math.Ceiling(y1) + 4);
+                    return x1 > x0 && y1 > y0 ? new((float)x0, (float)y0, (float)(x1 - x0), (float)(y1 - y0)) : new(0, 0, width, viewport);
                 }
-                before = after;
-                image = Ink.Png.Decode(await page.ScreenshotAsync());
-                after = await Read();
+                async Task<byte[]> Shoot(Where w)
+                {
+                    var c = ClipOf(w);
+                    return await page.ScreenshotAsync(new() { Clip = new() { X = c.X, Y = c.Y, Width = c.Width, Height = c.Height } });
+                }
+                // Taken again while the page moves between reading where things are and the picture,
+                // so what is measured is the page as it stays. A pinned element that moved is
+                // measured in a later band: WebKit moves one pinned to the viewport's bottom while it
+                // takes the picture.
+                var before = await Read();
+                var clip = ClipOf(before);
+                var shot = await Shoot(before);
+                var after = await Read();
+                double[] shift = [];
+                (double d, int k) moved = default;
+                for (var take = 0; ; take++)
+                {
+                    shift = before.Items.Zip(after.Items, (b, a) => Math.Abs(b[1] - a[1])).ToArray();
+                    moved = shift.Select((d, k) => (d, k)).Where(x => before.Items[x.k][2] < 0.5).DefaultIfEmpty().MaxBy(x => x.d);
+                    if (moved.d <= 0.1) break;
+                    if (take == 2)
+                    {
+                        var what = scan.Rows.SelectMany(r => r.Items).Concat(scan.Boxes).First(b => b.K == moved.k);
+                        return new(null, $"{what.Label} moved {moved.d:0.00}px");
+                    }
+                    before = after;
+                    clip = ClipOf(before);
+                    shot = await Shoot(before);
+                    after = await Read();
+                }
+
+                bool Clear(Box b) => before.Items[b.K][0] > 0 && shift[b.K] <= 0.1;
+                var origin = before.Y;
+                var here = before;
+                var picked = rows.Where(r => r.Items.All(Clear)).ToList();
+                rows.RemoveAll(picked.Contains);
+                var boxed = boxes.Where(Clear).ToList();
+                boxes.RemoveAll(boxed.Contains);
+                bands.Add(Task.Run(async () =>
+                {
+                    await Decoding.WaitAsync();
+                    try { return Judge(Ink.Png.Decode(shot), clip.X, origin + clip.Y, here, picked, boxed, route); }
+                    finally { Decoding.Release(); }
+                }));
+
+                // The last band: what was never wholly shown uncovered is not on screen to measure.
+                if (origin + viewport >= scan.Height - 1) break;
             }
-
-            bool Clear(Box b) => before.Items[b.K][0] > 0 && shift[b.K] <= 0.1;
-            Box Now(Box b) => b.Shifted(before.Items[b.K][1]);
-            var origin = before.Y;
-
-            foreach (var row in rows.Where(r => r.Items.All(Clear)).ToList())
-            {
-                rows.Remove(row);
-                var items = row.Items.Select(Now).ToList();
-                var centre = row.Centre + before.Items[row.Items[0].K][1];
-                // A word and an icon are measured on what is drawn; anything else — an avatar, a
-                // ring, a pill — on its box, since what it draws inside is its own design.
-                var centres = items
-                    .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Paint(image, origin, i)))
-                    .Where(m => m.Ink is not null)
-                    .Select(m => (m.Item, Centre: Ink.Centre(m.Ink!)))
-                    .ToList();
-                if (centres.Count < 2) continue;
-                var off = centres.Where(c => Math.Abs(c.Centre - centre) > Tolerance).ToList();
-                if (off.Count > 0)
-                    problems.Add($"{route} {row.Path}: "
-                        + string.Join(", ", off.Select(c => $"{c.Item.Kind} {c.Item.Label} {c.Centre - centre:+0.00;-0.00} at ({c.Item.X:0}, {c.Item.Y:0})"))
-                        + " from the row's centre line");
-            }
-
-            foreach (var box in boxes.Where(Clear).ToList())
-            {
-                boxes.Remove(box);
-                var now = Now(box);
-                var ink = Paint(image, origin, now);
-                if (ink is null) continue;
-                var delta = Ink.Centre(ink) - (now.Y + now.H / 2);
-                if (Math.Abs(delta) > Tolerance)
-                    problems.Add($"{route} {box.Label}: its text is {delta:+0.00;-0.00}px from the middle of its box");
-            }
-
-            // The last band: what was never wholly shown uncovered is not on screen to measure.
-            if (origin + viewport >= scan.Height - 1) break;
+            return new((await Task.WhenAll(bands)).SelectMany(p => p).ToList(), null);
         }
-        return new(problems, null);
+        finally
+        {
+            // A band still being read is waited for, so none runs on after its test has ended.
+            foreach (var band in bands) await Task.WhenAny(band);
+        }
+    }
+
+    /// <summary>What one band's picture says: the rows whose items are off their centre line and the boxes whose text is off its middle.</summary>
+    private static List<string> Judge(Ink.Png image, double left, double top, Where at, List<Row> rows, List<Box> boxes, string route)
+    {
+        var problems = new List<string>();
+        Box Now(Box b) => b.Shifted(at.Items[b.K][1]);
+        foreach (var row in rows)
+        {
+            var items = row.Items.Select(Now).ToList();
+            var centre = row.Centre + at.Items[row.Items[0].K][1];
+            // A word and an icon are measured on what is drawn; anything else — an avatar, a
+            // ring, a pill — on its box, since what it draws inside is its own design.
+            var centres = items
+                .Select(i => (Item: i, Ink: i.Kind == "box" ? [i.Y, i.Y + i.H] : Paint(image, left, top, i)))
+                .Where(m => m.Ink is not null)
+                .Select(m => (m.Item, Centre: Ink.Centre(m.Ink!)))
+                .ToList();
+            if (centres.Count < 2) continue;
+            var off = centres.Where(c => Math.Abs(c.Centre - centre) > Tolerance).ToList();
+            if (off.Count > 0)
+                problems.Add($"{route} {row.Path}: "
+                    + string.Join(", ", off.Select(c => $"{c.Item.Kind} {c.Item.Label} {c.Centre - centre:+0.00;-0.00} at ({c.Item.X:0}, {c.Item.Y:0})"))
+                    + " from the row's centre line");
+        }
+
+        foreach (var box in boxes)
+        {
+            var now = Now(box);
+            var ink = Paint(image, left, top, now);
+            if (ink is null) continue;
+            var delta = Ink.Centre(ink) - (now.Y + now.H / 2);
+            if (Math.Abs(delta) > Tolerance)
+                problems.Add($"{route} {box.Label}: its text is {delta:+0.00;-0.00}px from the middle of its box");
+        }
+        return problems;
     }
 
     /// <summary>
@@ -233,14 +313,14 @@ public class AlignmentScanTests(CatalogueAppFixture app)
     /// the word, clear of the curve of a rounded end — a pill's radius reaches further in
     /// than its padding — and counting only the word's own colour.
     /// </summary>
-    private static double[]? Paint(Ink.Png image, double top, Box b)
+    private static double[]? Paint(Ink.Png image, double left, double top, Box b)
     {
         // Within the word's own line, as layout placed it, and two pixels either side: what is
         // drawn there is the word, and the box's middle is still what it is measured against.
         var y0 = b.Y + 1;
         var y1 = b.Y + b.H - 1;
         if (b.Line is [var lt, var lb]) (y0, y1) = (Math.Max(y0, lt - 2), Math.Min(y1, lb + 2));
-        return Ink.Paint(image, 0, top, b.X + b.W * 0.2, y0, b.W * 0.6, y1 - y0,
+        return Ink.Paint(image, left, top, b.X + b.W * 0.2, y0, b.W * 0.6, y1 - y0,
             b.Fg is { Length: 3 } c ? (c[0], c[1], c[2]) : null);
     }
 
@@ -253,7 +333,10 @@ public class AlignmentScanTests(CatalogueAppFixture app)
           const root = document.documentElement;
           if (density === 'comfortable') root.removeAttribute('data-density'); else root.setAttribute('data-density', density);
           root.setAttribute('dir', dir);
+          // The scan's own styles from an earlier variant on this page are replaced, not stacked.
+          document.querySelectorAll('style[data-align-scan]').forEach(e => e.remove());
           const style = document.createElement('style');
+          style.setAttribute('data-align-scan', '');
           // No scrollbar while the page is measured: WebKit takes its picture without one, and a
           // layout that fits what the width allows — a year of small months — reflows when it goes.
           // No hover hint either: scrolling under a resting pointer hovers whatever passes under
@@ -400,6 +483,7 @@ public class AlignmentScanTests(CatalogueAppFixture app)
           // Everything is hit-testable while the page is measured: a drawing that ignores the
           // pointer — a decoration over the page — covers what is under it all the same.
           const hittable = document.createElement('style');
+          hittable.setAttribute('data-align-scan', '');
           hittable.textContent = '*, *::before, *::after { pointer-events: auto !important; }';
           document.head.appendChild(hittable);
           // Every measured element by number, with where it stood, for each band to read again.
