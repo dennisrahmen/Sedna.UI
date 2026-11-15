@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "99fabe01d2c81c5a"
+    "stamp": "ca26f1474deaf781"
   },
   {
     "page": "/form-code",
@@ -120,7 +120,7 @@
       { "text": "One line of text", "instead": "/form-text" }
     ],
     "goals": [ "write-a-longer-text", "mention-someone", "suggest-the-rest" ],
-    "stamp": "1799a2cb638b3573"
+    "stamp": "d0c1ddbb1e0e0b68"
   },
   {
     "page": "/form-datetime",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "b367f49e099f68c3"
+    "stamp": "e8ac6849ae870664"
   },
   {
     "page": "/form-select",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "fa6e6fd44f45bd94"
+    "stamp": "7e7a37b33b077412"
   },
   {
     "page": "/form-choice",
@@ -227,7 +227,7 @@
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
     "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
-    "stamp": "3110bbe5f6b95201"
+    "stamp": "2b1018609fe60222"
   },
   {
     "page": "/form-rating",
@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "c345bd078c27dd82"
+    "stamp": "10864798d1066433"
   },
   {
     "page": "/form-numeric",
@@ -273,7 +273,7 @@
       { "text": "An exact amount typed with its unit", "instead": "/form-text#kinds-of-affix" }
     ],
     "goals": [ "choose-a-value-on-a-slider", "choose-a-span-of-values", "step-a-count" ],
-    "stamp": "93e1ebbc9ecdf7ed"
+    "stamp": "5574c3d7ae5f8482"
   },
   {
     "page": "/form-color",

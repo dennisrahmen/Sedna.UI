@@ -1136,6 +1136,10 @@
     "btn-active-bg": {
       "$type": "color",
       "$value": "{slate.slate-850}"
+    },
+    "btn-gap": {
+      "$type": "dimension",
+      "$value": "{space.space-4}"
     }
   },
   "card": {
