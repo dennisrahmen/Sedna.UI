@@ -1,0 +1,188 @@
+name: Tests
+
+# The whole suite, in every engine, on Linux. Called by ci.yml (pull requests), main.yml
+# (every push to main) and release.yml (a tag whose commit main has not already verified),
+# so one definition decides what "the full suite is green" means.
+#
+# Every engine runs the same slices: the library's tests, the catalogue's tests that are
+# not page scans, and the page scans split into shards. A slice that fails never stops
+# another, so one red run names every failure.
+on:
+  workflow_call:
+    inputs:
+      site:
+        description: Include the catalogue's tests of the website alone (Scope=Site).
+        type: boolean
+        default: true
+      coverage:
+        description: Collect coverage in the Chromium slices and upload it as coverage-<slice>.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  # The matrix is computed so the shard count is written once.
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Build the matrix
+        id: matrix
+        env:
+          # The number of shards the catalogue's page scans are split into.
+          SHARDS: '4'
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+
+          shards = int(os.environ["SHARDS"])
+          # Minutes each slice may take: its expected time with headroom, so a stall fails
+          # here instead of holding the run. A single hung test fails sooner, by --blame-hang.
+          timeout = {"unit": 30, "catalogue": 30, "scan": 30}
+
+          slices = [
+              {"kind": "unit", "label": "unit", "project": "src/Sedna.UI.Tests", "cov": "ui", "filter": "", "shard": ""},
+              {"kind": "catalogue", "label": "catalogue", "project": "src/Sedna.UI.Catalogue.Tests", "cov": "catalogue", "filter": "Kind!=Scan", "shard": ""},
+          ] + [
+              {"kind": "scan", "label": f"scan {k}/{shards}", "project": "src/Sedna.UI.Catalogue.Tests", "cov": "catalogue",
+               "filter": "Kind=Scan", "shard": f"{k}/{shards}"}
+              for k in range(1, shards + 1)
+          ]
+
+          include = []
+          for engine in ("chromium", "webkit"):
+              for s in slices:
+                  slug = f'{engine}-{s["label"].replace(" ", "-").replace("/", "of")}'
+                  include.append({**s, "engine": engine, "slug": slug, "timeout": timeout[s["kind"]]})
+
+          print("matrix=" + json.dumps({"include": include}))
+          PY
+
+  test:
+    needs: plan
+    runs-on: ubuntu-latest
+    # Microsoft's Playwright image, pinned to the Playwright package the tests use: the
+    # browsers and every system library they need are already in it. Installing them per
+    # run meant some seventy apt packages from the Ubuntu mirror, and one slow mirror held
+    # a release for half an hour. BrowserFloorTests keeps the tag and the package in step.
+    container: mcr.microsoft.com/playwright/dotnet:v1.64.1-noble
+    timeout-minutes: ${{ matrix.timeout }}
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    name: test (${{ matrix.label }}, ${{ matrix.engine }})
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0      # the tags: class-history.sh dates every entry from them
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # The checkout belongs to the runner's user and the container runs as root, so git
+      # refuses the repository as one of dubious ownership — and the checkout action marks
+      # it safe only for its own commands. The class history reads the tags with git.
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # The image has no Python, and the app tooling (build/app-tooling.sh,
+      # rename-classes.py) is tested by running it. One package, with a timeout so a slow
+      # mirror fails the slice instead of holding it.
+      - name: Install Python
+        timeout-minutes: 5
+        run: apt-get update && apt-get install -y --no-install-recommends python3
+
+      - name: Generate the class history
+        run: bash build/class-history.sh
+
+      - name: Build
+        run: dotnet build ${{ matrix.project }} -c Release
+
+      # One step, one set of arguments. Coverage is collected by Chromium slices only: the
+      # C# is the same code in both engines, and the script's coverage is Chromium's.
+      - name: Test
+        env:
+          SEDNA_UI_BROWSER_TESTS: '1'
+          SEDNA_UI_BROWSER: ${{ matrix.engine }}
+          SITE: ${{ inputs.site }}
+          COLLECT: ${{ inputs.coverage && matrix.engine == 'chromium' }}
+          SLICE_FILTER: ${{ matrix.filter }}
+          SLICE_SHARD: ${{ matrix.shard }}
+          SLICE_PROJECT: ${{ matrix.project }}
+          SLICE_COV: ${{ matrix.cov }}
+          SLUG: ${{ matrix.slug }}
+        run: |
+          FILTER="$SLICE_FILTER"
+          if [[ "$SITE" != 'true' ]]; then FILTER="${FILTER:+$FILTER&}Scope!=Site"; fi
+          ARGS=(-c Release)
+          if [[ -n "$FILTER" ]]; then ARGS+=(--filter "$FILTER"); fi
+          if [[ -n "$SLICE_SHARD" ]]; then export SEDNA_UI_SHARD="$SLICE_SHARD"; fi
+          # One hung test fails with a dump of where it hung, rather than using up the job.
+          ARGS+=(--blame-hang --blame-hang-timeout 5m
+                 --logger "console;verbosity=minimal" --logger "trx;LogFileName=$SLUG.trx")
+          if [[ "$COLLECT" == 'true' ]]; then
+            bash build/coverage.sh --project "$SLICE_COV" --no-build --out coverage --name "$SLUG" \
+              --results TestResults -- "${ARGS[@]}"
+          else
+            dotnet test "$SLICE_PROJECT" --no-build --results-directory TestResults "${ARGS[@]}"
+          fi
+
+      # The failed tests and their messages, on the run's summary page, so a red slice is
+      # read without opening its log.
+      - name: Summarise the failures
+        if: failure()
+        env:
+          SLICE: ${{ matrix.label }}, ${{ matrix.engine }}
+        run: |
+          python3 - <<'PY'
+          import glob, os, xml.etree.ElementTree as ET
+
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          failed = []
+          for path in sorted(glob.glob("TestResults/*.trx")):
+              for r in ET.parse(path).getroot().iterfind(".//t:UnitTestResult", ns):
+                  if r.get("outcome") == "Failed":
+                      m = r.find("t:Output/t:ErrorInfo/t:Message", ns)
+                      failed.append((r.get("testName"), ((m.text or "") if m is not None else "").strip()))
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(f"### Failed tests — {os.environ['SLICE']}\n\n")
+              if not failed:
+                  out.write("No failed test in the results: the slice stopped before it reported "
+                            "(a build error, a hang or the timeout). See the log and the uploaded results.\n\n")
+              for name, msg in failed:
+                  out.write(f"**`{name}`**\n\n")
+                  if msg:
+                      out.write("```\n" + msg[:1500].replace("```", "'''") + "\n```\n\n")
+          PY
+
+      - name: Upload the results
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v7
+        with:
+          name: results-${{ matrix.slug }}
+          path: TestResults
+          if-no-files-found: ignore
+
+      # Also when the tests failed: a failed run still leaves its coverage, and the
+      # coverage job decides whether to read it.
+      - name: Upload the coverage
+        if: always() && inputs.coverage && matrix.engine == 'chromium'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.slug }}
+          path: coverage
+          if-no-files-found: error

@@ -19,23 +19,30 @@ public class McpPageTests(CatalogueAppFixture app)
     private static readonly Regex Tag = new(@"<Cat(Example|Snippet)\s[^>]*\bTitle=""", RegexOptions.Compiled);
     private static readonly Regex Route = new(@"^@page\s+""(?<route>[^""]+)""", RegexOptions.Multiline | RegexOptions.Compiled);
 
-    public static TheoryData<string> PagesWithExamples()
+    private static List<string> PagesWithExamples()
     {
-        var data = new TheoryData<string>();
+        var data = new List<string>();
         foreach (var file in Directory.GetFiles(Path.Combine(Assets.RepoRoot, "src", "Sedna.UI.Catalogue", "Components", "Pages"), "*.razor"))
         {
             var source = File.ReadAllText(file);
             if (Route.Match(source) is { Success: true } m && Tag.IsMatch(source)) data.Add(m.Groups["route"].Value);
         }
+        // A scan that finds no page makes the assertion below pass vacuously.
+        Assert.NotEmpty(data);
         return data;
     }
 
-    [Theory]
-    [MemberData(nameof(PagesWithExamples))]
-    public async Task A_page_that_renders_examples_reports_them(string route)
+    [Fact]
+    public async Task A_page_that_renders_examples_reports_them()
     {
-        var page = await Mcp.Tool("get_page", new { id = route });
-        Assert.True(page.GetProperty("examples").GetArrayLength() > 0, $"get_page(\"{route}\") reports no examples.");
+        var silent = new List<string>();
+        foreach (var route in PagesWithExamples())
+        {
+            var page = await Mcp.Tool("get_page", new { id = route });
+            if (page.GetProperty("examples").GetArrayLength() == 0) silent.Add(route);
+        }
+
+        Assert.True(silent.Count == 0, $"get_page reports no examples for: {string.Join(", ", silent)}.");
     }
 
     [Theory]

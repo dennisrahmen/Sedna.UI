@@ -156,17 +156,21 @@ public class ModalTests : ScriptTestBase
                 await Promise.all(d.getAnimations().map(a => a.finished));
                 d.close();
                 // In an engine without `overlay` the slide is the library's own
-                // (42-modal-exit.js), and idle waits for it the same way.
-                const started = performance.now();
-                await sednaUi.modal.idle('panel');
-                const waited = performance.now() - started;
-                return (d.getAnimations().length === 0) + ':' + (waited > 50);
+                // (42-modal-exit.js), and idle waits for it the same way. The slide is read
+                // as idle is asked for, in the same task, so there is one to wait for.
+                const idle = sednaUi.modal.idle('panel');
+                const sliding = d.getAnimations().filter(a => a.playState === 'running' || a.playState === 'pending');
+                await idle;
+                // Cause, not time: a slide was running when idle was asked, and none is when
+                // it answers. How long that took is the machine's.
+                return (sliding.length > 0) + ':' + sliding.every(a => a.playState !== 'running' && a.playState !== 'pending')
+                    + ':' + (d.getAnimations().length === 0);
             }
             """);
 
-        // --motion-mid is 0.18s. Resolving at once would let the host remove the drawer
-        // mid-slide; resolving with its animation still running is the same fault.
-        Assert.Equal("true:true", result);
+        // Resolving at once would let the host remove the drawer mid-slide; resolving with its
+        // animation still running is the same fault.
+        Assert.Equal("true:true:true", result);
     }
 
     [Fact]

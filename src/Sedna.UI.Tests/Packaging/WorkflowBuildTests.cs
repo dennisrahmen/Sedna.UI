@@ -37,7 +37,10 @@ public class WorkflowBuildTests
     /// <summary>
     /// Every job says how long it may take. Without a limit a stalled job — a slow mirror, a
     /// hung browser — holds its workflow for the six hours GitHub allows, and a release waits
-    /// on it; one did, for half an hour, before anyone looked.
+    /// on it; one did, for half an hour, before anyone looked. A job that runs on a runner
+    /// carries `timeout-minutes`; a job that calls a reusable workflow cannot, so it passes
+    /// only when every job of the workflow it calls has one; and a limit that is
+    /// `${{ matrix.timeout }}` counts only when the plan gives every slice a positive number.
     /// </summary>
     [Fact]
     public void Every_job_in_every_workflow_has_a_time_limit()
@@ -45,19 +48,49 @@ public class WorkflowBuildTests
         var dir = Path.Combine(Assets.RepoRoot, ".github", "workflows");
         var problems = new List<string>();
         foreach (var file in Directory.GetFiles(dir, "*.yml"))
+            problems.AddRange(Unlimited(Path.GetFileName(file), new HashSet<string>()));
+
+        Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
+    }
+
+    private static List<string> Unlimited(string workflow, HashSet<string> calling)
+    {
+        var problems = new List<string>();
+        if (!calling.Add(workflow)) return problems;
+        var text = WorkflowYaml.Read(workflow);
+        foreach (var (name, job) in WorkflowYaml.Jobs(text))
         {
-            var text = File.ReadAllText(file);
-            var jobs = text.IndexOf("\njobs:", StringComparison.Ordinal);
-            Assert.True(jobs >= 0, $"{Path.GetFileName(file)} has no jobs.");
-            var starts = Regex.Matches(text[jobs..], @"^  (?<job>[a-z][a-z0-9_-]*):\s*$", RegexOptions.Multiline).ToList();
-            for (var j = 0; j < starts.Count; j++)
+            var where = $"{workflow}: the {name} job";
+            var limit = Regex.Match(job, @"^    timeout-minutes:\s*(?<v>.+?)\s*$", RegexOptions.Multiline);
+            var call = Regex.Match(job, @"^    uses:\s*\./\.github/workflows/(?<file>[\w.-]+\.yml)\s*$", RegexOptions.Multiline);
+
+            if (call.Success)
             {
-                var from = starts[j].Index;
-                var to = j + 1 < starts.Count ? starts[j + 1].Index : text.Length - jobs;
-                if (!Regex.IsMatch(text[jobs..][from..to], @"^    timeout-minutes:\s*\d+", RegexOptions.Multiline))
-                    problems.Add($"{Path.GetFileName(file)}: the {starts[j].Groups["job"].Value} job has no timeout-minutes");
+                // A reusable-workflow call has no `timeout-minutes` of its own; the called jobs do.
+                if (limit.Success) problems.Add($"{where} calls a reusable workflow and cannot carry timeout-minutes; remove it and put the limits on the called jobs");
+                problems.AddRange(Unlimited(call.Groups["file"].Value, calling).Select(p => $"{p} (called by {where})"));
+            }
+            else if (!Regex.IsMatch(job, @"^    runs-on:", RegexOptions.Multiline))
+            {
+                problems.Add($"{where} has neither runs-on nor uses, so nothing says how long it may take");
+            }
+            else if (!limit.Success)
+            {
+                problems.Add($"{where} has no timeout-minutes");
+            }
+            else if (limit.Groups["v"].Value == "${{ matrix.timeout }}")
+            {
+                var slices = WorkflowYaml.Matrix(text);
+                if (slices.Count == 0 || slices.Any(s => s.Timeout <= 0))
+                    problems.Add($"{where} takes its limit from matrix.timeout, and the plan gives {string.Join(", ", slices.Where(s => s.Timeout <= 0).Select(s => s.Slug).DefaultIfEmpty("no slice"))} none");
+            }
+            else if (!Regex.IsMatch(limit.Groups["v"].Value, @"^[1-9]\d*$"))
+            {
+                problems.Add($"{where} has timeout-minutes `{limit.Groups["v"].Value}`, which is not a positive number of minutes");
             }
         }
-        Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
+
+        calling.Remove(workflow);
+        return problems;
     }
 }

@@ -35,6 +35,8 @@ public class ScaleTests
 
         // The token block declares the scales, so it is the one place literals live.
         var tokenRanges = TokenBlockRanges(css);
+        // A pattern that found no token block would exempt nothing and flag every declared scale.
+        Assert.NotEmpty(tokenRanges);
         bool InTokenBlock(int index) => tokenRanges.Any(r => index >= r.Start && index < r.End);
 
         void Scan(string pattern, string what)

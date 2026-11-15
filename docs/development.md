@@ -132,6 +132,19 @@ browser:
 SEDNA_UI_BROWSER_TESTS=0 dotnet test Sedna.UI.slnx   # source scans only
 ```
 
+The opt-out is for a local run and for `build` in `ci.yml`. The full suite runs on Linux, in both
+engines, from `.github/workflows/tests.yml` on every pull request that changes more than prose, so a
+Linux-only failure is found before the merge. To run one slice as the workflow does:
+
+```bash
+SEDNA_UI_BROWSER=webkit SEDNA_UI_SHARD=2/4 dotnet test src/Sedna.UI.Catalogue.Tests --filter "Kind=Scan"
+```
+
+Coverage is collected by the Chromium slices of a pull request and of `main`, and checked by the `coverage` job; how to run it locally, and the checks it applies, are in [coverage.md](coverage.md).
+
+`Kind!=Scan` is the rest of the catalogue's tests; `Scope=Site` marks the website's own tests, which
+the release leaves out and `main.yml` runs.
+
 They assert computed values, never screenshots — see the decision note in
 [`architecture.md`](architecture.md#decisions-with-a-measurement-behind-them).
 

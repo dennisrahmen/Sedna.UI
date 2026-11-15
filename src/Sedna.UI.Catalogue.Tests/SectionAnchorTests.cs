@@ -24,28 +24,31 @@ public class SectionAnchorTests(CatalogueAppFixture app)
     private static readonly Regex Anchor =
         new("""<a class="cat-anchor" href="(?<href>[^"]*)""", RegexOptions.Compiled);
 
-    public static TheoryData<string> Routes() => RoutedPages.AsTheoryData();
-
-    [Theory]
-    [MemberData(nameof(Routes))]
-    public async Task Every_section_link_resolves_to_a_heading_on_its_own_page(string route)
+    [Fact]
+    public async Task Every_section_link_resolves_to_a_heading_on_its_own_page()
     {
-        var html = await Get(route);
-        var document = new Uri(app.BaseAddress, route);
-        var baseUri = new Uri(document, Base.Match(html).Groups["href"].Value);
-
-        foreach (var anchor in Anchor.Matches(html).Cast<Match>())
+        var problems = new List<string>();
+        foreach (var route in RoutedPages.All)
         {
-            var href = WebUtility.HtmlDecode(anchor.Groups["href"].Value);
-            var target = new Uri(baseUri, href);
+            var html = await Get(route);
+            var document = new Uri(app.BaseAddress, route);
+            var baseUri = new Uri(document, Base.Match(html).Groups["href"].Value);
 
-            Assert.True(target.AbsolutePath == document.AbsolutePath,
-                $"{route}: the section link \"{href}\" resolves to {target.AbsolutePath}, not to this page.");
+            foreach (var anchor in Anchor.Matches(html).Cast<Match>())
+            {
+                var href = WebUtility.HtmlDecode(anchor.Groups["href"].Value);
+                var target = new Uri(baseUri, href);
 
-            var id = target.Fragment.TrimStart('#');
-            Assert.True(id.Length > 0 && html.Contains($"id=\"{id}\"", StringComparison.Ordinal),
-                $"{route}: the section link \"{href}\" names no id on the page.");
+                if (target.AbsolutePath != document.AbsolutePath)
+                    problems.Add($"{route}: the section link \"{href}\" resolves to {target.AbsolutePath}, not to this page.");
+
+                var id = target.Fragment.TrimStart('#');
+                if (id.Length == 0 || !html.Contains($"id=\"{id}\"", StringComparison.Ordinal))
+                    problems.Add($"{route}: the section link \"{href}\" names no id on the page.");
+            }
         }
+
+        Assert.True(problems.Count == 0, string.Join("\n", problems));
     }
 
     [Fact]

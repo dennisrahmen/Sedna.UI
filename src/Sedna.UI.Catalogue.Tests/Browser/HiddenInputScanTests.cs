@@ -25,9 +25,10 @@ namespace Sedna.UI.Catalogue.Tests;
 /// </para>
 /// </remarks>
 [Collection(CatalogueAppCollection.Name)]
+[Trait(ScanKind.Name, ScanKind.Scan)]
 public class HiddenInputScanTests(CatalogueAppFixture app)
 {
-    public static TheoryData<string> Pages() => RoutedPages.AsTheoryData();
+    public static TheoryData<string> Pages() => RoutedPages.ScannedAsTheoryData();
 
     private const string Scan = """
         () => {
@@ -119,13 +120,13 @@ public class HiddenInputScanTests(CatalogueAppFixture app)
     [MemberData(nameof(Pages))]
     public async Task Every_control_that_hides_its_input_holds_it_and_marks_itself_at_3_to_1(string route)
     {
-        if (app.NoBrowser) return;
+        if (app.NoBrowser || route.Length == 0) return;
         var context = await app.Browser!.NewContextAsync(new() { ViewportSize = new() { Width = 1280, Height = 900 } });
         var problems = new List<string>();
         try
         {
             var page = await context.NewPageAsync();
-            await page.GotoAsync(app.Url(route), new() { WaitUntil = WaitUntilState.NetworkIdle });
+            await app.GotoInteractiveAsync(page, route);
             await Js.Settle(page);
             problems.AddRange(await page.EvaluateAsync<string[]>(Scan));
             foreach (var variant in new[] { "dark", "light" })

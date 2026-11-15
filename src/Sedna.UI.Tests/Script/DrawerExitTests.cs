@@ -13,8 +13,8 @@ namespace Sedna.UI.Tests;
 /// <remarks>
 /// Chromium keeps the closed dialog and its backdrop displayed through <c>overlay</c>, which the
 /// stylesheet transitions; WebKit has no <c>overlay</c>, so <c>42-modal-exit.js</c> holds the
-/// dialog and dims the page with its own shadow. The dim is read from whichever draws it, frame
-/// by frame, and the same assertions hold for both.
+/// dialog and dims the page with its own shadow. The dim is read from whichever draws it, at
+/// twenty stated points of the exit, and the same assertions hold for both.
 /// </remarks>
 public class DrawerExitTests : ScriptTestBase
 {
@@ -50,18 +50,24 @@ public class DrawerExitTests : ScriptTestBase
     }
 
     /// <summary>
-    /// The slide at five times its length. The frames are read as the browser draws them, and a
-    /// loaded machine draws few: at the real 180ms a runner busy with other tests saw one frame of
-    /// the exit or none, which says nothing about the exit. Every assertion below is about order and
-    /// end points, so a longer slide changes none of them; it only gives them frames to read.
+    /// The slide at a length no machine reaches the end of while the test is reading it. The exit is
+    /// not watched as it plays: every animation it runs is paused and set to a stated fraction of
+    /// its own length, so what is read is what the exit looks like at that point however many
+    /// frames the browser managed to draw. Every assertion below is about order and end points,
+    /// which a slide of any length leaves as they are.
     /// </summary>
-    private const string Slow = "<style>:root { --motion-mid: 900ms; }</style>";
+    private const string Slow = "<style>:root { --motion-mid: 60s; }</style>";
 
-    /// <summary>How long the sampler reads frames after a close: the slow slide and some room.</summary>
-    private const int Window = 1800;
-
+    /// <summary>
+    /// Run after the dialog closed, in the same task as the close where the engine allows. Waits
+    /// until the exit is running, then steps every finite animation on the page through the
+    /// fractions of its length in turn and reads the dialog and its dim at each, by the animation
+    /// clock. Chromium runs the exit as transitions of the dialog and its backdrop; WebKit as one
+    /// animation the library plays on a held dialog, whose shadow is the dim. Both are in
+    /// <c>document.getAnimations()</c>.
+    /// </summary>
     private const string Sampler = """
-        () => {
+        async () => {
           const d = document.getElementById('d');
           const alpha = s => {
             const all = [...s.matchAll(/(?:\/\s*|,\s*)([0-9.]+)\)/g)];
@@ -73,21 +79,40 @@ public class DrawerExitTests : ScriptTestBase
             const v = m[1].split(',').map(Number);
             return Math.abs(v[4]) + Math.abs(v[5]);
           };
-          window.samples = [];
-          const t0 = performance.now();
-          const step = () => {
+          const running = () => document.getAnimations().filter(a => a.effect?.getComputedTiming().endTime !== Infinity
+            && a.effect.getComputedTiming().endTime > 0 && a.playState !== 'finished');
+          // The exit is started by the close: in the next style update, or in WebKit by the close event.
+          // A frame count, not a time, and a limit: a close that starts no exit must fail the
+          // assertions below and not leave this call waiting for ever.
+          for (let frames = 0; running().length === 0; frames++) {
+            if (frames > 600) return [];
+            await new Promise(r => requestAnimationFrame(r));
+          }
+          const exit = running();
+          exit.forEach(a => a.pause());
+          const read = at => {
+            exit.forEach(a => { a.currentTime = a.effect.getComputedTiming().endTime * at; });
             const cs = getComputedStyle(d);
             const held = d.hasAttribute('data-sedna-closing');
-            window.samples.push({
-              t: Math.round(performance.now() - t0),
+            return {
+              t: Math.round(at * 100),
               open: d.open,
               shown: cs.display !== 'none',
               move: move(cs.transform),
               dim: alpha(held ? cs.boxShadow : getComputedStyle(d, '::backdrop').backgroundColor),
-            });
-            if (performance.now() - t0 < 1800) requestAnimationFrame(step);
+            };
           };
-          requestAnimationFrame(step);
+          const samples = [];
+          for (let i = 0; i < 20; i++) samples.push(read(i / 20));
+          // Where it ends: every animation run to its end, and the dialog taken away.
+          exit.forEach(a => a.finish());
+          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+          const cs = getComputedStyle(d);
+          samples.push({
+            t: 100, open: d.open, shown: cs.display !== 'none', move: move(cs.transform),
+            dim: alpha(d.hasAttribute('data-sedna-closing') ? cs.boxShadow : getComputedStyle(d, '::backdrop').backgroundColor),
+          });
+          return samples;
         }
         """;
 
@@ -114,18 +139,17 @@ public class DrawerExitTests : ScriptTestBase
 
     private static async Task<List<Sample>> Read(IPage page)
     {
-        await Js.Elapse(page, Window);
-        var json = await page.EvaluateAsync<string>("() => JSON.stringify(window.samples)");
+        var json = await page.EvaluateAsync<string>("async () => JSON.stringify(await (" + Sampler + ")())");
         return JsonSerializer.Deserialize<List<Sample>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
 
-    /// <summary>The frames after the dialog closed in which it was still on screen.</summary>
+    /// <summary>The points of the exit at which the dialog had closed and was still on screen.</summary>
     private static List<Sample> Leaving(List<Sample> samples) => samples.Where(s => !s.Open && s.Shown).ToList();
 
     private static void AssertLeavesTogether(List<Sample> samples, double restMove, double restDim, double extent)
     {
         var leaving = Leaving(samples);
-        Assert.True(leaving.Count >= 2, "The panel was on screen for fewer than two frames after it closed: it vanished instead of sliding out.");
+        Assert.True(leaving.Count >= 2, "The panel was on screen at fewer than two points of its exit: it vanished instead of sliding out.");
 
         // From where it rests, never beyond: a half-height sheet must not jump to full height first.
         Assert.True(leaving[0].Move >= restMove - 2, $"First frame out at {leaving[0].Move}px, rest was {restMove}px.");
@@ -185,7 +209,6 @@ public class DrawerExitTests : ScriptTestBase
 
         var (page, errors, restMove, restDim, extent) = await Opened(markup);
 
-        await Js.Run(page, Sampler);
         await Close(page, route);
         var samples = await Read(page);
 
@@ -200,7 +223,6 @@ public class DrawerExitTests : ScriptTestBase
         if (NoBrowser) return;
         var (page, errors, restMove, restDim, extent) = await Opened(markup);
 
-        await Js.Run(page, Sampler);
         await Close(page, "button");
         var samples = await Read(page);
 
