@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "1d373081058aef94"
+    "stamp": "5593dba7fe55a49c"
   },
   {
     "page": "/progress",

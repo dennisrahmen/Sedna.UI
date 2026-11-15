@@ -4784,7 +4784,9 @@ a.card.card--fill { display: flex; }
 .ribbon--go     { --ribbon-bg: var(--go-solid); }
 .ribbon--info   { --ribbon-bg: var(--info-solid); }
 .ribbon--danger { --ribbon-bg: var(--danger-solid); }
-.ribbon--muted  { --ribbon-bg: var(--border-hover); }
+/* The muted fill is the muted text colour and its word is the page's own background: the
+   pair the theme already holds at AA, turned inside out, so it flips with the variant. */
+.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
 }
 
 /* ── 31-badges.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -5012,7 +5014,8 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
 .count-badge--danger { background: var(--danger-solid); }
 .count-badge--go     { background: var(--go-solid); }
 .count-badge--info   { background: var(--info-solid); }
-.count-badge--muted  { background: var(--border-hover); }
+/* As .ribbon--muted: the muted text colour as the fill, the page's background as the number. */
+.count-badge--muted  { background: var(--muted); color: var(--bg); }
 }
 
 /* ── 31-kbd.css → @layer sedna.paint ──────────────────────────────────────────────── */
