@@ -446,6 +446,7 @@
         "/\\.code-block-head(?![\\w-])/",
         "/\\.code-block-lip(?![\\w-])/",
         "/\\.col-control(?![\\w-])/",
+        "/\\.col-fill(?![\\w-])/",
         "/\\.col-filtered(?![\\w-])/",
         "/\\.col-fit(?![\\w-])/",
         "/\\.col-muted(?![\\w-])/",

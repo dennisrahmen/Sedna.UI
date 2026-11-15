@@ -866,6 +866,36 @@
 }
 .table--fixed .th-sort { min-inline-size: 0; }
 
+/* ── One column takes the rest ──────────────────────────────────────────────
+   `.col-fill` on a header cell of the first row makes that column take all the room the
+   others leave, in place of the empty end cell, and never narrower than its `--col-min`:
+   a notes column that should run to the edge of a wide box, and that the box scrolls to
+   once the columns outgrow it.
+
+     <th class="col-fill">Notes</th>
+
+   A fixed layout cannot do both — a column with no width of its own takes what is left,
+   which is nothing once the others outgrow the box. So a table with a fill column is laid
+   out automatically, with every other column pinned to its width from both sides and no
+   body cell allowed to widen one: the columns still say how wide they are, the grips still
+   move them, and the fill column alone takes the rest. */
+.table--fixed:has(> thead > tr:first-child > .col-fill) {
+    table-layout: auto;
+    inline-size: 100%;
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) tr::after { content: none; }
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:first-child > :is(th, td) {
+    min-inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+    max-inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:first-child > .col-fill {
+    inline-size: auto;
+    min-inline-size: var(--col-min);
+    max-inline-size: none;
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) > :is(tbody, tfoot) > tr > :is(th, td),
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:not(:first-child) > :is(th, td) { max-inline-size: 0; }
+
 /* The grip's cell holds it; a sticky or pinned cell is positioned already, and zero
    specificity leaves it so. */
 :where(.table th:has(> .col-resize)) { position: relative; }

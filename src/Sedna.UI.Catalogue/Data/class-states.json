@@ -2067,6 +2067,9 @@
     "col-control": {
       "family": "col-control"
     },
+    "col-fill": {
+      "family": "col-fill"
+    },
     "col-filtered": {
       "family": "col-filtered"
     },

@@ -9135,6 +9135,22 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     white-space: nowrap;
 }
 .table--fixed .th-sort { min-inline-size: 0; }
+.table--fixed:has(> thead > tr:first-child > .col-fill) {
+    table-layout: auto;
+    inline-size: 100%;
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) tr::after { content: none; }
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:first-child > :is(th, td) {
+    min-inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+    max-inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:first-child > .col-fill {
+    inline-size: auto;
+    min-inline-size: var(--col-min);
+    max-inline-size: none;
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) > :is(tbody, tfoot) > tr > :is(th, td),
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:not(:first-child) > :is(th, td) { max-inline-size: 0; }
 :where(.table th:has(> .col-resize)) { position: relative; }
 .col-resize {
     --resize-min: var(--col-min);
