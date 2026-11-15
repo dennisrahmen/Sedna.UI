@@ -328,6 +328,10 @@ public class AlignmentScanTests(CatalogueAppFixture app)
                   const c = getComputedStyle(n);
                   if (c.position === 'absolute' || c.position === 'fixed') continue;
                   if (c.alignSelf !== 'auto' && c.alignSelf !== 'center' && c.alignSelf !== 'normal') continue;
+                  // An item the stylesheet moves off the line by a relative inset is set there on
+                  // purpose — a rating's figure sits on the stars' weight, below their middle — and
+                  // its own test measures where it goes.
+                  if (c.position === 'relative' && (parseFloat(c.top) || 0) !== 0) continue;
                   const r = n.getBoundingClientRect();
                   if (r.width < 1 || r.height < 1) continue;
                   const textOnly = !n.children.length && n.textContent.trim();

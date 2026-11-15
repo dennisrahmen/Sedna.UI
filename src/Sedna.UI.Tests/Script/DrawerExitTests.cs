@@ -49,6 +49,17 @@ public class DrawerExitTests : ScriptTestBase
         }
     }
 
+    /// <summary>
+    /// The slide at five times its length. The frames are read as the browser draws them, and a
+    /// loaded machine draws few: at the real 180ms a runner busy with other tests saw one frame of
+    /// the exit or none, which says nothing about the exit. Every assertion below is about order and
+    /// end points, so a longer slide changes none of them; it only gives them frames to read.
+    /// </summary>
+    private const string Slow = "<style>:root { --motion-mid: 900ms; }</style>";
+
+    /// <summary>How long the sampler reads frames after a close: the slow slide and some room.</summary>
+    private const int Window = 1800;
+
     private const string Sampler = """
         () => {
           const d = document.getElementById('d');
@@ -74,7 +85,7 @@ public class DrawerExitTests : ScriptTestBase
               move: move(cs.transform),
               dim: alpha(held ? cs.boxShadow : getComputedStyle(d, '::backdrop').backgroundColor),
             });
-            if (performance.now() - t0 < 900) requestAnimationFrame(step);
+            if (performance.now() - t0 < 1800) requestAnimationFrame(step);
           };
           requestAnimationFrame(step);
         }
@@ -84,7 +95,7 @@ public class DrawerExitTests : ScriptTestBase
 
     private async Task<(IPage Page, List<string> Errors, double RestMove, double RestDim, double Extent)> Opened(string markup)
     {
-        var (page, errors) = await OpenStyled(markup);
+        var (page, errors) = await OpenStyled(Slow + markup);
         await Js.Run(page, "() => { sednaUi.modal.show('d'); }");
         await Js.Settle(page);
         var rest = await page.EvaluateAsync<double[]>("""
@@ -103,7 +114,7 @@ public class DrawerExitTests : ScriptTestBase
 
     private static async Task<List<Sample>> Read(IPage page)
     {
-        await Js.Elapse(page, 900);
+        await Js.Elapse(page, Window);
         var json = await page.EvaluateAsync<string>("() => JSON.stringify(window.samples)");
         return JsonSerializer.Deserialize<List<Sample>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
     }
@@ -114,7 +125,7 @@ public class DrawerExitTests : ScriptTestBase
     private static void AssertLeavesTogether(List<Sample> samples, double restMove, double restDim, double extent)
     {
         var leaving = Leaving(samples);
-        Assert.True(leaving.Count >= 2, "The panel slid out over more than one frame, so it was displayed after it closed.");
+        Assert.True(leaving.Count >= 2, "The panel was on screen for fewer than two frames after it closed: it vanished instead of sliding out.");
 
         // From where it rests, never beyond: a half-height sheet must not jump to full height first.
         Assert.True(leaving[0].Move >= restMove - 2, $"First frame out at {leaving[0].Move}px, rest was {restMove}px.");
@@ -172,22 +183,14 @@ public class DrawerExitTests : ScriptTestBase
     {
         if (NoBrowser) return;
 
-        // A key press can take longer than the whole 180ms slide to reach a loaded machine's
-        // page, leaving the sampler too few frames to judge; that run is tried again.
-        for (var attempt = 1; ; attempt++)
-        {
-            var (page, errors, restMove, restDim, extent) = await Opened(markup);
+        var (page, errors, restMove, restDim, extent) = await Opened(markup);
 
-            await Js.Run(page, Sampler);
-            await Close(page, route);
-            var samples = await Read(page);
+        await Js.Run(page, Sampler);
+        await Close(page, route);
+        var samples = await Read(page);
 
-            if (Leaving(samples).Count < 2 && attempt < 3) continue;
-
-            AssertLeavesTogether(samples, restMove, restDim, extent);
-            Assert.Empty(errors);
-            return;
-        }
+        AssertLeavesTogether(samples, restMove, restDim, extent);
+        Assert.Empty(errors);
     }
 
     [Theory]
