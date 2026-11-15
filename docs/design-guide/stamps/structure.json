@@ -8,7 +8,7 @@
     "src/Sedna.UI/css-parts/55-page-structure.css": "8c074ff1e15ad9d9"
   },
   "/card": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Card.razor": "0226bf996f129bb6",
+    "src/Sedna.UI.Catalogue/Components/Pages/Card.razor": "05666e6cb85a59c0",
     "src/Sedna.UI.Catalogue/Examples/Card/BodyFlush.razor": "42518a580ede0448",
     "src/Sedna.UI.Catalogue/Examples/Card/BodyOnly.razor": "cb3c6e2950eb2ab2",
     "src/Sedna.UI.Catalogue/Examples/Card/CaveatAboutCardSOwn.razor": "bcff686a7e841fab",

@@ -194,7 +194,7 @@
     "src/Sedna.UI/signature-parts/50-pad.js": "1a37766ccae6eb73"
   },
   "/search": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Search.razor": "ad608525c2ce769b",
+    "src/Sedna.UI.Catalogue/Components/Pages/Search.razor": "101ba01fe0f29607",
     "src/Sedna.UI.Catalogue/Examples/Interop/SearchRankFromCsharp.razor": "1a85be6375d4ad03",
     "src/Sedna.UI.Catalogue/Examples/Search/AnchoredSearch.html": "70314b00b21b9a49",
     "src/Sedna.UI.Catalogue/Examples/Search/HeaderSearch.razor": "54777557eae73e16",

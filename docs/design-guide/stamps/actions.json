@@ -72,7 +72,7 @@
     "src/Sedna.UI/js-parts/26-resize.js": "8404205d80e531ad"
   },
   "/menu": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Menu.razor": "06053af9862055a6",
+    "src/Sedna.UI.Catalogue/Components/Pages/Menu.razor": "de7fc042dc18a924",
     "src/Sedna.UI.Catalogue/Examples/Menu/AnchoredUnderTrigger.razor": "169abc13f191f980",
     "src/Sedna.UI.Catalogue/Examples/Menu/AtThePointer.razor": "8fef9ecfeb01188d",
     "src/Sedna.UI.Catalogue/Examples/Menu/BarAtTheFoot.razor": "b93c0ec8aa5c385b",
