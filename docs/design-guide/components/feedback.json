@@ -16,7 +16,7 @@
       { "text": "A question that must be answered before anything else happens", "instead": "/modal" }
     ],
     "goals": [ "explain-a-page-condition", "summarise-form-errors", "show-field-errors", "confirm-before-it-happens" ],
-    "stamp": "dd00c665857d6a0b"
+    "stamp": "2e59530317a4a772"
   },
   {
     "page": "/toast",
@@ -34,7 +34,7 @@
       { "text": "An action that ended on another page, after a redirect", "instead": "/banner#after-a-redirect" }
     ],
     "goals": [ "confirm-an-action-done", "show-saving-then-saved", "announce-something-that-arrived", "confirm-after-a-redirect" ],
-    "stamp": "cab825d3fc533563"
+    "stamp": "69f1f83171d4fc4a"
   },
   {
     "page": "/notifications",
@@ -54,7 +54,7 @@
       { "text": "The history of one record, told as events", "instead": "/timeline" }
     ],
     "goals": [ "catch-up-on-notifications", "announce-something-that-arrived" ],
-    "stamp": "a439654a503ee109"
+    "stamp": "affb44cad3d51b5e"
   },
   {
     "page": "/progress",
@@ -73,7 +73,7 @@
       { "text": "The steps of a task the reader moves through", "instead": "/collections#steps" }
     ],
     "goals": [ "show-progress-of-a-job", "show-busy-state", "list-running-jobs", "show-route-progress", "show-app-starting", "show-saving-then-saved", "show-usage-against-a-limit", "follow-an-agents-plan", "follow-uploads" ],
-    "stamp": "496e8346e38e1e6b"
+    "stamp": "7ee19cb94aa3a9c0"
   },
   {
     "page": "/skeleton",
@@ -92,7 +92,7 @@
       { "text": "A view that has loaded and holds nothing", "instead": "/empty-state#empty" }
     ],
     "goals": [ "show-content-loading", "show-route-progress", "search-a-server-list" ],
-    "stamp": "e80d7e5efcedb22c"
+    "stamp": "c2747a471eeb6813"
   },
   {
     "page": "/empty-state",
@@ -112,7 +112,7 @@
       { "text": "A whole page that is an error or a refusal", "instead": "/common-pages" }
     ],
     "goals": [ "explain-an-empty-view", "recover-from-a-failed-load", "keep-working-through-an-outage", "illustrate-a-state", "keep-a-footer-at-the-bottom", "explain-access-denied", "recover-from-a-server-error" ],
-    "stamp": "265f774679d405f3"
+    "stamp": "5b02dca84ac63a7e"
   },
   {
     "page": "/state-art",
@@ -169,6 +169,6 @@
       { "text": "Code shown for the reader to copy", "instead": "/code-blocks#copyable-block" }
     ],
     "goals": [ "follow-live-output", "read-an-application-log", "show-a-terminal-session", "read-a-stack-trace", "show-test-results", "show-environment-variables" ],
-    "stamp": "fa4d6cd3068d2a3d"
+    "stamp": "01b0ac815abbb747"
   }
 ]

@@ -95,6 +95,13 @@ public sealed class SednaUi : ISednaUi
         => _js.InvokeVoidAsync("sednaUi.md.insert", textarea, text).AsTask();
 
     /// <inheritdoc />
+    public async Task<IJSStreamReference?> OpenMarkdownFileAsync(ElementReference textarea, string fileId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileId);
+        return await _js.InvokeAsync<IJSStreamReference?>("sednaUi.md.file", cancellationToken, textarea, fileId);
+    }
+
+    /// <inheritdoc />
     public Task<SednaUiSettings> LoadSettingsAsync()
         => _js.InvokeAsync<SednaUiSettings>("sednaUi.settings.load").AsTask();
 

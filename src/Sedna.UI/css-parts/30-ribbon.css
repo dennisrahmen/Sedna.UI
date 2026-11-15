@@ -9,8 +9,13 @@
    band at its own edge, so a card's radius still shapes the corner.
 
    The word is the whole message and is read in place, so keep it to one or two words;
-   a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
-   brand by default, `--go`, `--info`, `--danger` and `--muted`. */
+   a state that needs a sentence is an alert, and a state of one value is a badge.
+
+   Tones are the library's own, read from the tone system in 69-tone.css: brand by default,
+   then `--go`, `--warn`, `--danger`, `--info`, `--secret`, the labelling hues `--cyan`,
+   `--orange` and `--teal`, and `--muted`. A ribbon is filled by nature, so the tone alone gives
+   the fill and there is no `--solid`. Sizes are the labelling scale: `--sm` for a small tile,
+   the default, and `--lg` for a hero card, on the band and on the tab alike. */
 .ribbon-host { position: relative; overflow: hidden; }
 /* The ribbon's own box is only its word, turned 45° and centred --ribbon-inset in from both
    edges of the corner, so the box stays inside its host. The band either side of the word is
@@ -19,13 +24,20 @@
    word keeps its own box. */
 .ribbon {
     --ribbon-inset: 30px;
+    --ribbon-pad-block: var(--space-1);
+    --ribbon-pad-inline: var(--space-3);
     --ribbon-bg: var(--brand);
     position: absolute;
     inset-block-start: var(--ribbon-inset);
     inset-inline-end: var(--ribbon-inset);
     translate: 50% -50%;
     rotate: 45deg;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-3);
+    padding: calc(var(--ribbon-pad-block) + var(--cap-gap)) var(--ribbon-pad-inline);
+    /* The shadow copies are 30px apart, so the box is never narrower, or a short word leaves
+       a seam between two of them. */
+    min-width: 30px;
+    box-sizing: border-box;
+    text-align: center;
     background: var(--ribbon-bg);
     box-shadow:
         -30px 0 0 var(--ribbon-bg), 30px 0 0 var(--ribbon-bg),
@@ -40,20 +52,21 @@
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
     pointer-events: none;
+    /* The fill is what the word is read on, so a printout keeps it. */
+    print-color-adjust: exact;
 }
+.ribbon--sm { --ribbon-inset: 22px; --ribbon-pad-block: 0px; --ribbon-pad-inline: var(--space-2); }
+.ribbon--lg { --ribbon-inset: 40px; --ribbon-pad-block: var(--space-2); --ribbon-pad-inline: var(--space-4); font-size: var(--text-2); }
 .ribbon--tab {
+    --ribbon-pad-inline: var(--space-4);
     inset-block-start: 0;
     inset-inline-end: 0;
     translate: none;
     rotate: none;
     box-shadow: none;
-    padding-inline: var(--space-4);
+    min-width: 0;
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
-.ribbon--go     { --ribbon-bg: var(--go-solid); }
-.ribbon--info   { --ribbon-bg: var(--info-solid); }
-.ribbon--danger { --ribbon-bg: var(--danger-solid); }
-/* The muted fill is the muted text colour and its word is the page's own background: the
-   pair the theme already holds at AA, turned inside out, so it flips with the variant. */
-.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
+.ribbon--tab.ribbon--sm { --ribbon-pad-inline: var(--space-3); }
+.ribbon--tab.ribbon--lg { --ribbon-pad-inline: var(--space-5); }

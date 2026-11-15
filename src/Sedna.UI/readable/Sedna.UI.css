@@ -4756,8 +4756,13 @@ a.card.card--fill { display: flex; }
    band at its own edge, so a card's radius still shapes the corner.
 
    The word is the whole message and is read in place, so keep it to one or two words;
-   a state that needs a sentence is an alert, and a state of one value is a badge. Tones:
-   brand by default, `--go`, `--info`, `--danger` and `--muted`. */
+   a state that needs a sentence is an alert, and a state of one value is a badge.
+
+   Tones are the library's own, read from the tone system in 69-tone.css: brand by default,
+   then `--go`, `--warn`, `--danger`, `--info`, `--secret`, the labelling hues `--cyan`,
+   `--orange` and `--teal`, and `--muted`. A ribbon is filled by nature, so the tone alone gives
+   the fill and there is no `--solid`. Sizes are the labelling scale: `--sm` for a small tile,
+   the default, and `--lg` for a hero card, on the band and on the tab alike. */
 .ribbon-host { position: relative; overflow: hidden; }
 /* The ribbon's own box is only its word, turned 45° and centred --ribbon-inset in from both
    edges of the corner, so the box stays inside its host. The band either side of the word is
@@ -4766,13 +4771,20 @@ a.card.card--fill { display: flex; }
    word keeps its own box. */
 .ribbon {
     --ribbon-inset: 30px;
+    --ribbon-pad-block: var(--space-1);
+    --ribbon-pad-inline: var(--space-3);
     --ribbon-bg: var(--brand);
     position: absolute;
     inset-block-start: var(--ribbon-inset);
     inset-inline-end: var(--ribbon-inset);
     translate: 50% -50%;
     rotate: 45deg;
-    padding: calc(var(--space-1) + var(--cap-gap)) var(--space-3);
+    padding: calc(var(--ribbon-pad-block) + var(--cap-gap)) var(--ribbon-pad-inline);
+    /* The shadow copies are 30px apart, so the box is never narrower, or a short word leaves
+       a seam between two of them. */
+    min-width: 30px;
+    box-sizing: border-box;
+    text-align: center;
     background: var(--ribbon-bg);
     box-shadow:
         -30px 0 0 var(--ribbon-bg), 30px 0 0 var(--ribbon-bg),
@@ -4787,23 +4799,24 @@ a.card.card--fill { display: flex; }
     line-height: round(1.4em, 2px);
     text-box: trim-both cap alphabetic;
     pointer-events: none;
+    /* The fill is what the word is read on, so a printout keeps it. */
+    print-color-adjust: exact;
 }
+.ribbon--sm { --ribbon-inset: 22px; --ribbon-pad-block: 0px; --ribbon-pad-inline: var(--space-2); }
+.ribbon--lg { --ribbon-inset: 40px; --ribbon-pad-block: var(--space-2); --ribbon-pad-inline: var(--space-4); font-size: var(--text-2); }
 .ribbon--tab {
+    --ribbon-pad-inline: var(--space-4);
     inset-block-start: 0;
     inset-inline-end: 0;
     translate: none;
     rotate: none;
     box-shadow: none;
-    padding-inline: var(--space-4);
+    min-width: 0;
     border-end-start-radius: var(--radius-small);
     letter-spacing: 0.04em;
 }
-.ribbon--go     { --ribbon-bg: var(--go-solid); }
-.ribbon--info   { --ribbon-bg: var(--info-solid); }
-.ribbon--danger { --ribbon-bg: var(--danger-solid); }
-/* The muted fill is the muted text colour and its word is the page's own background: the
-   pair the theme already holds at AA, turned inside out, so it flips with the variant. */
-.ribbon--muted  { --ribbon-bg: var(--muted); color: var(--bg); }
+.ribbon--tab.ribbon--sm { --ribbon-pad-inline: var(--space-3); }
+.ribbon--tab.ribbon--lg { --ribbon-pad-inline: var(--space-5); }
 }
 
 /* ── 31-badges.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -4931,17 +4944,19 @@ a.card.card--fill { display: flex; }
    A label a reader made and coloured, as in an issue tracker. The colour is the app's
    data, set as `--label-colour` on the badge; the library decides how much of it to use.
    The text never takes it, so a yellow a reader picked is still legible in every theme.
+   The dot steps down with `.badge--sm`, as the text beside it does.
 
      <span class="badge badge--swatch" style="--label-colour: #8b5cf6">design</span>
 
    `.badge--swatch-outline` draws the pill's edge in the colour as well as the dot. There is
    no tinted fill: a tint of a colour the library does not know is a colour function on a
    rule, which no theme could reach. */
-.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch { --label-colour: var(--muted); --badge-dot: 8px; }
+.badge--sm.badge--swatch { --badge-dot: 6px; }
 .badge--swatch::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: var(--badge-dot);
+    height: var(--badge-dot);
     flex-shrink: 0;
     border-radius: 50%;
     background: var(--label-colour);
@@ -4989,15 +5004,37 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
    outward from it. An icon's corner is its own; a round host puts the point on its curve,
    at the 45° mark, so the dot touches the avatar instead of floating off its box; a button
    puts it inside its corner radius. A `translate` has no logical form, so 70-rtl.css turns
-   its inline half round. */
+   its inline half round.
+
+   The badge marks the corner; it does not cover the icon. Its size is --count-size, and
+   it follows the host: a small button or avatar carries the small badge, a large one the
+   large, a bare icon the small one, and any other host takes the middle one. `.count-badge--sm` and `--lg` name a
+   size outright, and an app that sets --count-size on the host gives it any other. On a
+   host under about 24px, such as an icon at its own size, send the dot, not a number.
+
+   Tones are the library's own, from the tone system in 69-tone.css: brand by default, then
+   `--go`, `--warn`, `--danger`, `--info`, `--secret`, `--cyan`, `--orange`, `--teal` and
+   `--muted`. A count is filled by nature, so the tone alone gives the fill. */
 .count-host {
     --count-inset: 2px;
+    --count-size: 14px;
+    --count-dot: 8px;
+    --count-text: var(--text-1);
     position: relative;
     display: inline-flex;
     flex-shrink: 0;
 }
 .count-host--round { --count-inset: 14.6%; }
 .btn.count-host    { --count-inset: 3px; }
+/* The size follows the host the library draws, and `--sm` and `--lg` on the badge name one
+   outright, over the host's. A dot is a little over half the number's height, and even. */
+.btn--sm.count-host,
+.count-host:not(.btn):has(> i),
+.count-host:has(> .avatar--sm),
+.count-badge--sm { --count-size: 12px; --count-dot: 6px; --count-text: var(--text-1); --count-pad: var(--space-1); }
+.btn--lg.count-host,
+.count-host:has(> .avatar--lg),
+.count-badge--lg { --count-size: 16px; --count-dot: 10px; --count-text: var(--text-2); --count-pad: var(--space-2); }
 
 .count-badge {
     position: absolute;
@@ -5005,13 +5042,13 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     inset-inline-end: var(--count-inset);
     translate: 50% -50%;
     box-sizing: border-box;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 var(--space-2);
+    min-width: var(--count-size, 14px);
+    height: var(--count-size, 14px);
+    padding: 0 var(--count-pad, var(--space-2));
     border-radius: var(--radius-pill);
     background: var(--brand);
     color: var(--on-solid);
-    font-size: var(--text-1);
+    font-size: var(--count-text, var(--text-1));
     font-weight: 700;
     line-height: 1;
     text-align: center;
@@ -5024,15 +5061,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
        host's edge. */
     box-shadow: 0 0 0 2px var(--surface-here, var(--bg));
     pointer-events: none;
+    print-color-adjust: exact;
 }
-.count-badge:empty { min-width: 0; width: 8px; height: 8px; padding: 0; }
-.count-host--round > .count-badge:empty { width: 10px; height: 10px; }
-
-.count-badge--danger { background: var(--danger-solid); }
-.count-badge--go     { background: var(--go-solid); }
-.count-badge--info   { background: var(--info-solid); }
-/* As .ribbon--muted: the muted text colour as the fill, the page's background as the number. */
-.count-badge--muted  { background: var(--muted); color: var(--bg); }
+.count-badge:empty { min-width: 0; width: var(--count-dot, 8px); height: var(--count-dot, 8px); padding: 0; }
 }
 
 /* ── 31-kbd.css → @layer sedna.paint ──────────────────────────────────────────────── */
@@ -7123,8 +7154,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 /* ── 44-markdown.css → @layer sedna.paint ──────────────────────────────────────────────── */
 @layer sedna.paint {
 /* ── Markdown editor ────────────────────────────────────────────────────────
-   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview
-   tabs flip [data-md-view] on the root (done by the JS). */
+   Toolbar + textarea + rendered preview in one bordered box. The Write/Preview/Split
+   switch sets [data-md-view="write|preview|split"] on the root, and the full-screen
+   button [data-md-fullscreen] — both done by the JS; the layouts are drawn here. */
 /* ── Editor chrome ──────────────────────────────────────────────────────────
    The frame, toolbar and body for a rich-text editor the APP brings — TipTap, Quill,
    ProseMirror, a plain contenteditable. Not an editor: no document model, no sanitiser,
@@ -7205,6 +7237,9 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     display: inline-flex; align-items: center; justify-content: center;
 }
 .md-tool:hover { background: var(--bg-hover); color: var(--fg); }
+/* A command that is on — full-screen — is `aria-pressed`, the attribute, as the rich-text
+   editor's toolbar draws it. */
+.md-tool[aria-pressed="true"] { background: var(--brand-tint); color: var(--brand-text); }
 /* The Write/Preview switch is the tier-2 .segmented control, not a private set of
    tab classes. It is exactly what a segmented control is for — two mutually
    exclusive options, applied immediately — and using it means the editor gets the
@@ -7229,6 +7264,68 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 .md-editor[data-md-view="preview"] .md-input   { display: none; }
 .md-editor[data-md-view="preview"] .md-preview { display: block; }
+
+/* A file dragged over the textarea: the frame takes the focus ring a focused field has. */
+.md-editor[data-md-dragging] { border-color: var(--field-border-focus); box-shadow: 0 0 0 2px var(--brand-glow); }
+
+/* ── Side by side ───────────────────────────────────────────────────────────
+   Write and preview at once. The root becomes a two-column grid: the toolbar and anything
+   else the app put in the editor span both, the textarea sits left and the preview right.
+   The preview's height is the textarea's, so it scrolls inside the row instead of
+   stretching it (size containment takes its content out of the row's height), and a manual
+   resize of the textarea resizes both. Under 40rem the two stack. */
+.md-editor[data-md-view="split"],
+.md-editor[data-md-fullscreen] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+}
+.md-editor[data-md-view="split"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.md-editor[data-md-view="split"] > * { grid-column: 1 / span 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > * { grid-column: 1; }
+.md-editor[data-md-view="split"] > .md-toolbar,
+.md-editor[data-md-fullscreen] > .md-toolbar { grid-row: 1; }
+.md-editor[data-md-view="split"] > .md-input,
+.md-editor[data-md-fullscreen] > .md-input { grid-column: 1; grid-row: 2; }
+.md-editor[data-md-view="split"] > .md-preview,
+.md-editor[data-md-fullscreen] > .md-preview { grid-column: 2; grid-row: 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > .md-preview { grid-column: 1; }
+.md-editor[data-md-view="split"] > .md-preview {
+    display: block;
+    contain: size;
+    resize: none;
+    border-inline-start: 1px solid var(--border);
+}
+@media (max-width: 40rem) {
+    .md-editor[data-md-view="split"] > .md-input,
+    .md-editor[data-md-view="split"] > .md-preview { grid-column: 1 / span 2; }
+    .md-editor[data-md-view="split"] > .md-preview {
+        grid-row: 3;
+        border-inline-start-color: transparent;
+        border-block-start: 1px solid var(--border);
+    }
+    .md-editor[data-md-view="split"]:not([data-md-fullscreen]) { grid-template-rows: auto auto auto; }
+}
+
+/* ── Full screen ────────────────────────────────────────────────────────────
+   The editor fills the window, above the page and below a dialog; the script makes
+   what it covers inert and Escape leaves. The page does not scroll behind it. */
+.md-editor[data-md-fullscreen] {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    border: 0;
+    border-radius: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.md-editor[data-md-fullscreen] > .md-input,
+.md-editor[data-md-fullscreen] > .md-preview {
+    block-size: 100%;
+    min-block-size: 0;
+    max-block-size: none;
+    resize: none;
+}
+html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 
 /* Theme the scroll + resize chrome on both panes so the browser-default white
    scrollbar corner and resizer grip don't show through. */
@@ -7261,9 +7358,33 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .markdown-body h1 { font-size: 1.4em; }
 .markdown-body h2 { font-size: 1.25em; }
 .markdown-body h3 { font-size: 1.1em; }
+.markdown-body h4 { font-size: 1em; }
+.markdown-body h5 { font-size: 0.9em; }
+.markdown-body h6 { font-size: 0.9em; color: var(--muted); }
 .markdown-body p  { margin: 0.5em 0; }
 .markdown-body ul, .markdown-body ol { margin: 0.5em 0; padding-inline-start: 1.5em; }
 .markdown-body li { margin: 0.15em 0; }
+/* A nested list sits tight under its item; a loose item's paragraphs keep their space. */
+.markdown-body li > :is(ul, ol) { margin: 0.15em 0; }
+.markdown-body li > p { margin: 0.3em 0; }
+.markdown-body li > :first-child { margin-top: 0; }
+.markdown-body li > :last-child { margin-bottom: 0; }
+/* A loose item — one whose paragraphs are wrapped — is set apart from the next. */
+.markdown-body li:has(> p) { margin: 0.6em 0; }
+.markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 1.2em 0; }
+.markdown-body del { color: var(--muted); }
+/* A task list: the box stands where the bullet would, and is the item's state, not a
+   control — the preview never changes the text. The renderer makes the box and the text of
+   the item's first paragraph one <label>, which is the box's name. */
+.markdown-body .task-list-item { list-style: none; }
+.markdown-body .task-list-item input[type="checkbox"] {
+    margin-block: 0;
+    margin-inline: -1.5em 0.5em;
+    inline-size: 1em;
+    block-size: 1em;
+    vertical-align: middle;
+    accent-color: var(--control-on);
+}
 /* Underlined, not colour alone: a link inside a block of text must be
    distinguishable without seeing the hue (WCAG 1.4.1). .prose does the same.
 
@@ -7290,6 +7411,17 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     margin: 0.6em 0; padding: 0.2em 0 0.2em 0.8em;
     color: var(--muted);
 }
+.markdown-body blockquote > :first-child { margin-top: 0; }
+.markdown-body blockquote > :last-child  { margin-bottom: 0; }
+/* A table is the one thing that breaks the width of the box it is in, because its own
+   content sets its minimum size: it scrolls, and the renderer gives it a tab stop so a
+   keyboard can reach the part that is off-screen. Alignment is the `align` attribute the
+   renderer writes, which is what a GitHub-flavoured table says. */
+.markdown-body table { display: block; overflow-x: auto; max-inline-size: 100%; border-collapse: collapse; margin: 0.6em 0; }
+.markdown-body th, .markdown-body td { padding: var(--space-3) var(--space-5); border: 1px solid var(--border); text-align: start; }
+.markdown-body th { background: var(--table-head-bg); color: var(--muted); font-size: 0.9em; }
+.markdown-body :is(th, td)[align="center"] { text-align: center; }
+.markdown-body :is(th, td)[align="right"] { text-align: end; }
 
 
 }
@@ -11764,15 +11896,18 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    already has 7px and needs nothing. */
 .chip:not(.chip--lg) > .avatar { --avatar-size: 20px; }
 
-/* A status dot inside a chip, for a filter whose value carries a state. Colour it
-   with a semantic token from the markup, or it says nothing. */
+/* A status dot inside a chip, for a filter whose value carries a state. It takes the chip's
+   own tone, or a colour from a semantic token in the markup; with neither it says nothing.
+   It steps with the chip's size, as the text beside it does. */
 .chip-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: var(--border-hover);
+    background: var(--tone-solid, var(--border-hover));
 }
+.chip--sm .chip-dot { width: 6px; height: 6px; }
+.chip--lg .chip-dot { width: 8px; height: 8px; }
 
 /* The remove button. A real <button> with an accessible name — "×" alone is
    announced as "times" and gives no clue what it removes, so write
@@ -26245,9 +26380,11 @@ button.inbox-item-title {
      .btn--ghost                      no tone: the neutral ghost
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
-   teal on the families that label (badge, chip). Families: btn badge alert callout toast
-   chip stat, a table row (tr), and the frame's page-banner. ToneMatrixTests holds every family to every tone it
-   takes, so a family cannot lack one by accident.
+   teal on the families that label (badge, chip) and on the two that mark a corner (ribbon,
+   count-badge), which also take muted. Families: btn badge alert callout toast chip stat,
+   a table row (tr), the frame's page-banner, and the corner marks ribbon and count-badge.
+   ToneMatrixTests holds every family to every tone it takes, so a family cannot lack one by
+   accident.
 
    A tone modifier sets nothing but --tone-* properties, and every family reads them
    through the rules below — so a new family joins the system by being named here. The
@@ -26261,7 +26398,7 @@ button.inbox-item-title {
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
+.btn, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -26277,7 +26414,7 @@ button.inbox-item-title {
     --tone-on-solid: initial;
 }
 
-.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
+.btn--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -26293,7 +26430,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
+.btn--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -26309,7 +26446,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
+.btn--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -26325,7 +26462,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
+.btn--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -26341,7 +26478,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
+.btn--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -26357,7 +26494,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
+.btn--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -26373,7 +26510,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--bg);
 }
 
-.badge--cyan, .chip--cyan {
+.badge--cyan, .chip--cyan, .ribbon--cyan, .count-badge--cyan {
     --tone-fg: var(--badge-cyan-fg);
     --tone-bg: var(--badge-cyan-bg);
     --tone-bg-hover: var(--badge-cyan-bg-hover);
@@ -26389,7 +26526,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--bg);
 }
 
-.badge--orange, .chip--orange {
+.badge--orange, .chip--orange, .ribbon--orange, .count-badge--orange {
     --tone-fg: var(--badge-orange-fg);
     --tone-bg: var(--badge-orange-bg);
     --tone-bg-hover: var(--badge-orange-bg-hover);
@@ -26405,7 +26542,7 @@ button.inbox-item-title {
     --tone-on-solid: var(--bg);
 }
 
-.badge--teal, .chip--teal {
+.badge--teal, .chip--teal, .ribbon--teal, .count-badge--teal {
     --tone-fg: var(--badge-teal-fg);
     --tone-bg: var(--badge-teal-bg);
     --tone-bg-hover: var(--badge-teal-bg-hover);
@@ -26416,6 +26553,27 @@ button.inbox-item-title {
     --tone-solid-hover: var(--badge-teal-hover);
     --tone-solid-active: var(--badge-teal-active);
     --tone-solid-edge: var(--badge-teal-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+/* Muted: the tone of a total that asks nothing of the reader. It is the neutral of the system
+   written as a tone, for the families that are filled by nature and so have no neutral of their
+   own — a corner ribbon and a corner count. Its fill is the muted text colour and its label is the
+   page's own background, the pair every theme already holds at AA turned inside out, so it flips
+   with the variant. A family with a neutral of its own — .badge, .chip, .btn — does not take it. */
+.ribbon--muted, .count-badge--muted {
+    --tone-fg: var(--fg-soft);
+    --tone-bg: var(--badge-bg);
+    --tone-bg-hover: var(--bg-hover);
+    --tone-bg-active: var(--btn-active-bg);
+    --tone-border: var(--border);
+    --tone-border-strong: var(--border-hover);
+    --tone-solid: var(--muted);
+    --tone-solid-hover: var(--fg-soft);
+    --tone-solid-active: var(--fg);
+    --tone-solid-edge: var(--muted);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
@@ -26463,6 +26621,11 @@ button.inbox-item-title {
 /* Chips. */
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
 
+/* A corner ribbon and a corner count are filled by nature, as a toast's edge is its tone's solid:
+   the tone modifier alone gives the fill, and they take no --solid or --ghost. */
+.ribbon:is(.ribbon--brand, .ribbon--go, .ribbon--warn, .ribbon--danger, .ribbon--info, .ribbon--secret, .ribbon--cyan, .ribbon--orange, .ribbon--teal, .ribbon--muted) { --ribbon-bg: var(--tone-solid); color: var(--tone-on-solid); }
+.count-badge:is(.count-badge--brand, .count-badge--go, .count-badge--warn, .count-badge--danger, .count-badge--info, .count-badge--secret, .count-badge--cyan, .count-badge--orange, .count-badge--teal, .count-badge--muted) { background: var(--tone-solid); color: var(--tone-on-solid); }
+
 /* A stat tile over a threshold — its tint, its edge and its figure. */
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
@@ -26494,6 +26657,16 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     cursor: not-allowed;
 }
 .btn.btn--ghost:is(:disabled, [aria-disabled="true"]):is(*, :hover, :active) { background: transparent; border-color: transparent; }
+/* A chip that is a button or a link goes the same way: its fill, its edge and its icon give up
+   their tone, and the pointer no longer lifts it. */
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]),
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]) > i { color: inherit; }
 :is(.btn-bare, .tab, .menu-item, button.list-row, .page-link):is(:disabled, [aria-disabled="true"]),
 .segmented-option:has(input:disabled) { color: var(--disabled-fg); }
 }
@@ -27045,6 +27218,8 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     .th-filter--active::after,
     .avatar-presence::after,
     .count-badge,
+    .ribbon,
+    .badge--swatch::before,
     .inbox-item--unread::before,
     .timeline > li::before { forced-color-adjust: none; }
 

@@ -17,6 +17,7 @@ public class ToneMatrixTests
     private static readonly string[] Semantic = ["brand", "go", "warn", "danger", "info", "secret"];
     private static readonly string[] Categorical = ["cyan", "orange", "teal"];
     private static readonly string[] Labels = ["badge", "chip"];
+    private static readonly string[] CornerMarks = ["ribbon", "count-badge"];
     private static readonly string[] Emphasised = ["btn", "badge", "alert"];
 
     [Fact]
@@ -28,19 +29,55 @@ public class ToneMatrixTests
         {
             var missing = Semantic.Except(tones).ToList();
             Assert.True(missing.Count == 0, $".{family} lacks the tones {string.Join(", ", missing)}.");
-            if (Labels.Contains(family))
+            if (Labels.Contains(family) || CornerMarks.Contains(family))
                 Assert.Empty(Categorical.Except(tones));
+        }
+    }
+
+    [Fact]
+    public void The_corner_marks_take_every_tone_and_muted_too()
+    {
+        // A ribbon and a corner count are filled by nature, so they have no neutral of their own:
+        // muted is their quiet one. They once named four tones each, by hand, beside the system.
+        var families = Tones.Families();
+        foreach (var family in CornerMarks)
+        {
+            Assert.True(families.ContainsKey(family), $".{family} is not a tone carrier.");
+            var missing = Semantic.Concat(Categorical).Append("muted").Except(families[family]).ToList();
+            Assert.True(missing.Count == 0, $".{family} lacks the tones {string.Join(", ", missing)}.");
+        }
+        Assert.Equal("--muted", Tones.Carriers()["muted"]["solid"]);
+        Assert.Equal("--bg", Tones.Carriers()["muted"]["on-solid"]);
+    }
+
+    [Fact]
+    public void A_corner_mark_is_filled_by_the_tone_alone_and_names_no_colour_of_its_own()
+    {
+        // Its fill comes from --tone-solid and its label from --tone-on-solid, in the shared rule.
+        // A `.ribbon--x` or `.count-badge--x` rule that writes a colour is a tone written by hand.
+        var css = Assets.StripComments(Assets.Css);
+        foreach (var family in CornerMarks)
+        {
+            var own = Regex.Matches(css, $@"(?<![\w-])\.{family}--(?<tone>[a-z]+)\s*\{{(?<body>[^{{}}]*)\}}")
+                .Where(m => !m.Groups["body"].Value.Contains("--tone-fg", StringComparison.Ordinal))
+                .Where(m => Regex.IsMatch(m.Groups["body"].Value, @"(background|color|--ribbon-bg)\s*:"))
+                .Select(m => $".{family}--{m.Groups["tone"].Value}")
+                .ToList();
+            Assert.True(own.Count == 0, "Written beside the tone system: " + string.Join(", ", own));
+            Assert.Matches(family == "ribbon"
+                ? @"\.ribbon:is\([^)]*\)\s*\{[^}]*--ribbon-bg:\s*var\(--tone-solid\)[^}]*color:\s*var\(--tone-on-solid\)"
+                : @"\.count-badge:is\([^)]*\)\s*\{[^}]*background:\s*var\(--tone-solid\)[^}]*color:\s*var\(--tone-on-solid\)", css);
         }
     }
 
     [Fact]
     public void Only_the_labelling_families_take_the_categorical_hues()
     {
-        // A colour with no meaning labels; a note, an alert or a button is coloured by what it means.
-        foreach (var (family, tones) in Tones.Families().Where(f => !Labels.Contains(f.Key)))
+        // A colour with no meaning labels or marks; a note, an alert or a button is coloured by what it means.
+        foreach (var (family, tones) in Tones.Families().Where(f => !Labels.Contains(f.Key) && !CornerMarks.Contains(f.Key)))
         {
             var extra = Categorical.Intersect(tones).ToList();
-            Assert.True(extra.Count == 0, $".{family} takes the categorical hues {string.Join(", ", extra)}, which only {string.Join(" and ", Labels)} do.");
+            Assert.True(extra.Count == 0, $".{family} takes the categorical hues {string.Join(", ", extra)}, which only {string.Join(", ", Labels.Concat(CornerMarks))} do.");
         }
     }
 
