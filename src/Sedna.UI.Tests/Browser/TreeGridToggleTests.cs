@@ -76,7 +76,7 @@ public class TreeGridToggleTests : ScriptTestBase
                 const td = document.getElementById(id), t = td.querySelector('.tree-toggle').getBoundingClientRect();
                 const range = document.createRange(); range.selectNodeContents(td.lastChild);
                 const text = range.getBoundingClientRect();
-                const probe = document.createElement('i'); probe.style.width = 'var(--space-3)'; document.body.append(probe);
+                const probe = document.createElement('i'); probe.style.cssText = 'display:block;width:var(--space-3)'; document.body.append(probe);
                 const gap = probe.getBoundingClientRect().width; probe.remove();
                 return [text.left - t.right, gap, t.width];
             })
