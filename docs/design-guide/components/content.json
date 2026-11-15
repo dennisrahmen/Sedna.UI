@@ -95,23 +95,24 @@
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "7e71c1b0ea69710b"
+    "stamp": "8eaf71983632b441"
   },
   {
     "page": "/markdown",
-    "useFor": "Rendered Markdown wherever it appears, and a Markdown field the reader writes in with a toolbar and a live preview.",
+    "useFor": "Rendered Markdown wherever it appears, and a Markdown field the reader writes in with a toolbar, shortcuts and a live preview, beside the text or full screen.",
     "combineWith": [
       { "page": "/segmented", "how": "The Write and Preview switch over the editor is a segmented control whose radios carry data-md-tab." },
       { "page": "/form#fieldset-sections", "how": "As a form field the textarea takes the label and hint, and the form's actions row follows it." },
       { "page": "/modal", "how": "A picker of the app's own, awaited with ShowModalAsync, returns the text InsertMarkdownAsync puts at the caret." },
+      { "page": "/form-file", "how": "A file the reader pastes or drops on the editor is uploaded by the app, whose picker and progress this page draws." },
       { "page": "/chat#bubble-contents", "how": "A .markdown-body inside a bubble is how an assistant's answer reads as a message." }
     ],
     "notFor": [
       { "text": "HTML that did not come from Markdown", "instead": "/prose" },
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
-    "goals": [ "write-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "1f7334c816ace779"
+    "goals": [ "write-markdown", "write-markdown-beside-its-preview", "upload-files-pasted-into-markdown", "render-markdown", "put-pictures-in-text" ],
+    "stamp": "c506aae062d9eb7e"
   },
   {
     "page": "/diff",
@@ -186,7 +187,7 @@
       { "text": "A message in a conversation", "instead": "/chat#composer" }
     ],
     "goals": [ "write-formatted-text", "insert-blocks-with-a-slash", "put-pictures-in-text" ],
-    "stamp": "4a79b4bf2ad846c4"
+    "stamp": "19bae9256ed930cc"
   },
   {
     "page": "/chat",
@@ -205,6 +206,6 @@
       { "text": "Messages the reader comes back to later", "instead": "/notifications" }
     ],
     "goals": [ "preview-a-link", "render-markdown", "chat-with-people", "follow-a-channel", "react-to-a-message", "open-a-chat-from-any-page", "pick-a-conversation", "ask-an-agent", "rate-an-answer", "dock-an-assistant" ],
-    "stamp": "b44e3d39692e69d2"
+    "stamp": "4a2581e3e8f9e14c"
   }
 ]

@@ -1,13 +1,30 @@
 <div class="md-editor" data-md-view="write" id="demo-md">
-    <div class="md-toolbar">
-        <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold" data-tip="Wrap the selection in ** **."><i class="ri-bold"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic"><i class="ri-italic"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="code" aria-label="Code"><i class="ri-code-line"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="h2" aria-label="Heading"><i class="ri-h-2"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="ul" aria-label="Bullet list"><i class="ri-list-unordered"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="ol" aria-label="Numbered list"><i class="ri-list-ordered"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="quote" aria-label="Quote"><i class="ri-quote-text"></i></button>
-        <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link"><i class="ri-link"></i></button>
+    <div class="md-toolbar" role="toolbar" aria-label="Formatting">
+        <button class="md-tool" type="button" data-md-cmd="bold" aria-label="Bold" data-tip="Bold, Ctrl+B"><i class="ri-bold"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="italic" aria-label="Italic" data-tip="Italic, Ctrl+I"><i class="ri-italic"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="strike" aria-label="Strikethrough" data-tip="Strikethrough, Ctrl+Shift+X"><i class="ri-strikethrough"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="code" aria-label="Code" data-tip="Code, Ctrl+E"><i class="ri-code-line"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="md-tool" type="button" data-md-cmd="h1" aria-label="Heading 1" data-tip="Heading 1"><i class="ri-h-1"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="h2" aria-label="Heading 2" data-tip="Heading 2"><i class="ri-h-2"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="h3" aria-label="Heading 3" data-tip="Heading 3"><i class="ri-h-3"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="md-tool" type="button" data-md-cmd="ul" aria-label="Bullet list" data-tip="Bullet list, Ctrl+Shift+8"><i class="ri-list-unordered"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="ol" aria-label="Numbered list" data-tip="Numbered list, Ctrl+Shift+7"><i class="ri-list-ordered"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="task" aria-label="Task list" data-tip="Task list"><i class="ri-list-check-2"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="outdent" aria-label="Outdent" data-tip="Outdent, Shift+Tab"><i class="ri-indent-decrease"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="indent" aria-label="Indent" data-tip="Indent, Tab"><i class="ri-indent-increase"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="md-tool" type="button" data-md-cmd="quote" aria-label="Quote" data-tip="Quote, Ctrl+Shift+9"><i class="ri-double-quotes-l"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="codeblock" aria-label="Code block" data-tip="Code block, Ctrl+Alt+C"><i class="ri-code-box-line"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="hr" aria-label="Horizontal rule" data-tip="Horizontal rule"><i class="ri-separator"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="table" aria-label="Table" data-tip="Table"><i class="ri-table-line"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="md-tool" type="button" data-md-cmd="link" aria-label="Link" data-tip="Link, Ctrl+K"><i class="ri-link"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="image" aria-label="Image" data-tip="Image"><i class="ri-image-line"></i></button>
+        <span class="editor-sep" role="separator"></span>
+        <button class="md-tool" type="button" data-md-cmd="undo" aria-label="Undo" data-tip="Undo"><i class="ri-arrow-go-back-line"></i></button>
+        <button class="md-tool" type="button" data-md-cmd="redo" aria-label="Redo" data-tip="Redo"><i class="ri-arrow-go-forward-line"></i></button>
         <div class="segmented" role="group" aria-label="Editor view">
             <label class="segmented-option">
                 <input type="radio" data-md-tab="write" checked /> <span>Write</span></label>
@@ -15,7 +32,7 @@
                 <input type="radio" data-md-tab="preview" /> <span>Preview</span></label>
         </div>
     </div>
-    <textarea class="form-input md-input" data-md-input rows="8" aria-label="Markdown source">## Split delivery policy
+    <textarea class="form-input md-input" data-md-input rows="9" aria-label="Markdown source">## Split delivery policy
 
 Split an order into **two shipments** when _either_ condition holds:
 

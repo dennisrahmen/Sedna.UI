@@ -153,15 +153,40 @@
   {
     "id": "write-markdown",
     "goal": "Let the user write Markdown and preview what it renders",
-    "phrases": [ "markdown editor", "markdown preview", "md editor", "write and preview tabs" ],
+    "phrases": [ "markdown editor", "markdown preview", "md editor", "write and preview tabs", "markdown toolbar", "markdown keyboard shortcuts" ],
     "answer": [
       { "page": "/markdown#write-and-preview", "role": "primary" },
       { "page": "/markdown#as-a-form-field", "role": "part" },
+      { "page": "/markdown#word-and-character-counts", "role": "part" },
       { "page": "/markdown#inserting-at-the-caret", "role": "part" },
       { "page": "/segmented", "role": "part" }
     ],
-    "how": "An .md-editor of toolbar, textarea and preview, switched between Write and Preview by a segmented control; the textarea is the field, labelled and bound, and toolbar edits fire its input event. A picker of the app's own puts its text at the caret with InsertMarkdownAsync.",
+    "how": "An .md-editor of toolbar, textarea and preview, switched between Write and Preview by a segmented control; the toolbar is the app's, each button a data-md-cmd, and the keys, lists and tables work with or without it. The textarea is the field, labelled and bound, and every edit reaches it as one input event and one step of undo. A picker of the app's own puts its text at the caret with InsertMarkdownAsync.",
     "avoid": "Labelling the editor's wrapper rather than the textarea, which is the control the reader types in."
+  },
+  {
+    "id": "write-markdown-beside-its-preview",
+    "goal": "Let the user write Markdown with its preview beside it, or full screen",
+    "phrases": [ "live markdown preview", "split markdown editor", "side by side markdown", "markdown full screen", "distraction free markdown" ],
+    "answer": [
+      { "page": "/markdown#side-by-side", "role": "primary" },
+      { "page": "/markdown#full-screen", "role": "part" },
+      { "page": "/markdown#everything-it-reads", "role": "part" }
+    ],
+    "how": "data-md-view=\"split\" on the .md-editor shows the textarea and the preview at once, the same height and scrolling together, and stacks them on a narrow window; a data-md-cmd=\"fullscreen\" button makes the editor fill the window with the page behind it inert.",
+    "avoid": "Opening the preview in a separate pane the reader has to find, which is a second place to look for the result of every edit."
+  },
+  {
+    "id": "upload-files-pasted-into-markdown",
+    "goal": "Let the user paste or drop a picture into a Markdown field and have it uploaded",
+    "phrases": [ "paste image into markdown", "markdown image upload", "drop a file into markdown", "markdown attachments" ],
+    "answer": [
+      { "page": "/markdown#uploading-pasted-files", "role": "primary" },
+      { "page": "/markdown#images-and-videos", "role": "part" },
+      { "page": "/markdown#inserting-at-the-caret", "role": "part" }
+    ],
+    "how": "The editor sends a cancelable sedna-md-file event naming each file and inserts nothing; the app cancels it, reads the files with OpenMarkdownFileAsync, uploads them and answers with InsertMarkdownAsync and the Markdown for the address it got.",
+    "avoid": "Inserting the file's bytes as a data address, which the preview does not keep and the textarea's value cannot carry."
   },
   {
     "id": "render-markdown",

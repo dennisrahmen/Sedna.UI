@@ -7097,12 +7097,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 .md-editor[data-md-view="split"],
 .md-editor[data-md-fullscreen] {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
 }
-.md-editor[data-md-fullscreen]:not([data-md-view="split"]) { grid-template-columns: minmax(0, 1fr); }
-.md-editor[data-md-view="split"] > *,
-.md-editor[data-md-fullscreen] > * { grid-column: 1 / -1; }
+.md-editor[data-md-view="split"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.md-editor[data-md-view="split"] > * { grid-column: 1 / span 2; }
+.md-editor[data-md-fullscreen]:not([data-md-view="split"]) > * { grid-column: 1; }
 .md-editor[data-md-view="split"] > .md-toolbar,
 .md-editor[data-md-fullscreen] > .md-toolbar { grid-row: 1; }
 .md-editor[data-md-view="split"] > .md-input,
@@ -7118,8 +7118,12 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 @media (max-width: 40rem) {
     .md-editor[data-md-view="split"] > .md-input,
-    .md-editor[data-md-view="split"] > .md-preview { grid-column: 1 / -1; }
-    .md-editor[data-md-view="split"] > .md-preview { grid-row: 3; border-inline-start: 0; border-block-start: 1px solid var(--border); }
+    .md-editor[data-md-view="split"] > .md-preview { grid-column: 1 / span 2; }
+    .md-editor[data-md-view="split"] > .md-preview {
+        grid-row: 3;
+        border-inline-start-color: transparent;
+        border-block-start: 1px solid var(--border);
+    }
     .md-editor[data-md-view="split"]:not([data-md-fullscreen]) { grid-template-rows: auto auto auto; }
 }
 
@@ -7185,6 +7189,8 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 .markdown-body li > p { margin: 0.3em 0; }
 .markdown-body li > :first-child { margin-top: 0; }
 .markdown-body li > :last-child { margin-bottom: 0; }
+/* A loose item — one whose paragraphs are wrapped — is set apart from the next. */
+.markdown-body li:has(> p) { margin: 0.6em 0; }
 .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 1.2em 0; }
 .markdown-body del { color: var(--muted); }
 /* A task list: the box stands where the bullet would, and is the item's state, not a
@@ -7193,7 +7199,9 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
 .markdown-body .task-list-item > input[type="checkbox"],
 .markdown-body .task-list-item > p:first-child > input[type="checkbox"] {
     margin-block: 0;
-    margin-inline: -1.4em 0.4em;
+    margin-inline: -1.5em 0.5em;
+    inline-size: 1em;
+    block-size: 1em;
     vertical-align: middle;
     accent-color: var(--control-on);
 }
