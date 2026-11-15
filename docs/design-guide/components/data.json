@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "1a85ba7c642ea377"
+    "stamp": "cc1cff0af811fc0d"
   },
   {
     "page": "/stat",
@@ -309,7 +309,7 @@
     "useFor": "A graph fed from a component: records and changes sent through ISednaGraphs, and the reader's clicks, drawn links and filters coming back as events.",
     "combineWith": [
       { "page": "/graph", "how": "The same markup, rendered by the component." },
-      { "page": "/interop", "how": "The rest of the C# surface, registered with AddSednaUi." },
+      { "page": "/script#other-members-from-c", "how": "The rest of the C# surface, registered with AddSednaUi." },
       { "page": "/drawer", "how": "The selected record's detail, opened from the select event." }
     ],
     "notFor": [
@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "e13ab987bf423e30"
+    "stamp": "07bbd24afd30a15e"
   },
   {
     "page": "/workflow-run",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "fb975c9cc29f297a"
+    "stamp": "8962b7a61c637fe2"
   }
 ]

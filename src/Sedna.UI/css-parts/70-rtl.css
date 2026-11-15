@@ -194,9 +194,6 @@
    left, so it slopes the other way, and the translate that centres it on its point turns round. */
 [dir="rtl"] .ribbon:not(.ribbon--tab) { rotate: -45deg; translate: -50% -50%; }
 
-/* 31 — a corner count is centred on its point by a translate, whose inline half turns round. */
-[dir="rtl"] .count-badge { translate: -50% -50%; }
-
 /* The busy bar (69-busy.css) is a background, and a background position is physical: the
    sweep runs from the inline start, which is the right edge, to the left. */
 [dir="rtl"] :is(.card, .modal, .drawer, .sheet, .list, .table, .stat-row, .output-panel, .chat, .graph-frame, .form-section)[aria-busy="true"] {

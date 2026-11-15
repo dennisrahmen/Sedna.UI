@@ -176,8 +176,11 @@
         _ = Ui.CloseSearchAsync();
 
         // .page is the only scroll container, so nothing the router does moves it and a
-        // new page opens at the offset the previous one was scrolled to.
-        _ = Ui.ScrollPageTopAsync();
+        // new page opens at the offset the previous one was scrolled to. An address with a
+        // fragment is the exception: the router scrolls to its target, and resetting first
+        // would send the reader to the top and back, which is the jump a design-guide chip
+        // made.
+        if (string.IsNullOrEmpty(new Uri(e.Location).Fragment)) _ = Ui.ScrollPageTopAsync();
 
         StateHasChanged();
     }

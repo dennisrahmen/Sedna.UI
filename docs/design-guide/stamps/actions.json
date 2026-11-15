@@ -20,7 +20,7 @@
     "src/Sedna.UI/css-parts/15-frame-user-widget.css": "18172f9498c3e3c7",
     "src/Sedna.UI/css-parts/17-frame-hover-hints.css": "c76ee0ee677b0843",
     "src/Sedna.UI/css-parts/30-cards.css": "52a17637c3b152cc",
-    "src/Sedna.UI/css-parts/31-count.css": "9dd365b34a2593e3",
+    "src/Sedna.UI/css-parts/31-count.css": "454bb7039bc264ff",
     "src/Sedna.UI/css-parts/33-buttons.css": "c031f84426b8e0a8",
     "src/Sedna.UI/css-parts/50-tabs.css": "cbabc5a7dc315677",
     "src/Sedna.UI/css-parts/51-segmented.css": "31474281afb5e44c",
@@ -40,7 +40,7 @@
     "src/Sedna.UI.Catalogue/Examples/ButtonGroup/Sizes.razor": "50ed6c528190528d",
     "src/Sedna.UI.Catalogue/Examples/ButtonGroup/SplitButton.razor": "9053272bbb1e176c",
     "src/Sedna.UI.Catalogue/Examples/ButtonGroup/SplitMenu.razor": "b596f28af47e2869",
-    "src/Sedna.UI/css-parts/31-count.css": "9dd365b34a2593e3",
+    "src/Sedna.UI/css-parts/31-count.css": "454bb7039bc264ff",
     "src/Sedna.UI/css-parts/33-buttons.css": "c031f84426b8e0a8",
     "src/Sedna.UI/css-parts/44-markdown.css": "787bb963816cbff1",
     "src/Sedna.UI/css-parts/51-segmented.css": "31474281afb5e44c",
@@ -72,7 +72,7 @@
     "src/Sedna.UI/js-parts/26-resize.js": "8404205d80e531ad"
   },
   "/menu": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Menu.razor": "4a83f3e322f9a881",
+    "src/Sedna.UI.Catalogue/Components/Pages/Menu.razor": "03d0d6a0c47eedfb",
     "src/Sedna.UI.Catalogue/Examples/Menu/AnchoredUnderTrigger.razor": "169abc13f191f980",
     "src/Sedna.UI.Catalogue/Examples/Menu/AtThePointer.razor": "8fef9ecfeb01188d",
     "src/Sedna.UI.Catalogue/Examples/Menu/BarAtTheFoot.razor": "53d625cb8fb1fae4",

@@ -43,7 +43,7 @@
     "src/Sedna.UI/js-parts/42-modal.js": "de6957e0c65fbadb"
   },
   "/palette": {
-    "src/Sedna.UI.Catalogue/Components/Pages/Palette.razor": "169395862c8f36b4",
+    "src/Sedna.UI.Catalogue/Components/Pages/Palette.razor": "9ca54f5aa3145ba7",
     "src/Sedna.UI.Catalogue/Examples/Interop/PaletteFromCsharp.razor": "7d9e168849ae41a6",
     "src/Sedna.UI.Catalogue/Examples/Interop/PalettePages.txt": "7eb2fb34f1596935",
     "src/Sedna.UI.Catalogue/Examples/Palette/CommandPalette.razor": "018680a0c03ed40f",
