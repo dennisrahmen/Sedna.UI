@@ -18,7 +18,7 @@
       { "text": "Whether a connection or a feed is live", "instead": "/status-dot#connection-state" }
     ],
     "goals": [ "compare-records", "show-a-status", "label-a-category", "show-a-priority", "mark-ai-generated-values", "finish-parts-in-any-order", "show-a-service-phase", "read-a-record-s-fields", "open-an-item-from-a-list", "mark-ai-generated-content" ],
-    "stamp": "ba2b4ef2efe2c0e8"
+    "stamp": "8faa57bb8df04bb1"
   },
   {
     "page": "/chip",
@@ -53,7 +53,7 @@
       { "text": "What a person did, in order", "instead": "/timeline#avatar-markers" }
     ],
     "goals": [ "change-a-value-in-place", "show-who", "show-several-people", "show-presence", "show-acting-as", "list-people", "manage-their-account", "chat-with-people", "pick-a-conversation" ],
-    "stamp": "448550db8b69938d"
+    "stamp": "09ff40dd9911fd96"
   },
   {
     "page": "/status-dot",
@@ -99,7 +99,7 @@
       { "text": "Code or a value the reader copies", "instead": "/badge#identifiers" }
     ],
     "goals": [],
-    "stamp": "ea2722f7aaf2a61a"
+    "stamp": "10e457adfc0d1493"
   },
   {
     "page": "/ribbon",

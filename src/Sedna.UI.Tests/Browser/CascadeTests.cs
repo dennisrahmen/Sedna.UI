@@ -45,7 +45,8 @@ public class CascadeTests : ScriptTestBase
              + "</tbody></table>",
              // rgb(215, 63, 26) is --brand — coral-600, the SednaUI rebrand's action
              // colour (was rgb(37, 99, 235), the pre-rebrand blue).
-             "#probe", "", "boxShadow", "rgb(215, 63, 26) 3px 0px 0px 0px inset"),
+             // The bar is the cell's ::before, drawn over the lines around the row.
+             "#probe", "::before", "backgroundColor", "rgb(215, 63, 26)"),
 
             // The two carets are mutually exclusive, and this is what says so. Where
             // base appearance is available the arrow is a real ::picker-icon box, and

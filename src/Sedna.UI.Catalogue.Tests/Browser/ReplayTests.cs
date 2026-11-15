@@ -28,14 +28,15 @@ public class ReplayTests(CatalogueAppFixture app)
         var running = "() => document.getElementById('stagger-orders').getAnimations({ subtree: true }).length";
         await page.Locator("#stagger-orders").ScrollIntoViewIfNeededAsync();
         // The arrival, run to its end: nothing is left on the table.
-        await page.WaitForFunctionAsync($"() => ({running})() === 0", null, new() { Timeout = 10_000 });
+        await page.WaitForFunctionAsync($"() => ({running})() === 0");
 
         await page.GetByRole(AriaRole.Button, new() { Name = "Replay" }).First.ClickAsync();
         var started = await page.EvaluateAsync<int>(running);
         Assert.True(started > 0, "Replay did not start the arrival: the table has no animation running.");
         // And it ends the same way, ready to be played again.
-        await page.WaitForFunctionAsync($"() => ({running})() === 0", null, new() { Timeout = 10_000 });
-        Assert.Contains("table--stagger", await page.Locator("#stagger-orders").GetAttributeAsync("class") ?? "", StringComparison.Ordinal);
+        await page.WaitForFunctionAsync($"() => ({running})() === 0");
+        Assert.Equal("table table--stagger", await page.Locator("#stagger-orders").GetAttributeAsync("class"));
+        Assert.Null(await page.Locator("#stagger-orders").GetAttributeAsync("hidden"));
         Assert.Empty(errors);
         await context.CloseAsync();
     }

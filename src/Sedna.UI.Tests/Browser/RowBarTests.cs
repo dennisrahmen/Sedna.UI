@@ -120,7 +120,8 @@ public class RowBarTests : ScriptTestBase
 
             // The pointer on the row, and on the one it belongs to: the bar is where it was.
             await page.HoverAsync(bar == "selected" ? "#row" : "#parent");
-            await Task.Delay(400);
+            // The hover tint is a transition: let it finish before measuring what it left.
+            await Js.Elapse(page, 400);
             var hovered = await Measure(page, scale, bar);
             // The lines are not compared: a hover tint edged on a half pixel blends the row beside it.
             Assert.True((hovered.Item1, hovered.Item2) == (first, end),

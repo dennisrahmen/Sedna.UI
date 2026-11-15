@@ -45,9 +45,9 @@ public class TreeGridToggleTests : ScriptTestBase
         await Js.Settle(page);
 
         // The words alone, with the toggle hidden: inside the cell, clear of its borders.
-        await page.EvaluateAsync("() => document.querySelectorAll('.tree-toggle').forEach(t => t.style.visibility = 'hidden')");
+        await Js.Run(page, "() => document.querySelectorAll('.tree-toggle').forEach(t => t.style.visibility = 'hidden')");
         var words = (await Ink.Extent(page, 3, $"#{row}"))[0];
-        await page.EvaluateAsync("() => document.querySelectorAll('.tree-toggle').forEach(t => t.style.visibility = '')");
+        await Js.Run(page, "() => document.querySelectorAll('.tree-toggle').forEach(t => t.style.visibility = '')");
 
         var slot = await page.EvaluateAsync<double[]>($$"""
             () => { const t = document.querySelector('#{{row}} > .tree-toggle').getBoundingClientRect(); return [t.left, t.top, t.width, t.height]; }

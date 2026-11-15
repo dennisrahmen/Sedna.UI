@@ -51,7 +51,7 @@
       { "text": "Reading a PDF without downloading it", "instead": "/pdf" }
     ],
     "goals": [ "browse-a-folder", "upload-files", "show-attachments", "follow-uploads" ],
-    "stamp": "4e835029e25e8560"
+    "stamp": "993b5d8a6609b187"
   },
   {
     "page": "/video",
@@ -96,7 +96,7 @@
       { "text": "Formatted text the reader writes", "instead": "/editor" }
     ],
     "goals": [ "show-text-from-elsewhere", "mark-changed-words", "withhold-a-value", "compare-two-versions" ],
-    "stamp": "6bcae010452852d7"
+    "stamp": "c8f75ccf818fd288"
   },
   {
     "page": "/markdown",
@@ -113,7 +113,7 @@
       { "text": "Formatted text for readers who do not write Markdown", "instead": "/editor" }
     ],
     "goals": [ "write-markdown", "write-markdown-beside-its-preview", "upload-files-pasted-into-markdown", "render-markdown", "put-pictures-in-text" ],
-    "stamp": "2f9ee0588a34be16"
+    "stamp": "995be63a9efe55a3"
   },
   {
     "page": "/diff",
