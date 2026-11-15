@@ -52,7 +52,7 @@ public class InboxUnreadDotTests : ScriptTestBase
         var top = box.Y - 2;
         var png = Ink.Png.Decode(await page.ScreenshotAsync(new()
         {
-            Clip = new() { X = (float)left, Y = (float)top, Width = (float)box.Width + 4, Height = (float)box.Height + 4 },
+            Clip = new() { X = left, Y = top, Width = box.Width + 4, Height = box.Height + 4 },
         }));
         var dot = Ink.Paint(png, left, top, box.X, box.Y, box.Width, box.Height, (colours[0][0], colours[0][1], colours[0][2]), columns: false);
         var figures = Ink.Paint(png, left, top, box.X, box.Y, box.Width, box.Height, (colours[1][0], colours[1][1], colours[1][2]), columns: false);
