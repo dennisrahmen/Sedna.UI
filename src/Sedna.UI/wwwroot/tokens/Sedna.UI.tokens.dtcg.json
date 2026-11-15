@@ -2093,6 +2093,44 @@
       "$value": "{orbit.orbit-200}"
     }
   },
+  "hero": {
+    "hero-scrim-soft": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": 0.18,
+        "hex": "#000000"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--black) 18%, transparent)"
+        }
+      }
+    },
+    "hero-scrim-strong": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": 0.82,
+        "hex": "#000000"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--black) 82%, transparent)"
+        }
+      }
+    }
+  },
   "hover": {
     "hover-delay": {
       "$type": "duration",

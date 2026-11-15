@@ -1,0 +1,113 @@
+/* ── A page head with a picture ─────────────────────────────────────────────
+   The head a start page or a section opens with: the picture the page is about, the
+   eyebrow, the title, a lead and what to do. The app writes every part:
+
+     <header class="page-head page-head--hero" data-variant="dark">
+       <img class="page-head-image" src="…" alt="" width="1600" height="900">
+       <div class="page-head-text">
+         <p class="eyebrow">Services</p>
+         <h1>What we build</h1>
+         <p>One sentence that says what the page is for.</p>
+       </div>
+       <div class="page-head-actions">
+         <a class="btn btn--solid btn--lg" href="…">Get in touch</a>
+         <a class="btn btn--ghost btn--lg" href="…">See the work</a>
+       </div>
+     </header>
+
+   An <img>, not a CSS `url()`: the app owns the picture, its `srcset`, its `loading`, its
+   `fetchpriority` and its alternative text, and a stylesheet cannot carry any of them.
+   `alt=""` when the picture only decorates the words beside it. The eyebrow is the
+   utility `.eyebrow`, which keeps its own size and colour inside the head: it is a label for
+   the title and sits on it.
+
+   `data-variant="dark"` is part of the markup. A photograph is as dark as its scrim makes it
+   in either page variant, so the words and buttons on it are always the dark variant's: the
+   attribute redeclares the tokens for everything inside the head (01-tokens.css), and a
+   `.btn`, a `.btn--ghost`, a badge and a link read correctly on it in both.
+
+   The head is a box of its own, no wider than `--page-max` and centred, so on a very wide
+   screen the picture stops at the content column and the page around it carries on.
+
+   The scrim is a gradient from the inline start, where the words are, to the inline end, where
+   the picture shows. It stays at full strength for as wide as the text column is, so the
+   text sits on the strong part wherever the head is as wide as the column and wider, and on
+   a phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
+   Full strength is solved for the brightest photograph there is, white text clearing 4.5:1
+   over white behind it — `HeroTests` measures it in both page variants.
+
+   Knobs, set on the head or on one instance:
+     --hero-height   the least height (22rem);
+     --hero-measure  how wide the text column is, and how far the scrim holds (40rem);
+     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim, declared in 01-tokens.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+.page-head--hero {
+    --hero-height: 22rem;
+    --hero-measure: 40rem;
+    --hero-pad-inline: var(--space-8);
+    --hero-scrim-angle: 90deg;
+    position: relative;
+    isolation: isolate;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: var(--space-6);
+    box-sizing: border-box;
+    min-block-size: var(--hero-height);
+    max-inline-size: var(--page-max);
+    margin-inline: auto;
+    padding: var(--space-10) var(--hero-pad-inline);
+    overflow: hidden;
+    border-radius: var(--radius-surface);
+    /* What shows before the picture does, and where there is none. */
+    background: var(--media-bg);
+}
+/* The picture fills the head and is cropped to it, from its middle. */
+.page-head-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+/* The scrim, over the picture; the words and actions are over the scrim. Local stacking only. */
+.page-head--hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        var(--hero-scrim-angle),
+        var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
+        var(--hero-scrim-soft));
+}
+.page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
+.page-head--hero .page-head-text {
+    flex: 0 1 auto;
+    inline-size: 100%;
+    max-inline-size: var(--hero-measure);
+    /* The surface tint is nothing visible on the scrim, and in forced colours it is the
+       user's canvas, which is what the words then stand on: the scrim is a gradient and is
+       dropped there, and the picture is not. */
+    background: var(--surface-soft);
+}
+.page-head--hero .page-head-text > p {
+    margin: var(--space-4) 0 0;
+    color: var(--fg-soft);
+    font-size: var(--text-7);
+}
+.page-head--hero :is(h1, h2, h3) {
+    color: var(--fg);
+    font-size: var(--text-10);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+@media (min-width: 48rem) {
+    .page-head--hero :is(h1, h2, h3) { font-size: var(--text-11); }
+}
+@media (max-width: 560px) {
+    .page-head--hero { --hero-pad-inline: var(--space-6); padding-block: var(--space-8); }
+}

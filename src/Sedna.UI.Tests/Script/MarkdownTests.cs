@@ -79,10 +79,12 @@ public class MarkdownTests : ScriptTestBase
     {
         if (NoBrowser) return;
         // Emphasis runs after the image is set aside, so _week_12_ in a file name stays a file name.
+        // The description is the text of what is written between the brackets, as CommonMark has it:
+        // the emphasis marks are read and left out, which is what a screen reader should say.
         var page = await Render(Fixture, "Before ![Orders by _week_](/charts/orders_week_12.png?a=1&b=2) after");
 
         Assert.Equal(
-            ["/charts/orders_week_12.png?a=1&b=2", "Orders by _week_", "lazy"],
+            ["/charts/orders_week_12.png?a=1&b=2", "Orders by week", "lazy"],
             await page.EvaluateAsync<string[]>(
                 "() => { const i = document.querySelector('#out p img'); return [i.getAttribute('src'), i.alt, i.loading]; }"));
         Assert.Equal(["src", "alt", "loading"],

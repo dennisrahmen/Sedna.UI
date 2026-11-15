@@ -8,9 +8,11 @@
      .btn--ghost                      no tone: the neutral ghost
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
-   teal on the families that label (badge, chip). Families: btn badge alert callout toast
-   chip stat, a table row (tr), and the frame's page-banner. ToneMatrixTests holds every family to every tone it
-   takes, so a family cannot lack one by accident.
+   teal on the families that label (badge, chip) and on the two that mark a corner (ribbon,
+   count-badge), which also take muted. Families: btn badge alert callout toast chip stat,
+   a table row (tr), the frame's page-banner, and the corner marks ribbon and count-badge.
+   ToneMatrixTests holds every family to every tone it takes, so a family cannot lack one by
+   accident.
 
    A tone modifier sets nothing but --tone-* properties, and every family reads them
    through the rules below — so a new family joins the system by being named here. The
@@ -24,7 +26,7 @@
    on it is --bg, which flips with it (SolidToneContrastTests).
    ─────────────────────────────────────────────────────────────────────────── */
 
-.btn, .fab, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner {
+.btn, .fab, .badge, .alert, .callout, .toast, .chip, .stat, tr, .page-banner, .ribbon, .count-badge {
     --tone-fg: initial;
     --tone-bg: initial;
     --tone-bg-hover: initial;
@@ -40,7 +42,7 @@
     --tone-on-solid: initial;
 }
 
-.btn--brand, .fab--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand {
+.btn--brand, .fab--brand, .badge--brand, .alert--brand, .callout--brand, .toast--brand, .chip--brand, .stat--brand, .tr--brand, .page-banner--brand, .ribbon--brand, .count-badge--brand {
     --tone-fg: var(--brand-text);
     --tone-bg: var(--brand-tint);
     --tone-bg-hover: var(--brand-tint-strong);
@@ -56,7 +58,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--go, .fab--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go {
+.btn--go, .fab--go, .badge--go, .alert--go, .callout--go, .toast--go, .chip--go, .stat--go, .tr--go, .page-banner--go, .ribbon--go, .count-badge--go {
     --tone-fg: var(--go-fg);
     --tone-bg: var(--go-bg);
     --tone-bg-hover: var(--go-bg-hover);
@@ -72,7 +74,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--warn, .fab--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn {
+.btn--warn, .fab--warn, .badge--warn, .alert--warn, .callout--warn, .toast--warn, .chip--warn, .stat--warn, .tr--warn, .page-banner--warn, .ribbon--warn, .count-badge--warn {
     --tone-fg: var(--warn-fg);
     --tone-bg: var(--warn-bg);
     --tone-bg-hover: var(--warn-bg-hover);
@@ -88,7 +90,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--danger, .fab--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger {
+.btn--danger, .fab--danger, .badge--danger, .alert--danger, .callout--danger, .toast--danger, .chip--danger, .stat--danger, .tr--danger, .page-banner--danger, .ribbon--danger, .count-badge--danger {
     --tone-fg: var(--danger-fg);
     --tone-bg: var(--danger-bg);
     --tone-bg-hover: var(--danger-bg-hover);
@@ -104,7 +106,7 @@
     --tone-on-solid: var(--on-solid);
 }
 
-.btn--info, .fab--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info {
+.btn--info, .fab--info, .badge--info, .alert--info, .callout--info, .toast--info, .chip--info, .stat--info, .tr--info, .page-banner--info, .ribbon--info, .count-badge--info {
     --tone-fg: var(--info-fg);
     --tone-bg: var(--info-bg);
     --tone-bg-hover: var(--info-bg-hover);
@@ -120,7 +122,7 @@
     --tone-on-solid: var(--info-on-solid);
 }
 
-.btn--secret, .fab--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret {
+.btn--secret, .fab--secret, .badge--secret, .alert--secret, .callout--secret, .toast--secret, .chip--secret, .stat--secret, .tr--secret, .page-banner--secret, .ribbon--secret, .count-badge--secret {
     --tone-fg: var(--secret-fg);
     --tone-bg: var(--secret-bg);
     --tone-bg-hover: var(--secret-bg-hover);
@@ -136,7 +138,7 @@
     --tone-on-solid: var(--bg);
 }
 
-.badge--cyan, .chip--cyan {
+.badge--cyan, .chip--cyan, .ribbon--cyan, .count-badge--cyan {
     --tone-fg: var(--badge-cyan-fg);
     --tone-bg: var(--badge-cyan-bg);
     --tone-bg-hover: var(--badge-cyan-bg-hover);
@@ -152,7 +154,7 @@
     --tone-on-solid: var(--bg);
 }
 
-.badge--orange, .chip--orange {
+.badge--orange, .chip--orange, .ribbon--orange, .count-badge--orange {
     --tone-fg: var(--badge-orange-fg);
     --tone-bg: var(--badge-orange-bg);
     --tone-bg-hover: var(--badge-orange-bg-hover);
@@ -168,7 +170,7 @@
     --tone-on-solid: var(--bg);
 }
 
-.badge--teal, .chip--teal {
+.badge--teal, .chip--teal, .ribbon--teal, .count-badge--teal {
     --tone-fg: var(--badge-teal-fg);
     --tone-bg: var(--badge-teal-bg);
     --tone-bg-hover: var(--badge-teal-bg-hover);
@@ -179,6 +181,27 @@
     --tone-solid-hover: var(--badge-teal-hover);
     --tone-solid-active: var(--badge-teal-active);
     --tone-solid-edge: var(--badge-teal-fg);
+    --tone-ring: var(--brand-ring-soft);
+    --tone-ring-solid: var(--brand-ring);
+    --tone-on-solid: var(--bg);
+}
+
+/* Muted: the tone of a total that asks nothing of the reader. It is the neutral of the system
+   written as a tone, for the families that are filled by nature and so have no neutral of their
+   own — a corner ribbon and a corner count. Its fill is the muted text colour and its label is the
+   page's own background, the pair every theme already holds at AA turned inside out, so it flips
+   with the variant. A family with a neutral of its own — .badge, .chip, .btn — does not take it. */
+.ribbon--muted, .count-badge--muted {
+    --tone-fg: var(--fg-soft);
+    --tone-bg: var(--badge-bg);
+    --tone-bg-hover: var(--bg-hover);
+    --tone-bg-active: var(--btn-active-bg);
+    --tone-border: var(--border);
+    --tone-border-strong: var(--border-hover);
+    --tone-solid: var(--muted);
+    --tone-solid-hover: var(--fg-soft);
+    --tone-solid-active: var(--fg);
+    --tone-solid-edge: var(--muted);
     --tone-ring: var(--brand-ring-soft);
     --tone-ring-solid: var(--brand-ring);
     --tone-on-solid: var(--bg);
@@ -232,6 +255,11 @@
 /* Chips. */
 .chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
 
+/* A corner ribbon and a corner count are filled by nature, as a toast's edge is its tone's solid:
+   the tone modifier alone gives the fill, and they take no --solid or --ghost. */
+.ribbon:is(.ribbon--brand, .ribbon--go, .ribbon--warn, .ribbon--danger, .ribbon--info, .ribbon--secret, .ribbon--cyan, .ribbon--orange, .ribbon--teal, .ribbon--muted) { --ribbon-bg: var(--tone-solid); color: var(--tone-on-solid); }
+.count-badge:is(.count-badge--brand, .count-badge--go, .count-badge--warn, .count-badge--danger, .count-badge--info, .count-badge--secret, .count-badge--cyan, .count-badge--orange, .count-badge--teal, .count-badge--muted) { background: var(--tone-solid); color: var(--tone-on-solid); }
+
 /* A stat tile over a threshold — its tint, its edge and its figure. */
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) { background: var(--tone-bg); border-color: var(--tone-border); }
 .stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret) .stat-value, a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .stat--secret):hover .stat-value { color: var(--tone-fg); }
@@ -263,5 +291,15 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     cursor: not-allowed;
 }
 .btn.btn--ghost:is(:disabled, [aria-disabled="true"]):is(*, :hover, :active) { background: transparent; border-color: transparent; }
+/* A chip that is a button or a link goes the same way: its fill, its edge and its icon give up
+   their tone, and the pointer no longer lifts it. */
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]),
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]):is(:hover, :active) {
+    background: var(--disabled-bg);
+    border-color: var(--disabled-border);
+    color: var(--disabled-fg);
+    cursor: not-allowed;
+}
+.chip:is(button, a):is(:disabled, [aria-disabled="true"]) > i { color: inherit; }
 :is(.btn-bare, .tab, .menu-item, button.list-row, .page-link):is(:disabled, [aria-disabled="true"]),
 .segmented-option:has(input:disabled) { color: var(--disabled-fg); }

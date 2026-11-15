@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "b6b693e01de1d3b2"
+    "stamp": "606378824603687e"
   },
   {
     "page": "/table-editing",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "65e2f29ff7efad56"
+    "stamp": "8a00276c9b8b8e2f"
   },
   {
     "page": "/stat",
@@ -103,8 +103,8 @@
       { "text": "A value against its limit", "instead": "/bars#value-against-thresholds" },
       { "text": "A figure over time", "instead": "/chart" }
     ],
-    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard" ],
-    "stamp": "6ee79b94844aea51"
+    "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard", "open-a-page-from-a-card" ],
+    "stamp": "68ac0b03401aa48c"
   },
   {
     "page": "/bars",
@@ -241,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "e2250e5b2561e1bc"
+    "stamp": "533ecb9b5f1b538d"
   },
   {
     "page": "/graph-layouts",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "9f747a93b66569eb"
+    "stamp": "e26c33300451c2d7"
   },
   {
     "page": "/graph-plugins",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "4275208948d1356c"
+    "stamp": "fb975c9cc29f297a"
   }
 ]

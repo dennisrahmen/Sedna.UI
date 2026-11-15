@@ -50,15 +50,18 @@
    already has 7px and needs nothing. */
 .chip:not(.chip--lg) > .avatar { --avatar-size: 20px; }
 
-/* A status dot inside a chip, for a filter whose value carries a state. Colour it
-   with a semantic token from the markup, or it says nothing. */
+/* A status dot inside a chip, for a filter whose value carries a state. It takes the chip's
+   own tone, or a colour from a semantic token in the markup; with neither it says nothing.
+   It steps with the chip's size, as the text beside it does. */
 .chip-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     flex-shrink: 0;
-    background: var(--border-hover);
+    background: var(--tone-solid, var(--border-hover));
 }
+.chip--sm .chip-dot { width: 6px; height: 6px; }
+.chip--lg .chip-dot { width: 8px; height: 8px; }
 
 /* The remove button. A real <button> with an accessible name — "×" alone is
    announced as "times" and gives no clue what it removes, so write

@@ -17,7 +17,7 @@
       { "text": "The fields of one record, only read", "instead": "/card#key-value-rows" }
     ],
     "goals": [ "fill-in-a-form", "group-settings-in-boxes", "keep-save-in-reach", "enter-a-short-text", "write-a-longer-text", "take-the-main-action", "create-or-edit-a-record", "change-settings", "edit-in-a-dialog", "write-formatted-text" ],
-    "stamp": "e00a20906d3ff228"
+    "stamp": "1f725d2c511b7bea"
   },
   {
     "page": "/form-validation",
@@ -53,7 +53,7 @@
       { "text": "Views of one record the reader switches between", "instead": "/tabs" }
     ],
     "goals": [ "answer-one-question-at-a-time", "finish-parts-in-any-order", "check-answers-before-sending", "confirm-a-submission", "do-a-task-in-steps", "see-the-step-they-are-on" ],
-    "stamp": "773c6bcaca17165d"
+    "stamp": "b9d1d710e86a3b37"
   },
   {
     "page": "/form-saving",
@@ -69,7 +69,7 @@
       { "text": "Saving the cells edited in a table", "instead": "/table-editing" }
     ],
     "goals": [ "keep-unsaved-work", "keep-save-in-reach", "edit-cells-in-place", "create-or-edit-a-record", "change-settings" ],
-    "stamp": "b95c3787807a3d81"
+    "stamp": "14ffb21b72ec580d"
   },
   {
     "page": "/form-text",
@@ -88,7 +88,7 @@
       { "text": "A number adjusted one step at a time", "instead": "/form-numeric#plus-and-minus-buttons" }
     ],
     "goals": [ "enter-a-short-text", "ask-for-personal-details", "enter-a-formatted-value", "show-a-password", "add-a-unit-to-a-field", "show-a-read-only-value", "sign-by-hand" ],
-    "stamp": "9f1fef1804afc16d"
+    "stamp": "90c8d93d37cf4a8d"
   },
   {
     "page": "/form-code",
@@ -138,7 +138,7 @@
       { "text": "Upcoming events read as a list", "instead": "/calendar-agenda" }
     ],
     "goals": [ "pick-a-date", "pick-a-date-range", "set-a-time-range-for-a-dashboard", "enter-a-date-of-birth" ],
-    "stamp": "e14fa37d6465a200"
+    "stamp": "a1f4266403e89106"
   },
   {
     "page": "/form-select",
@@ -174,7 +174,7 @@
       { "text": "Running a command by name", "instead": "/palette" }
     ],
     "goals": [ "search-and-pick-one", "pick-several-as-chips", "enter-several-addresses", "search-a-server-list", "pick-from-a-tree", "pick-from-a-hierarchy", "tick-whole-branches", "choose-a-model", "open-a-panel-upward" ],
-    "stamp": "188a2d6042a922e7"
+    "stamp": "7e7a37b33b077412"
   },
   {
     "page": "/form-choice",
@@ -227,7 +227,7 @@
       { "text": "A setting that is on or off", "instead": "/form-choice#switches" }
     ],
     "goals": [ "switch-a-view-setting", "build-a-query", "write-markdown" ],
-    "stamp": "eb15515cd13500aa"
+    "stamp": "83b05a1ed7214f85"
   },
   {
     "page": "/form-rating",
@@ -257,7 +257,7 @@
       { "text": "Reordering items by dragging", "instead": "/drag-drop" }
     ],
     "goals": [ "upload-files", "drop-files-anywhere", "follow-uploads" ],
-    "stamp": "224ca23d01eac1bb"
+    "stamp": "4c462870b0cda4ff"
   },
   {
     "page": "/form-numeric",
@@ -273,7 +273,7 @@
       { "text": "An exact amount typed with its unit", "instead": "/form-text#kinds-of-affix" }
     ],
     "goals": [ "choose-a-value-on-a-slider", "choose-a-span-of-values", "step-a-count" ],
-    "stamp": "bb189695f9e9dfe5"
+    "stamp": "ec677e2d0362ca87"
   },
   {
     "page": "/form-color",

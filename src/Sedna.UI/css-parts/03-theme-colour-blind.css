@@ -8,6 +8,7 @@
    both desaturate toward a similar warm brown. Danger therefore also moves
    colder and darker here, so the pair separates on lightness when hue is
    unavailable (docs/BRANDING.md §9.2). */
+:root[data-cvd="1"] :where([data-variant]),
 :root[data-cvd="1"] {
     --go-solid:  var(--orbit-700);
     --go-hover:  var(--orbit-800);
@@ -41,6 +42,7 @@
     --sev-2-border: var(--violet-700);
     --sev-2-fg:     var(--violet-300);
 }
+:root[data-cvd="1"] [data-variant="light"],
 :root[data-variant="light"][data-cvd="1"] {
     --go-bg:     color-mix(in srgb, var(--orbit-400) 8%, transparent);
     --go-border: var(--orbit-300);

@@ -8,6 +8,7 @@
    specifies Ice White as *the* light surface — cards must therefore keep their
    border in light theme; it is doing the separation work that lightness alone no
    longer does. */
+:root [data-variant="light"],
 :root[data-variant="light"] {
     --color-scheme:   light;
     --picker-invert:  0;

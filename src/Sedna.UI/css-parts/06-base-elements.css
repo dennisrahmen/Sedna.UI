@@ -19,6 +19,18 @@ html {
     scrollbar-color: var(--scrollbar) transparent;
 }
 
+/* A subtree that names its own variant — `<section data-variant="dark">` — is a page of its
+   own inside the page. Its tokens are redeclared by the token blocks (01-tokens.css); this is
+   the part a token cannot reach. Its text takes the variant's own colour, because `color` is
+   inherited as a computed value and would otherwise stay the page's; its native controls and
+   scrollbars follow it, as `html` does for the page. The subtree paints no background of its
+   own — a photograph, a gradient or a surface the app writes sits behind its content. */
+:root [data-variant] {
+    color-scheme: var(--color-scheme);
+    color: var(--fg);
+    scrollbar-color: var(--scrollbar) transparent;
+}
+
 body {
     background: var(--bg);
     color: var(--fg);

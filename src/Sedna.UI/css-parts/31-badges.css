@@ -121,17 +121,19 @@
    A label a reader made and coloured, as in an issue tracker. The colour is the app's
    data, set as `--label-colour` on the badge; the library decides how much of it to use.
    The text never takes it, so a yellow a reader picked is still legible in every theme.
+   The dot steps down with `.badge--sm`, as the text beside it does.
 
      <span class="badge badge--swatch" style="--label-colour: #8b5cf6">design</span>
 
    `.badge--swatch-outline` draws the pill's edge in the colour as well as the dot. There is
    no tinted fill: a tint of a colour the library does not know is a colour function on a
    rule, which no theme could reach. */
-.badge--swatch { --label-colour: var(--muted); }
+.badge--swatch { --label-colour: var(--muted); --badge-dot: 8px; }
+.badge--sm.badge--swatch { --badge-dot: 6px; }
 .badge--swatch::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    width: var(--badge-dot);
+    height: var(--badge-dot);
     flex-shrink: 0;
     border-radius: 50%;
     background: var(--label-colour);
