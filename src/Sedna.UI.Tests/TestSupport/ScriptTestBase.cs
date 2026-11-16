@@ -29,6 +29,10 @@ public abstract class ScriptTestBase : BrowserTestBase
 {
     private const string Origin = "https://sedna-ui.test";
 
+    /// <summary>A transparent picture of one pixel: what a picture from another host is answered with.</summary>
+    private static readonly byte[] OnePixel = Convert.FromBase64String(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==");
+
     /// <summary>
     /// Opens a fixture page with <paramref name="body"/> inside <c>&lt;body&gt;</c> and
     /// the shipped script loaded at the end of it.
@@ -133,6 +137,19 @@ public abstract class ScriptTestBase : BrowserTestBase
 
         var page = await context.NewPageAsync();
         await TrackCoverageAsync(context, page);
+
+        // A picture from another host is answered here, with a picture, and never by the
+        // network. A fixture names one as an app would (`https://example.com/chart.png`), and
+        // left to the network the request fails whenever the network gets round to it: a
+        // broken picture collapses to its alt text in WebKit, so one that fails between a
+        // press and its release moves from under the pointer and the click lands on the page.
+        // A test that serves such a picture itself routes it in `beforeLoad`, which is heard first.
+        await page.RouteAsync(
+            url => url.StartsWith("http", StringComparison.Ordinal) && !url.StartsWith(Origin + "/", StringComparison.Ordinal),
+            route => route.Request.ResourceType == "image"
+                ? route.FulfillAsync(new() { Status = 200, ContentType = "image/png", BodyBytes = OnePixel })
+                : route.FallbackAsync());
+
         beforeLoad?.Invoke(page);
 
         // A path the fixture serves itself, else the shipped file of that name under

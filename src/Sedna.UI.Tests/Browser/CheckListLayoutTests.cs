@@ -187,14 +187,23 @@ public class CheckListLayoutTests : ScriptTestBase
         Assert.Equal(height / 16 * m[3], m[0], 0.5);
         Assert.True(m[1] > m[2] + 100, $"The list does not scroll: {m[1]}px of content in {m[2]}px.");
 
-        // The last item, reached by the keyboard, is brought into the box.
+        // The last item, reached by the keyboard, is brought into the box. The engine scrolls a
+        // focused element into view with its next layout, not within the call that focused it,
+        // so the box is read until it holds the item.
         await page.FocusAsync("#long label:last-child input");
-        var visible = await page.EvaluateAsync<bool>("""
+        const string held = """
             () => { const box = document.getElementById('long').getBoundingClientRect();
                     const item = document.querySelector('#long label:last-child').getBoundingClientRect();
                     return item.top >= box.top - 0.5 && item.bottom <= box.bottom + 0.5; }
-            """);
-        Assert.True(visible, "The focused last item is outside the scrolled box.");
+            """;
+        try
+        {
+            await page.WaitForFunctionAsync(held, null, new() { Timeout = 15_000 });
+        }
+        catch (TimeoutException)
+        {
+            Assert.Fail("The focused last item is outside the scrolled box.");
+        }
         Assert.Empty(errors);
     }
 
