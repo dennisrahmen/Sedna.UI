@@ -310,7 +310,10 @@
             <code>--cell-pad-*</code>, <code>--card-pad-*</code>, <code>--list-pad-*</code>,
             <code>--page-rhythm</code>, <code>--page-pad</code> and <code>--control-height*</code>;
             <code>data-density="touch"</code> loosens the same tokens and puts the default control at
-            44px. A component of your own that reads those tokens moves with them.
+            44px. A component of your own that reads those tokens moves with them. The attribute works
+            on any element as well as on <code>&lt;html&gt;</code>, as <code>data-variant</code> does: a
+            dense list of row tools takes <code>data-density="compact"</code> on its own, and
+            <code>data-density="comfortable"</code> gives a part of a compact page the default back.
         </div>
     </div>
 </CatGroup>

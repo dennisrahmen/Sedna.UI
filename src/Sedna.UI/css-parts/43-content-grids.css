@@ -302,7 +302,14 @@
    app's own values. 26-panels.js says how.
 
    Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
-   their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
+   their cells, and cannot be arranged: the arrangement is kept for a wider screen.
+
+   A panel may sit inside a `.panel-grid-contents`, a wrapper the app needs for another
+   layout of the same panels — one that flows, before there is an arrangement — and which
+   is `display: contents` in the grid, so the panels inside it are the grid's and are never
+   re-created when the screen switches. A `.panel-grid-band` — a status band, a warning
+   that comes and goes — is laid across the whole width above the first row while it is
+   drawn and not empty, and the cells, the dots and every drop start below it. */
 .panel-grid {
     --panel-cols: 24;
     --panel-row: 3rem;
@@ -321,8 +328,15 @@
        nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
     --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
     column-gap: var(--panel-gap-x);
+    --panel-row-offset: 0;
 }
-:where(.panel-grid > *) {
+.panel-grid .panel-grid-contents { display: contents; }
+.panel-grid > .panel-grid-band { grid-column: 1 / span var(--panel-cols); grid-row: 1; min-inline-size: 0; }
+.panel-grid:has(> .panel-grid-band:not([hidden], :empty)) {
+    --panel-row-offset: 1;
+    grid-template-rows: auto;
+}
+:where(.panel-grid > :not(.panel-grid-contents, .panel-grid-band), .panel-grid .panel-grid-contents > :not(.panel-grid-contents)) {
     --panel-x: 0;
     --panel-y: 0;
     --panel-w: 1;
@@ -333,14 +347,16 @@
     --panel-preview-h: initial;
     --panel-stacked: 0;
 }
-.panel-grid > * {
+.panel-grid > :not(.panel-grid-contents,
+.panel-grid-band),
+.panel-grid .panel-grid-contents > :not(.panel-grid-contents) {
     grid-column: calc(var(--panel-preview-x, var(--panel-x)) + 1) / span var(--panel-preview-w, var(--panel-w));
-    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1) / span var(--panel-preview-h, var(--panel-h));
+    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1 + var(--panel-row-offset)) / span var(--panel-preview-h, var(--panel-h));
     min-inline-size: 0;
     min-block-size: 0;
 }
 /* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
-.panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
+:is(.panel-grid, .panel-grid .panel-grid-contents) > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
 /* Arranging: a dot at the centre of every cell, so every place a panel can start and
    every size it can take is marked. It is drawn on a layer behind the panels as two
@@ -355,7 +371,7 @@
     --panel-guide-dot: var(--border-strong);
     position: relative;
 }
-:where(.panel-grid[data-arrange] > *) { z-index: 1; }
+:where(.panel-grid[data-arrange] > :not(.panel-grid-contents, .panel-grid-band), .panel-grid[data-arrange] .panel-grid-contents > :not(.panel-grid-contents)) { z-index: 1; }
 .panel-grid[data-arrange]::after {
     --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
     --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
@@ -375,16 +391,20 @@
             transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
     mask-composite: intersect;
 }
+/* With a band, the dots are laid on the cells below it: an absolutely positioned child of a
+   grid takes its grid lines as its box. */
+.panel-grid[data-arrange]:has(> .panel-grid-band:not([hidden], :empty))::after { grid-row: 2 / auto; }
 /* Not arranging, a panel is content: its own handles are not there. A handle of a zone
    nested inside a panel — a list in it the reader reorders — is that zone's. */
 .panel-grid:not([data-arrange]) [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
-.panel-grid:not([data-arrange]) > * > [data-resize] { display: none; }
+.panel-grid:not([data-arrange]) > * > [data-resize],
+.panel-grid:not([data-arrange]) .panel-grid-contents > * > [data-resize] { display: none; }
 
 /* The cell a carried panel would land on. */
 .panel-grid[data-drop-over]::before {
     content: "";
     grid-column: calc(var(--panel-drop-x) + 1) / span var(--panel-drop-w);
-    grid-row: calc(var(--panel-drop-y) + 1) / span var(--panel-drop-h);
+    grid-row: calc(var(--panel-drop-y) + 1 + var(--panel-row-offset)) / span var(--panel-drop-h);
     border: 2px dashed var(--brand);
     border-radius: var(--radius-surface);
     background: var(--brand-tint);
@@ -392,12 +412,14 @@
 }
 
 @container panel-grid (width < 560px) {
-    .panel-grid > * {
+    .panel-grid > :not(.panel-grid-contents,
+    .panel-grid-band),
+    .panel-grid .panel-grid-contents > :not(.panel-grid-contents) {
         --panel-stacked: 1;
         grid-column: span var(--panel-cols);
         grid-row: auto / span var(--panel-h);
         order: calc(var(--panel-y) * 1000 + var(--panel-x));
     }
     .panel-grid [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
-    .panel-grid > * > [data-resize] { display: none; }
+    :is(.panel-grid, .panel-grid .panel-grid-contents) > * > [data-resize] { display: none; }
 }

@@ -248,11 +248,11 @@
     block-size: var(--control-height-sm);
     padding: 0;
     background: var(--swatch);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
     cursor: pointer;
 }
-.swatch:hover { border-color: var(--border-strong); }
+.swatch:hover { border-color: var(--border-hover); }
 .swatch:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-glow); }
 .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg); }
 .swatch[aria-pressed="true"]:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-soft); }

@@ -38,11 +38,32 @@
             to do. The picture is an <code>&lt;img class="page-head-image"&gt;</code> you write, with its own
             <code>srcset</code>, <code>loading</code> and <code>alt</code>; <code>data-variant="dark"</code> on
             the head keeps its text and buttons light on the photograph in both variants. A scrim runs from
-            the inline start, where the words are, and holds at full strength across the text column, so the
-            text clears WCAG AA over any photograph; it turns with <code>dir="rtl"</code>. The head stops at
-            <code>--page-max</code> on a very wide screen. <code>--hero-height</code>, <code>--hero-measure</code>
-            and the two ends of the scrim, <code>--hero-scrim-strong</code> and <code>--hero-scrim-soft</code>,
-            are set on the head.
+            the inline start, where the words are, holds at full strength under the text column and fades out
+            well before the far edge, so the text clears WCAG AA over any photograph and most of the picture
+            shows; it turns with <code>dir="rtl"</code>. Beside a solid action, <code>.btn--outline</code> is
+            the secondary one: no fill, and an edge that holds 3:1 on the scrim.
+        </p>
+        <p>
+            Every measure is a token, set in your <code>brand.css</code> or on one head:
+            <code>--hero-height</code>, <code>--hero-measure</code> (the text column),
+            <code>--hero-max</code> (<code>none</code> runs it edge to edge), <code>--hero-radius</code>
+            (<code>0</code> squares it), <code>--hero-pad-block</code>, <code>--hero-pad-inline</code>,
+            <code>--hero-gap</code> and <code>--hero-focus</code>, the point the picture is cropped around.
+            The scrim's two ends are <code>--hero-scrim-strong</code> and <code>--hero-scrim-soft</code>;
+            <code>--hero-scrim-hold</code> is where full strength ends and <code>--hero-scrim-end</code>
+            where the soft end is reached, so <code>--hero-scrim-hold: 33%; --hero-scrim-end: 60%</code>
+            shows the photo from a third of the way across. A text column narrower than that hold, or
+            <code>--hero-text-shadow</code>, keeps the words readable on a scrim you thin.
+        </p>
+    </CatExample>
+
+    <CatExample TExample="Examples.Structure.PageHeadHeroCenter" Title="Centred over a picture" Demo="ex-demo--block">
+        <p>
+            <code>.page-head--hero-center</code> centres the words and the actions, and its scrim becomes a band
+            down the middle of the head as wide as the text column, fading out to both sides.
+            <code>.page-head--hero-top</code> and <code>.page-head--hero-middle</code> move the words up from
+            the bottom, with either alignment. This one is square, runs the width of its column and is cropped
+            towards the top of the photo, all through tokens.
         </p>
     </CatExample>
 
@@ -50,7 +71,8 @@
         <p>
             A slide of the <a href="/carousel">carousel</a> is a head with a picture, so a slideshow needs
             nothing of its own: the carousel scrolls and wires the slides, each slide writes its head. Put
-            the slides' titles one level under the page's own heading.
+            the slides' titles one level under the page's own heading. These slides are
+            <code>.page-head--hero-top</code>, so the words stand at the top of each picture.
         </p>
     </CatExample>
 

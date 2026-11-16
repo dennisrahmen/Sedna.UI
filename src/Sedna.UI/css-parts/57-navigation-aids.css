@@ -227,7 +227,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     block-size: 40px;
     margin-inline-start: auto;
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: 50%;
     color: var(--fg-soft);
     box-shadow: var(--shadow-float);

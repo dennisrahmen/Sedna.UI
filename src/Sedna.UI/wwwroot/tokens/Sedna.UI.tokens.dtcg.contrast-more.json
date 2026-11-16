@@ -388,6 +388,26 @@
       "$value": "{slate.slate-700}"
     }
   },
+  "cal": {
+    "cal-weekend-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "alpha": 0.07,
+        "hex": "#ffffff"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--fg) 7%, transparent)"
+        }
+      }
+    }
+  },
   "card": {
     "card-bg": {
       "$type": "color",

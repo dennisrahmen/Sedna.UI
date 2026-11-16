@@ -97,7 +97,6 @@ The agent posts replies itself. Every reply follows this shape:
 - Breaking changes, if the release will have any.
 - A version as "the next release" — never a version number or a date before the tag exists. After
   the release: "Released in [x.y.z](link to the release)".
-- The footer `_🤖 Posted by [Claude Code](https://claude.com/claude-code)_`.
 
 Post the verdict when it is made; do not wait for the release.
 

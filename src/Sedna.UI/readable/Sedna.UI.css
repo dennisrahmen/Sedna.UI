@@ -447,6 +447,21 @@
     --card-bg:         var(--slate-800);
     --surface-soft:    color-mix(in srgb, var(--white) 3%, transparent);
     --surface-strong:  color-mix(in srgb, var(--white) 5%, transparent);
+    /* A calendar's day nobody works (66-calendar.css): the shade of a weekend and of a
+       holiday, a step of the text colour so it follows every variant and theme and stays
+       visible where --surface-soft is not (CalendarShadeTests); and the tint and ink
+       `--day-tones` puts on a weekend's and a holiday's number or head. */
+    --cal-weekend-bg:      color-mix(in srgb, var(--fg) 7%, transparent);
+    --cal-holiday-bg:      var(--cal-weekend-bg);
+    --cal-weekend-tone-bg: var(--info-bg);
+    --cal-weekend-tone-fg: var(--info-fg);
+    --cal-holiday-tone-bg: var(--danger-bg);
+    --cal-holiday-tone-fg: var(--danger-fg);
+
+    /* What the words of a page head with a picture stand on: nothing, over the scrim. In
+       forced colours the scrim, a gradient, is dropped and this is the user's canvas, which
+       is why it is declared here, with the tokens a variant or a mode remaps. */
+    --hero-text-bg:        transparent;
 
     /* ── Named surfaces ─────────────────────────────────────────────────
        Which surface a thing IS, rather than which colour it happens to take.
@@ -1007,6 +1022,9 @@
        for white text over the brightest photograph there is — HeroTests measures it. */
     --hero-scrim-strong: color-mix(in srgb, var(--black) 82%, transparent);
     --hero-scrim-soft:   color-mix(in srgb, var(--black) 18%, transparent);
+    /* A shadow under those words, for a head whose scrim an app has thinned — none by
+       default, since the scrim alone clears AA. */
+    --hero-text-shadow:  none;
     /* One square of the checkerboard behind a picture in a `--transparency` frame
        (62-media-and-prose.css). */
     --checker-size:  8px;
@@ -1174,6 +1192,22 @@
     /* The block padding of a `.page-banner` under the topbar; its inline padding is the
        page's own, so its words start on the page's column. */
     --page-banner-pad-block: var(--space-5);
+    /* A page head with a picture (56-page-head-hero.css): its least height, the width of
+       its text column, how wide the head may grow, its corners, its padding, the gap
+       between its words and its actions, and the point its picture is cropped around.
+       Where the scrim holds at full strength and where it reaches its soft end are
+       `--hero-scrim-hold` and `--hero-scrim-end`; unset, they follow the text column, so
+       they are worked out on the head and only declared here, as unset. */
+    --hero-height:      22rem;
+    --hero-measure:     40rem;
+    --hero-max:         var(--page-max);
+    --hero-radius:      var(--radius-surface);
+    --hero-pad-block:   var(--space-10);
+    --hero-pad-inline:  var(--space-8);
+    --hero-gap:         var(--space-6);
+    --hero-focus:       50% 50%;
+    --hero-scrim-hold:  initial;
+    --hero-scrim-end:   initial;
     /* How many lines `.list-title` and `.list-sub` show before the ellipsis — a
        number, or `none` to wrap freely. Set on a list, an <li> or a row it shapes
        every line inside and aligns the row's slots to the first line; set on one
@@ -4518,13 +4552,18 @@ a.card.card--fill { display: flex; }
     max-block-size: var(--card-max-height);
 }
 .card--resizable > .card-body { flex: 1 1 auto; min-block-size: 0; overflow: auto; }
+/* The three handles lie over the edge of whatever holds them, all placed the same way, so
+   they work on a card and on any panel of the app's own — a window with no head or body —
+   alike: the holder is positioned at no specificity, and an app's own position wins. */
+:where(:has(> .card-resize)) { position: relative; }
 .card-resize {
-    flex-shrink: 0;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
     block-size: var(--space-4);
-    margin-block-start: calc(var(--space-4) * -1);
+    margin: 0;
     cursor: ns-resize;
     touch-action: none;
-    position: relative;
 }
 .card-resize::before {
     content: "";
@@ -4547,22 +4586,17 @@ a.card.card--fill { display: flex; }
    it writes is the card's `--card-width`, never wider than what holds the card.
    `.card-resize--corner` is the corner between the two, `data-resize="--card-width
    --card-height"`: for the pointer, `aria-hidden="true"`, with the keyboard on the edges.
-   Both lie over the card's own edge, so they take no room. In a `.panel-grid` the same
-   handles write `--panel-w` and `--panel-h`. */
+   Like the bottom one, both lie over the edge of what holds them, so they take no room. In a
+   `.panel-grid` the same handles write `--panel-w` and `--panel-h`, on a card or on a panel
+   of the app's own. */
 .card--resizable {
     --card-width: auto;
     inline-size: var(--card-width);
     max-inline-size: 100%;
 }
-:where(.card:has(> .card-resize--inline, > .card-resize--corner)) { position: relative; }
-.card-resize--inline,
-.card-resize--corner {
-    position: absolute;
-    margin: 0;
-}
 .card-resize--inline {
     inset-block: 0;
-    inset-inline-end: 0;
+    inset-inline: auto 0;
     inline-size: var(--space-4);
     block-size: auto;
     cursor: ew-resize;
@@ -4575,8 +4609,8 @@ a.card.card--fill { display: flex; }
     block-size: auto;
 }
 .card-resize--corner {
-    inset-block-end: 0;
-    inset-inline-end: 0;
+    inset-block: auto 0;
+    inset-inline: auto 0;
     inline-size: var(--space-6);
     block-size: var(--space-6);
     cursor: nwse-resize;
@@ -5261,7 +5295,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
      A tone modifier says what a button does, an emphasis modifier how loudly
      (69-tone.css): .btn--brand.btn--solid is the primary action; .btn--go.btn--solid
      sends something outward; .btn--warn.btn--solid changes who is in control, .btn--warn
-     is its secondary; .btn--danger is destructive; .btn--ghost has no fill until hovered.
+     is its secondary; .btn--danger is destructive; .btn--outline has no fill and a 3:1
+     edge, for a secondary action on a picture or a tinted band; .btn--ghost has no fill
+     and no edge until hovered.
 
    --control-height is shared with the text input, the select and the search box, so
    a button beside a field is the same height as the field. It also pins an icon-only
@@ -5278,7 +5314,9 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     gap: var(--btn-gap);
     min-height: var(--control-height);
     padding: var(--space-3) var(--btn-pad-x);
-    border: 1px solid var(--border);
+    /* The control edge, as a field's: 3:1 against every surface it sits on, which is what
+       says where a control ends (ControlEdgeContrastTests). */
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
     background: var(--bg-elevated);
     color: var(--fg);
@@ -5292,7 +5330,7 @@ button.badge-more:focus-visible { outline: 2px solid var(--focus-ring); outline-
     transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 .btn i { font-size: var(--text-6); line-height: 1; }
-.btn:hover         { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.btn:hover         { background: var(--bg-hover); border-color: var(--border-hover); text-decoration: none; }
 .btn:active        { background: var(--btn-active-bg); }
 .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
 /* A disabled button still takes the pointer, so a hint on it says why it cannot be
@@ -7227,7 +7265,14 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
    app's own values. 26-panels.js says how.
 
    Narrower than 560px the panels stack in reading order, a whole row wide and as tall as
-   their cells, and cannot be arranged: the arrangement is kept for a wider screen. */
+   their cells, and cannot be arranged: the arrangement is kept for a wider screen.
+
+   A panel may sit inside a `.panel-grid-contents`, a wrapper the app needs for another
+   layout of the same panels — one that flows, before there is an arrangement — and which
+   is `display: contents` in the grid, so the panels inside it are the grid's and are never
+   re-created when the screen switches. A `.panel-grid-band` — a status band, a warning
+   that comes and goes — is laid across the whole width above the first row while it is
+   drawn and not empty, and the cells, the dots and every drop start below it. */
 .panel-grid {
     --panel-cols: 24;
     --panel-row: 3rem;
@@ -7246,8 +7291,15 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
        nothing and overflow. Stacked, every panel takes the row and no column gap shows. */
     --panel-gap-x: min(var(--grid-gap), 100% / max(1, calc(var(--panel-cols) - 1)));
     column-gap: var(--panel-gap-x);
+    --panel-row-offset: 0;
 }
-:where(.panel-grid > *) {
+.panel-grid .panel-grid-contents { display: contents; }
+.panel-grid > .panel-grid-band { grid-column: 1 / span var(--panel-cols); grid-row: 1; min-inline-size: 0; }
+.panel-grid:has(> .panel-grid-band:not([hidden], :empty)) {
+    --panel-row-offset: 1;
+    grid-template-rows: auto;
+}
+:where(.panel-grid > :not(.panel-grid-contents, .panel-grid-band), .panel-grid .panel-grid-contents > :not(.panel-grid-contents)) {
     --panel-x: 0;
     --panel-y: 0;
     --panel-w: 1;
@@ -7258,14 +7310,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     --panel-preview-h: initial;
     --panel-stacked: 0;
 }
-.panel-grid > * {
+.panel-grid > :not(.panel-grid-contents,
+.panel-grid-band),
+.panel-grid .panel-grid-contents > :not(.panel-grid-contents) {
     grid-column: calc(var(--panel-preview-x, var(--panel-x)) + 1) / span var(--panel-preview-w, var(--panel-w));
-    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1) / span var(--panel-preview-h, var(--panel-h));
+    grid-row: calc(var(--panel-preview-y, var(--panel-y)) + 1 + var(--panel-row-offset)) / span var(--panel-preview-h, var(--panel-h));
     min-inline-size: 0;
     min-block-size: 0;
 }
 /* A panel fills its cells: a resizable card's size is the cells', not one of its own. */
-.panel-grid > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
+:is(.panel-grid, .panel-grid .panel-grid-contents) > .card--resizable { block-size: auto; max-block-size: none; inline-size: auto; }
 
 /* Arranging: a dot at the centre of every cell, so every place a panel can start and
    every size it can take is marked. It is drawn on a layer behind the panels as two
@@ -7280,7 +7334,7 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
     --panel-guide-dot: var(--border-strong);
     position: relative;
 }
-:where(.panel-grid[data-arrange] > *) { z-index: 1; }
+:where(.panel-grid[data-arrange] > :not(.panel-grid-contents, .panel-grid-band), .panel-grid[data-arrange] .panel-grid-contents > :not(.panel-grid-contents)) { z-index: 1; }
 .panel-grid[data-arrange]::after {
     --panel-pitch-x: calc((100% + var(--panel-gap-x)) / var(--panel-cols));
     --panel-dot-x: max(0px, calc((var(--panel-pitch-x) - var(--panel-gap-x)) / 2 - 1px));
@@ -7300,16 +7354,20 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
             transparent calc(var(--panel-dot-y) + 2px) calc(var(--panel-row) + var(--grid-gap)));
     mask-composite: intersect;
 }
+/* With a band, the dots are laid on the cells below it: an absolutely positioned child of a
+   grid takes its grid lines as its box. */
+.panel-grid[data-arrange]:has(> .panel-grid-band:not([hidden], :empty))::after { grid-row: 2 / auto; }
 /* Not arranging, a panel is content: its own handles are not there. A handle of a zone
    nested inside a panel — a list in it the reader reorders — is that zone's. */
 .panel-grid:not([data-arrange]) [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
-.panel-grid:not([data-arrange]) > * > [data-resize] { display: none; }
+.panel-grid:not([data-arrange]) > * > [data-resize],
+.panel-grid:not([data-arrange]) .panel-grid-contents > * > [data-resize] { display: none; }
 
 /* The cell a carried panel would land on. */
 .panel-grid[data-drop-over]::before {
     content: "";
     grid-column: calc(var(--panel-drop-x) + 1) / span var(--panel-drop-w);
-    grid-row: calc(var(--panel-drop-y) + 1) / span var(--panel-drop-h);
+    grid-row: calc(var(--panel-drop-y) + 1 + var(--panel-row-offset)) / span var(--panel-drop-h);
     border: 2px dashed var(--brand);
     border-radius: var(--radius-surface);
     background: var(--brand-tint);
@@ -7317,14 +7375,16 @@ button.deck-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus
 }
 
 @container panel-grid (width < 560px) {
-    .panel-grid > * {
+    .panel-grid > :not(.panel-grid-contents,
+    .panel-grid-band),
+    .panel-grid .panel-grid-contents > :not(.panel-grid-contents) {
         --panel-stacked: 1;
         grid-column: span var(--panel-cols);
         grid-row: auto / span var(--panel-h);
         order: calc(var(--panel-y) * 1000 + var(--panel-x));
     }
     .panel-grid [data-drag-handle]:not(.panel-grid [data-drag-zone] *),
-    .panel-grid > * > [data-resize] { display: none; }
+    :is(.panel-grid, .panel-grid .panel-grid-contents) > * > [data-resize] { display: none; }
 }
 }
 
@@ -8361,11 +8421,11 @@ html:has(.md-editor[data-md-fullscreen]) { overflow: hidden; }
     block-size: var(--control-height-sm);
     padding: 0;
     background: var(--swatch);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-control);
     cursor: pointer;
 }
-.swatch:hover { border-color: var(--border-strong); }
+.swatch:hover { border-color: var(--border-hover); }
 .swatch:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand-glow); }
 .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg); }
 .swatch[aria-pressed="true"]:focus-visible { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brand-soft); }
@@ -9454,7 +9514,7 @@ fieldset.form-section--box:disabled { border-color: var(--border); }
     margin-inline-end: var(--space-5);
     padding: var(--space-2) var(--space-5);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-inner);
     color: var(--fg);
     font-family: inherit;
@@ -11315,14 +11375,25 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
    in view without scrolling. A long label wraps onto a second line inside its tab, between
    its words: a tab is never narrower than its longest word, so "Computers" is never cut
    into "Computer" and "s". Only a word wider than the whole strip breaks inside itself. */
-.tabs--fill > .tab {
-    flex: 1 1 0;
-    min-width: min-content;
+.tabs.tabs--fill {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(min-content, 1fr);
+}
+.tabs--fill > .tab,
+.tabs--fill > .menu-anchor > .tab {
     justify-content: center;
     text-align: center;
     white-space: normal;
     overflow-wrap: break-word;
 }
+/* A tab that opens a menu sits in a `.menu-anchor`: the anchor is a column of the row like
+   any tab and the tab fills it, so a menu on one tab does not leave it narrower than the
+   rest. The shares are grid columns rather than flex items because a flex share is
+   weighted by content, and a tab's padding would then count where an anchor's does not.
+   Every filling row treats an anchored item so (FillModifierTests). */
+.tabs--fill > .menu-anchor { align-self: stretch; }
+.tabs--fill > .menu-anchor > .tab { flex: 1 1 auto; }
 
 /* A strip inside a card head is `.card-head--tabs`, declared beside `.card-head` in
    30-cards.css because it is that head's modifier. It drops this padding, the strip's
@@ -11653,14 +11724,22 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
 .segmented-option i { font-size: var(--text-5); line-height: 1; }
 
 /* A track as wide as its container, its options sharing it equally. */
-.segmented.segmented--fill { display: flex; width: 100%; }
-.segmented--fill > .segmented-option {
-    flex: 1 1 0;
-    min-width: 0;
+.segmented.segmented--fill {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    width: 100%;
+}
+.segmented--fill > .segmented-option,
+.segmented--fill > .menu-anchor > .segmented-option {
     justify-content: center;
     text-align: center;
     white-space: normal;
 }
+/* An option that opens a menu, in its `.menu-anchor`, is a column like the others, as a
+   tab's is in `.tabs--fill`. */
+.segmented--fill > .menu-anchor { align-self: stretch; }
+.segmented--fill > .menu-anchor > .segmented-option { flex: 1 1 auto; }
 .segmented-option input {
     position: absolute;
     inset: 0;
@@ -12097,7 +12176,7 @@ a.file-item:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-rin
     min-height: var(--control-height-sm);
     padding: var(--space-1) var(--space-2) var(--space-1) var(--space-5);
     background: var(--surface-strong);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     color: var(--fg-soft);
     font-size: var(--text-3);
@@ -14306,7 +14385,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     gap: var(--space-2);
     padding: var(--space-2) var(--space-4);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-inner);
     color: var(--muted);
     font-family: inherit;
@@ -14369,7 +14448,7 @@ a.stat:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-ring); }
     min-height: var(--control-height-sm);
     padding: var(--space-2) var(--space-6);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     color: var(--fg-soft);
     font-family: inherit;
@@ -14590,40 +14669,55 @@ td.diff-gap { background: var(--surface-soft); }
    screen the picture stops at the content column and the page around it carries on.
 
    The scrim is a gradient from the inline start, where the words are, to the inline end, where
-   the picture shows. It stays at full strength for as wide as the text column is, so the
-   text sits on the strong part wherever the head is as wide as the column and wider, and on
-   a phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
+   the picture shows. It holds at full strength for as wide as the text column and its
+   padding are, then fades over 16rem to its soft end, so the words sit on the strong part
+   wherever the head is as wide as the column and wider, most of the picture shows, and on a
+   phone the whole head is the strong part. Direction follows `dir`: 70-rtl.css turns it.
    Full strength is solved for the brightest photograph there is, white text clearing 4.5:1
    over white behind it — `HeroTests` measures it in both page variants.
 
-   Knobs, set on the head or on one instance:
-     --hero-height   the least height (22rem);
-     --hero-measure  how wide the text column is, and how far the scrim holds (40rem);
-     --hero-scrim-strong, --hero-scrim-soft  the two ends of the scrim, declared in 01-tokens.css.
+   Tokens, declared in 01-tokens.css so an app sets them in its brand.css, or on one head:
+     --hero-height      the least height (22rem);
+     --hero-measure     how wide the text column is (40rem);
+     --hero-max         how wide the head may grow (--page-max; `none` runs it edge to edge);
+     --hero-radius      its corners (--radius-surface; 0 squares it);
+     --hero-pad-block, --hero-pad-inline, --hero-gap   its padding, and the room between
+                        the words and the actions;
+     --hero-focus       the point the picture is cropped around (50% 50%), an object-position;
+     --hero-scrim-strong, --hero-scrim-soft   the two ends of the scrim;
+     --hero-scrim-hold  where full strength ends (the text column and its padding);
+     --hero-scrim-end   where the soft end is reached (16rem past the hold) — a length or a
+                        percentage of the head; set both to thin the scrim;
+     --hero-text-shadow a shadow under the words, for a scrim an app has thinned (none);
+     --hero-text-bg     what the words stand on (transparent; the user's canvas in forced
+                        colours, where the scrim is dropped).
+   `--hero-scrim-angle` is the head's own: the direction of the scrim, turned by `dir`.
    ─────────────────────────────────────────────────────────────────────────── */
 .page-head--hero {
-    --hero-height: 22rem;
-    --hero-measure: 40rem;
-    --hero-pad-inline: var(--space-8);
+    /* Where the scrim holds and where it ends, worked out here so that a text column set on
+       one head moves its scrim with it. The hold covers the text column and the padding
+       either side of it; the fade runs 16rem past it. */
     --hero-scrim-angle: 90deg;
+    --hero-hold-at: var(--hero-scrim-hold, calc(var(--hero-measure) + 2 * var(--hero-pad-inline)));
+    --hero-end-at: var(--hero-scrim-end, calc(var(--hero-hold-at) + 16rem));
     position: relative;
     isolation: isolate;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: flex-start;
     justify-content: flex-end;
-    gap: var(--space-6);
+    gap: var(--hero-gap);
     box-sizing: border-box;
     min-block-size: var(--hero-height);
-    max-inline-size: var(--page-max);
+    max-inline-size: var(--hero-max);
     margin-inline: auto;
-    padding: var(--space-10) var(--hero-pad-inline);
+    padding: var(--hero-pad-block) var(--hero-pad-inline);
     overflow: hidden;
-    border-radius: var(--radius-surface);
+    border-radius: var(--hero-radius);
     /* What shows before the picture does, and where there is none. */
     background: var(--media-bg);
 }
-/* The picture fills the head and is cropped to it, from its middle. */
+/* The picture fills the head and is cropped to it, around `--hero-focus`. */
 .page-head-image {
     position: absolute;
     inset: 0;
@@ -14631,6 +14725,7 @@ td.diff-gap { background: var(--surface-soft); }
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
+    object-position: var(--hero-focus);
 }
 /* The scrim, over the picture; the words and actions are over the scrim. Local stacking only. */
 .page-head--hero::after {
@@ -14641,18 +14736,16 @@ td.diff-gap { background: var(--surface-soft); }
     pointer-events: none;
     background: linear-gradient(
         var(--hero-scrim-angle),
-        var(--hero-scrim-strong) calc(var(--hero-measure) + 2 * var(--hero-pad-inline)),
-        var(--hero-scrim-soft));
+        var(--hero-scrim-strong) var(--hero-hold-at),
+        var(--hero-scrim-soft) var(--hero-end-at));
 }
 .page-head--hero > :is(.page-head-text, .page-head-actions) { position: relative; z-index: 2; }
 .page-head--hero .page-head-text {
     flex: 0 1 auto;
     inline-size: 100%;
     max-inline-size: var(--hero-measure);
-    /* The surface tint is nothing visible on the scrim, and in forced colours it is the
-       user's canvas, which is what the words then stand on: the scrim is a gradient and is
-       dropped there, and the picture is not. */
-    background: var(--surface-soft);
+    background: var(--hero-text-bg);
+    text-shadow: var(--hero-text-shadow);
 }
 .page-head--hero .page-head-text > p {
     margin: var(--space-4) 0 0;
@@ -14669,7 +14762,31 @@ td.diff-gap { background: var(--surface-soft); }
     .page-head--hero :is(h1, h2, h3) { font-size: var(--text-11); }
 }
 @media (max-width: 560px) {
-    .page-head--hero { --hero-pad-inline: var(--space-6); padding-block: var(--space-8); }
+    .page-head--hero { padding: var(--space-8) var(--space-6); }
+}
+
+/* ── Where the words sit ─────────────────────────────────────────────────────
+   At the bottom of the head, at the inline start, by default. `--hero-top` and
+   `--hero-middle` move them up; `--hero-center` centres them and their actions across
+   the head, and its scrim is a band the width of the text column down the middle of the
+   head, fading out to both sides — the same hold and fade, so the words are always on
+   its strong part.
+
+     <header class="page-head page-head--hero page-head--hero-center page-head--hero-middle" data-variant="dark">…</header> */
+.page-head--hero.page-head--hero-top    { justify-content: flex-start; }
+.page-head--hero.page-head--hero-middle { justify-content: center; }
+.page-head--hero.page-head--hero-center {
+    align-items: center;
+    text-align: center;
+}
+.page-head--hero.page-head--hero-center > .page-head-actions { justify-content: center; }
+.page-head--hero.page-head--hero-center::after {
+    background: linear-gradient(
+        90deg,
+        var(--hero-scrim-soft) calc(50% - var(--hero-end-at) / 2),
+        var(--hero-scrim-strong) calc(50% - var(--hero-hold-at) / 2),
+        var(--hero-scrim-strong) calc(50% + var(--hero-hold-at) / 2),
+        var(--hero-scrim-soft) calc(50% + var(--hero-end-at) / 2));
 }
 }
 
@@ -14904,7 +15021,7 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
     block-size: 40px;
     margin-inline-start: auto;
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: 50%;
     color: var(--fg-soft);
     box-shadow: var(--shadow-float);
@@ -16407,6 +16524,36 @@ a.breadcrumb-item:hover { color: var(--fg); text-decoration: none; }
 }
 .table--fixed .th-sort { min-inline-size: 0; }
 
+/* ── One column takes the rest ──────────────────────────────────────────────
+   `.col-fill` on a header cell of the first row makes that column take all the room the
+   others leave, in place of the empty end cell, and never narrower than its `--col-min`:
+   a notes column that should run to the edge of a wide box, and that the box scrolls to
+   once the columns outgrow it.
+
+     <th class="col-fill">Notes</th>
+
+   A fixed layout cannot do both — a column with no width of its own takes what is left,
+   which is nothing once the others outgrow the box. So a table with a fill column is laid
+   out automatically, with every other column pinned to its width from both sides and no
+   body cell allowed to widen one: the columns still say how wide they are, the grips still
+   move them, and the fill column alone takes the rest. */
+.table--fixed:has(> thead > tr:first-child > .col-fill) {
+    table-layout: auto;
+    inline-size: 100%;
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) tr::after { content: none; }
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:first-child > :is(th, td) {
+    min-inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+    max-inline-size: clamp(var(--col-min), var(--col-width), var(--col-max));
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:first-child > .col-fill {
+    inline-size: auto;
+    min-inline-size: var(--col-min);
+    max-inline-size: none;
+}
+.table--fixed:has(> thead > tr:first-child > .col-fill) > :is(tbody, tfoot) > tr > :is(th, td),
+.table--fixed:has(> thead > tr:first-child > .col-fill) > thead > tr:not(:first-child) > :is(th, td) { max-inline-size: 0; }
+
 /* The grip's cell holds it; a sticky or pinned cell is positioned already, and zero
    specificity leaves it so. */
 :where(.table th:has(> .col-resize)) { position: relative; }
@@ -17567,7 +17714,7 @@ button.list-row[aria-disabled="true"] { cursor: not-allowed; pointer-events: non
     width: auto;
     padding: var(--space-4) var(--space-6);
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-dropdown);
 }
@@ -21245,7 +21392,7 @@ a.cal-agenda-title:focus-visible { outline: none; border-radius: var(--radius-sm
     text-align: start;
 }
 .cal-day + .cal-day { border-inline-start: 1px solid var(--divider); }
-.cal-day--weekend { background: var(--surface-soft); }
+.cal-day--weekend { background: var(--cal-weekend-bg); }
 /* Muted, and no further: a day number faded below --muted fails contrast, and it is
    still a date the reader may need to read. */
 .cal-day--outside { color: var(--muted); }
@@ -21556,7 +21703,10 @@ button.cal-more:hover { background: var(--bg-hover); color: var(--fg); }
 .cal-week--by-lanes > .cal-week-head > .cal-weekday { padding-inline: var(--space-4); border-inline-start: 1px solid transparent; }
 .cal-week--by-lanes .cal-day-col { padding-inline: var(--space-4); }
 .cal-week-head { border-bottom: 1px solid var(--border); }
-.cal-week-head .cal-weekday { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
+/* A head that is a date rather than a weekday's name — "Sun 15", "Mon 16 Nov" — is set as
+   words, not as a label: in a week's head always, and anywhere else with `.cal-weekday--date`,
+   as in a row of next days under a month's `.cal-weekdays`. */
+:is(.cal-week-head .cal-weekday, .cal-weekday.cal-weekday--date) { text-transform: none; letter-spacing: 0; font-size: var(--text-3); }
 .cal-week-head .cal-weekday[aria-current="date"] { color: var(--brand-text); }
 .cal-week-body { max-block-size: var(--cal-week-max-height); overflow-y: auto; }
 
@@ -21924,8 +22074,8 @@ button.cal-day:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus-
    icon stays. Either way the `data-tip` takes over: the hint appears only while the
    whole name is not on screen. The label is what a screen reader hears. In a small month there is no room
    for a marker at all, so the day keeps the shade and carries the `data-tip` itself. */
-.cal-day--holiday { background: var(--surface-soft); }
-.cal-month--mini .cal-day--holiday { background: var(--surface-soft); }
+.cal-day--holiday { background: var(--cal-holiday-bg); }
+.cal-month--mini .cal-day--holiday { background: var(--cal-holiday-bg); }
 :is(.cal-day, .cal-weekday):has(> .cal-holiday) {
     container: cal-cell / inline-size;
     display: flex;
@@ -22023,11 +22173,12 @@ button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: va
    holiday, and today keeps its own mark.
 
      <div class="cal-month cal-month--day-tones">…</div> */
-.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--info-bg); color: var(--info-fg); }
-.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--danger-bg); color: var(--danger-fg); }
+.cal-month--day-tones .cal-day--weekend:not([aria-current="date"]) .cal-day-num { background: var(--cal-weekend-tone-bg); color: var(--cal-weekend-tone-fg); }
+.cal-month--day-tones .cal-day--holiday:not([aria-current="date"]) .cal-day-num { background: var(--cal-holiday-tone-bg); color: var(--cal-holiday-tone-fg); }
 
 /* A column's head takes the tone whole — the head of a week view's day, of a timeline's
-   day, of a row of next days: give the `.cal-weekday` the day's `.cal-day--weekend` or
+   day, of a row of next days: give the head — any child of `.cal-weekdays` or `.cal-week-head`, a `.cal-weekday` or one
+   of the app's own — the day's `.cal-day--weekend` or
    `.cal-day--holiday` under a `--day-tones` modifier, and the head is tinted while the
    column under it keeps its plain shade.
 
@@ -22035,8 +22186,8 @@ button.cal-mark[aria-expanded="true"] { background: var(--brand-tint); color: va
        <div class="cal-week-head">… <span class="cal-weekday cal-day--weekend">Sat 7</span> …</div>
        …
      </div> */
-:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--weekend:not([aria-current="date"]) { background: var(--info-bg); color: var(--info-fg); }
-:is(.cal-month--day-tones, .cal-week--day-tones) .cal-weekday.cal-day--holiday:not([aria-current="date"]) { background: var(--danger-bg); color: var(--danger-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) :is(.cal-weekdays, .cal-week-head) > .cal-day--weekend:not([aria-current="date"]) { background: var(--cal-weekend-tone-bg); color: var(--cal-weekend-tone-fg); }
+:is(.cal-month--day-tones, .cal-week--day-tones) :is(.cal-weekdays, .cal-week-head) > .cal-day--holiday:not([aria-current="date"]) { background: var(--cal-holiday-tone-bg); color: var(--cal-holiday-tone-fg); }
 
 /* ── Date picker ───────────────────────────────────────────────────────────
    A panel for a date — or a range — that looks the same in every engine, for the app
@@ -22653,7 +22804,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     gap: var(--space-2);
     min-height: 24px;
     padding: 0 var(--space-4);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     background: var(--surface-strong);
     color: var(--fg-soft);
@@ -22662,7 +22813,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     font-variant-numeric: tabular-nums;
     cursor: pointer;
 }
-.chat-reaction:hover { border-color: var(--border-strong); }
+.chat-reaction:hover { border-color: var(--border-hover); }
 .chat-reaction[aria-pressed="true"] {
     background: var(--brand-tint);
     border-color: var(--selected);
@@ -22688,7 +22839,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
    themselves. The app removes the row once one is taken. */
 .chat-quick-replies { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .chat-quick-replies > .chip { cursor: pointer; font-family: inherit; }
-.chat-quick-replies > .chip:hover { border-color: var(--border-strong); color: var(--fg); }
+.chat-quick-replies > .chip:hover { border-color: var(--border-hover); color: var(--fg); }
 
 /* The picker: a grid of emoji buttons, inside a `.popover`. */
 .chat-emoji-grid {
@@ -22881,7 +23032,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-5);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     background: var(--bg-elevated);
     color: var(--fg-soft);
@@ -22891,7 +23042,7 @@ button.cal-more[aria-expanded="true"] { background: var(--brand-tint); color: va
     box-shadow: var(--shadow-float);
     cursor: pointer;
 }
-.chat-jump:hover { color: var(--fg); border-color: var(--border-strong); }
+.chat-jump:hover { color: var(--fg); border-color: var(--border-hover); }
 .chat-jump:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* What is pinned, at the top of the pane. */
 .chat-pinned {
@@ -27036,9 +27187,11 @@ button.inbox-item-title {
    One tone system for every family that carries a tone: a TONE modifier says what the
    thing means, an EMPHASIS modifier how loudly, and the two combine freely.
 
-     .btn--danger                     soft: the tone's tint, its ink, its edge
+     .btn--danger                     soft: the tone's tint, and its ink for the label and the edge
      .btn--danger.btn--solid          filled
+     .btn--danger.btn--outline        no fill, an edge in its ink — 3:1 on any surface
      .btn--danger.btn--ghost          no fill and no edge — its ink only
+     .btn--outline                    no tone: the control edge, the text colour
      .btn--ghost                      no tone: the neutral ghost
 
    Tones: brand go warn danger info secret, and the three categorical hues cyan orange
@@ -27242,8 +27395,11 @@ button.inbox-item-title {
 }
 
 /* Buttons. Soft is a toned button's own emphasis. */
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
-.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); border-color: var(--tone-border-strong); }
+/* Its edge is the tone's ink, as an outline's is: the tint alone is no boundary, and the
+   tone's own border step is a divider's strength, under the 3:1 a control's edge needs
+   (ControlEdgeContrastTests). */
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret) { background: var(--tone-bg); border-color: var(--tone-fg); color: var(--tone-fg); }
+.btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):hover { background: var(--tone-bg-hover); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):active { background: var(--tone-bg-active); }
 .btn:is(.btn--brand, .btn--go, .btn--warn, .btn--danger, .btn--info, .btn--secret):focus-visible { box-shadow: 0 0 0 2px var(--focus-ring); }
 .btn.btn--solid { background: var(--tone-solid, var(--fg)); border-color: var(--tone-solid-edge, var(--fg)); color: var(--tone-on-solid, var(--bg)); }
@@ -27261,6 +27417,13 @@ button.inbox-item-title {
 .btn.btn--ghost { background: none; border-color: transparent; color: var(--tone-fg, var(--muted)); }
 .btn.btn--ghost:hover { background: var(--tone-bg, var(--bg-hover)); border-color: transparent; color: var(--tone-fg, var(--fg)); }
 .btn.btn--ghost:active { background: var(--tone-bg-active, var(--btn-active-bg)); }
+/* Outline: no fill and an edge that holds 3:1 on whatever is behind it — a picture under
+   a scrim, a tinted band, a card. Toned, the edge is the tone's ink, which clears 4.5:1 as
+   text does; untoned, it is the control edge and the label is the text colour. The fill on
+   hover is a faint tint, so a photograph still shows through it. */
+.btn.btn--outline { background: transparent; border-color: var(--tone-fg, var(--control-border)); color: var(--tone-fg, var(--fg)); }
+.btn.btn--outline:hover { background: var(--tone-bg-hover, var(--surface-strong)); border-color: var(--tone-fg, var(--border-hover)); color: var(--tone-fg, var(--fg)); }
+.btn.btn--outline:active { background: var(--tone-bg-active, var(--surface-strong)); }
 
 /* Badges. Ghost is an outline: a label keeps its edge. */
 .badge:is(.badge--brand, .badge--go, .badge--warn, .badge--danger, .badge--info, .badge--secret, .badge--cyan, .badge--orange, .badge--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
@@ -27287,7 +27450,8 @@ button.inbox-item-title {
 .page-banner:is(.page-banner--brand, .page-banner--go, .page-banner--warn, .page-banner--danger, .page-banner--info, .page-banner--secret) .page-banner-body a:not([class]) { color: inherit; text-decoration: underline; }
 
 /* Chips. */
-.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-border); color: var(--tone-fg); }
+/* A chip is a control, so its edge is its ink, as a toned button's is. */
+.chip:is(.chip--brand, .chip--go, .chip--warn, .chip--danger, .chip--info, .chip--secret, .chip--cyan, .chip--orange, .chip--teal) { background: var(--tone-bg); border-color: var(--tone-fg); color: var(--tone-fg); }
 
 /* A corner ribbon and a corner count are filled by nature, as a toast's edge is its tone's solid:
    the tone modifier alone gives the fill, and they take no --solid or --ghost. */
@@ -27630,6 +27794,9 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
         --card-bg:         Canvas;
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
+        --hero-text-bg:    Canvas;
+        --cal-weekend-bg:  Canvas;
+        --cal-holiday-bg:  Canvas;
         --on-solid:        HighlightText;
         --on-viz:          CanvasText;
 
@@ -28482,7 +28649,11 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
 /* ── 90-density.css → @layer sedna.overrides ──────────────────────────────────────────────── */
 @layer sedna.overrides {
 /* ═══ Density ═══════════════════════════════════════════════════════════════
-   [data-density="compact"] or [data-density="touch"] on <html>. A pure token remap,
+   [data-density="compact"] or [data-density="touch"] on <html> for the whole page, or on any
+   element for what is inside it — a dense list of row tools, a touch panel on a desk page —
+   as `data-variant` is. The reader's setting sets it on <html>; an app sets it on a part of
+   the page in its own markup, and inside that part it wins. `data-density="comfortable"` on
+   an element gives a part the default back inside a compact page. A pure token remap,
    like every other theme block, so it composes with the themes and CSS load order
    stays irrelevant. Density moves spacing and control heights and never the type:
    text sizes are the reader's, set by the browser's zoom.
@@ -28501,6 +28672,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
    `.table th, .table td { padding: … }` or `.card-body { padding: … }` does not go
    compact until that rule is deleted. No specificity here can substitute for deleting it.
    ─────────────────────────────────────────────────────────────────────────── */
+:root :where([data-density="compact"]),
 :root[data-density="compact"] {
     --cell-pad-y: var(--space-2);
     --cell-pad-x: var(--space-5);
@@ -28517,6 +28689,7 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --control-height-lg: 38px;
 }
 
+:root :where([data-density="touch"]),
 :root[data-density="touch"] {
     --cell-pad-y: var(--space-6);
     --cell-pad-x: var(--space-7);
@@ -28526,10 +28699,29 @@ a.stat:is(.stat--brand, .stat--go, .stat--warn, .stat--danger, .stat--info, .sta
     --list-pad-inline: var(--space-7);
     --list-gap: var(--space-6);
     --page-rhythm: var(--space-8);
+    /* The page's own padding stays the default's; said here so a touch part of a compact
+       page takes it back (DensityScopeTests). */
+    --page-pad: var(--space-9);
     --page-banner-pad-block: var(--space-7);
     --control-height-sm: 36px;
     --control-height: 44px;
     --control-height-lg: 52px;
+}
+
+:root :where([data-density="comfortable"]) {
+    --cell-pad-y: 8px;
+    --cell-pad-x: 12px;
+    --card-pad-block: var(--space-6);
+    --card-pad-inline: var(--space-7);
+    --list-pad-block: var(--space-5);
+    --list-pad-inline: var(--space-6);
+    --list-gap: var(--space-4);
+    --page-rhythm: var(--space-7);
+    --page-pad: var(--space-9);
+    --page-banner-pad-block: var(--space-5);
+    --control-height-sm: 28px;
+    --control-height: 36px;
+    --control-height-lg: 44px;
 }
 
 /* ═══ A coarse pointer ══════════════════════════════════════════════════════

@@ -1,0 +1,90 @@
+{
+  "$description": "Sedna.UI design tokens for :root :where([data-density=\"comfortable\"]). Load after the files in load.",
+  "$extensions": {
+    "com.sedna-ui": {
+      "selector": ":root :where([data-density=\"comfortable\"])",
+      "media": null,
+      "load": [
+        "Sedna.UI.tokens.dtcg.json"
+      ],
+      "cssOnly": {}
+    }
+  },
+  "card": {
+    "card-pad-block": {
+      "$type": "dimension",
+      "$value": "{space.space-6}"
+    },
+    "card-pad-inline": {
+      "$type": "dimension",
+      "$value": "{space.space-7}"
+    }
+  },
+  "cell": {
+    "cell-pad-x": {
+      "$type": "dimension",
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      }
+    },
+    "cell-pad-y": {
+      "$type": "dimension",
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      }
+    }
+  },
+  "control": {
+    "control-height": {
+      "$type": "dimension",
+      "$value": {
+        "value": 36,
+        "unit": "px"
+      }
+    },
+    "control-height-lg": {
+      "$type": "dimension",
+      "$value": {
+        "value": 44,
+        "unit": "px"
+      }
+    },
+    "control-height-sm": {
+      "$type": "dimension",
+      "$value": {
+        "value": 28,
+        "unit": "px"
+      }
+    }
+  },
+  "list": {
+    "list-gap": {
+      "$type": "dimension",
+      "$value": "{space.space-4}"
+    },
+    "list-pad-block": {
+      "$type": "dimension",
+      "$value": "{space.space-5}"
+    },
+    "list-pad-inline": {
+      "$type": "dimension",
+      "$value": "{space.space-6}"
+    }
+  },
+  "page": {
+    "page-banner-pad-block": {
+      "$type": "dimension",
+      "$value": "{space.space-5}"
+    },
+    "page-pad": {
+      "$type": "dimension",
+      "$value": "{space.space-9}"
+    },
+    "page-rhythm": {
+      "$type": "dimension",
+      "$value": "{space.space-7}"
+    }
+  }
+}

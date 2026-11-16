@@ -8,7 +8,8 @@
       { "page": "/modal#native-dialog", "how": "In .modal-footer, Cancel first and the confirming button last, its label repeating the action." },
       { "page": "/toolbar#filters-and-actions", "how": ".btn--sm on the toolbar's trailing side, the primary last." },
       { "page": "/table#pinned-actions", "how": "Ghost icon buttons in a .table--pin-end column keep a row's actions in reach on a wide table." },
-      { "page": "/hover-hints#on-any-control", "how": "A data-tip on an icon-only button, and on a disabled one to say why it cannot be used." }
+      { "page": "/hover-hints#on-any-control", "how": "A data-tip on an icon-only button, and on a disabled one to say why it cannot be used." },
+      { "page": "/structure#with-a-picture", "how": "A .btn--outline beside the solid action in a head with a picture, its edge clear of the scrim." }
     ],
     "notFor": [
       { "text": "Several actions on the same thing joined into one control", "instead": "/button-group#joined-buttons" },
@@ -17,7 +18,7 @@
       { "text": "A state or a category shown on a record", "instead": "/badge#semantic-tones" }
     ],
     "goals": [ "take-the-main-action", "act-with-an-icon-button", "show-an-action-running", "explain-a-disabled-action", "add-from-a-floating-button", "show-busy-state", "explain-a-control", "open-a-chat-from-any-page" ],
-    "stamp": "bab3f768158d07c7"
+    "stamp": "0c6da086e9009c81"
   },
   {
     "page": "/button-group",
@@ -33,7 +34,7 @@
       { "text": "Paging through a list of results", "instead": "/pager#numbered-pages" }
     ],
     "goals": [ "join-related-actions", "offer-variants-of-an-action" ],
-    "stamp": "5f1eb6c2fffb0b6f"
+    "stamp": "6e67eeaafbb4d2ae"
   },
   {
     "page": "/toolbar",
@@ -53,7 +54,7 @@
       { "text": "Switching between views of one record", "instead": "/tabs#selected-by-the-script" }
     ],
     "goals": [ "compare-records", "narrow-a-long-list", "search-a-list", "act-on-a-selection", "fold-actions-into-a-menu", "show-applied-filters", "read-an-application-log", "set-a-time-range-for-a-dashboard", "switch-a-view-setting", "fill-the-screen-below-the-header", "find-a-record-on-a-list-page", "search-everything" ],
-    "stamp": "07740f4f084b367a"
+    "stamp": "17f018296f5aa96d"
   },
   {
     "page": "/menu",
@@ -75,7 +76,7 @@
       { "text": "Searching every command in the app", "instead": "/palette" }
     ],
     "goals": [ "save-a-view", "choose-table-columns", "offer-variants-of-an-action", "act-on-a-selection", "fold-actions-into-a-menu", "open-a-menu-of-actions", "open-a-context-menu", "find-an-action-in-a-long-menu", "change-a-value-in-place", "catch-up-on-notifications", "mention-someone", "see-who-is-signed-in", "write-a-prompt", "insert-blocks-with-a-slash", "open-a-panel-upward" ],
-    "stamp": "80b342d60748171d"
+    "stamp": "368171d3534bffeb"
   },
   {
     "page": "/popover",
@@ -94,7 +95,7 @@
       { "text": "A record's whole detail beside the list", "instead": "/drawer#record-detail" }
     ],
     "goals": [ "filter-table-columns", "mark-ai-generated-values", "explain-on-demand", "preview-on-hover", "catch-up-on-notifications", "set-a-time-range-for-a-dashboard", "switch-between-apps", "show-context-usage", "cite-sources", "choose-a-model", "react-to-a-message", "open-a-panel-upward" ],
-    "stamp": "ffe920f86fb4f79e"
+    "stamp": "c786f887c540f9be"
   },
   {
     "page": "/drag-drop",
@@ -113,6 +114,6 @@
       { "text": "Choosing several rows to act on", "instead": "/toolbar#with-a-selection" }
     ],
     "goals": [ "reschedule-by-dragging", "reorder-by-dragging", "move-cards-between-columns", "rearrange-tiles", "arrange-dashboard-panels", "place-panels-freely" ],
-    "stamp": "1fd92a1ef80d3331"
+    "stamp": "626e1bb2be767ec2"
   }
 ]

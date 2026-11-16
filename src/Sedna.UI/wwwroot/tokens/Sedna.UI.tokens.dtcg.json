@@ -78,6 +78,14 @@
           ]
         },
         {
+          "file": "Sedna.UI.tokens.dtcg.density-comfortable.json",
+          "selector": ":root :where([data-density=\"comfortable\"])",
+          "media": null,
+          "load": [
+            "Sedna.UI.tokens.dtcg.json"
+          ]
+        },
+        {
           "file": "Sedna.UI.tokens.dtcg.variant-light.cvd-1.json",
           "selector": ":root[data-variant=\"light\"][data-cvd=\"1\"]",
           "media": null,
@@ -101,6 +109,10 @@
       "cssOnly": {
         "cap-gap": "calc((1lh - 1cap) / 2)",
         "color-scheme": "dark",
+        "hero-focus": "50% 50%",
+        "hero-scrim-end": "initial",
+        "hero-scrim-hold": "initial",
+        "hero-text-shadow": "none",
         "kv-key-width": "30%",
         "level": "initial",
         "panel-placement": "block-end",
@@ -1142,6 +1154,46 @@
       "$value": "{space.space-4}"
     }
   },
+  "cal": {
+    "cal-holiday-bg": {
+      "$type": "color",
+      "$value": "{cal.cal-weekend-bg}"
+    },
+    "cal-holiday-tone-bg": {
+      "$type": "color",
+      "$value": "{danger.danger-bg}"
+    },
+    "cal-holiday-tone-fg": {
+      "$type": "color",
+      "$value": "{danger.danger-fg}"
+    },
+    "cal-weekend-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9725,
+          0.9804,
+          0.9882
+        ],
+        "alpha": 0.07,
+        "hex": "#f8fafc"
+      },
+      "$extensions": {
+        "com.sedna-ui": {
+          "css": "color-mix(in srgb, var(--fg) 7%, transparent)"
+        }
+      }
+    },
+    "cal-weekend-tone-bg": {
+      "$type": "color",
+      "$value": "{info.info-bg}"
+    },
+    "cal-weekend-tone-fg": {
+      "$type": "color",
+      "$value": "{info.info-fg}"
+    }
+  },
   "card": {
     "card-bg": {
       "$type": "color",
@@ -2094,6 +2146,40 @@
     }
   },
   "hero": {
+    "hero-gap": {
+      "$type": "dimension",
+      "$value": "{space.space-6}"
+    },
+    "hero-height": {
+      "$type": "dimension",
+      "$value": {
+        "value": 22,
+        "unit": "rem"
+      }
+    },
+    "hero-max": {
+      "$type": "dimension",
+      "$value": "{page.page-max}"
+    },
+    "hero-measure": {
+      "$type": "dimension",
+      "$value": {
+        "value": 40,
+        "unit": "rem"
+      }
+    },
+    "hero-pad-block": {
+      "$type": "dimension",
+      "$value": "{space.space-10}"
+    },
+    "hero-pad-inline": {
+      "$type": "dimension",
+      "$value": "{space.space-8}"
+    },
+    "hero-radius": {
+      "$type": "dimension",
+      "$value": "{radius.radius-surface}"
+    },
     "hero-scrim-soft": {
       "$type": "color",
       "$value": {
@@ -2128,6 +2214,19 @@
         "com.sedna-ui": {
           "css": "color-mix(in srgb, var(--black) 82%, transparent)"
         }
+      }
+    },
+    "hero-text-bg": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": 0.0,
+        "hex": "#000000"
       }
     }
   },

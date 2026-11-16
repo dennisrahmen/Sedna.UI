@@ -40,6 +40,9 @@
         --card-bg:         Canvas;
         --surface-soft:    Canvas;
         --surface-strong:  Canvas;
+        --hero-text-bg:    Canvas;
+        --cal-weekend-bg:  Canvas;
+        --cal-holiday-bg:  Canvas;
         --on-solid:        HighlightText;
         --on-viz:          CanvasText;
 

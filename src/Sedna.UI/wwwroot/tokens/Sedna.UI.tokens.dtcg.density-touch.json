@@ -72,6 +72,10 @@
       "$type": "dimension",
       "$value": "{space.space-7}"
     },
+    "page-pad": {
+      "$type": "dimension",
+      "$value": "{space.space-9}"
+    },
     "page-rhythm": {
       "$type": "dimension",
       "$value": "{space.space-8}"

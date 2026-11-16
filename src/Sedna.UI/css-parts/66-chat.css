@@ -222,7 +222,7 @@
     gap: var(--space-2);
     min-height: 24px;
     padding: 0 var(--space-4);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     background: var(--surface-strong);
     color: var(--fg-soft);
@@ -231,7 +231,7 @@
     font-variant-numeric: tabular-nums;
     cursor: pointer;
 }
-.chat-reaction:hover { border-color: var(--border-strong); }
+.chat-reaction:hover { border-color: var(--border-hover); }
 .chat-reaction[aria-pressed="true"] {
     background: var(--brand-tint);
     border-color: var(--selected);
@@ -257,7 +257,7 @@
    themselves. The app removes the row once one is taken. */
 .chat-quick-replies { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .chat-quick-replies > .chip { cursor: pointer; font-family: inherit; }
-.chat-quick-replies > .chip:hover { border-color: var(--border-strong); color: var(--fg); }
+.chat-quick-replies > .chip:hover { border-color: var(--border-hover); color: var(--fg); }
 
 /* The picker: a grid of emoji buttons, inside a `.popover`. */
 .chat-emoji-grid {
@@ -450,7 +450,7 @@
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-5);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: var(--radius-pill);
     background: var(--bg-elevated);
     color: var(--fg-soft);
@@ -460,7 +460,7 @@
     box-shadow: var(--shadow-float);
     cursor: pointer;
 }
-.chat-jump:hover { color: var(--fg); border-color: var(--border-strong); }
+.chat-jump:hover { color: var(--fg); border-color: var(--border-hover); }
 .chat-jump:focus-visible { outline: none; box-shadow: var(--shadow-float), 0 0 0 3px var(--focus-ring); }
 /* What is pinned, at the top of the pane. */
 .chat-pinned {

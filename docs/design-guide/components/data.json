@@ -18,7 +18,7 @@
       { "text": "Laying out a page in columns", "instead": "/grid" }
     ],
     "goals": [ "compare-records", "sort-a-list", "filter-table-columns", "page-through-results", "browse-thousands-of-rows", "act-on-a-selection", "explain-an-empty-view", "find-a-record-on-a-list-page" ],
-    "stamp": "17d724b4d508c175"
+    "stamp": "b192bcccfc10e39b"
   },
   {
     "page": "/table-editing",
@@ -35,7 +35,7 @@
       { "text": "A hierarchy of rows", "instead": "/table-large#tree-grid" }
     ],
     "goals": [ "edit-cells-in-place", "work-in-a-grid" ],
-    "stamp": "262a5d9f181829ec"
+    "stamp": "0a98c0347af79d16"
   },
   {
     "page": "/table-large",
@@ -52,11 +52,11 @@
       { "text": "A table of a few dozen rows", "instead": "/table" }
     ],
     "goals": [ "filter-table-columns", "browse-thousands-of-rows", "expand-a-hierarchy-in-a-table" ],
-    "stamp": "81afaa3a7b9858fd"
+    "stamp": "34218b5dc4c7f0f7"
   },
   {
     "page": "/table-columns",
-    "useFor": "A table whose reader sets its columns: their widths, their order and which are shown, kept per user.",
+    "useFor": "A table whose reader sets its columns: their widths, their order and which are shown, kept per user, with one column that can take the room the others leave.",
     "combineWith": [
       { "page": "/menu", "how": "The column chooser is a menu of checkboxes behind a toolbar button." },
       { "page": "/toolbar", "how": "The chooser's button sits with the list's actions at the end of the toolbar." },
@@ -68,7 +68,7 @@
       { "text": "Sorting by a column", "instead": "/table#sortable-numeric-and-selected" }
     ],
     "goals": [ "sort-a-list", "choose-table-columns" ],
-    "stamp": "74bf275b6e6082d2"
+    "stamp": "c43ca83ba16068e4"
   },
   {
     "page": "/filtering",
@@ -87,7 +87,7 @@
       { "text": "Searching the whole app from the header", "instead": "/search" }
     ],
     "goals": [ "narrow-a-long-list", "save-a-view", "build-a-query" ],
-    "stamp": "21ccb774f0dbe70f"
+    "stamp": "9bc9601437d740d7"
   },
   {
     "page": "/stat",
@@ -104,7 +104,7 @@
       { "text": "A figure over time", "instead": "/chart" }
     ],
     "goals": [ "show-a-key-figure", "show-usage-against-a-limit", "compare-with-last-period", "show-a-trend", "keep-working-through-an-outage", "see-how-things-stand", "lay-out-a-dashboard", "open-a-page-from-a-card" ],
-    "stamp": "e4e0d7ab3013b37a"
+    "stamp": "4acb07051b1ff790"
   },
   {
     "page": "/bars",
@@ -121,7 +121,7 @@
       { "text": "Which way a figure is going", "instead": "/sparkline" }
     ],
     "goals": [ "compare-a-few-values", "show-parts-of-a-whole", "show-usage-against-a-limit", "compare-with-last-period", "show-test-results", "show-a-password" ],
-    "stamp": "19c16079282f9a97"
+    "stamp": "66b22a50e3441a98"
   },
   {
     "page": "/sparkline",
@@ -171,7 +171,7 @@
       { "text": "Activity per day with no events", "instead": "/tracker#calendar-of-activity" }
     ],
     "goals": [ "see-a-schedule" ],
-    "stamp": "fa5af8233e2a0312"
+    "stamp": "ce70b57dba9bd64c"
   },
   {
     "page": "/calendar-agenda",
@@ -188,7 +188,7 @@
       { "text": "A feed of what has happened", "instead": "/timeline" }
     ],
     "goals": [ "see-a-schedule", "list-upcoming-events", "reschedule-by-dragging" ],
-    "stamp": "89736ff88e8ddf30"
+    "stamp": "f141ff6b1c150848"
   },
   {
     "page": "/pager",
@@ -205,7 +205,7 @@
       { "text": "Saying where a page sits in a hierarchy", "instead": "/breadcrumbs" }
     ],
     "goals": [ "compare-records", "page-through-results", "find-a-record-on-a-list-page", "search-everything" ],
-    "stamp": "ef37f687dc4fc985"
+    "stamp": "0554cceb095c259c"
   },
   {
     "page": "/chart",
@@ -241,7 +241,7 @@
       { "text": "Figures over time", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect" ],
-    "stamp": "63e3d17db6a818a6"
+    "stamp": "904b12d28e4975c7"
   },
   {
     "page": "/graph-layouts",
@@ -272,7 +272,7 @@
       { "text": "Driving the graph from C#", "instead": "/graph-blazor" }
     ],
     "goals": [ "see-how-things-connect", "explore-a-network" ],
-    "stamp": "58cab2021834cab5"
+    "stamp": "9a7a7d68a158809c"
   },
   {
     "page": "/graph-plugins",
@@ -302,7 +302,7 @@
       { "text": "A chart of figures", "instead": "/chart" }
     ],
     "goals": [ "see-how-things-connect", "show-an-org-chart", "draw-links-between-records" ],
-    "stamp": "da60ffb1c6c99c78"
+    "stamp": "9ae4b18ea220d708"
   },
   {
     "page": "/graph-blazor",
@@ -335,7 +335,7 @@
       { "text": "A history of events", "instead": "/timeline" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live" ],
-    "stamp": "492e08c5bb0009a5"
+    "stamp": "6b9bf2b4b950a8e3"
   },
   {
     "page": "/workflow-run",
@@ -350,6 +350,6 @@
       { "text": "A list of jobs with their progress", "instead": "/progress#running-jobs" }
     ],
     "goals": [ "follow-a-process-run", "watch-a-run-live", "show-on-a-wall-screen" ],
-    "stamp": "9a3d45fe28c8679b"
+    "stamp": "12059cf269da339e"
   }
 ]
